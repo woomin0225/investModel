@@ -53,7 +53,7 @@ async function seed() {
         role: "owner",
       },
     ])
-    .returning();
+    .$returningId();
 
   console.log('Initial user created.');
 
@@ -62,7 +62,7 @@ async function seed() {
     .values({
       name: 'Test Team',
     })
-    .returning();
+    .$returningId();
 
   await db.insert(teamMembers).values({
     teamId: team.id,

@@ -1,49 +1,54 @@
 {
-  "id": "261fd993-fb2c-43e7-89d6-cd58786c5f58",
+  "version": "5",
+  "dialect": "mysql",
+  "id": "4f09a06e-4d81-47e5-9cef-480fc230a1f9",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "7",
-  "dialect": "postgresql",
   "tables": {
-    "public.activity_logs": {
+    "activity_logs": {
       "name": "activity_logs",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
         },
         "team_id": {
           "name": "team_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "action": {
           "name": "action",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "timestamp": {
           "name": "timestamp",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(now())"
         },
         "ip_address": {
           "name": "ip_address",
           "type": "varchar(45)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -75,55 +80,69 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "activity_logs_id": {
+          "name": "activity_logs_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
     },
-    "public.invitations": {
+    "invitations": {
       "name": "invitations",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
         },
         "team_id": {
           "name": "team_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "email": {
           "name": "email",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "role": {
           "name": "role",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "invited_by": {
           "name": "invited_by",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "invited_at": {
           "name": "invited_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(now())"
         },
         "status": {
           "name": "status",
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'pending'"
         }
       },
@@ -156,43 +175,55 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "invitations_id": {
+          "name": "invitations_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
     },
-    "public.team_members": {
+    "team_members": {
       "name": "team_members",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "team_id": {
           "name": "team_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "role": {
           "name": "role",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "joined_at": {
           "name": "joined_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(now())"
         }
       },
       "indexes": {},
@@ -224,123 +255,149 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "team_members_id": {
+          "name": "team_members_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
     },
-    "public.teams": {
+    "teams": {
       "name": "teams",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
         },
         "name": {
           "name": "name",
           "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(now())"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(now())"
         },
         "stripe_customer_id": {
           "name": "stripe_customer_id",
-          "type": "text",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "stripe_subscription_id": {
           "name": "stripe_subscription_id",
-          "type": "text",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "stripe_product_id": {
           "name": "stripe_product_id",
-          "type": "text",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "plan_name": {
           "name": "plan_name",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "subscription_status": {
           "name": "subscription_status",
           "type": "varchar(20)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "teams_id": {
+          "name": "teams_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {
         "teams_stripe_customer_id_unique": {
           "name": "teams_stripe_customer_id_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "stripe_customer_id"
           ]
         },
         "teams_stripe_subscription_id_unique": {
           "name": "teams_stripe_subscription_id_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "stripe_subscription_id"
           ]
         }
-      }
+      },
+      "checkConstraint": {}
     },
-    "public.users": {
+    "users": {
       "name": "users",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
         },
         "name": {
           "name": "name",
           "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "email": {
           "name": "email",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "password_hash": {
           "name": "password_hash",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "role": {
           "name": "role",
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'member'"
         },
         "created_at": {
@@ -348,42 +405,54 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(now())"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(now())"
         },
         "deleted_at": {
           "name": "deleted_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "users_id": {
+          "name": "users_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "email"
           ]
         }
-      }
+      },
+      "checkConstraint": {}
     }
   },
-  "enums": {},
-  "schemas": {},
-  "sequences": {},
+  "views": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
   }
 }

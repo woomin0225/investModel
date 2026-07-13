@@ -131,11 +131,25 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
     role: 'owner' // 기본 역할이며, 초대가 있으면 덮어쓴다.
   };
 
-  const [createdUser] = await db.insert(users).values(newUser).returning();
+  const [createdUserId] = await db.insert(users).values(newUser).$returningId();
+
+  if (!createdUserId) {
+    return {
+      error: 'Failed to create user. Please try again.',
+      email,
+      password
+    };
+  }
+
+  const [createdUser] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, createdUserId.id))
+    .limit(1);
 
   if (!createdUser) {
     return {
-      error: 'Failed to create user. Please try again.',
+      error: 'Failed to load created user. Please try again.',
       email,
       password
     };
@@ -184,11 +198,28 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
       name: `${email}'s Team`
     };
 
-    [createdTeam] = await db.insert(teams).values(newTeam).returning();
+    const [createdTeamId] = await db
+      .insert(teams)
+      .values(newTeam)
+      .$returningId();
+
+    if (!createdTeamId) {
+      return {
+        error: 'Failed to create team. Please try again.',
+        email,
+        password
+      };
+    }
+
+    [createdTeam] = await db
+      .select()
+      .from(teams)
+      .where(eq(teams.id, createdTeamId.id))
+      .limit(1);
 
     if (!createdTeam) {
       return {
-        error: 'Failed to create team. Please try again.',
+        error: 'Failed to load created team. Please try again.',
         email,
         password
       };

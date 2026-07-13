@@ -1,13 +1,13 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/mysql2';
+import mysql from 'mysql2/promise';
 import * as schema from './schema';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-if (!process.env.POSTGRES_URL) {
-  throw new Error('POSTGRES_URL environment variable is not set');
+if (!process.env.MYSQL_URL) {
+  throw new Error('MYSQL_URL environment variable is not set');
 }
 
-export const client = postgres(process.env.POSTGRES_URL);
-export const db = drizzle(client, { schema });
+export const client = mysql.createPool(process.env.MYSQL_URL);
+export const db = drizzle(client, { schema, mode: 'default' });

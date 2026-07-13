@@ -77,25 +77,25 @@ async function checkStripeCLI() {
   }
 }
 
-async function getPostgresURL(): Promise<string> {
-  console.log('Step 2: Setting up Postgres');
+async function getMysqlURL(): Promise<string> {
+  console.log('Step 2: Setting up MySQL');
   const dbChoice = await question(
-    'Do you want to use a local Postgres instance with Docker (L) or a remote Postgres instance (R)? (L/R): '
+    'Do you want to use a local MySQL instance with Docker (L) or a remote MySQL instance (R)? (L/R): '
   );
 
   if (dbChoice.toLowerCase() === 'l') {
-    console.log('Setting up local Postgres instance with Docker...');
-    await setupLocalPostgres();
-    return 'postgres://postgres:postgres@localhost:54322/postgres';
+    console.log('Setting up local MySQL instance with Docker...');
+    await setupLocalMysql();
+    return 'mysql://invest_model:invest_model@localhost:3307/invest_model';
   } else {
     console.log(
-      'You can find Postgres databases at: https://vercel.com/marketplace?category=databases'
+      'Use a MySQL-compatible database and keep credentials outside source control.'
     );
-    return await question('Enter your POSTGRES_URL: ');
+    return await question('Enter your MYSQL_URL: ');
   }
 }
 
-async function setupLocalPostgres() {
+async function setupLocalMysql() {
   console.log('Checking if Docker is installed...');
   try {
     await execAsync('docker --version');
@@ -113,20 +113,21 @@ async function setupLocalPostgres() {
   console.log('Creating docker-compose.yml file...');
   const dockerComposeContent = `
 services:
-  postgres:
-    image: postgres:16.4-alpine
-    container_name: invest-model-postgres
+  mysql:
+    image: mysql:8.4
+    container_name: invest-model-mysql
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      MYSQL_DATABASE: invest_model
+      MYSQL_USER: invest_model
+      MYSQL_PASSWORD: invest_model
+      MYSQL_ROOT_PASSWORD: invest_model_root
     ports:
-      - "54322:5432"
+      - "3307:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
 
 volumes:
-  postgres_data:
+  mysql_data:
 `;
 
   await fs.writeFile(
@@ -196,14 +197,14 @@ async function writeEnvFile(envVars: Record<string, string>) {
 async function main() {
   await checkStripeCLI();
 
-  const POSTGRES_URL = await getPostgresURL();
+  const MYSQL_URL = await getMysqlURL();
   const STRIPE_SECRET_KEY = await getStripeSecretKey();
   const STRIPE_WEBHOOK_SECRET = await createStripeWebhook();
   const BASE_URL = 'http://localhost:3000';
   const AUTH_SECRET = generateAuthSecret();
 
   await writeEnvFile({
-    POSTGRES_URL,
+    MYSQL_URL,
     STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET,
     BASE_URL,
