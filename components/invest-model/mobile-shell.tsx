@@ -7,6 +7,12 @@ import {
   Home,
   Newspaper
 } from 'lucide-react';
+import {
+  investModelCopy,
+  investModelNavLabels,
+  type InvestModelLocale,
+  withInvestModelLocale
+} from '@/lib/i18n/invest-model';
 import { cn } from '@/lib/utils';
 
 export type InvestModelTabKey =
@@ -62,12 +68,15 @@ type MobileShellProps = {
   title?: string;
   eyebrow?: string;
   trailing?: ReactNode;
+  locale?: InvestModelLocale;
+  currentPath?: string;
   className?: string;
 };
 
 type BottomNavProps = {
   activeTab?: InvestModelTabKey;
   items?: InvestModelNavItem[];
+  locale?: InvestModelLocale;
 };
 
 /**
@@ -80,6 +89,8 @@ export function MobileShell({
   title = 'investModel',
   eyebrow,
   trailing,
+  locale = 'ko',
+  currentPath = '/invest-model',
   className
 }: MobileShellProps) {
   return (
@@ -104,13 +115,14 @@ export function MobileShell({
             </div>
             {trailing ? <div className="shrink-0">{trailing}</div> : null}
           </div>
+          <LanguageToggle locale={locale} currentPath={currentPath} />
         </header>
 
         <div className="flex-1 px-invest-screen-x pb-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom)+24px)] pt-invest-section-gap">
           {children}
         </div>
 
-        <BottomNav activeTab={activeTab} />
+        <BottomNav activeTab={activeTab} locale={locale} />
       </div>
     </main>
   );
@@ -122,8 +134,11 @@ export function MobileShell({
  */
 export function BottomNav({
   activeTab = 'home',
-  items = investModelNavItems
+  items = investModelNavItems,
+  locale = 'ko'
 }: BottomNavProps) {
+  const labels = investModelNavLabels[locale];
+
   return (
     <nav
       aria-label="investModel mobile navigation"
@@ -137,7 +152,7 @@ export function BottomNav({
           return (
             <Link
               key={item.key}
-              href={item.href}
+              href={withInvestModelLocale(item.href, locale)}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex min-h-invest-touch-target flex-col items-center justify-center gap-1 rounded-invest-control px-1 text-[11px] font-semibold leading-none transition-colors',
@@ -147,11 +162,57 @@ export function BottomNav({
               )}
             >
               <Icon aria-hidden className="size-5 shrink-0" />
-              <span className="max-w-full truncate">{item.label}</span>
+              <span className="max-w-full truncate">{labels[item.key]}</span>
             </Link>
           );
         })}
       </div>
     </nav>
+  );
+}
+
+type LanguageToggleProps = {
+  locale: InvestModelLocale;
+  currentPath: string;
+};
+
+/**
+ * LanguageToggle switches the prototype between Korean and English while Korean remains the default route.
+ */
+function LanguageToggle({ locale, currentPath }: LanguageToggleProps) {
+  const copy = investModelCopy[locale].language;
+
+  return (
+    <div className="mt-2 flex justify-end">
+      <div
+        aria-label={copy.label}
+        className="grid min-h-8 grid-cols-2 overflow-hidden rounded-invest-control border border-invest-border bg-invest-surface text-[11px] font-bold shadow-invest-card"
+      >
+        <Link
+          href={withInvestModelLocale(currentPath, 'ko')}
+          aria-current={locale === 'ko' ? 'true' : undefined}
+          className={cn(
+            'grid min-w-12 place-items-center px-2 transition-colors',
+            locale === 'ko'
+              ? 'bg-invest-primary text-invest-surface'
+              : 'text-invest-text-muted hover:text-invest-text'
+          )}
+        >
+          {copy.ko}
+        </Link>
+        <Link
+          href={withInvestModelLocale(currentPath, 'en')}
+          aria-current={locale === 'en' ? 'true' : undefined}
+          className={cn(
+            'grid min-w-12 place-items-center px-2 transition-colors',
+            locale === 'en'
+              ? 'bg-invest-primary text-invest-surface'
+              : 'text-invest-text-muted hover:text-invest-text'
+          )}
+        >
+          {copy.en}
+        </Link>
+      </div>
+    </div>
   );
 }

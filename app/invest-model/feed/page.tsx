@@ -6,7 +6,10 @@ import {
   SectionHeader,
   SoftBanner
 } from '@/components/invest-model';
-import { investModelFeedMock } from '@/lib/mock/invest-model-feed';
+import {
+  investModelCopy,
+  resolveInvestModelLocale
+} from '@/lib/i18n/invest-model';
 
 const postToneBadge = {
   neutral: 'neutral',
@@ -15,18 +18,29 @@ const postToneBadge = {
   high: 'high'
 } as const;
 
-export default function InvestModelFeedPage() {
-  const { summary, filters, posts } = investModelFeedMock;
+type InvestModelFeedPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function InvestModelFeedPage({
+  searchParams
+}: InvestModelFeedPageProps) {
+  const locale = resolveInvestModelLocale(await searchParams);
+  const copy = investModelCopy[locale];
+  const feedCopy = copy.feed;
+  const { summary, filters, posts } = feedCopy;
 
   return (
     <MobileShell
       activeTab="feed"
-      eyebrow="Insights"
-      title="Feed"
+      eyebrow={feedCopy.eyebrow}
+      title={feedCopy.title}
+      locale={locale}
+      currentPath="/invest-model/feed"
       trailing={
         <button
           type="button"
-          aria-label="Feed notifications"
+          aria-label={copy.actions.feedNotifications}
           className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
         >
           <Bell aria-hidden className="size-5" />
@@ -35,7 +49,7 @@ export default function InvestModelFeedPage() {
     >
       <section className="space-y-invest-section-gap">
         <SoftBanner
-          eyebrow="Mock feed"
+          eyebrow={feedCopy.bannerEyebrow}
           title={summary.title}
           description={summary.description}
           icon={MessageSquareText}
@@ -43,31 +57,31 @@ export default function InvestModelFeedPage() {
 
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard
-            label="Posts"
+            label={feedCopy.metrics.posts}
             value={summary.postCountLabel}
-            description="Prototype content"
-            trend="mock"
+            description={feedCopy.metrics.prototypeContent}
+            trend={feedCopy.metrics.mock}
           />
           <MetricCard
-            label="Sources"
+            label={feedCopy.metrics.sources}
             value={summary.sourceCountLabel}
-            description="Approved model context"
-            trend="sample"
+            description={feedCopy.metrics.approvedModelContext}
+            trend={feedCopy.metrics.sample}
           />
         </div>
 
         <MetricCard
-          label="Disclosure state"
+          label={feedCopy.metrics.disclosureState}
           value={summary.reviewLabel}
-          description="Final legal and financial disclosure copy must be supplied by a qualified reviewer."
-          trend="review"
+          description={feedCopy.metrics.legalCopy}
+          trend={feedCopy.metrics.review}
           tone="risk"
         />
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
-            title="Latest insights"
-            description="Model notes and market context for the mobile prototype."
+            title={feedCopy.sectionTitle}
+            description={feedCopy.sectionDescription}
           />
 
           <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
@@ -136,13 +150,15 @@ export default function InvestModelFeedPage() {
             />
             <div className="min-w-0">
               <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="blocked">No advice</RiskBadge>
-                <RiskBadge tone="medium">Review placeholder</RiskBadge>
+                <RiskBadge tone="blocked">
+                  {feedCopy.footerBadges.noAdvice}
+                </RiskBadge>
+                <RiskBadge tone="medium">
+                  {feedCopy.footerBadges.reviewPlaceholder}
+                </RiskBadge>
               </div>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
-                Feed posts are mock commentary for app development. They do not
-                recommend securities, guarantee returns, or execute model files,
-                deposits, or orders.
+                {feedCopy.footer}
               </p>
             </div>
           </div>

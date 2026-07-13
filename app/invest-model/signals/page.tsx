@@ -6,7 +6,10 @@ import {
   SectionHeader,
   SoftBanner
 } from '@/components/invest-model';
-import { investModelSignalsMock } from '@/lib/mock/invest-model-signals';
+import {
+  investModelCopy,
+  resolveInvestModelLocale
+} from '@/lib/i18n/invest-model';
 
 const signalToneClass = {
   low: 'bg-invest-positive-soft text-invest-positive',
@@ -20,18 +23,29 @@ const badgeToneByScore = {
   high: 'high'
 } as const;
 
-export default function InvestModelSignalsPage() {
-  const { summary, filters, signals } = investModelSignalsMock;
+type InvestModelSignalsPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function InvestModelSignalsPage({
+  searchParams
+}: InvestModelSignalsPageProps) {
+  const locale = resolveInvestModelLocale(await searchParams);
+  const copy = investModelCopy[locale];
+  const signalsCopy = copy.signals;
+  const { summary, filters, signals } = signalsCopy;
 
   return (
     <MobileShell
       activeTab="signals"
-      eyebrow="Realtime"
-      title="Signals"
+      eyebrow={signalsCopy.eyebrow}
+      title={signalsCopy.title}
+      locale={locale}
+      currentPath="/invest-model/signals"
       trailing={
         <button
           type="button"
-          aria-label="Signal alerts"
+          aria-label={copy.actions.signalAlerts}
           className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
         >
           <Bell aria-hidden className="size-5" />
@@ -40,7 +54,7 @@ export default function InvestModelSignalsPage() {
     >
       <section className="space-y-invest-section-gap">
         <SoftBanner
-          eyebrow="Mock monitor"
+          eyebrow={signalsCopy.bannerEyebrow}
           title={summary.title}
           description={summary.description}
           icon={Radio}
@@ -48,31 +62,31 @@ export default function InvestModelSignalsPage() {
 
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard
-            label="Active feed"
+            label={signalsCopy.metrics.activeFeed}
             value={summary.activeCountLabel}
-            description="Observed mock inputs"
-            trend="sample"
+            description={signalsCopy.metrics.observedMockInputs}
+            trend={signalsCopy.metrics.sample}
           />
           <MetricCard
-            label="Latency"
+            label={signalsCopy.metrics.latency}
             value={summary.latencyLabel}
-            description="Not a live market feed"
-            trend="mock"
+            description={signalsCopy.metrics.notLiveMarketFeed}
+            trend={signalsCopy.metrics.mock}
           />
         </div>
 
         <MetricCard
-          label="Execution status"
+          label={signalsCopy.metrics.executionStatus}
           value={summary.blockedLabel}
-          description="Signals do not execute orders or create live TradeIntent records in this MVP."
-          trend="blocked"
+          description={signalsCopy.metrics.noTradeIntent}
+          trend={signalsCopy.metrics.blocked}
           tone="risk"
         />
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
-            title="Signal ranking"
-            description="News, trend, and risk inputs for approved mock models."
+            title={signalsCopy.sectionTitle}
+            description={signalsCopy.sectionDescription}
           />
 
           <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
@@ -145,13 +159,15 @@ export default function InvestModelSignalsPage() {
             />
             <div className="min-w-0">
               <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="blocked">No recommendation</RiskBadge>
-                <RiskBadge tone="medium">Mock data</RiskBadge>
+                <RiskBadge tone="blocked">
+                  {signalsCopy.footerBadges.noRecommendation}
+                </RiskBadge>
+                <RiskBadge tone="medium">
+                  {signalsCopy.footerBadges.mockData}
+                </RiskBadge>
               </div>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
-                Signal rankings are prototype observations for screen
-                development. They are not investment advice, model performance
-                claims, or instructions to buy or sell securities.
+                {signalsCopy.footer}
               </p>
             </div>
           </div>

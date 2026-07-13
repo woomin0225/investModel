@@ -7,28 +7,43 @@ import {
   SectionHeader,
   SoftBanner
 } from '@/components/invest-model';
+import {
+  investModelCopy,
+  resolveInvestModelLocale
+} from '@/lib/i18n/invest-model';
 import { investModelHomeMock } from '@/lib/mock/invest-model-home';
 
-export default function InvestModelPreviewPage() {
-  const { account, activeModel, signal, timeline } = investModelHomeMock;
+type InvestModelPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function InvestModelPreviewPage({
+  searchParams
+}: InvestModelPageProps) {
+  const locale = resolveInvestModelLocale(await searchParams);
+  const copy = investModelCopy[locale];
+  const homeCopy = copy.home;
+  const { account } = investModelHomeMock;
 
   return (
     <MobileShell
       activeTab="home"
-      eyebrow="Mock home"
-      title="My AI Investment"
+      eyebrow={homeCopy.eyebrow}
+      title={homeCopy.title}
+      locale={locale}
+      currentPath="/invest-model"
       trailing={
         <div className="flex items-center gap-2">
           <button
             type="button"
-            aria-label="Search models"
+            aria-label={copy.actions.searchModels}
             className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
           >
             <Search aria-hidden className="size-5" />
           </button>
           <button
             type="button"
-            aria-label="Notifications"
+            aria-label={copy.actions.notifications}
             className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
           >
             <Bell aria-hidden className="size-5" />
@@ -38,60 +53,60 @@ export default function InvestModelPreviewPage() {
     >
       <section className="space-y-invest-section-gap">
         <SoftBanner
-          eyebrow="Simulation"
-          title={signal.title}
-          description={signal.description}
+          eyebrow={homeCopy.bannerEyebrow}
+          title={homeCopy.signal.title}
+          description={homeCopy.signal.description}
           icon={Radio}
         />
 
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard
-            label="Mock balance"
+            label={homeCopy.metrics.mockBalance}
             value={account.mockBalanceLabel}
-            description={account.balanceDescription}
-            trend="mock"
+            description={homeCopy.metrics.simulatedBalanceOnly}
+            trend={homeCopy.metrics.mock}
           />
           <MetricCard
-            label="Backtest move"
+            label={homeCopy.metrics.backtestMove}
             value={account.backtestReturnLabel}
-            description={account.returnDescription}
-            trend="sample"
+            description={homeCopy.metrics.sampleBacktestMovement}
+            trend={homeCopy.metrics.sample}
             tone="positive"
           />
         </div>
 
         <MetricCard
-          label="Policy status"
-          value={account.policyStatusLabel}
-          description={account.policyDescription}
-          trend="blocked"
+          label={homeCopy.metrics.policyStatus}
+          value={homeCopy.metrics.review}
+          description={homeCopy.metrics.noLiveTrading}
+          trend={homeCopy.metrics.blocked}
           tone="risk"
         />
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
-            title="Active model"
-            description="Model-defined mandate, not user preference."
-            actionLabel="View"
+            title={homeCopy.activeModelSection.title}
+            description={homeCopy.activeModelSection.description}
+            actionLabel={copy.actions.view}
           />
           <ModelCard
-            name={activeModel.name}
-            summary={activeModel.summary}
-            market={activeModel.market}
-            riskLabel={activeModel.riskLabel}
+            name={homeCopy.activeModel.name}
+            summary={homeCopy.activeModel.summary}
+            market={homeCopy.activeModel.market}
+            riskLabel={homeCopy.activeModel.riskLabel}
             riskTone="high"
-            performanceLabel={activeModel.performanceLabel}
-            mandateLabel={activeModel.mandateLabel}
+            performanceLabel={homeCopy.activeModel.performanceLabel}
+            mandateLabel={homeCopy.activeModel.mandateLabel}
           />
         </div>
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
-            title="Latest activity"
-            description="Mock signal and policy events."
+            title={homeCopy.activitySection.title}
+            description={homeCopy.activitySection.description}
           />
           <div className="space-y-3">
-            {timeline.map((item) => (
+            {homeCopy.timeline.map((item) => (
               <article
                 key={`${item.time}-${item.title}`}
                 className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
@@ -114,14 +129,14 @@ export default function InvestModelPreviewPage() {
 
         <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
           <div className="flex flex-wrap gap-2">
-            <RiskBadge tone="blocked">No live orders</RiskBadge>
-            <RiskBadge>{signal.source}</RiskBadge>
-            <RiskBadge tone="medium">{signal.status}</RiskBadge>
+            <RiskBadge tone="blocked">
+              {homeCopy.footerBadges.noLiveOrders}
+            </RiskBadge>
+            <RiskBadge>{homeCopy.signal.source}</RiskBadge>
+            <RiskBadge tone="medium">{homeCopy.signal.status}</RiskBadge>
           </div>
           <p className="mt-3 text-sm leading-6 text-invest-text-muted">
-            This home screen is a mobile MVP mock. Deposits, portfolio values,
-            returns, signals, and TradeIntent states are placeholders for UI
-            development only.
+            {homeCopy.footer}
           </p>
         </div>
       </section>

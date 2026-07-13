@@ -7,9 +7,9 @@ import {
   SoftBanner
 } from '@/components/invest-model';
 import {
-  discoverableInvestmentModels,
-  investModelDiscoveryMock
-} from '@/lib/mock/invest-model-discovery';
+  investModelCopy,
+  resolveInvestModelLocale
+} from '@/lib/i18n/invest-model';
 
 const riskToneByModel = {
   low: 'low',
@@ -17,16 +17,31 @@ const riskToneByModel = {
   high: 'high'
 } as const;
 
-export default function InvestModelDiscoveryPage() {
+type InvestModelDiscoveryPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function InvestModelDiscoveryPage({
+  searchParams
+}: InvestModelDiscoveryPageProps) {
+  const locale = resolveInvestModelLocale(await searchParams);
+  const copy = investModelCopy[locale];
+  const modelsCopy = copy.models;
+  const discoverableInvestmentModels = modelsCopy.models.filter((model) =>
+    ['approved', 'live'].includes(model.status)
+  );
+
   return (
     <MobileShell
       activeTab="models"
-      eyebrow="Discover"
-      title="AI Models"
+      eyebrow={modelsCopy.eyebrow}
+      title={modelsCopy.title}
+      locale={locale}
+      currentPath="/invest-model/models"
       trailing={
         <button
           type="button"
-          aria-label="Search approved models"
+          aria-label={copy.actions.searchApprovedModels}
           className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
         >
           <Search aria-hidden className="size-5" />
@@ -35,21 +50,25 @@ export default function InvestModelDiscoveryPage() {
     >
       <section className="space-y-invest-section-gap">
         <SoftBanner
-          eyebrow="Model marketplace"
-          title={investModelDiscoveryMock.notice.title}
-          description={investModelDiscoveryMock.notice.description}
+          eyebrow={modelsCopy.bannerEyebrow}
+          title={modelsCopy.notice.title}
+          description={modelsCopy.notice.description}
           icon={Filter}
         />
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
-            title="Explore models"
-            description={`${discoverableInvestmentModels.length} live or approved mock models`}
+            title={modelsCopy.sectionTitle}
+            description={
+              locale === 'ko'
+                ? `${discoverableInvestmentModels.length}${modelsCopy.liveApprovedCount}`
+                : `${discoverableInvestmentModels.length} ${modelsCopy.liveApprovedCount}`
+            }
           />
 
           <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
             <div className="flex w-max gap-2 pr-invest-screen-x">
-              {investModelDiscoveryMock.filters.map((filter) => (
+              {modelsCopy.filters.map((filter) => (
                 <button
                   key={filter}
                   type="button"
@@ -89,14 +108,16 @@ export default function InvestModelDiscoveryPage() {
 
         <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
           <div className="flex flex-wrap gap-2">
-            <RiskBadge tone="blocked">No live trading</RiskBadge>
-            <RiskBadge>Approved only</RiskBadge>
-            <RiskBadge tone="medium">Backtest mock</RiskBadge>
+            <RiskBadge tone="blocked">
+              {modelsCopy.footerBadges.noLiveTrading}
+            </RiskBadge>
+            <RiskBadge>{modelsCopy.footerBadges.approvedOnly}</RiskBadge>
+            <RiskBadge tone="medium">
+              {modelsCopy.footerBadges.backtestMock}
+            </RiskBadge>
           </div>
           <p className="mt-3 text-sm leading-6 text-invest-text-muted">
-            Hidden review models remain in mock data but are filtered out of
-            this public discovery screen. Users cannot change investment
-            preferences here; each model carries its own mandate.
+            {modelsCopy.footer}
           </p>
         </div>
       </section>
