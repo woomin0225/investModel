@@ -3,8 +3,18 @@ import { handleSubscriptionChange, stripe } from '@/lib/payments/stripe';
 import { NextRequest, NextResponse } from 'next/server';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const isStripeWebhookConfigured =
+  Boolean(webhookSecret?.startsWith('whsec_')) &&
+  !webhookSecret?.toLowerCase().includes('placeholder');
 
 export async function POST(request: NextRequest) {
+  if (!isStripeWebhookConfigured) {
+    return NextResponse.json(
+      { error: 'Starter Stripe webhook is not configured.' },
+      { status: 503 }
+    );
+  }
+
   const payload = await request.text();
   const signature = request.headers.get('stripe-signature') as string;
 
