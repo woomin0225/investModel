@@ -140,11 +140,29 @@ export default async function InvestModelDetailPage({
           </div>
         </section>
 
+        <section className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+          <SectionHeader
+            title={copy.selectionReviewTitle}
+            description={copy.selectionReviewDescription}
+          />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <RiskBadge tone={model.riskTone}>{model.riskLabel}</RiskBadge>
+            <RiskBadge>{model.mandateLabel}</RiskBadge>
+            <RiskBadge tone="blocked">{copy.noLiveTradingLabel}</RiskBadge>
+          </div>
+          {model.riskTone === 'high' ? (
+            <p className="mt-3 rounded-invest-control bg-invest-risk-soft p-3 text-sm leading-6 text-invest-risk">
+              {copy.highRiskNotice}
+            </p>
+          ) : null}
+        </section>
+
         <button
           type="button"
-          className="min-h-invest-touch-target w-full rounded-invest-control bg-invest-text px-4 text-sm font-bold text-invest-surface shadow-invest-card"
+          disabled
+          className="min-h-invest-touch-target w-full rounded-invest-control bg-invest-text/70 px-4 text-sm font-bold text-invest-surface shadow-invest-card"
         >
-          {model.actionLabel}
+          {copy.selectionDisabledLabel}
         </button>
       </section>
     </MobileShell>

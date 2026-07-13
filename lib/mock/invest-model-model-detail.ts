@@ -45,6 +45,12 @@ export const investModelDetailCopy = {
     mockOnlyLabel: 'Mock 상세',
     noLiveTradingLabel: '실거래 없음',
     reviewPlaceholderLabel: '고지 문구 검토 필요',
+    selectionReviewTitle: '선택 전 확인',
+    selectionReviewDescription:
+      '이 모델을 선택하기 전에 모델이 정한 운용 범위, 손실 가능성, 금지된 동작을 먼저 확인해야 합니다. 현재 버튼은 mock 확인용이며 실제 선택 저장은 아직 연결하지 않습니다.',
+    highRiskNotice:
+      '고위험 모델입니다. 레버리지, 집중 투자, 큰 손실 가능성을 추가로 확인해야 합니다.',
+    selectionDisabledLabel: '선택 저장은 다음 단계에서 연결',
     models: [
       {
         id: 'quant-us-leverage-alpha',
@@ -225,6 +231,12 @@ export const investModelDetailCopy = {
     mockOnlyLabel: 'Mock detail',
     noLiveTradingLabel: 'No live trading',
     reviewPlaceholderLabel: 'Disclosure review needed',
+    selectionReviewTitle: 'Review before selection',
+    selectionReviewDescription:
+      'Before choosing this model, review its model-defined mandate, loss possibility, and forbidden actions. This button is mock confirmation only; model selection persistence is not connected yet.',
+    highRiskNotice:
+      'This is a high-risk model. Additional review is required for leverage, concentration, and large loss possibility.',
+    selectionDisabledLabel: 'Selection persistence comes next',
     models: [
       {
         id: 'quant-us-leverage-alpha',
@@ -406,6 +418,10 @@ export const investModelDetailCopy = {
     mockOnlyLabel: string;
     noLiveTradingLabel: string;
     reviewPlaceholderLabel: string;
+    selectionReviewTitle: string;
+    selectionReviewDescription: string;
+    highRiskNotice: string;
+    selectionDisabledLabel: string;
     models: MockInvestmentModelDetail[];
   }
 >;
