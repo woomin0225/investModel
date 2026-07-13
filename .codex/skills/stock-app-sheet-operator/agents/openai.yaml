@@ -1,0 +1,4 @@
+display_name: "Stock App Sheet Operator"
+short_description: "Keep the AI stock app checklist Google Sheet current before and after each development task."
+default_prompt: "Use $stock-app-sheet-operator to check the project sheet, choose or add the right task, do the work, and update Backlog, Done, Issues, Decisions, Runs, and Harness."
+
