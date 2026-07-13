@@ -1,0 +1,431 @@
+// investModel database ERD.
+// This DBML is written for dbdiagram.io and targets MySQL implementation planning.
+
+Project invest_model {
+  database_type: "MySQL"
+  Note: "AI model investment marketplace. Real fund movement and real brokerage order execution are intentionally outside this initial planning schema."
+}
+
+Table users {
+  id bigint [pk, increment]
+  public_id char(36) [not null, unique]
+  email varchar(255) [not null, unique]
+  password_hash varchar(255)
+  display_name varchar(100)
+  role varchar(30) [not null, default: "user", note: "user, creator, admin"]
+  status varchar(30) [not null, default: "active", note: "active, suspended, deleted"]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  deleted_at datetime
+
+  indexes {
+    email [unique]
+    public_id [unique]
+    (role, status)
+  }
+}
+
+Table model_creators {
+  id bigint [pk, increment]
+  user_id bigint [not null, unique]
+  display_name varchar(100) [not null]
+  bio text
+  verification_status varchar(30) [not null, default: "unverified", note: "unverified, pending, verified, rejected, suspended"]
+  verified_at datetime
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id [unique]
+    verification_status
+  }
+}
+
+Table investment_models {
+  id bigint [pk, increment]
+  creator_id bigint [not null]
+  slug varchar(120) [not null, unique]
+  name varchar(160) [not null]
+  status varchar(30) [not null, default: "draft", note: "draft, pending_review, approved, live, paused, suspended, retired"]
+  visibility varchar(30) [not null, default: "private", note: "private, marketplace, hidden"]
+  current_version_id bigint
+  short_description varchar(500)
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  retired_at datetime
+
+  indexes {
+    slug [unique]
+    (status, visibility)
+    creator_id
+  }
+}
+
+Table model_versions {
+  id bigint [pk, increment]
+  model_id bigint [not null]
+  version_label varchar(60) [not null]
+  strategy_summary text [not null]
+  target_markets varchar(500) [not null]
+  asset_universe_summary varchar(700) [not null]
+  rebalance_frequency varchar(80)
+  input_data_summary text
+  forbidden_scope text
+  model_artifact_status varchar(30) [not null, default: "metadata_only", note: "metadata_only, uploaded, quarantined, approved, rejected"]
+  created_by_user_id bigint [not null]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  effective_from datetime
+  retired_at datetime
+
+  indexes {
+    (model_id, version_label) [unique]
+    model_artifact_status
+  }
+}
+
+Table model_risk_profiles {
+  id bigint [pk, increment]
+  model_version_id bigint [not null, unique]
+  risk_level varchar(30) [not null, note: "low, medium, high, very_high"]
+  leverage_allowed boolean [not null, default: false]
+  derivative_allowed boolean [not null, default: false]
+  short_selling_allowed boolean [not null, default: false]
+  concentration_limit_pct decimal(5,2)
+  expected_volatility_note varchar(500)
+  max_drawdown_note varchar(500)
+  risk_summary text [not null]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    model_version_id [unique]
+    (risk_level, leverage_allowed)
+  }
+}
+
+Table model_disclosures {
+  id bigint [pk, increment]
+  model_version_id bigint [not null]
+  disclosure_type varchar(40) [not null, note: "risk, performance, limitation, legal_placeholder"]
+  title varchar(160) [not null]
+  body text [not null]
+  requires_legal_review boolean [not null, default: false]
+  reviewed_by_user_id bigint
+  reviewed_at datetime
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (model_version_id, disclosure_type)
+    requires_legal_review
+  }
+}
+
+Table portfolio_mandates {
+  id bigint [pk, increment]
+  model_version_id bigint [not null, unique]
+  allowed_markets varchar(700) [not null]
+  allowed_asset_classes varchar(700) [not null]
+  forbidden_assets text
+  min_cash_pct decimal(5,2)
+  max_single_position_pct decimal(5,2)
+  leverage_policy varchar(500)
+  rebalance_policy varchar(700)
+  user_override_allowed boolean [not null, default: false]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    model_version_id [unique]
+  }
+}
+
+Table compliance_reviews {
+  id bigint [pk, increment]
+  model_id bigint [not null]
+  model_version_id bigint
+  review_type varchar(40) [not null, note: "model_approval, disclosure, performance_claim, incident"]
+  status varchar(30) [not null, default: "pending", note: "pending, approved, rejected, changes_requested"]
+  reviewer_user_id bigint
+  notes text
+  reviewed_at datetime
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (model_id, status)
+    (model_version_id, review_type)
+  }
+}
+
+Table model_performance_snapshots {
+  id bigint [pk, increment]
+  model_version_id bigint [not null]
+  period_label varchar(40) [not null]
+  cumulative_return_pct decimal(8,4)
+  volatility_pct decimal(8,4)
+  max_drawdown_pct decimal(8,4)
+  benchmark_symbol varchar(30)
+  is_backtest boolean [not null, default: true]
+  measured_at datetime [not null]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (model_version_id, period_label, measured_at)
+  }
+}
+
+Table market_instruments {
+  id bigint [pk, increment]
+  symbol varchar(40) [not null]
+  name varchar(200) [not null]
+  asset_type varchar(30) [not null, note: "stock, etf, bond, cash, index"]
+  market varchar(30) [not null]
+  exchange varchar(60)
+  currency char(3) [not null]
+  is_leveraged boolean [not null, default: false]
+  is_active boolean [not null, default: true]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (symbol, market) [unique]
+    (asset_type, market)
+  }
+}
+
+Table user_model_selections {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  model_id bigint [not null]
+  model_version_id bigint [not null]
+  status varchar(30) [not null, default: "active", note: "active, paused, revoked"]
+  risk_acknowledged_at datetime
+  selected_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  revoked_at datetime
+
+  indexes {
+    (user_id, status)
+    (model_id, model_version_id)
+  }
+}
+
+Table mock_deposits {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  amount decimal(18,2) [not null]
+  currency char(3) [not null, default: "KRW"]
+  status varchar(30) [not null, default: "pending", note: "pending, completed, cancelled"]
+  source_type varchar(40) [not null, default: "mock", note: "mock, external_placeholder"]
+  memo varchar(255)
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  completed_at datetime
+
+  indexes {
+    (user_id, status)
+  }
+}
+
+Table portfolios {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  model_selection_id bigint [not null]
+  cash_balance decimal(18,2) [not null, default: 0]
+  total_market_value decimal(18,2) [not null, default: 0]
+  currency char(3) [not null, default: "KRW"]
+  status varchar(30) [not null, default: "mock_active", note: "mock_active, paused, closed"]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (user_id, status)
+    model_selection_id
+  }
+}
+
+Table portfolio_positions {
+  id bigint [pk, increment]
+  portfolio_id bigint [not null]
+  instrument_id bigint [not null]
+  quantity decimal(24,8) [not null, default: 0]
+  average_price decimal(18,6)
+  market_value decimal(18,2)
+  as_of datetime [not null]
+
+  indexes {
+    (portfolio_id, instrument_id) [unique]
+    as_of
+  }
+}
+
+Table allocation_decisions {
+  id bigint [pk, increment]
+  model_version_id bigint [not null]
+  portfolio_id bigint [not null]
+  decision_status varchar(40) [not null, default: "draft", note: "draft, policy_checked, blocked, ready_for_simulation"]
+  rationale text [not null]
+  input_snapshot_json json
+  policy_result_json json
+  decided_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (model_version_id, decided_at)
+    (portfolio_id, decided_at)
+  }
+}
+
+Table trade_intents {
+  id bigint [pk, increment]
+  allocation_decision_id bigint [not null]
+  portfolio_id bigint [not null]
+  instrument_id bigint [not null]
+  intent_type varchar(40) [not null, note: "buy, sell, hold, rebalance"]
+  target_quantity decimal(24,8)
+  target_value decimal(18,2)
+  status varchar(40) [not null, default: "pending_policy_check", note: "pending_policy_check, approved_for_simulation, blocked, cancelled"]
+  blocked_reason varchar(700)
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    allocation_decision_id
+    (portfolio_id, status)
+    instrument_id
+  }
+}
+
+Table market_price_snapshots {
+  id bigint [pk, increment]
+  instrument_id bigint [not null]
+  provider varchar(80) [not null]
+  price decimal(18,6) [not null]
+  volume decimal(24,4)
+  captured_at datetime [not null]
+  source_url varchar(1000)
+
+  indexes {
+    (instrument_id, captured_at)
+    provider
+  }
+}
+
+Table news_sources {
+  id bigint [pk, increment]
+  name varchar(160) [not null]
+  source_type varchar(40) [not null, note: "news, social, filing, traffic"]
+  base_url varchar(1000)
+  is_active boolean [not null, default: true]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table news_articles {
+  id bigint [pk, increment]
+  news_source_id bigint [not null]
+  title varchar(500) [not null]
+  url varchar(1000)
+  summary text
+  tickers_json json
+  published_at datetime
+  collected_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    news_source_id
+    published_at
+  }
+}
+
+Table news_traffic_snapshots {
+  id bigint [pk, increment]
+  news_article_id bigint
+  keyword varchar(160)
+  traffic_score decimal(10,4) [not null]
+  mention_count int
+  captured_at datetime [not null]
+
+  indexes {
+    (keyword, captured_at)
+    news_article_id
+  }
+}
+
+Table model_signal_events {
+  id bigint [pk, increment]
+  model_version_id bigint [not null]
+  signal_type varchar(40) [not null, note: "news_traffic, price_trend, macro, risk"]
+  title varchar(220) [not null]
+  summary text
+  score decimal(8,4)
+  source_article_id bigint
+  source_instrument_id bigint
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (model_version_id, created_at)
+    (signal_type, score)
+  }
+}
+
+Table feed_posts {
+  id bigint [pk, increment]
+  model_id bigint
+  author_user_id bigint
+  post_type varchar(40) [not null, note: "model_comment, market_insight, notice"]
+  title varchar(220) [not null]
+  body text [not null]
+  visibility varchar(30) [not null, default: "public", note: "public, selected_users, admin_only"]
+  published_at datetime
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (model_id, published_at)
+    (post_type, visibility)
+  }
+}
+
+Table audit_logs {
+  id bigint [pk, increment]
+  actor_user_id bigint
+  entity_type varchar(80) [not null]
+  entity_id bigint
+  action varchar(120) [not null]
+  before_json json
+  after_json json
+  ip_address varchar(45)
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (entity_type, entity_id)
+    (actor_user_id, created_at)
+    action
+  }
+}
+
+Ref: model_creators.user_id > users.id
+Ref: investment_models.creator_id > model_creators.id
+Ref: investment_models.current_version_id > model_versions.id
+Ref: model_versions.model_id > investment_models.id
+Ref: model_versions.created_by_user_id > users.id
+Ref: model_risk_profiles.model_version_id > model_versions.id
+Ref: model_disclosures.model_version_id > model_versions.id
+Ref: model_disclosures.reviewed_by_user_id > users.id
+Ref: portfolio_mandates.model_version_id > model_versions.id
+Ref: compliance_reviews.model_id > investment_models.id
+Ref: compliance_reviews.model_version_id > model_versions.id
+Ref: compliance_reviews.reviewer_user_id > users.id
+Ref: model_performance_snapshots.model_version_id > model_versions.id
+Ref: user_model_selections.user_id > users.id
+Ref: user_model_selections.model_id > investment_models.id
+Ref: user_model_selections.model_version_id > model_versions.id
+Ref: mock_deposits.user_id > users.id
+Ref: portfolios.user_id > users.id
+Ref: portfolios.model_selection_id > user_model_selections.id
+Ref: portfolio_positions.portfolio_id > portfolios.id
+Ref: portfolio_positions.instrument_id > market_instruments.id
+Ref: allocation_decisions.model_version_id > model_versions.id
+Ref: allocation_decisions.portfolio_id > portfolios.id
+Ref: trade_intents.allocation_decision_id > allocation_decisions.id
+Ref: trade_intents.portfolio_id > portfolios.id
+Ref: trade_intents.instrument_id > market_instruments.id
+Ref: market_price_snapshots.instrument_id > market_instruments.id
+Ref: news_articles.news_source_id > news_sources.id
+Ref: news_traffic_snapshots.news_article_id > news_articles.id
+Ref: model_signal_events.model_version_id > model_versions.id
+Ref: model_signal_events.source_article_id > news_articles.id
+Ref: model_signal_events.source_instrument_id > market_instruments.id
+Ref: feed_posts.model_id > investment_models.id
+Ref: feed_posts.author_user_id > users.id
+Ref: audit_logs.actor_user_id > users.id

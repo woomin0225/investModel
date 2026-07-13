@@ -1,0 +1,325 @@
+{
+  "clusters": [
+    [
+      "Identity",
+      [
+        "users",
+        "model_creators"
+      ]
+    ],
+    [
+      "AI Model Marketplace",
+      [
+        "investment_models",
+        "model_versions",
+        "model_risk_profiles",
+        "model_disclosures",
+        "portfolio_mandates",
+        "compliance_reviews",
+        "model_performance_snapshots"
+      ]
+    ],
+    [
+      "User Investment State",
+      [
+        "user_model_selections",
+        "mock_deposits",
+        "portfolios",
+        "portfolio_positions"
+      ]
+    ],
+    [
+      "Decision Pipeline",
+      [
+        "allocation_decisions",
+        "trade_intents"
+      ]
+    ],
+    [
+      "Market & News Signals",
+      [
+        "market_instruments",
+        "market_price_snapshots",
+        "news_sources",
+        "news_articles",
+        "news_traffic_snapshots",
+        "model_signal_events"
+      ]
+    ],
+    [
+      "Feed & Audit",
+      [
+        "feed_posts",
+        "audit_logs"
+      ]
+    ]
+  ],
+  "fields": {
+    "users": [
+      "id PK",
+      "public_id",
+      "email",
+      "role",
+      "status"
+    ],
+    "model_creators": [
+      "id PK",
+      "user_id FK",
+      "verification_status"
+    ],
+    "investment_models": [
+      "id PK",
+      "creator_id FK",
+      "slug",
+      "status",
+      "current_version_id FK"
+    ],
+    "model_versions": [
+      "id PK",
+      "model_id FK",
+      "version_label",
+      "strategy_summary",
+      "artifact_status"
+    ],
+    "model_risk_profiles": [
+      "id PK",
+      "model_version_id FK",
+      "risk_level",
+      "leverage_allowed"
+    ],
+    "model_disclosures": [
+      "id PK",
+      "model_version_id FK",
+      "disclosure_type",
+      "requires_legal_review"
+    ],
+    "portfolio_mandates": [
+      "id PK",
+      "model_version_id FK",
+      "allowed_markets",
+      "user_override_allowed=false"
+    ],
+    "compliance_reviews": [
+      "id PK",
+      "model_id FK",
+      "model_version_id FK",
+      "status"
+    ],
+    "model_performance_snapshots": [
+      "id PK",
+      "model_version_id FK",
+      "return_pct",
+      "volatility_pct"
+    ],
+    "market_instruments": [
+      "id PK",
+      "symbol",
+      "asset_type",
+      "market",
+      "is_leveraged"
+    ],
+    "user_model_selections": [
+      "id PK",
+      "user_id FK",
+      "model_id FK",
+      "model_version_id FK",
+      "status"
+    ],
+    "mock_deposits": [
+      "id PK",
+      "user_id FK",
+      "amount",
+      "status",
+      "source_type=mock"
+    ],
+    "portfolios": [
+      "id PK",
+      "user_id FK",
+      "model_selection_id FK",
+      "cash_balance",
+      "status"
+    ],
+    "portfolio_positions": [
+      "id PK",
+      "portfolio_id FK",
+      "instrument_id FK",
+      "quantity"
+    ],
+    "allocation_decisions": [
+      "id PK",
+      "model_version_id FK",
+      "portfolio_id FK",
+      "decision_status"
+    ],
+    "trade_intents": [
+      "id PK",
+      "allocation_decision_id FK",
+      "instrument_id FK",
+      "status"
+    ],
+    "market_price_snapshots": [
+      "id PK",
+      "instrument_id FK",
+      "price",
+      "captured_at"
+    ],
+    "news_sources": [
+      "id PK",
+      "name",
+      "source_type"
+    ],
+    "news_articles": [
+      "id PK",
+      "news_source_id FK",
+      "title",
+      "published_at"
+    ],
+    "news_traffic_snapshots": [
+      "id PK",
+      "news_article_id FK",
+      "keyword",
+      "traffic_score"
+    ],
+    "model_signal_events": [
+      "id PK",
+      "model_version_id FK",
+      "signal_type",
+      "score"
+    ],
+    "feed_posts": [
+      "id PK",
+      "model_id FK",
+      "author_user_id FK",
+      "post_type"
+    ],
+    "audit_logs": [
+      "id PK",
+      "actor_user_id FK",
+      "entity_type",
+      "action"
+    ]
+  },
+  "relationships": [
+    [
+      "users",
+      "model_creators"
+    ],
+    [
+      "model_creators",
+      "investment_models"
+    ],
+    [
+      "investment_models",
+      "model_versions"
+    ],
+    [
+      "model_versions",
+      "model_risk_profiles"
+    ],
+    [
+      "model_versions",
+      "model_disclosures"
+    ],
+    [
+      "model_versions",
+      "portfolio_mandates"
+    ],
+    [
+      "investment_models",
+      "compliance_reviews"
+    ],
+    [
+      "model_versions",
+      "compliance_reviews"
+    ],
+    [
+      "model_versions",
+      "model_performance_snapshots"
+    ],
+    [
+      "users",
+      "user_model_selections"
+    ],
+    [
+      "investment_models",
+      "user_model_selections"
+    ],
+    [
+      "model_versions",
+      "user_model_selections"
+    ],
+    [
+      "users",
+      "mock_deposits"
+    ],
+    [
+      "user_model_selections",
+      "portfolios"
+    ],
+    [
+      "users",
+      "portfolios"
+    ],
+    [
+      "portfolios",
+      "portfolio_positions"
+    ],
+    [
+      "market_instruments",
+      "portfolio_positions"
+    ],
+    [
+      "model_versions",
+      "allocation_decisions"
+    ],
+    [
+      "portfolios",
+      "allocation_decisions"
+    ],
+    [
+      "allocation_decisions",
+      "trade_intents"
+    ],
+    [
+      "market_instruments",
+      "trade_intents"
+    ],
+    [
+      "market_instruments",
+      "market_price_snapshots"
+    ],
+    [
+      "news_sources",
+      "news_articles"
+    ],
+    [
+      "news_articles",
+      "news_traffic_snapshots"
+    ],
+    [
+      "model_versions",
+      "model_signal_events"
+    ],
+    [
+      "news_articles",
+      "model_signal_events"
+    ],
+    [
+      "market_instruments",
+      "model_signal_events"
+    ],
+    [
+      "investment_models",
+      "feed_posts"
+    ],
+    [
+      "users",
+      "feed_posts"
+    ],
+    [
+      "users",
+      "audit_logs"
+    ]
+  ],
+  "image": "C:\\invest-model-project\\invest-model\\dberd\\invest-model-erd.png"
+}
