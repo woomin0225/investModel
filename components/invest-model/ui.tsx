@@ -47,6 +47,23 @@ type MetricCardProps = {
   className?: string;
 };
 
+type PerformanceMetricItem = {
+  label: string;
+  value: string;
+  description: string;
+  tone?: 'neutral' | 'positive' | 'risk';
+};
+
+type PerformanceMetricGroupProps = {
+  title: string;
+  description: string;
+  returnMetric: PerformanceMetricItem;
+  volatilityMetric: PerformanceMetricItem;
+  drawdownMetric: PerformanceMetricItem;
+  sourceLabel: string;
+  className?: string;
+};
+
 type ModelCardProps = {
   name: string;
   summary: string;
@@ -232,6 +249,74 @@ export function MetricCard({
         </p>
       ) : null}
     </article>
+  );
+}
+
+/**
+ * PerformanceMetricGroup keeps return, volatility, and drawdown together so a model's return is never shown without risk context.
+ */
+export function PerformanceMetricGroup({
+  title,
+  description,
+  returnMetric,
+  volatilityMetric,
+  drawdownMetric,
+  sourceLabel,
+  className
+}: PerformanceMetricGroupProps) {
+  const metrics = [
+    returnMetric,
+    volatilityMetric,
+    drawdownMetric
+  ] satisfies PerformanceMetricItem[];
+
+  return (
+    <section
+      className={cn(
+        'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        className
+      )}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-[20px] font-bold leading-7 text-invest-text">
+            {title}
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-invest-text-muted">
+            {description}
+          </p>
+        </div>
+        <RiskBadge tone="neutral">{sourceLabel}</RiskBadge>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        {metrics.map((metric) => (
+          <div
+            key={`${metric.label}-${metric.value}`}
+            className="rounded-invest-control bg-invest-surface-muted p-3"
+          >
+            <p className="text-xs font-medium text-invest-text-muted">
+              {metric.label}
+            </p>
+            <p
+              className={cn(
+                'mt-2 text-[22px] font-bold leading-7',
+                metric.tone === 'positive'
+                  ? 'text-invest-positive'
+                  : metric.tone === 'risk'
+                    ? 'text-invest-risk'
+                    : 'text-invest-text'
+              )}
+            >
+              {metric.value}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-invest-text-muted">
+              {metric.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

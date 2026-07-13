@@ -45,6 +45,10 @@ export const investModelDetailCopy = {
     mockOnlyLabel: 'Mock 상세',
     noLiveTradingLabel: '실거래 없음',
     reviewPlaceholderLabel: '고지 문구 검토 필요',
+    performanceGroupTitle: '성과와 위험 지표',
+    performanceGroupDescription:
+      '수익률 샘플은 변동성, 최대 손실 구간과 함께 확인해야 합니다.',
+    performanceGroupSourceLabel: '백테스트 placeholder',
     selectionReviewTitle: '선택 전 확인',
     selectionReviewDescription:
       '이 모델을 선택하기 전에 모델이 정한 운용 범위, 손실 가능성, 금지된 동작을 먼저 확인해야 합니다. 현재 버튼은 mock 확인용이며 실제 선택 저장은 아직 연결하지 않습니다.',
@@ -80,9 +84,9 @@ export const investModelDetailCopy = {
             tone: 'risk'
           },
           {
-            label: 'Turnover',
+            label: 'Volatility',
             value: 'High',
-            description: '모델 원칙상 잦은 교체를 허용하는 mock 전략입니다.'
+            description: '잦은 교체와 레버리지 노출은 변동성을 키울 수 있습니다.'
           }
         ],
         mandateTitle: '모델 운용 원칙',
@@ -136,9 +140,9 @@ export const investModelDetailCopy = {
             tone: 'risk'
           },
           {
-            label: 'Rebalance',
-            value: 'Monthly',
-            description: '모델 원칙상 월간 리밸런싱을 가정합니다.'
+            label: 'Volatility',
+            value: 'Medium',
+            description: '주식/채권 ETF 혼합도 시장 급락기에는 변동성을 가질 수 있습니다.'
           }
         ],
         mandateTitle: '모델 운용 원칙',
@@ -231,6 +235,10 @@ export const investModelDetailCopy = {
     mockOnlyLabel: 'Mock detail',
     noLiveTradingLabel: 'No live trading',
     reviewPlaceholderLabel: 'Disclosure review needed',
+    performanceGroupTitle: 'Performance and risk metrics',
+    performanceGroupDescription:
+      'Sample return is shown with volatility and maximum drawdown context.',
+    performanceGroupSourceLabel: 'Backtest placeholder',
     selectionReviewTitle: 'Review before selection',
     selectionReviewDescription:
       'Before choosing this model, review its model-defined mandate, loss possibility, and forbidden actions. This button is mock confirmation only; model selection persistence is not connected yet.',
@@ -266,9 +274,10 @@ export const investModelDetailCopy = {
             tone: 'risk'
           },
           {
-            label: 'Turnover',
+            label: 'Volatility',
             value: 'High',
-            description: 'This mock strategy permits frequent model-driven rotation.'
+            description:
+              'Frequent rotation and leveraged exposure can raise volatility.'
           }
         ],
         mandateTitle: 'Model mandate',
@@ -322,9 +331,10 @@ export const investModelDetailCopy = {
             tone: 'risk'
           },
           {
-            label: 'Rebalance',
-            value: 'Monthly',
-            description: 'The mock mandate assumes monthly rebalancing.'
+            label: 'Volatility',
+            value: 'Medium',
+            description:
+              'A stock and bond ETF blend can still become volatile during selloffs.'
           }
         ],
         mandateTitle: 'Model mandate',
@@ -418,6 +428,9 @@ export const investModelDetailCopy = {
     mockOnlyLabel: string;
     noLiveTradingLabel: string;
     reviewPlaceholderLabel: string;
+    performanceGroupTitle: string;
+    performanceGroupDescription: string;
+    performanceGroupSourceLabel: string;
     selectionReviewTitle: string;
     selectionReviewDescription: string;
     highRiskNotice: string;

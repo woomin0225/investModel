@@ -11,6 +11,7 @@ export {
   InvestmentModelDetail,
   MetricCard,
   ModelCard,
+  PerformanceMetricGroup,
   RiskBadge,
   SectionHeader,
   SoftBanner

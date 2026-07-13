@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, FileText, ShieldAlert } from 'lucide-react';
 import {
   MobileShell,
-  MetricCard,
+  PerformanceMetricGroup,
   RiskBadge,
   SectionHeader,
   SoftBanner
@@ -95,17 +95,14 @@ export default async function InvestModelDetailPage({
           <RiskBadge>{model.reviewLabel}</RiskBadge>
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
-          {model.metrics.map((metric) => (
-            <MetricCard
-              key={`${model.id}-${metric.label}`}
-              label={metric.label}
-              value={metric.value}
-              description={metric.description}
-              tone={metric.tone}
-            />
-          ))}
-        </div>
+        <PerformanceMetricGroup
+          title={copy.performanceGroupTitle}
+          description={copy.performanceGroupDescription}
+          returnMetric={model.metrics[0]}
+          volatilityMetric={model.metrics[2]}
+          drawdownMetric={model.metrics[1]}
+          sourceLabel={copy.performanceGroupSourceLabel}
+        />
 
         <DetailPanel
           title={model.mandateTitle}
