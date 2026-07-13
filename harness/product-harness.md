@@ -1,5 +1,24 @@
 # Product Harness
 
+## Canonical Product Object Boundaries
+
+The canonical object names come from `docs/domain/domain-glossary.md` and `lib/domain/types.ts`. Product work must keep these meanings stable:
+
+| Object | Product boundary |
+| --- | --- |
+| `InvestmentModel` | The marketplace item a user chooses. It is not a user-customized robo-advisor profile. |
+| `PortfolioMandate` | The model's own investment scope and limits. Users do not directly edit it in the MVP. |
+| `ModelRiskProfile` | Model-owned risk posture, leverage allowance, volatility, and drawdown context. |
+| `ModelDisclosure` | Placeholder or reviewed disclosure content. Codex must not finalize legal/financial copy. |
+| `MockDeposit` | Simulated funds used to make the prototype visible. It is not a real deposit or cash balance. |
+| `AllocationDecision` | Simulated model analysis. It is not investment advice or a completed allocation. |
+| `TradeIntent` | Pre-order simulation state. It is not a broker order, execution, or fill. |
+| `SignalEvent` | Observed input for model analysis. It is not a buy, sell, hold, or rebalance recommendation. |
+| `FeedPost` | Informational commentary. It must not guarantee returns or encourage trading. |
+| `ComplianceReview` | Operator review workflow. It is not final legal suitability approval. |
+
+Do not rename these objects to simpler but misleading terms such as `Strategy`, `Bot`, `Advisor`, `Deposit`, `Order`, `Trade`, or `Recommendation`.
+
 <!--
 이 하네스는 AI 모델 투자 앱의 제품 정의, 핵심 사용자, 주요 흐름, MVP 범위를 설명합니다.
 기능을 추가할 때 제품의 본질에서 벗어나지 않도록 기준으로 사용합니다.
