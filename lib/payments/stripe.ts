@@ -20,6 +20,14 @@ export const stripe = new Stripe(
   }
 );
 
+function assertStripeConfigured(surface: string) {
+  if (!isStripeConfigured) {
+    throw new Error(
+      `${surface} is unavailable until STRIPE_SECRET_KEY is configured.`
+    );
+  }
+}
+
 export async function createCheckoutSession({
   team,
   priceId
@@ -32,6 +40,8 @@ export async function createCheckoutSession({
   if (!team || !user) {
     redirect(`/sign-up?redirect=checkout&priceId=${priceId}`);
   }
+
+  assertStripeConfigured('Starter Stripe checkout');
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -59,6 +69,8 @@ export async function createCustomerPortalSession(team: Team) {
   if (!team.stripeCustomerId || !team.stripeProductId) {
     redirect('/pricing');
   }
+
+  assertStripeConfigured('Starter Stripe customer portal');
 
   let configuration: Stripe.BillingPortal.Configuration;
   const configurations = await stripe.billingPortal.configurations.list();
