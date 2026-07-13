@@ -1,18 +1,11 @@
 import { Bell, Search } from 'lucide-react';
-import { MobileShell } from '@/components/invest-model';
-
-const previewCards = [
-  {
-    title: 'Active model',
-    value: 'US Momentum AI',
-    description: 'Mock portfolio mode'
-  },
-  {
-    title: 'Today signal',
-    value: 'Risk check ready',
-    description: 'News and price traffic placeholder'
-  }
-];
+import {
+  MetricCard,
+  MobileShell,
+  ModelCard,
+  SectionHeader,
+  SoftBanner
+} from '@/components/invest-model';
 
 export default function InvestModelPreviewPage() {
   return (
@@ -39,37 +32,45 @@ export default function InvestModelPreviewPage() {
         </div>
       }
     >
-      <section className="space-y-invest-card-gap">
-        <div className="rounded-invest-card border border-invest-border bg-invest-primary-soft p-invest-card-padding">
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-invest-primary">
-            Prototype
-          </p>
-          <h2 className="mt-2 text-[22px] font-bold leading-[30px] text-invest-text">
-            Mobile shell is ready
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-invest-text-muted">
-            This preview uses mock-only mobile layout tokens. It does not move
-            real money or place orders.
-          </p>
+      <section className="space-y-invest-section-gap">
+        <SoftBanner
+          eyebrow="Prototype"
+          title="Mobile shell is ready"
+          description="This preview uses mock-only mobile layout tokens. It does not move real money or place orders."
+        />
+
+        <div className="grid grid-cols-2 gap-invest-card-gap">
+          <MetricCard
+            label="Mock balance"
+            value="$24.8K"
+            description="Simulated only"
+            trend="+2.4%"
+            tone="positive"
+          />
+          <MetricCard
+            label="Risk state"
+            value="Review"
+            description="No live trading"
+            trend="blocked"
+            tone="risk"
+          />
         </div>
 
-        <div className="grid gap-invest-card-gap">
-          {previewCards.map((card) => (
-            <article
-              key={card.title}
-              className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
-            >
-              <p className="text-xs font-medium text-invest-text-muted">
-                {card.title}
-              </p>
-              <h3 className="mt-2 text-[17px] font-semibold leading-6 text-invest-text">
-                {card.value}
-              </h3>
-              <p className="mt-1 text-sm leading-6 text-invest-text-muted">
-                {card.description}
-              </p>
-            </article>
-          ))}
+        <div className="space-y-invest-card-gap">
+          <SectionHeader
+            title="Active model"
+            description="Model-defined mandate, not user preference."
+            actionLabel="View"
+          />
+          <ModelCard
+            name="US Momentum AI"
+            summary="Tracks US large-cap momentum and pauses when the simulated policy check blocks leverage exposure."
+            market="US equities"
+            riskLabel="High risk"
+            riskTone="high"
+            performanceLabel="Backtest"
+            mandateLabel="Model mandate"
+          />
         </div>
       </section>
     </MobileShell>
