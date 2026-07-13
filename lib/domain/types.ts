@@ -106,7 +106,12 @@ export type ReviewStatus =
  * MockDepositStatus represents simulated money display state only.
  * It must never be interpreted as a real deposit, payment, withdrawal, or brokerage balance.
  */
-export type MockDepositStatus = 'pending' | 'completed' | 'cancelled';
+export type MockDepositStatus =
+  | 'created'
+  | 'simulated_available'
+  | 'simulated_allocated'
+  | 'cancelled'
+  | 'archived';
 
 /**
  * AllocationDecisionStatus describes model-generated allocation analysis before any order layer exists.
@@ -238,7 +243,7 @@ export interface MockDeposit {
   amount: string;
   currency: string;
   status: MockDepositStatus;
-  sourceType: 'mock' | 'external_placeholder';
+  sourceType: 'mock';
   createdAt: string;
 }
 
