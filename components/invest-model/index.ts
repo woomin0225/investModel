@@ -7,6 +7,7 @@ export {
 } from './mobile-shell';
 export {
   InvestmentModelCard,
+  InvestmentModelDetail,
   MetricCard,
   ModelCard,
   RiskBadge,

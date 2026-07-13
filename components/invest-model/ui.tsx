@@ -72,6 +72,30 @@ type InvestmentModelCardProps = {
   className?: string;
 };
 
+type InvestmentModelDetailMetric = {
+  label: string;
+  value: string;
+  description?: string;
+};
+
+type InvestmentModelDetailProps = {
+  name: string;
+  summary: string;
+  marketLabel: string;
+  riskLabel: string;
+  leverageLabel: string;
+  statusLabel: string;
+  mandateTitle: string;
+  mandateItems: string[];
+  riskTitle: string;
+  riskItems: string[];
+  metrics?: InvestmentModelDetailMetric[];
+  disclosureLabel?: string;
+  riskTone?: RiskBadgeTone;
+  statusTone?: RiskBadgeTone;
+  className?: string;
+};
+
 /**
  * RiskBadge marks model constraints such as leverage, market, and risk level without implying a recommendation.
  */
@@ -307,5 +331,119 @@ export function InvestmentModelCard({
         </div>
       </div>
     </article>
+  );
+}
+
+/**
+ * InvestmentModelDetail은 사용자가 모델 선택 전에 운용 범위와 위험 설명을 분리해서 확인하도록 돕는다.
+ */
+export function InvestmentModelDetail({
+  name,
+  summary,
+  marketLabel,
+  riskLabel,
+  leverageLabel,
+  statusLabel,
+  mandateTitle,
+  mandateItems,
+  riskTitle,
+  riskItems,
+  metrics = [],
+  disclosureLabel,
+  riskTone = 'neutral',
+  statusTone = 'neutral',
+  className
+}: InvestmentModelDetailProps) {
+  return (
+    <article
+      className={cn(
+        'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        className
+      )}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-[22px] font-bold leading-8 text-invest-text">
+            {name}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-invest-text-muted">
+            {summary}
+          </p>
+        </div>
+        <RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <RiskBadge>{marketLabel}</RiskBadge>
+        <RiskBadge tone={riskTone}>{riskLabel}</RiskBadge>
+        <RiskBadge tone="medium">{leverageLabel}</RiskBadge>
+      </div>
+
+      {metrics.length > 0 ? (
+        <div className="mt-5 grid gap-3">
+          {metrics.map((metric) => (
+            <div
+              key={`${metric.label}-${metric.value}`}
+              className="rounded-invest-control bg-invest-surface-muted p-3"
+            >
+              <p className="text-xs font-medium text-invest-text-muted">
+                {metric.label}
+              </p>
+              <p className="mt-1 text-[18px] font-bold leading-6 text-invest-text">
+                {metric.value}
+              </p>
+              {metric.description ? (
+                <p className="mt-1 text-xs leading-5 text-invest-text-muted">
+                  {metric.description}
+                </p>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mt-5 grid gap-4">
+        <DetailList title={mandateTitle} items={mandateItems} />
+        <DetailList title={riskTitle} items={riskItems} tone="risk" />
+      </div>
+
+      {disclosureLabel ? (
+        <p className="mt-5 rounded-invest-control bg-invest-primary-soft p-3 text-xs leading-5 text-invest-text-muted">
+          {disclosureLabel}
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
+function DetailList({
+  title,
+  items,
+  tone = 'neutral'
+}: {
+  title: string;
+  items: string[];
+  tone?: 'neutral' | 'risk';
+}) {
+  const markerClass =
+    tone === 'risk' ? 'bg-invest-risk' : 'bg-invest-primary';
+
+  return (
+    <section>
+      <h3 className="text-[16px] font-semibold leading-6 text-invest-text">
+        {title}
+      </h3>
+      <ul className="mt-2 space-y-2">
+        {items.map((item) => (
+          <li key={item} className="flex gap-2 text-sm leading-6">
+            <span
+              aria-hidden
+              className={cn('mt-2 size-1.5 shrink-0 rounded-full', markerClass)}
+            />
+            <span className="min-w-0 text-invest-text-muted">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
