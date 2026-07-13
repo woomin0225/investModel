@@ -84,11 +84,12 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Stripe Integration
+                  Starter Stripe Surface
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  Seamless payment processing and subscription management with
-                  industry-leading Stripe integration.
+                  Original SaaS starter pricing and subscription routes remain
+                  outside the investModel mock-only MVP until IS-001 is
+                  resolved.
                 </p>
               </div>
             </div>
@@ -104,9 +105,9 @@ export default function HomePage() {
                 Ready for investModel setup?
               </h2>
               <p className="mt-3 max-w-3xl text-lg text-gray-500">
-                The base code is ready for project harnesses, skills, agents,
-                and checklist-driven development before product-specific
-                investment features are implemented.
+                Open the mobile PWA at /invest-model for the current
+                mock-only marketplace prototype. Starter billing and pricing
+                surfaces are not real deposit, brokerage, or order features.
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
