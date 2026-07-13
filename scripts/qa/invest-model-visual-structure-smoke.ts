@@ -1,5 +1,5 @@
 /**
- * This smoke test checks the five Figma-seeded mobile screens for repeatable layout and safety structure.
+ * This smoke test checks the Figma-seeded mobile screens for repeatable layout and safety structure.
  * It does not capture pixels; it verifies the code and mock data invariants that prevent common mobile overlap and misleading investment copy.
  */
 
@@ -17,6 +17,7 @@ import {
 import { investModelSignalsMock } from '../../lib/mock/invest-model-signals';
 import { investModelDetailCopy } from '../../lib/mock/invest-model-model-detail';
 import { investModelFeedMock } from '../../lib/mock/invest-model-feed';
+import { investModelPortfolioMock } from '../../lib/mock/invest-model-portfolio';
 
 type ScreenCheck = {
   name: string;
@@ -84,6 +85,19 @@ const screens: ScreenCheck[] = [
       investModelFeedMock.summary.title,
       investModelFeedMock.summary.description,
       investModelFeedMock.summary.reviewLabel
+    ]
+  },
+  {
+    name: 'Mock Portfolio',
+    route: '/invest-model/portfolio',
+    pageFile: 'app/invest-model/portfolio/page.tsx',
+    activeTab: 'portfolio',
+    requiredCopy: [
+      investModelPortfolioMock.selectedModel.name,
+      investModelPortfolioMock.selectedModel.mandateLabel,
+      investModelPortfolioMock.mockDeposit.safetyLabel,
+      investModelPortfolioMock.allocationDecision.sourceLabel,
+      investModelPortfolioMock.tradeIntent.boundaryLabel
     ]
   }
 ];
@@ -157,7 +171,19 @@ function collectScreenTextValues() {
       post.title,
       post.excerpt,
       ...post.tags
-    ])
+    ]),
+    investModelPortfolioMock.selectedModel.mandateLabel,
+    investModelPortfolioMock.mockDeposit.displayLabel,
+    investModelPortfolioMock.mockDeposit.safetyLabel,
+    investModelPortfolioMock.allocationDecision.rationale,
+    ...investModelPortfolioMock.positions.flatMap((position) => [
+      position.symbol,
+      position.name,
+      position.valueLabel,
+      position.stateLabel,
+      position.sourceLabel
+    ]),
+    ...investModelPortfolioMock.tradeIntent.blockedActions
   ];
 }
 
@@ -246,8 +272,30 @@ assertCondition(
   investModelSignalsMock.summary.description.includes('do not create TradeIntent'),
   'Realtime Signals lacks no-TradeIntent boundary language'
 );
+assertCondition(
+  investModelPortfolioMock.isMockOnly === true,
+  'Mock Portfolio must be explicitly mock-only'
+);
+assertCondition(
+  investModelPortfolioMock.mockDeposit.safetyLabel
+    .toLowerCase()
+    .includes('not a real deposit'),
+  'Mock Portfolio lacks no-real-deposit boundary language'
+);
+assertCondition(
+  investModelPortfolioMock.tradeIntent.boundaryLabel
+    .toLowerCase()
+    .includes('pre-order simulation'),
+  'Mock Portfolio lacks TradeIntent pre-order simulation boundary language'
+);
+assertCondition(
+  investModelPortfolioMock.tradeIntent.blockedActions.some((action) =>
+    action.toLowerCase().includes('no live order')
+  ),
+  'Mock Portfolio lacks no-live-order boundary language'
+);
 
-assertNoLongUnbrokenText('All five Figma-seeded screens', collectScreenTextValues());
+assertNoLongUnbrokenText('All investModel mobile screens', collectScreenTextValues());
 
 console.log(
   JSON.stringify(
