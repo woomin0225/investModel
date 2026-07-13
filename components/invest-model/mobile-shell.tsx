@@ -155,7 +155,7 @@ export function BottomNav({
               href={withInvestModelLocale(item.href, locale)}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex min-h-invest-touch-target flex-col items-center justify-center gap-1 rounded-invest-control px-1 text-[11px] font-semibold leading-none transition-colors',
+                'flex min-h-invest-touch-target flex-col items-center justify-center gap-1 rounded-invest-control px-1 text-[11px] font-semibold leading-none transition-colors focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface',
                 isActive
                   ? 'text-invest-primary'
                   : 'text-invest-text-muted hover:text-invest-text'
@@ -192,7 +192,7 @@ function LanguageToggle({ locale, currentPath }: LanguageToggleProps) {
           href={withInvestModelLocale(currentPath, 'ko')}
           aria-current={locale === 'ko' ? 'true' : undefined}
           className={cn(
-            'grid min-w-12 place-items-center px-2 transition-colors',
+            'grid min-w-12 place-items-center px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-inset',
             locale === 'ko'
               ? 'bg-invest-primary text-invest-surface'
               : 'text-invest-text-muted hover:text-invest-text'
@@ -204,7 +204,7 @@ function LanguageToggle({ locale, currentPath }: LanguageToggleProps) {
           href={withInvestModelLocale(currentPath, 'en')}
           aria-current={locale === 'en' ? 'true' : undefined}
           className={cn(
-            'grid min-w-12 place-items-center px-2 transition-colors',
+            'grid min-w-12 place-items-center px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-inset',
             locale === 'en'
               ? 'bg-invest-primary text-invest-surface'
               : 'text-invest-text-muted hover:text-invest-text'

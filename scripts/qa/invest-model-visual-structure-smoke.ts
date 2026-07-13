@@ -254,6 +254,19 @@ assertCondition(
   'MobileShell or BottomNav does not reserve bottom safe-area space'
 );
 assertCondition(
+  mobileShellSource.includes('aria-label="investModel mobile navigation"'),
+  'BottomNav is missing a navigation aria-label'
+);
+assertCondition(
+  mobileShellSource.includes("aria-current={isActive ? 'page' : undefined}"),
+  'BottomNav is missing aria-current for the active tab'
+);
+assertCondition(
+  mobileShellSource.includes('focus:ring-2') &&
+    mobileShellSource.includes('focus:ring-invest-primary'),
+  'MobileShell links are missing visible keyboard focus styles'
+);
+assertCondition(
   investModelNavItems.length === 5,
   `BottomNav expected 5 tabs, found ${investModelNavItems.length}`
 );
@@ -268,6 +281,10 @@ const screenResults = screens.map((screen) => {
   assertCondition(
     source.includes('<MobileShell'),
     `${screen.name}: page does not use MobileShell`
+  );
+  assertCondition(
+    !source.includes('aria-label=""'),
+    `${screen.name}: page contains an empty aria-label`
   );
   assertCondition(
     source.includes(`activeTab="${screen.activeTab}"`),

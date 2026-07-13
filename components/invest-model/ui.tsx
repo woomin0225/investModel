@@ -211,7 +211,7 @@ export function SectionHeader({
       {actionLabel ? (
         <button
           type="button"
-          className="flex min-h-invest-touch-target shrink-0 items-center gap-1 rounded-invest-control px-2 text-sm font-semibold text-invest-primary"
+          className="flex min-h-invest-touch-target shrink-0 items-center gap-1 rounded-invest-control px-2 text-sm font-semibold text-invest-primary focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
         >
           <span>{actionLabel}</span>
           <ArrowRight aria-hidden className="size-4" />
