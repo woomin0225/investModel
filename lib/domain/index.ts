@@ -4,4 +4,5 @@
  */
 export * from './types';
 export * from './audit/audit-log';
+export * from './models/model-creator';
 export * from './models/model-description';

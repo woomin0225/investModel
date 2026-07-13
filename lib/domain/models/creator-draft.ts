@@ -9,6 +9,7 @@ import {
   modelDescriptionSchema,
   type ModelDescriptionInput
 } from './model-description';
+import { canCreateCreatorDraft } from './model-creator';
 
 /**
  * This module defines the creator model draft API contract.
@@ -39,7 +40,7 @@ export interface InvestmentModelDraftDto {
 }
 
 export function canCreateModelDraft(role: AccessRole) {
-  return role === 'creator' || role === 'admin';
+  return canCreateCreatorDraft(role);
 }
 
 export function buildInvestmentModelDraftDto(

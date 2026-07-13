@@ -16,6 +16,16 @@ export type AccessRole = 'public' | 'user' | 'creator' | 'admin' | 'system';
 export type HumanUserRole = 'user' | 'creator' | 'admin';
 
 /**
+ * ModelCreatorVerificationStatus tracks creator identity review, not model performance quality or legal approval.
+ */
+export type ModelCreatorVerificationStatus =
+  | 'unverified'
+  | 'pending'
+  | 'verified'
+  | 'rejected'
+  | 'suspended';
+
+/**
  * PermissionResult records a role check outcome without exposing secret policy details to the UI.
  * Policy-blocked is used for real orders, real deposits, brokerage links, and legal-review boundaries.
  */
@@ -35,6 +45,21 @@ export interface UserAccount {
   displayName?: string;
   role: HumanUserRole;
   createdAt: string;
+}
+
+/**
+ * ModelCreator is the public creator profile shell used to own InvestmentModel drafts.
+ * Verification only gates marketplace publishing; it is not an endorsement of returns.
+ */
+export interface ModelCreator {
+  publicId: DomainPublicId;
+  userPublicId: DomainPublicId;
+  displayName: string;
+  bio?: string;
+  verificationStatus: ModelCreatorVerificationStatus;
+  verifiedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**
