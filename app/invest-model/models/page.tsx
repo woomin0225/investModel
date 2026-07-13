@@ -8,8 +8,11 @@ import {
   SoftBanner
 } from '@/components/invest-model';
 import {
+  investModelDiscoveryFilterIds,
   isPublicDiscoverableInvestmentModel,
   investModelCopy,
+  matchesInvestModelDiscoveryFilter,
+  resolveInvestModelDiscoveryFilter,
   resolveInvestModelLocale,
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
@@ -20,6 +23,19 @@ const riskToneByModel = {
   high: 'high'
 } as const;
 
+function getDiscoveryFilterHref(
+  filterId: string,
+  locale: 'ko' | 'en'
+) {
+  const basePath = withInvestModelLocale('/invest-model/models', locale);
+
+  if (filterId === 'all') {
+    return basePath;
+  }
+
+  return `${basePath}${locale === 'en' ? '&' : '?'}filter=${filterId}`;
+}
+
 type InvestModelDiscoveryPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -27,11 +43,18 @@ type InvestModelDiscoveryPageProps = {
 export default async function InvestModelDiscoveryPage({
   searchParams
 }: InvestModelDiscoveryPageProps) {
-  const locale = resolveInvestModelLocale(await searchParams);
+  const resolvedSearchParams = await searchParams;
+  const locale = resolveInvestModelLocale(resolvedSearchParams);
+  const selectedFilter = resolveInvestModelDiscoveryFilter(
+    resolvedSearchParams?.filter
+  );
   const copy = investModelCopy[locale];
   const modelsCopy = copy.models;
   const discoverableInvestmentModels = modelsCopy.models.filter(
     isPublicDiscoverableInvestmentModel
+  );
+  const filteredInvestmentModels = discoverableInvestmentModels.filter((model) =>
+    matchesInvestModelDiscoveryFilter(model, selectedFilter)
   );
 
   return (
@@ -71,20 +94,30 @@ export default async function InvestModelDiscoveryPage({
 
           <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
             <div className="flex w-max gap-2 pr-invest-screen-x">
-              {modelsCopy.filters.map((filter) => (
-                <button
-                  key={filter}
-                  type="button"
-                  className="min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card"
-                >
-                  {filter}
-                </button>
-              ))}
+              {investModelDiscoveryFilterIds.map((filterId, index) => {
+                const isSelected = selectedFilter === filterId;
+
+                return (
+                  <Link
+                    key={filterId}
+                    href={getDiscoveryFilterHref(filterId, locale)}
+                    aria-current={isSelected ? 'true' : undefined}
+                    className={[
+                      'inline-flex min-h-invest-touch-target items-center rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
+                      isSelected
+                        ? 'border-invest-primary bg-invest-primary text-white'
+                        : 'border-invest-border bg-invest-surface text-invest-text'
+                    ].join(' ')}
+                  >
+                    {modelsCopy.filters[index]}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
           <div className="space-y-invest-card-gap">
-            {discoverableInvestmentModels.map((model) => (
+            {filteredInvestmentModels.map((model) => (
               <div key={model.id} className="space-y-2">
                 <Link
                   href={withInvestModelLocale(

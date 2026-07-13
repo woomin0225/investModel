@@ -4,8 +4,19 @@
  */
 
 export type InvestModelLocale = 'ko' | 'en';
+export type InvestModelDiscoveryFilterId =
+  | 'all'
+  | 'us-equities'
+  | 'etf-blend'
+  | 'high-risk'
+  | 'low-turnover';
 
 type SearchParams = Record<string, string | string[] | undefined>;
+type InvestModelFilterable = {
+  id: string;
+  riskTone: string;
+  status: string;
+};
 
 export function resolveInvestModelLocale(
   searchParams?: SearchParams | null
@@ -28,6 +39,52 @@ export function isPublicDiscoverableInvestmentModel(model: {
   status: string;
 }) {
   return model.status === 'approved' || model.status === 'live';
+}
+
+export const investModelDiscoveryFilterIds = [
+  'all',
+  'us-equities',
+  'etf-blend',
+  'high-risk',
+  'low-turnover'
+] as const satisfies InvestModelDiscoveryFilterId[];
+
+export function resolveInvestModelDiscoveryFilter(
+  rawFilter?: string | string[]
+): InvestModelDiscoveryFilterId {
+  const filter = Array.isArray(rawFilter) ? rawFilter[0] : rawFilter;
+
+  return investModelDiscoveryFilterIds.includes(
+    filter as InvestModelDiscoveryFilterId
+  )
+    ? (filter as InvestModelDiscoveryFilterId)
+    : 'all';
+}
+
+export function matchesInvestModelDiscoveryFilter(
+  model: InvestModelFilterable,
+  filterId: InvestModelDiscoveryFilterId
+) {
+  if (!isPublicDiscoverableInvestmentModel(model)) {
+    return false;
+  }
+
+  switch (filterId) {
+    case 'us-equities':
+      return [
+        'quant-us-leverage-alpha',
+        'defensive-income-rotation'
+      ].includes(model.id);
+    case 'etf-blend':
+      return model.id === 'macro-etf-balance';
+    case 'high-risk':
+      return model.riskTone === 'high';
+    case 'low-turnover':
+      return model.id === 'defensive-income-rotation';
+    case 'all':
+    default:
+      return true;
+  }
 }
 
 export const investModelNavLabels = {
