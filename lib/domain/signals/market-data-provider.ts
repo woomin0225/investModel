@@ -77,6 +77,99 @@ export interface MarketDataProvider {
   getQuotes(query: MarketDataQuery): Promise<MarketDataProviderResult>;
 }
 
+export const mockMarketDataQuotes = [
+  {
+    instrument: {
+      publicId: 'instrument_nvda',
+      symbol: 'NVDA',
+      displayName: 'NVIDIA Corp.',
+      market: 'US',
+      currency: 'USD',
+      instrumentType: 'equity'
+    },
+    providerKind: 'mock',
+    availability: 'available',
+    observedAt: '2026-07-14T00:01:00+09:00',
+    price: '128.40',
+    volume: '58200000',
+    previousClose: '125.10',
+    dataSourceLabel: 'mock market price',
+    isMock: true
+  },
+  {
+    instrument: {
+      publicId: 'instrument_qqq',
+      symbol: 'QQQ',
+      displayName: 'Invesco QQQ Trust',
+      market: 'US',
+      currency: 'USD',
+      instrumentType: 'etf'
+    },
+    providerKind: 'mock',
+    availability: 'available',
+    observedAt: '2026-07-14T00:02:00+09:00',
+    price: '486.25',
+    volume: '31200000',
+    previousClose: '482.20',
+    dataSourceLabel: 'mock market price',
+    isMock: true
+  },
+  {
+    instrument: {
+      publicId: 'instrument_tqqq',
+      symbol: 'TQQQ',
+      displayName: 'ProShares UltraPro QQQ',
+      market: 'US',
+      currency: 'USD',
+      instrumentType: 'etf'
+    },
+    providerKind: 'mock',
+    availability: 'available',
+    observedAt: '2026-07-14T00:03:00+09:00',
+    price: '72.18',
+    volume: '41800000',
+    previousClose: '70.44',
+    dataSourceLabel: 'mock market price',
+    isMock: true
+  },
+  {
+    instrument: {
+      publicId: 'instrument_tlt',
+      symbol: 'TLT',
+      displayName: 'iShares 20+ Year Treasury Bond ETF',
+      market: 'US',
+      currency: 'USD',
+      instrumentType: 'etf'
+    },
+    providerKind: 'mock',
+    availability: 'available',
+    observedAt: '2026-07-14T00:04:00+09:00',
+    price: '91.12',
+    volume: '17900000',
+    previousClose: '90.80',
+    dataSourceLabel: 'mock market price',
+    isMock: true
+  },
+  {
+    instrument: {
+      publicId: 'instrument_spy',
+      symbol: 'SPY',
+      displayName: 'SPDR S&P 500 ETF Trust',
+      market: 'US',
+      currency: 'USD',
+      instrumentType: 'etf'
+    },
+    providerKind: 'mock',
+    availability: 'available',
+    observedAt: '2026-07-14T00:05:00+09:00',
+    price: '556.70',
+    volume: '50100000',
+    previousClose: '553.40',
+    dataSourceLabel: 'mock market price',
+    isMock: true
+  }
+] satisfies MarketDataQuote[];
+
 export const marketDataQuerySchema = z.object({
   symbols: z.array(z.string().trim().min(1).max(24)).min(1).max(50),
   market: z.string().trim().min(2).max(40).optional(),
@@ -118,6 +211,72 @@ export function validateMarketDataQuery(
       fieldErrors: result.error.flatten().fieldErrors,
       formErrors: result.error.flatten().formErrors,
       requiredFields: ['symbols']
+    }
+  };
+}
+
+export function filterMockMarketDataQuotes(
+  quotes: readonly MarketDataQuote[],
+  query: MarketDataQuery
+): MarketDataQuote[] {
+  const requestedSymbols = new Set(
+    query.symbols.map((symbol) => symbol.trim().toUpperCase())
+  );
+  const market = query.market?.trim().toUpperCase();
+  const asOfTime = query.asOf ? Date.parse(query.asOf) : undefined;
+
+  return quotes
+    .filter((quote) => quote.providerKind === 'mock' && quote.isMock)
+    .filter((quote) => requestedSymbols.has(quote.instrument.symbol.toUpperCase()))
+    .filter((quote) =>
+      market ? quote.instrument.market.toUpperCase() === market : true
+    )
+    .filter((quote) =>
+      asOfTime === undefined ? true : Date.parse(quote.observedAt) <= asOfTime
+    )
+    .sort(
+      (left, right) =>
+        query.symbols.findIndex(
+          (symbol) =>
+            symbol.trim().toUpperCase() === left.instrument.symbol.toUpperCase()
+        ) -
+        query.symbols.findIndex(
+          (symbol) =>
+            symbol.trim().toUpperCase() === right.instrument.symbol.toUpperCase()
+        )
+    );
+}
+
+export function createMockMarketDataProvider(
+  quotes: readonly MarketDataQuote[] = mockMarketDataQuotes,
+  generatedAt = '2026-07-14T00:20:00+09:00'
+): MarketDataProvider {
+  return {
+    providerKind: 'mock',
+    async getQuotes(query) {
+      const validation = validateMarketDataQuery(query);
+
+      if (!validation.success) {
+        return {
+          providerKind: 'mock',
+          generatedAt,
+          quotes: [],
+          warnings: [
+            `Invalid market data query. Required fields: ${validation.error.requiredFields.join(
+              ', '
+            )}.`
+          ]
+        };
+      }
+
+      return {
+        providerKind: 'mock',
+        generatedAt,
+        quotes: filterMockMarketDataQuotes(quotes, validation.data),
+        warnings: [
+          'Mock market data is observation-only context for SignalEvent and AllocationDecision demos and does not create TradeIntent records, recommendations, or real orders.'
+        ]
+      };
     }
   };
 }
