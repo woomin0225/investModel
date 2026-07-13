@@ -50,13 +50,15 @@ pnpm install
 
 ## Running Locally
 
-Use the included setup script to create your `.env` file only when the project owner has provided the required local test secrets outside the repository:
+Use the included setup script to create your `.env` file. For mock-only investModel development, answer `n` when the script asks whether to configure the original starter Stripe billing surface. In that path, the script writes only the database URL, `BASE_URL`, and `AUTH_SECRET`; it does not require Stripe CLI auth, Stripe secrets, real deposits, real payments, or broker account setup.
 
 ```bash
 pnpm db:setup
 ```
 
-Run the database migrations and seed the database with a default user and team:
+Answer `y` to the starter Stripe billing prompt only when the project owner has provided local Stripe test credentials outside the repository. Those Stripe routes remain starter residue and are not approved investModel financial-operation features while `IS-001` is open.
+
+Run the database migrations and seed the database with a default user and team. When `STRIPE_SECRET_KEY` is not configured or is still a placeholder, the seed step skips only the original starter Stripe product and price creation:
 
 ```bash
 pnpm db:migrate
