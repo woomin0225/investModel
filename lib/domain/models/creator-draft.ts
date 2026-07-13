@@ -5,6 +5,10 @@ import type {
   InvestmentModelStatus,
   ModelArtifactStatus
 } from '@/lib/domain/types';
+import {
+  modelDescriptionSchema,
+  type ModelDescriptionInput
+} from './model-description';
 
 /**
  * This module defines the creator model draft API contract.
@@ -12,17 +16,8 @@ import type {
  */
 
 export const creatorModelDraftRequestSchema = z.object({
-  name: z.string().trim().min(2).max(80),
-  shortDescription: z.string().trim().min(12).max(220),
-  targetMarkets: z.array(z.string().trim().min(2).max(40)).min(1).max(8),
-  assetUniverseSummary: z.string().trim().min(12).max(260),
-  strategySummary: z.string().trim().min(20).max(600),
-  riskSummary: z.string().trim().min(20).max(600),
-  leverageAllowed: z.boolean(),
-  rebalancePolicy: z.string().trim().min(4).max(120),
-  forbiddenAssets: z.array(z.string().trim().min(2).max(80)).max(20).default([]),
-  disclosurePlaceholder: z.string().trim().min(12).max(600)
-});
+  name: z.string().trim().min(2).max(80)
+}).merge(modelDescriptionSchema);
 
 export type CreatorModelDraftRequest = z.infer<
   typeof creatorModelDraftRequestSchema
@@ -39,6 +34,7 @@ export interface InvestmentModelDraftDto {
   creatorCanSubmitForReview: true;
   dataContext: 'mock_draft';
   submittedFields: CreatorModelDraftRequest;
+  modelDescription: ModelDescriptionInput;
   policyNotices: string[];
 }
 
@@ -67,6 +63,7 @@ export function buildInvestmentModelDraftDto(
     creatorCanSubmitForReview: true,
     dataContext: 'mock_draft',
     submittedFields: input,
+    modelDescription: modelDescriptionSchema.parse(input),
     policyNotices: [
       'Draft models are never exposed in public discovery.',
       'Model artifacts remain metadata-only in the MVP.',
