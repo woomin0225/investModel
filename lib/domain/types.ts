@@ -1,0 +1,252 @@
+/**
+ * DomainPublicId is the stable external identifier exposed by investModel APIs instead of internal database ids.
+ */
+export type DomainPublicId = string;
+
+/**
+ * InvestmentModelStatus tracks whether a model can move from creator draft to public discovery.
+ * Only approved/live models should appear in user-facing discovery surfaces.
+ */
+export type InvestmentModelStatus =
+  | 'draft'
+  | 'pending_review'
+  | 'approved'
+  | 'live'
+  | 'paused'
+  | 'suspended'
+  | 'retired';
+
+/**
+ * ModelRiskLevel describes risk that belongs to an AI model, not a user-editable preference.
+ */
+export type ModelRiskLevel = 'low' | 'medium' | 'high' | 'very_high';
+
+/**
+ * ModelArtifactStatus records whether a model artifact is only metadata, uploaded, quarantined, approved, or rejected.
+ * Metadata-only is the MVP default because uploaded model execution is not allowed yet.
+ */
+export type ModelArtifactStatus =
+  | 'metadata_only'
+  | 'uploaded'
+  | 'quarantined'
+  | 'approved'
+  | 'rejected';
+
+/**
+ * ReviewStatus tracks operator review workflow without claiming final legal approval.
+ */
+export type ReviewStatus =
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'changes_requested';
+
+/**
+ * MockDepositStatus represents simulated money display state only.
+ * It must never be interpreted as a real deposit, payment, withdrawal, or brokerage balance.
+ */
+export type MockDepositStatus = 'pending' | 'completed' | 'cancelled';
+
+/**
+ * AllocationDecisionStatus describes model-generated allocation analysis before any order layer exists.
+ */
+export type AllocationDecisionStatus =
+  | 'draft'
+  | 'policy_checked'
+  | 'blocked'
+  | 'ready_for_simulation';
+
+/**
+ * TradeIntentStatus describes a pre-order simulation intent.
+ * It is not a broker order, execution, fill, or live trading instruction.
+ */
+export type TradeIntentStatus =
+  | 'pending_policy_check'
+  | 'approved_for_simulation'
+  | 'blocked'
+  | 'cancelled';
+
+/**
+ * SignalEventType identifies the observed input source for a signal without turning it into advice.
+ */
+export type SignalEventType = 'news_traffic' | 'price_trend' | 'macro' | 'risk';
+
+/**
+ * InvestmentModel is the public AI investment model unit registered by a creator and selected by users.
+ * It must not be renamed Strategy, Bot, or Advisor in domain code.
+ */
+export interface InvestmentModel {
+  publicId: DomainPublicId;
+  creatorPublicId: DomainPublicId;
+  name: string;
+  slug: string;
+  status: InvestmentModelStatus;
+  visibility: 'public' | 'private' | 'unlisted';
+  currentVersionPublicId?: DomainPublicId;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * ModelVersion freezes model description, mandate, risk, disclosure, and performance context for review and display.
+ */
+export interface ModelVersion {
+  publicId: DomainPublicId;
+  modelPublicId: DomainPublicId;
+  versionLabel: string;
+  summary: string;
+  modelArtifactStatus: ModelArtifactStatus;
+  submittedAt?: string;
+  approvedAt?: string;
+  createdAt: string;
+}
+
+/**
+ * ModelRiskProfile describes the model's own risk posture, leverage allowance, volatility, and drawdown context.
+ */
+export interface ModelRiskProfile {
+  modelVersionPublicId: DomainPublicId;
+  riskLevel: ModelRiskLevel;
+  leverageAllowed: boolean;
+  maxDrawdownLabel: string;
+  volatilityLabel: string;
+  riskSummary: string;
+}
+
+/**
+ * PortfolioMandate defines what a model is allowed and forbidden to invest in.
+ * Users do not edit this mandate as a personal allocation preference in the MVP.
+ */
+export interface PortfolioMandate {
+  modelVersionPublicId: DomainPublicId;
+  allowedAssetClasses: string[];
+  prohibitedAssetClasses: string[];
+  allowedMarkets: string[];
+  rebalancePolicy: string;
+  mandateSummary: string;
+}
+
+/**
+ * ModelDisclosure stores risk, performance, limitation, and legal-placeholder copy for a model version.
+ * Legal-placeholder values are not final legal advice or approved disclosure text.
+ */
+export interface ModelDisclosure {
+  publicId: DomainPublicId;
+  modelVersionPublicId: DomainPublicId;
+  disclosureType: 'risk' | 'performance' | 'limitation' | 'legal_placeholder';
+  title: string;
+  body: string;
+  requiresLegalReview: boolean;
+}
+
+/**
+ * ComplianceReview records an operator review event for model, version, or disclosure changes.
+ * It does not mean Codex has made a legal or financial suitability judgment.
+ */
+export interface ComplianceReview {
+  publicId: DomainPublicId;
+  modelPublicId: DomainPublicId;
+  modelVersionPublicId?: DomainPublicId;
+  status: ReviewStatus;
+  reviewerUserPublicId?: DomainPublicId;
+  notes?: string;
+  reviewedAt?: string;
+}
+
+/**
+ * UserModelSelection records that a user selected a specific model version.
+ * It is not a user-controlled risk, leverage, stock ratio, or bond ratio preference.
+ */
+export interface UserModelSelection {
+  publicId: DomainPublicId;
+  userPublicId: DomainPublicId;
+  modelPublicId: DomainPublicId;
+  modelVersionPublicId: DomainPublicId;
+  status: 'active' | 'paused' | 'revoked';
+  riskAcknowledgedAt?: string;
+  createdAt: string;
+}
+
+/**
+ * MockDeposit represents simulated funds for early UI and API development only.
+ * It must not be wired to payment, banking, withdrawal, or brokerage account logic.
+ */
+export interface MockDeposit {
+  publicId: DomainPublicId;
+  userPublicId: DomainPublicId;
+  amount: string;
+  currency: string;
+  status: MockDepositStatus;
+  sourceType: 'mock' | 'external_placeholder';
+  createdAt: string;
+}
+
+/**
+ * Portfolio represents a mock portfolio state connected to a selected model.
+ * It is not proof of real holdings or brokerage account positions.
+ */
+export interface Portfolio {
+  publicId: DomainPublicId;
+  userPublicId: DomainPublicId;
+  modelSelectionPublicId: DomainPublicId;
+  status: 'mock_active' | 'paused' | 'closed';
+  createdAt: string;
+}
+
+/**
+ * AllocationDecision captures a model's simulated allocation analysis from signals and mandates.
+ * It is upstream of TradeIntent and must not be displayed as a finalized user recommendation.
+ */
+export interface AllocationDecision {
+  publicId: DomainPublicId;
+  modelVersionPublicId: DomainPublicId;
+  portfolioPublicId: DomainPublicId;
+  decisionStatus: AllocationDecisionStatus;
+  rationaleSummary: string;
+  createdAt: string;
+}
+
+/**
+ * TradeIntent captures a simulated pre-order intent produced after policy checks.
+ * No implementation may treat it as an executed order or broker API request.
+ */
+export interface TradeIntent {
+  publicId: DomainPublicId;
+  allocationDecisionPublicId: DomainPublicId;
+  portfolioPublicId: DomainPublicId;
+  instrumentPublicId: DomainPublicId;
+  side: 'buy' | 'sell';
+  quantity: string;
+  status: TradeIntentStatus;
+  createdAt: string;
+}
+
+/**
+ * SignalEvent represents observed market, news, traffic, macro, or risk input for model analysis.
+ * It is not a buy, sell, hold, or rebalance recommendation.
+ */
+export interface SignalEvent {
+  publicId: DomainPublicId;
+  modelVersionPublicId: DomainPublicId;
+  signalType: SignalEventType;
+  score: number;
+  title: string;
+  summary: string;
+  sourceArticlePublicId?: DomainPublicId;
+  sourceInstrumentPublicId?: DomainPublicId;
+  capturedAt: string;
+}
+
+/**
+ * FeedPost represents informational model, market, or operator commentary for the feed surface.
+ * It must not guarantee returns or encourage a user to trade securities.
+ */
+export interface FeedPost {
+  publicId: DomainPublicId;
+  modelPublicId?: DomainPublicId;
+  authorUserPublicId?: DomainPublicId;
+  title: string;
+  body: string;
+  postType: 'model_note' | 'market_context' | 'risk_note' | 'review_note';
+  publishedAt?: string;
+}
