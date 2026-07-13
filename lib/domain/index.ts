@@ -11,3 +11,4 @@ export * from './portfolio/mock-deposit';
 export * from './portfolio/portfolio-mandate';
 export * from './portfolio/trade-intent-policy';
 export * from './portfolio/trade-intent';
+export * from './signals/market-data-provider';
