@@ -9,3 +9,4 @@ export * from './models/model-description';
 export * from './models/model-selection';
 export * from './portfolio/mock-deposit';
 export * from './portfolio/portfolio-mandate';
+export * from './portfolio/trade-intent';
