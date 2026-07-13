@@ -7,6 +7,7 @@ import type {
 } from '@/lib/domain/types';
 import {
   modelDescriptionSchema,
+  requiredModelDescriptionFields,
   type ModelDescriptionInput
 } from './model-description';
 import { canCreateCreatorDraft } from './model-creator';
@@ -23,6 +24,20 @@ export const creatorModelDraftRequestSchema = z.object({
 export type CreatorModelDraftRequest = z.infer<
   typeof creatorModelDraftRequestSchema
 >;
+
+export type CreatorModelDraftValidationResult =
+  | {
+      success: true;
+      data: CreatorModelDraftRequest;
+    }
+  | {
+      success: false;
+      error: {
+        fieldErrors: Partial<Record<keyof CreatorModelDraftRequest, string[]>>;
+        formErrors: string[];
+        requiredFields: readonly string[];
+      };
+    };
 
 export interface InvestmentModelDraftDto {
   modelPublicId: DomainPublicId;
@@ -41,6 +56,28 @@ export interface InvestmentModelDraftDto {
 
 export function canCreateModelDraft(role: AccessRole) {
   return canCreateCreatorDraft(role);
+}
+
+export function validateCreatorModelDraftRequest(
+  input: unknown
+): CreatorModelDraftValidationResult {
+  const result = creatorModelDraftRequestSchema.safeParse(input);
+
+  if (result.success) {
+    return {
+      success: true,
+      data: result.data
+    };
+  }
+
+  return {
+    success: false,
+    error: {
+      fieldErrors: result.error.flatten().fieldErrors,
+      formErrors: result.error.flatten().formErrors,
+      requiredFields: ['name', ...requiredModelDescriptionFields]
+    }
+  };
 }
 
 export function buildInvestmentModelDraftDto(

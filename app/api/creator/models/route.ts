@@ -1,9 +1,8 @@
 import { NextRequest } from 'next/server';
-import { ZodError } from 'zod';
 import {
   buildInvestmentModelDraftDto,
   canCreateModelDraft,
-  creatorModelDraftRequestSchema
+  validateCreatorModelDraftRequest
 } from '@/lib/domain/models/creator-draft';
 import type { AccessRole } from '@/lib/domain/types';
 
@@ -59,35 +58,40 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let body: unknown;
+
   try {
-    const parsed = creatorModelDraftRequestSchema.parse(await request.json());
-    const draft = buildInvestmentModelDraftDto(parsed);
-
-    return Response.json(
-      {
-        data: draft,
-        meta: {
-          routeStatus: 'mock_backed',
-          persistence: 'not_persisted',
-          approvalRequiredBeforePublicDiscovery: true
-        }
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return errorResponse(
-        422,
-        'validation_error',
-        'Model draft request is missing required creator, mandate, risk, or disclosure fields.',
-        error.flatten()
-      );
-    }
-
+    body = await request.json();
+  } catch {
     return errorResponse(
       422,
       'validation_error',
       'Request body must be valid JSON for a model draft.'
     );
   }
+
+  const validation = validateCreatorModelDraftRequest(body);
+
+  if (!validation.success) {
+    return errorResponse(
+      422,
+      'validation_error',
+      'Model draft request is missing required creator, mandate, risk, or disclosure fields.',
+      validation.error
+    );
+  }
+
+  const draft = buildInvestmentModelDraftDto(validation.data);
+
+  return Response.json(
+    {
+      data: draft,
+      meta: {
+        routeStatus: 'mock_backed',
+        persistence: 'not_persisted',
+        approvalRequiredBeforePublicDiscovery: true
+      }
+    },
+    { status: 201 }
+  );
 }
