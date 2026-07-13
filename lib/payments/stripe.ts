@@ -7,9 +7,18 @@ import {
   updateTeamSubscription
 } from '@/lib/db/queries';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+export const isStripeConfigured =
+  Boolean(stripeSecretKey?.startsWith('sk_')) &&
+  !stripeSecretKey?.toLowerCase().includes('placeholder');
+
+export const stripe = new Stripe(
+  stripeSecretKey || 'sk_test_placeholder_disabled',
+  {
   apiVersion: '2025-04-30.basil'
-});
+  }
+);
 
 export async function createCheckoutSession({
   team,
@@ -147,6 +156,10 @@ export async function handleSubscriptionChange(
 }
 
 export async function getStripePrices() {
+  if (!isStripeConfigured) {
+    return [];
+  }
+
   const prices = await stripe.prices.list({
     expand: ['data.product'],
     active: true,
@@ -165,6 +178,10 @@ export async function getStripePrices() {
 }
 
 export async function getStripeProducts() {
+  if (!isStripeConfigured) {
+    return [];
+  }
+
   const products = await stripe.products.list({
     active: true,
     expand: ['data.default_price']
