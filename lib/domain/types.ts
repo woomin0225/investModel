@@ -4,6 +4,40 @@
 export type DomainPublicId = string;
 
 /**
+ * AccessRole is the canonical RBAC actor role used by API guards, audit logs, and permission checks.
+ * User-facing financial actions remain denied unless an explicit later review changes the policy.
+ */
+export type AccessRole = 'public' | 'user' | 'creator' | 'admin' | 'system';
+
+/**
+ * HumanUserRole is the subset of roles that can belong to a signed-in human account.
+ * The system role is reserved for scheduled internal jobs and must not be assigned to users.
+ */
+export type HumanUserRole = 'user' | 'creator' | 'admin';
+
+/**
+ * PermissionResult records a role check outcome without exposing secret policy details to the UI.
+ * Policy-blocked is used for real orders, real deposits, brokerage links, and legal-review boundaries.
+ */
+export type PermissionResult =
+  | 'allowed'
+  | 'denied'
+  | 'policy_blocked'
+  | 'review_required';
+
+/**
+ * UserAccount represents a signed-in human account and its coarse application role.
+ * It must not store brokerage credentials, bank credentials, or model runtime secrets.
+ */
+export interface UserAccount {
+  publicId: DomainPublicId;
+  email: string;
+  displayName?: string;
+  role: HumanUserRole;
+  createdAt: string;
+}
+
+/**
  * InvestmentModelStatus tracks whether a model can move from creator draft to public discovery.
  * Only approved/live models should appear in user-facing discovery surfaces.
  */
