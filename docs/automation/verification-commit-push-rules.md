@@ -52,7 +52,7 @@ Do not repeatedly attempt blocked commands without changing the environment.
 | Blocker | Current rule |
 | --- | --- |
 | production build needs real Stripe key | do not run or claim successful `next build` for production until `IS-001` is resolved |
-| Docker not installed | do not claim local Postgres/Docker DB setup was tested |
+| Docker not installed | do not claim local Docker/MySQL DB setup was tested |
 | external paid API key missing | stop and record Issue; do not add placeholder secrets |
 | real financial account or brokerage access required | stop and request user/legal/security confirmation through Issues |
 

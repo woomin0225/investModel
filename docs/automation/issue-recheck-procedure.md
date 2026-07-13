@@ -37,7 +37,7 @@ External blockers must remain open or blocked until the required outside action 
 
 Current examples:
 
-- `IS-001`: real Stripe test key and local Docker/Postgres availability are outside automation scope.
+- `IS-001`: real Stripe test key and local Docker/MySQL setup availability are outside automation scope.
 - `IS-003`: actual phone-device verification must be performed on the user's device.
 
 Do not create code changes only to silence these issues. If the run cannot resolve the issue locally, continue to the next safe task and mention the open issue in `Runs.verification`.
