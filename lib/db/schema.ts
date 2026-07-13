@@ -170,6 +170,37 @@ export const modelRiskProfiles = mysqlTable(
   ]
 );
 
+/**
+ * modelDisclosures stores placeholder or reviewed disclosure copy for a future ModelVersion.
+ * Codex records review state here but does not finalize legal or financial wording.
+ */
+export const modelDisclosures = mysqlTable(
+  'model_disclosures',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    modelVersionId: int('model_version_id').notNull(),
+    disclosureType: varchar('disclosure_type', { length: 40 }).notNull(),
+    title: varchar('title', { length: 160 }).notNull(),
+    body: text('body').notNull(),
+    requiresLegalReview: boolean('requires_legal_review')
+      .notNull()
+      .default(false),
+    reviewedByUserId: int('reviewed_by_user_id').references(() => users.id),
+    reviewedAt: timestamp('reviewed_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_model_disclosures_version_type').on(
+      table.modelVersionId,
+      table.disclosureType
+    ),
+    index('idx_model_disclosures_legal_review').on(
+      table.requiresLegalReview
+    ),
+    index('idx_model_disclosures_reviewed_by').on(table.reviewedByUserId),
+  ]
+);
+
 export const teamsRelations = relations(teams, ({ many }) => ({
   teamMembers: many(teamMembers),
   activityLogs: many(activityLogs),
@@ -261,6 +292,11 @@ export type NewInvestmentModel = typeof investmentModels.$inferInsert;
  */
 export type ModelRiskProfile = typeof modelRiskProfiles.$inferSelect;
 export type NewModelRiskProfile = typeof modelRiskProfiles.$inferInsert;
+/**
+ * ModelDisclosure is persisted disclosure copy or placeholder text awaiting review.
+ */
+export type ModelDisclosure = typeof modelDisclosures.$inferSelect;
+export type NewModelDisclosure = typeof modelDisclosures.$inferInsert;
 export type TeamDataWithMembers = Team & {
   teamMembers: (TeamMember & {
     user: Pick<User, 'id' | 'name' | 'email'>;

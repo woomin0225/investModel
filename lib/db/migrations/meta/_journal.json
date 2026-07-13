@@ -22,6 +22,13 @@
       "when": 1783954972215,
       "tag": "0002_model_risk_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1783955218388,
+      "tag": "0003_model_disclosures",
+      "breakpoints": true
     }
   ]
 }
