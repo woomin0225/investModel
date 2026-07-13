@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Filter, Search } from 'lucide-react';
+import { Filter, Scale, Search } from 'lucide-react';
 import {
   MobileShell,
   ModelCard,
@@ -22,6 +22,17 @@ const riskToneByModel = {
   low: 'low',
   medium: 'medium',
   high: 'high'
+} as const;
+
+const compareCtaCopy = {
+  ko: {
+    label: '모델 비교',
+    description: '성과, 위험, 변동성, 손실 구간을 함께 비교합니다.'
+  },
+  en: {
+    label: 'Compare models',
+    description: 'Compare returns, risk, volatility, and drawdown together.'
+  }
 } as const;
 
 function getDiscoveryFilterHref(
@@ -92,6 +103,23 @@ export default async function InvestModelDiscoveryPage({
                 : `${discoverableInvestmentModels.length} ${modelsCopy.liveApprovedCount}`
             }
           />
+
+          <Link
+            href={withInvestModelLocale('/invest-model/models/compare', locale)}
+            className="flex min-h-invest-touch-target items-center gap-3 rounded-invest-card border border-invest-border bg-invest-surface p-3 text-invest-text shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
+          >
+            <span className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-invest-primary">
+              <Scale aria-hidden className="size-5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-bold leading-5">
+                {compareCtaCopy[locale].label}
+              </span>
+              <span className="mt-1 block text-xs leading-5 text-invest-text-muted">
+                {compareCtaCopy[locale].description}
+              </span>
+            </span>
+          </Link>
 
           <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
             <div className="flex w-max gap-2 pr-invest-screen-x">
