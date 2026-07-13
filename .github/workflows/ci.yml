@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  verify:
+    name: Typecheck and smoke tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Creator draft validation smoke
+        run: pnpm run test:creator-draft-validation
+
+      - name: RBAC smoke
+        run: pnpm run test:rbac
+
+      - name: Market data smoke
+        run: pnpm run test:market-data
+
+      - name: News traffic smoke
+        run: pnpm run test:news-traffic
+
+      - name: Mock decision engine smoke
+        run: pnpm run test:mock-decision
+
+      - name: Build when Stripe secret is configured
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          if [ -z "$STRIPE_SECRET_KEY" ]; then
+            echo "Skipping pnpm build because STRIPE_SECRET_KEY is not configured for CI."
+            exit 0
+          fi
+
+          pnpm run build
