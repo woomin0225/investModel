@@ -96,6 +96,7 @@ export async function POST(
           routeStatus: 'mock_backed',
           persistence: 'not_persisted',
           auditLogReturned: true,
+          reviewCommentReturned: true,
           realModelExecution: false,
           realTrading: false
         }
@@ -107,7 +108,7 @@ export async function POST(
       return errorResponse(
         422,
         'validation_error',
-        'Admin model review requests require a valid decision, currentStatus, and reason.',
+        'Admin model review requests require a valid decision, currentStatus, and review reason comment.',
         error.flatten()
       );
     }

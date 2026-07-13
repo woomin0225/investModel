@@ -20,6 +20,8 @@ export type AdminModelReviewDecision =
   | 'suspend'
   | 'retire';
 
+export type AdminReviewCommentVisibility = 'internal' | 'creator_visible';
+
 type AdminReviewTransition = {
   from: InvestmentModelStatus;
   to: InvestmentModelStatus;
@@ -87,6 +89,34 @@ export type AdminModelReviewRequest = z.infer<
   typeof adminModelReviewRequestSchema
 >;
 
+function resolveCommentVisibility(decision: AdminModelReviewDecision) {
+  return decision === 'request_changes' || decision === 'reject'
+    ? 'creator_visible'
+    : 'internal';
+}
+
+function buildAdminReviewComment({
+  decision,
+  reason,
+  reviewerUserPublicId,
+  reviewedAt
+}: {
+  decision: AdminModelReviewDecision;
+  reason: string;
+  reviewerUserPublicId?: DomainPublicId;
+  reviewedAt: string;
+}) {
+  return {
+    publicId: `review_comment_${crypto.randomUUID()}`,
+    body: reason,
+    decision,
+    visibility: resolveCommentVisibility(decision),
+    reviewerUserPublicId,
+    createdAt: reviewedAt,
+    persistence: 'not_persisted' as const
+  };
+}
+
 export function canReviewInvestmentModel(role: AccessRole) {
   return role === 'admin';
 }
@@ -126,6 +156,12 @@ export function buildAdminModelReviewResult({
   }
 
   const reviewedAt = new Date().toISOString();
+  const reviewComment = buildAdminReviewComment({
+    decision: input.decision,
+    reason: input.reason,
+    reviewerUserPublicId: input.reviewerUserPublicId,
+    reviewedAt
+  });
   const auditLog = buildAuditLog({
     publicId: `audit_${crypto.randomUUID()}`,
     actor: {
@@ -145,6 +181,8 @@ export function buildAdminModelReviewResult({
     after: {
       status: transition.to,
       reviewDecision: input.decision,
+      reviewCommentPublicId: reviewComment.publicId,
+      reviewCommentVisibility: reviewComment.visibility,
       persistence: 'not_persisted'
     },
     requestIp,
@@ -158,6 +196,7 @@ export function buildAdminModelReviewResult({
       previousStatus: transition.from,
       nextStatus: transition.to,
       decision: input.decision,
+      reviewComment,
       reviewedAt,
       persistence: 'not_persisted',
       auditLog
