@@ -44,6 +44,8 @@ export interface UserAccount {
 export type InvestmentModelStatus =
   | 'draft'
   | 'pending_review'
+  | 'changes_requested'
+  | 'rejected'
   | 'approved'
   | 'live'
   | 'paused'
