@@ -3,7 +3,7 @@ import { db } from '@/lib/db/drizzle';
 import { users, teams, teamMembers } from '@/lib/db/schema';
 import { setSession } from '@/lib/auth/session';
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/payments/stripe';
+import { isStripeConfigured, stripe } from '@/lib/payments/stripe';
 import Stripe from 'stripe';
 
 export async function GET(request: NextRequest) {
@@ -11,6 +11,10 @@ export async function GET(request: NextRequest) {
   const sessionId = searchParams.get('session_id');
 
   if (!sessionId) {
+    return NextResponse.redirect(new URL('/pricing', request.url));
+  }
+
+  if (!isStripeConfigured) {
     return NextResponse.redirect(new URL('/pricing', request.url));
   }
 
