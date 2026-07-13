@@ -84,9 +84,12 @@ type ModelCardProps = {
   market: string;
   riskLabel: string;
   riskTone?: RiskBadgeTone;
+  statusLabel?: string;
+  statusTone?: RiskBadgeTone;
   performanceLabel: string;
   mandateLabel: string;
   constraintLabels?: readonly string[];
+  isSelectionDisabled?: boolean;
   className?: string;
 };
 
@@ -379,15 +382,19 @@ export function ModelCard({
   market,
   riskLabel,
   riskTone = 'neutral',
+  statusLabel,
+  statusTone = 'neutral',
   performanceLabel,
   mandateLabel,
   constraintLabels,
+  isSelectionDisabled = false,
   className
 }: ModelCardProps) {
   return (
     <article
       className={cn(
         'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        isSelectionDisabled && 'border-invest-border bg-invest-surface-muted opacity-80',
         className
       )}
     >
@@ -400,6 +407,9 @@ export function ModelCard({
             <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-invest-text">
               {name}
             </h3>
+            {statusLabel ? (
+              <RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>
+            ) : null}
             <RiskBadge tone={riskTone}>{riskLabel}</RiskBadge>
           </div>
           <p className="mt-2 text-sm leading-6 text-invest-text-muted">

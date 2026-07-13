@@ -4,6 +4,16 @@
  */
 
 export type InvestModelLocale = 'ko' | 'en';
+export type InvestmentModelPublicationStatus =
+  | 'draft'
+  | 'pending_review'
+  | 'changes_requested'
+  | 'rejected'
+  | 'approved'
+  | 'live'
+  | 'paused'
+  | 'suspended'
+  | 'retired';
 export type InvestModelDiscoveryFilterId =
   | 'all'
   | 'us-equities'
@@ -15,7 +25,13 @@ type SearchParams = Record<string, string | string[] | undefined>;
 type InvestModelFilterable = {
   id: string;
   riskTone: string;
-  status: string;
+  status: InvestmentModelPublicationStatus;
+};
+
+type InvestmentModelStatusDisplay = {
+  label: string;
+  tone: 'neutral' | 'low' | 'medium' | 'high' | 'blocked';
+  isSelectionDisabled: boolean;
 };
 
 export function resolveInvestModelLocale(
@@ -36,9 +52,70 @@ export function withInvestModelLocale(
 }
 
 export function isPublicDiscoverableInvestmentModel(model: {
-  status: string;
+  status: InvestmentModelPublicationStatus;
 }) {
   return model.status === 'approved' || model.status === 'live';
+}
+
+export function getInvestmentModelStatusDisplay(
+  status: InvestmentModelPublicationStatus,
+  locale: InvestModelLocale
+): InvestmentModelStatusDisplay {
+  const labels = {
+    ko: {
+      draft: '초안',
+      pending_review: '심사 대기',
+      changes_requested: '수정 요청',
+      rejected: '반려',
+      approved: '승인 mock',
+      live: 'Live mock',
+      paused: '일시 중지',
+      suspended: '운영 중지',
+      retired: '종료'
+    },
+    en: {
+      draft: 'Draft',
+      pending_review: 'Pending review',
+      changes_requested: 'Changes requested',
+      rejected: 'Rejected',
+      approved: 'Approved mock',
+      live: 'Live mock',
+      paused: 'Paused',
+      suspended: 'Suspended',
+      retired: 'Retired'
+    }
+  } as const;
+
+  const disabledStatuses = new Set<InvestmentModelPublicationStatus>([
+    'draft',
+    'pending_review',
+    'changes_requested',
+    'rejected',
+    'paused',
+    'suspended',
+    'retired'
+  ]);
+
+  const toneByStatus: Record<
+    InvestmentModelPublicationStatus,
+    InvestmentModelStatusDisplay['tone']
+  > = {
+    draft: 'neutral',
+    pending_review: 'medium',
+    changes_requested: 'medium',
+    rejected: 'blocked',
+    approved: 'low',
+    live: 'low',
+    paused: 'medium',
+    suspended: 'blocked',
+    retired: 'neutral'
+  };
+
+  return {
+    label: labels[locale][status],
+    tone: toneByStatus[status],
+    isSelectionDisabled: disabledStatuses.has(status)
+  };
 }
 
 export const investModelDiscoveryFilterIds = [

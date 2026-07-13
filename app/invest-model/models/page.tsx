@@ -8,6 +8,7 @@ import {
   SoftBanner
 } from '@/components/invest-model';
 import {
+  getInvestmentModelStatusDisplay,
   investModelDiscoveryFilterIds,
   isPublicDiscoverableInvestmentModel,
   investModelCopy,
@@ -117,32 +118,49 @@ export default async function InvestModelDiscoveryPage({
           </div>
 
           <div className="space-y-invest-card-gap">
-            {filteredInvestmentModels.map((model) => (
-              <div key={model.id} className="space-y-2">
-                <Link
-                  href={withInvestModelLocale(
-                    `/invest-model/models/${model.id}`,
-                    locale
+            {filteredInvestmentModels.map((model) => {
+              const statusDisplay = getInvestmentModelStatusDisplay(
+                model.status,
+                locale
+              );
+              const modelCard = (
+                <ModelCard
+                  name={model.name}
+                  summary={model.summary}
+                  market={model.market}
+                  riskLabel={model.riskLabel}
+                  riskTone={riskToneByModel[model.riskTone]}
+                  statusLabel={statusDisplay.label}
+                  statusTone={statusDisplay.tone}
+                  performanceLabel={model.performanceLabel}
+                  mandateLabel={model.mandateLabel}
+                  constraintLabels={model.tags}
+                  isSelectionDisabled={statusDisplay.isSelectionDisabled}
+                />
+              );
+
+              return (
+                <div key={model.id} className="space-y-2">
+                  {statusDisplay.isSelectionDisabled ? (
+                    modelCard
+                  ) : (
+                    <Link
+                      href={withInvestModelLocale(
+                        `/invest-model/models/${model.id}`,
+                        locale
+                      )}
+                      className="block rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
+                    >
+                      {modelCard}
+                    </Link>
                   )}
-                  className="block rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
-                >
-                  <ModelCard
-                    name={model.name}
-                    summary={model.summary}
-                    market={model.market}
-                    riskLabel={model.riskLabel}
-                    riskTone={riskToneByModel[model.riskTone]}
-                    performanceLabel={model.performanceLabel}
-                    mandateLabel={model.mandateLabel}
-                    constraintLabels={model.tags}
-                  />
-                </Link>
-                <div className="flex flex-wrap gap-2 px-1">
-                  <RiskBadge>{model.reviewLabel}</RiskBadge>
-                  <RiskBadge tone="low">{model.simulatedAumLabel}</RiskBadge>
+                  <div className="flex flex-wrap gap-2 px-1">
+                    <RiskBadge>{model.reviewLabel}</RiskBadge>
+                    <RiskBadge tone="low">{model.simulatedAumLabel}</RiskBadge>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
