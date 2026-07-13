@@ -1,4 +1,5 @@
 import { ClipboardCheck } from 'lucide-react';
+import Link from 'next/link';
 import {
   MobileShell,
   RiskBadge,
@@ -7,7 +8,8 @@ import {
 } from '@/components/invest-model';
 import {
   resolveInvestModelLocale,
-  type InvestModelLocale
+  type InvestModelLocale,
+  withInvestModelLocale
 } from '@/lib/i18n/invest-model';
 import {
   pendingAdminReviewModels,
@@ -180,6 +182,16 @@ function AdminReviewModelCard({
         <RiskBadge tone="blocked">{copy.blocked}</RiskBadge>
         <RiskBadge>{model.blockedActionLabel}</RiskBadge>
       </div>
+
+      <Link
+        href={withInvestModelLocale(
+          `/invest-model/admin/reviews/${model.id}`,
+          locale
+        )}
+        className="mt-4 flex min-h-invest-touch-target items-center justify-center rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-invest-surface"
+      >
+        {locale === 'ko' ? '상세 보기' : 'View detail'}
+      </Link>
     </article>
   );
 }
