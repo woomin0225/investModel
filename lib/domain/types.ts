@@ -331,3 +331,16 @@ export interface ModelViewEvent {
   locale: 'ko' | 'en';
   occurredAt: string;
 }
+
+/**
+ * ModelSelectionEvent records that a mock-safe UserModelSelection was created for a model version.
+ * It is analytics metadata only and must not include deposits, orders, brokerage accounts, payments, or suitability claims.
+ */
+export interface ModelSelectionEvent {
+  publicId: DomainPublicId;
+  userPublicId: DomainPublicId;
+  modelPublicId: DomainPublicId;
+  modelVersionPublicId: DomainPublicId;
+  modelSelectionPublicId: DomainPublicId;
+  selectedAt: string;
+}

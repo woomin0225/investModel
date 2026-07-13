@@ -4,6 +4,7 @@
  */
 export * from './types';
 export * from './audit/audit-log';
+export * from './analytics/model-selection-event';
 export * from './analytics/model-view-event';
 export * from './models/model-creator';
 export * from './models/model-artifact-metadata';
