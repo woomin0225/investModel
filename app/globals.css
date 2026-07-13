@@ -272,3 +272,72 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*
+  investModel 모바일 디자인 토큰.
+  Figma 초기 모바일 구조와 design-harness 관찰값을 CSS 변수로 노출해 MobileShell, 카드, 배지, 하단 탭에서 재사용한다.
+*/
+:root {
+  --invest-bg: #f7f9fc;
+  --invest-bg-soft: #f2f6ff;
+  --invest-surface: #ffffff;
+  --invest-surface-muted: #f4f6fa;
+  --invest-border: #e9eef5;
+  --invest-primary: #2f80ed;
+  --invest-primary-soft: #eaf3ff;
+  --invest-primary-strong: #1b64d8;
+  --invest-positive: #16885a;
+  --invest-positive-soft: #e8f7ef;
+  --invest-risk: #f04452;
+  --invest-risk-soft: #fff0f2;
+  --invest-warning: #f5a524;
+  --invest-warning-soft: #fff7df;
+  --invest-text: #202632;
+  --invest-text-muted: #7d8796;
+  --invest-text-disabled: #a5adba;
+  --invest-radius-card: 8px;
+  --invest-radius-control: 8px;
+  --invest-radius-badge: 999px;
+  --invest-shadow-card: 0 12px 32px rgb(32 38 50 / 0.08);
+  --invest-shadow-nav: 0 -12px 28px rgb(32 38 50 / 0.08);
+  --invest-screen-x: 20px;
+  --invest-screen-top: 18px;
+  --invest-section-gap: 20px;
+  --invest-card-gap: 12px;
+  --invest-card-padding: 16px;
+  --invest-bottom-nav-height: 72px;
+  --invest-touch-target: 44px;
+  --invest-mobile-frame-width: 390px;
+}
+
+@theme inline {
+  --color-invest-bg: var(--invest-bg);
+  --color-invest-bg-soft: var(--invest-bg-soft);
+  --color-invest-surface: var(--invest-surface);
+  --color-invest-surface-muted: var(--invest-surface-muted);
+  --color-invest-border: var(--invest-border);
+  --color-invest-primary: var(--invest-primary);
+  --color-invest-primary-soft: var(--invest-primary-soft);
+  --color-invest-primary-strong: var(--invest-primary-strong);
+  --color-invest-positive: var(--invest-positive);
+  --color-invest-positive-soft: var(--invest-positive-soft);
+  --color-invest-risk: var(--invest-risk);
+  --color-invest-risk-soft: var(--invest-risk-soft);
+  --color-invest-warning: var(--invest-warning);
+  --color-invest-warning-soft: var(--invest-warning-soft);
+  --color-invest-text: var(--invest-text);
+  --color-invest-text-muted: var(--invest-text-muted);
+  --color-invest-text-disabled: var(--invest-text-disabled);
+  --radius-invest-card: var(--invest-radius-card);
+  --radius-invest-control: var(--invest-radius-control);
+  --radius-invest-badge: var(--invest-radius-badge);
+  --shadow-invest-card: var(--invest-shadow-card);
+  --shadow-invest-nav: var(--invest-shadow-nav);
+  --spacing-invest-screen-x: var(--invest-screen-x);
+  --spacing-invest-screen-top: var(--invest-screen-top);
+  --spacing-invest-section-gap: var(--invest-section-gap);
+  --spacing-invest-card-gap: var(--invest-card-gap);
+  --spacing-invest-card-padding: var(--invest-card-padding);
+  --spacing-invest-bottom-nav: var(--invest-bottom-nav-height);
+  --spacing-invest-touch-target: var(--invest-touch-target);
+}
