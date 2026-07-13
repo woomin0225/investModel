@@ -14,7 +14,8 @@
     "test:market-data": "npx tsx scripts/smoke/market-data-provider-smoke.ts",
     "test:mock-decision": "npx tsx scripts/smoke/mock-decision-engine-smoke.ts",
     "test:news-traffic": "npx tsx scripts/smoke/news-traffic-provider-smoke.ts",
-    "test:rbac": "npx tsx scripts/smoke/rbac-access-smoke.ts"
+    "test:rbac": "npx tsx scripts/smoke/rbac-access-smoke.ts",
+    "test:webhook-signature": "npx tsx scripts/smoke/webhook-signature-smoke.ts"
   },
   "dependencies": {
     "@tailwindcss/postcss": "4.1.7",
