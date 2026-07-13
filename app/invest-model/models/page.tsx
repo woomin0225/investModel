@@ -8,6 +8,7 @@ import {
   SoftBanner
 } from '@/components/invest-model';
 import {
+  isPublicDiscoverableInvestmentModel,
   investModelCopy,
   resolveInvestModelLocale,
   withInvestModelLocale
@@ -29,8 +30,8 @@ export default async function InvestModelDiscoveryPage({
   const locale = resolveInvestModelLocale(await searchParams);
   const copy = investModelCopy[locale];
   const modelsCopy = copy.models;
-  const discoverableInvestmentModels = modelsCopy.models.filter((model) =>
-    ['approved', 'live'].includes(model.status)
+  const discoverableInvestmentModels = modelsCopy.models.filter(
+    isPublicDiscoverableInvestmentModel
   );
 
   return (

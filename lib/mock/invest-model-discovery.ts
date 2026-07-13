@@ -3,6 +3,8 @@
  * Only approved live mock models should be rendered in the public discovery screen.
  */
 
+import { isPublicDiscoverableInvestmentModel } from '@/lib/i18n/invest-model';
+
 export type MockInvestmentModel = {
   id: string;
   name: string;
@@ -90,6 +92,4 @@ export const investModelDiscoveryMock = {
 };
 
 export const discoverableInvestmentModels =
-  investModelDiscoveryMock.models.filter((model) =>
-    ['approved', 'live'].includes(model.status)
-  );
+  investModelDiscoveryMock.models.filter(isPublicDiscoverableInvestmentModel);

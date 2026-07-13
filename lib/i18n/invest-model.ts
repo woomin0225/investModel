@@ -24,6 +24,12 @@ export function withInvestModelLocale(
   return locale === 'en' ? `${path}?lang=en` : path;
 }
 
+export function isPublicDiscoverableInvestmentModel(model: {
+  status: string;
+}) {
+  return model.status === 'approved' || model.status === 'live';
+}
+
 export const investModelNavLabels = {
   ko: {
     home: '홈',
