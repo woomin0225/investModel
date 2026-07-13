@@ -13,6 +13,7 @@ export * from './models/model-artifact-metadata';
 export * from './models/model-description';
 export * from './models/model-selection';
 export * from './models/model-version';
+export * from './notifications/model-status-notification';
 export * from './notifications/review-result-notification';
 export * from './portfolio/mock-deposit';
 export * from './portfolio/portfolio-mandate';
