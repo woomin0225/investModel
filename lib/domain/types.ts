@@ -344,3 +344,22 @@ export interface ModelSelectionEvent {
   modelSelectionPublicId: DomainPublicId;
   selectedAt: string;
 }
+
+/**
+ * ModelReport records a user-submitted concern about model copy or performance display.
+ * It routes content to operator review and does not decide legal fault, suitability, compensation, or trading action.
+ */
+export interface ModelReport {
+  publicId: DomainPublicId;
+  reporterUserPublicId: DomainPublicId;
+  modelPublicId: DomainPublicId;
+  modelVersionPublicId?: DomainPublicId;
+  reportType:
+    | 'misleading_performance'
+    | 'missing_risk_disclosure'
+    | 'inappropriate_claim'
+    | 'other';
+  status: 'pending_review' | 'in_review' | 'resolved' | 'rejected';
+  summary: string;
+  createdAt: string;
+}
