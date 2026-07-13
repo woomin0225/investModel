@@ -5,13 +5,34 @@ import { getUser, getTeamForUser } from '@/lib/db/queries';
 import { SWRConfig } from 'swr';
 
 export const metadata: Metadata = {
-  title: 'investModel',
+  title: {
+    default: 'investModel',
+    template: '%s | investModel'
+  },
   description:
-    'Base code for an AI investment-model marketplace built with Next.js, Postgres, and Stripe.'
+    'Mobile-first AI investment model marketplace prototype using mock-only portfolios, signals, and model discovery.',
+  applicationName: 'investModel',
+  appleWebApp: {
+    capable: true,
+    title: 'investModel',
+    statusBarStyle: 'default'
+  },
+  formatDetection: {
+    telephone: false
+  },
+  icons: {
+    icon: '/icon',
+    apple: '/apple-icon'
+  },
+  manifest: '/manifest.webmanifest'
 };
 
 export const viewport: Viewport = {
-  maximumScale: 1
+  themeColor: '#246BFE',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover'
 };
 
 const manrope = Manrope({ subsets: ['latin'] });
