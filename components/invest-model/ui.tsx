@@ -64,6 +64,20 @@ type PerformanceMetricGroupProps = {
   className?: string;
 };
 
+type ModelRiskBadgeGroupProps = {
+  marketLabel: string;
+  riskLabel: string;
+  assetClassLabel?: string;
+  leverageLabel?: string;
+  highRiskLabel?: string;
+  statusLabel?: string;
+  performanceLabel?: string;
+  constraintLabels?: readonly string[];
+  riskTone?: RiskBadgeTone;
+  statusTone?: RiskBadgeTone;
+  className?: string;
+};
+
 type ModelCardProps = {
   name: string;
   summary: string;
@@ -72,6 +86,7 @@ type ModelCardProps = {
   riskTone?: RiskBadgeTone;
   performanceLabel: string;
   mandateLabel: string;
+  constraintLabels?: readonly string[];
   className?: string;
 };
 
@@ -131,6 +146,41 @@ export function RiskBadge({
     >
       <span className="truncate">{children}</span>
     </span>
+  );
+}
+
+export function ModelRiskBadgeGroup({
+  marketLabel,
+  riskLabel,
+  assetClassLabel,
+  leverageLabel,
+  highRiskLabel,
+  statusLabel,
+  performanceLabel,
+  constraintLabels = [],
+  riskTone = 'neutral',
+  statusTone = 'neutral',
+  className
+}: ModelRiskBadgeGroupProps) {
+  return (
+    <div className={cn('flex flex-wrap gap-2', className)}>
+      {statusLabel ? <RiskBadge tone={statusTone}>{statusLabel}</RiskBadge> : null}
+      <RiskBadge>{marketLabel}</RiskBadge>
+      {assetClassLabel ? <RiskBadge>{assetClassLabel}</RiskBadge> : null}
+      <RiskBadge tone={riskTone}>{riskLabel}</RiskBadge>
+      {leverageLabel ? (
+        <RiskBadge tone="medium">{leverageLabel}</RiskBadge>
+      ) : null}
+      {riskTone === 'high' && highRiskLabel ? (
+        <RiskBadge tone="high">{highRiskLabel}</RiskBadge>
+      ) : null}
+      {performanceLabel ? (
+        <RiskBadge tone="low">{performanceLabel}</RiskBadge>
+      ) : null}
+      {constraintLabels.map((label) => (
+        <RiskBadge key={label}>{label}</RiskBadge>
+      ))}
+    </div>
   );
 }
 
@@ -331,6 +381,7 @@ export function ModelCard({
   riskTone = 'neutral',
   performanceLabel,
   mandateLabel,
+  constraintLabels,
   className
 }: ModelCardProps) {
   return (
@@ -354,11 +405,15 @@ export function ModelCard({
           <p className="mt-2 text-sm leading-6 text-invest-text-muted">
             {summary}
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <RiskBadge>{market}</RiskBadge>
-            <RiskBadge tone="low">{performanceLabel}</RiskBadge>
-            <RiskBadge tone="medium">{mandateLabel}</RiskBadge>
-          </div>
+          <ModelRiskBadgeGroup
+            className="mt-3"
+            marketLabel={market}
+            assetClassLabel={mandateLabel}
+            riskLabel={riskLabel}
+            riskTone={riskTone}
+            performanceLabel={performanceLabel}
+            constraintLabels={constraintLabels}
+          />
         </div>
       </div>
     </article>
@@ -402,17 +457,15 @@ export function InvestmentModelCard({
           <p className="mt-2 text-sm leading-6 text-invest-text-muted">
             {summary}
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <RiskBadge>{marketLabel}</RiskBadge>
-            <RiskBadge tone={riskTone}>{riskLabel}</RiskBadge>
-            <RiskBadge tone="medium">{leverageLabel}</RiskBadge>
-            {performanceLabel ? (
-              <RiskBadge tone="low">{performanceLabel}</RiskBadge>
-            ) : null}
-            {mandateLabel ? (
-              <RiskBadge tone="neutral">{mandateLabel}</RiskBadge>
-            ) : null}
-          </div>
+          <ModelRiskBadgeGroup
+            className="mt-3"
+            marketLabel={marketLabel}
+            assetClassLabel={mandateLabel}
+            riskLabel={riskLabel}
+            leverageLabel={leverageLabel}
+            riskTone={riskTone}
+            performanceLabel={performanceLabel}
+          />
         </div>
       </div>
     </article>
@@ -458,11 +511,13 @@ export function InvestmentModelDetail({
         <RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <RiskBadge>{marketLabel}</RiskBadge>
-        <RiskBadge tone={riskTone}>{riskLabel}</RiskBadge>
-        <RiskBadge tone="medium">{leverageLabel}</RiskBadge>
-      </div>
+      <ModelRiskBadgeGroup
+        className="mt-4"
+        marketLabel={marketLabel}
+        riskLabel={riskLabel}
+        leverageLabel={leverageLabel}
+        riskTone={riskTone}
+      />
 
       {metrics.length > 0 ? (
         <div className="mt-5 grid gap-3">

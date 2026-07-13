@@ -11,6 +11,7 @@ export {
   InvestmentModelDetail,
   MetricCard,
   ModelCard,
+  ModelRiskBadgeGroup,
   PerformanceMetricGroup,
   RiskBadge,
   SectionHeader,

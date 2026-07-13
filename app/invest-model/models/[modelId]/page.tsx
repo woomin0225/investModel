@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, FileText, ShieldAlert } from 'lucide-react';
 import {
   MobileShell,
+  ModelRiskBadgeGroup,
   PerformanceMetricGroup,
   RiskBadge,
   SectionHeader,
@@ -88,12 +89,16 @@ export default async function InvestModelDetailPage({
           description={model.summary}
         />
 
-        <div className="flex flex-wrap gap-2">
-          <RiskBadge tone="blocked">{copy.noLiveTradingLabel}</RiskBadge>
-          <RiskBadge tone={model.riskTone}>{model.riskLabel}</RiskBadge>
-          <RiskBadge tone={model.statusTone}>{model.statusLabel}</RiskBadge>
-          <RiskBadge>{model.reviewLabel}</RiskBadge>
-        </div>
+        <ModelRiskBadgeGroup
+          marketLabel={model.marketLabel}
+          assetClassLabel={model.mandateLabel}
+          riskLabel={model.riskLabel}
+          leverageLabel={model.leverageLabel}
+          statusLabel={model.statusLabel}
+          constraintLabels={[copy.noLiveTradingLabel, model.reviewLabel]}
+          riskTone={model.riskTone}
+          statusTone={model.statusTone}
+        />
 
         <PerformanceMetricGroup
           title={copy.performanceGroupTitle}

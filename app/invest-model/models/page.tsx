@@ -134,16 +134,12 @@ export default async function InvestModelDiscoveryPage({
                     riskTone={riskToneByModel[model.riskTone]}
                     performanceLabel={model.performanceLabel}
                     mandateLabel={model.mandateLabel}
+                    constraintLabels={model.tags}
                   />
                 </Link>
                 <div className="flex flex-wrap gap-2 px-1">
                   <RiskBadge>{model.reviewLabel}</RiskBadge>
                   <RiskBadge tone="low">{model.simulatedAumLabel}</RiskBadge>
-                  {model.tags.map((tag) => (
-                    <RiskBadge key={`${model.id}-${tag}`} tone="neutral">
-                      {tag}
-                    </RiskBadge>
-                  ))}
                 </div>
               </div>
             ))}
