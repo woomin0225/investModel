@@ -179,6 +179,17 @@ async function createStripeWebhook(): Promise<string> {
   }
 }
 
+async function shouldConfigureStarterStripe(): Promise<boolean> {
+  console.log('Step 3: Optional starter Stripe billing setup');
+  console.log(
+    'investModel mock-only MVP does not require Stripe CLI, Stripe secrets, or webhook setup.'
+  );
+  const answer = await question(
+    'Configure original starter Stripe billing now? (y/n): '
+  );
+  return answer.toLowerCase() === 'y';
+}
+
 function generateAuthSecret(): string {
   console.log('Step 5: Generating AUTH_SECRET...');
   return crypto.randomBytes(32).toString('hex');
@@ -195,18 +206,23 @@ async function writeEnvFile(envVars: Record<string, string>) {
 }
 
 async function main() {
-  await checkStripeCLI();
-
   const MYSQL_URL = await getMysqlURL();
-  const STRIPE_SECRET_KEY = await getStripeSecretKey();
-  const STRIPE_WEBHOOK_SECRET = await createStripeWebhook();
+  const stripeEnvVars: Record<string, string> = {};
+
+  if (await shouldConfigureStarterStripe()) {
+    await checkStripeCLI();
+    stripeEnvVars.STRIPE_SECRET_KEY = await getStripeSecretKey();
+    stripeEnvVars.STRIPE_WEBHOOK_SECRET = await createStripeWebhook();
+  } else {
+    console.log('Skipping starter Stripe billing setup for mock-only MVP.');
+  }
+
   const BASE_URL = 'http://localhost:3000';
   const AUTH_SECRET = generateAuthSecret();
 
   await writeEnvFile({
     MYSQL_URL,
-    STRIPE_SECRET_KEY,
-    STRIPE_WEBHOOK_SECRET,
+    ...stripeEnvVars,
     BASE_URL,
     AUTH_SECRET,
   });
