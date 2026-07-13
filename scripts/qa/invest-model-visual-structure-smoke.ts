@@ -96,6 +96,11 @@ const screens: ScreenCheck[] = [
     activeTab: 'portfolio',
     requiredCopy: [
       investModelPortfolioMock.selectedModel.name,
+      investModelPortfolioMock.selectedModel.selectionPublicId,
+      investModelPortfolioMock.selectedModel.modelPublicId,
+      investModelPortfolioMock.selectedModel.modelVersionPublicId,
+      investModelPortfolioMock.selectedModel.versionLabel,
+      investModelPortfolioMock.selectedModel.statusLabel,
       investModelPortfolioMock.selectedModel.mandateLabel,
       investModelPortfolioMock.mockDeposit.safetyLabel,
       investModelPortfolioMock.allocationDecision.sourceLabel,
@@ -175,6 +180,9 @@ function collectScreenTextValues() {
       ...post.tags
     ]),
     investModelPortfolioMock.selectedModel.mandateLabel,
+    investModelPortfolioMock.selectedModel.modelVersionPublicId,
+    investModelPortfolioMock.selectedModel.statusDescription,
+    investModelPortfolioMock.selectedModel.selectedAtLabel,
     investModelPortfolioMock.mockDeposit.displayLabel,
     investModelPortfolioMock.mockDeposit.safetyLabel,
     investModelPortfolioMock.allocationDecision.rationale,
@@ -298,6 +306,24 @@ assertCondition(
     .toLowerCase()
     .includes('not a real deposit'),
   'Mock Portfolio lacks no-real-deposit boundary language'
+);
+assertCondition(
+  investModelPortfolioMock.selectedModel.modelVersionPublicId.startsWith(
+    'model_version_'
+  ) &&
+    investModelPortfolioMock.selectedModel.versionLabel
+      .toLowerCase()
+      .includes('modelversion'),
+  'Mock Portfolio lacks explicit selected model version identity'
+);
+assertCondition(
+  investModelPortfolioMock.selectedModel.statusLabel
+    .toLowerCase()
+    .includes('live mock') &&
+    investModelPortfolioMock.selectedModel.statusDescription
+      .toLowerCase()
+      .includes('current selected model status'),
+  'Mock Portfolio lacks explicit selected model status context'
 );
 assertCondition(
   investModelPortfolioMock.tradeIntent.boundaryLabel

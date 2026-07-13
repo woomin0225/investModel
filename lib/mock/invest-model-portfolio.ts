@@ -5,11 +5,17 @@
 export const investModelPortfolioMock = {
   isMockOnly: true,
   selectedModel: {
+    selectionPublicId: 'selection_mock_001',
+    modelPublicId: 'model_quant_us_alpha',
+    modelVersionPublicId: 'model_version_quant_us_v0_9',
     name: 'Quant US Leverage Alpha',
     versionLabel: 'ModelVersion v0.9 mock',
     mandateLabel: 'PortfolioMandate: US equities + leveraged ETF guardrails',
     statusLabel: 'live mock',
-    riskLabel: 'High risk'
+    riskLabel: 'High risk',
+    selectedAtLabel: 'selected mock: 2026-07-14 09:40 KST',
+    statusDescription:
+      'Current selected model status is live mock; inactive models cannot create simulated TradeIntent records.'
   },
   mockDeposit: {
     displayLabel: '24,800 USD MockDeposit',

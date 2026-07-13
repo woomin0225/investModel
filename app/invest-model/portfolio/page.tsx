@@ -148,6 +148,30 @@ export default async function InvestModelPortfolioPage({
                 <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                   {portfolio.selectedModel.mandateLabel}
                 </p>
+                <dl className="mt-3 grid gap-2 text-xs leading-5 text-invest-text-muted">
+                  <div className="grid gap-1">
+                    <dt className="font-semibold text-invest-text">
+                      ModelVersion
+                    </dt>
+                    <dd>{portfolio.selectedModel.versionLabel}</dd>
+                    <dd>{portfolio.selectedModel.modelVersionPublicId}</dd>
+                  </div>
+                  <div className="grid gap-1">
+                    <dt className="font-semibold text-invest-text">
+                      Selected model state
+                    </dt>
+                    <dd>{portfolio.selectedModel.statusLabel}</dd>
+                    <dd>{portfolio.selectedModel.statusDescription}</dd>
+                  </div>
+                  <div className="grid gap-1">
+                    <dt className="font-semibold text-invest-text">
+                      Selection reference
+                    </dt>
+                    <dd>{portfolio.selectedModel.selectionPublicId}</dd>
+                    <dd>{portfolio.selectedModel.modelPublicId}</dd>
+                    <dd>{portfolio.selectedModel.selectedAtLabel}</dd>
+                  </div>
+                </dl>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <RiskBadge>{portfolio.selectedModel.versionLabel}</RiskBadge>
                   <RiskBadge tone="high">
