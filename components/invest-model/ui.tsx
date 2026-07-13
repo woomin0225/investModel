@@ -58,6 +58,20 @@ type ModelCardProps = {
   className?: string;
 };
 
+type InvestmentModelCardProps = {
+  name: string;
+  summary: string;
+  marketLabel: string;
+  riskLabel: string;
+  leverageLabel: string;
+  statusLabel: string;
+  performanceLabel?: string;
+  mandateLabel?: string;
+  riskTone?: RiskBadgeTone;
+  statusTone?: RiskBadgeTone;
+  className?: string;
+};
+
 /**
  * RiskBadge marks model constraints such as leverage, market, and risk level without implying a recommendation.
  */
@@ -235,6 +249,60 @@ export function ModelCard({
             <RiskBadge>{market}</RiskBadge>
             <RiskBadge tone="low">{performanceLabel}</RiskBadge>
             <RiskBadge tone="medium">{mandateLabel}</RiskBadge>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/**
+ * InvestmentModelCard shows the checklist-required market, risk, leverage, and model status for an AI investment model.
+ */
+export function InvestmentModelCard({
+  name,
+  summary,
+  marketLabel,
+  riskLabel,
+  leverageLabel,
+  statusLabel,
+  performanceLabel,
+  mandateLabel,
+  riskTone = 'neutral',
+  statusTone = 'neutral',
+  className
+}: InvestmentModelCardProps) {
+  return (
+    <article
+      className={cn(
+        'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        className
+      )}
+    >
+      <div className="flex items-start gap-3">
+        <div className="grid size-11 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-invest-primary">
+          <TrendingUp aria-hidden className="size-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <h3 className="min-w-0 flex-1 text-[17px] font-semibold leading-6 text-invest-text">
+              {name}
+            </h3>
+            <RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-invest-text-muted">
+            {summary}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <RiskBadge>{marketLabel}</RiskBadge>
+            <RiskBadge tone={riskTone}>{riskLabel}</RiskBadge>
+            <RiskBadge tone="medium">{leverageLabel}</RiskBadge>
+            {performanceLabel ? (
+              <RiskBadge tone="low">{performanceLabel}</RiskBadge>
+            ) : null}
+            {mandateLabel ? (
+              <RiskBadge tone="neutral">{mandateLabel}</RiskBadge>
+            ) : null}
           </div>
         </div>
       </div>

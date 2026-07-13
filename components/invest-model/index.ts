@@ -6,6 +6,7 @@ export {
   type InvestModelTabKey
 } from './mobile-shell';
 export {
+  InvestmentModelCard,
   MetricCard,
   ModelCard,
   RiskBadge,
