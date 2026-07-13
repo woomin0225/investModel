@@ -1,6 +1,8 @@
 import {
   mysqlTable,
   int,
+  boolean,
+  decimal,
   index,
   uniqueIndex,
   varchar,
@@ -133,6 +135,41 @@ export const investmentModels = mysqlTable(
   ]
 );
 
+/**
+ * modelRiskProfiles stores model-version-owned risk traits for display and review.
+ * It is not a user risk preference, suitability judgment, or performance promise.
+ */
+export const modelRiskProfiles = mysqlTable(
+  'model_risk_profiles',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    modelVersionId: int('model_version_id').notNull(),
+    riskLevel: varchar('risk_level', { length: 30 }).notNull(),
+    leverageAllowed: boolean('leverage_allowed').notNull().default(false),
+    derivativeAllowed: boolean('derivative_allowed').notNull().default(false),
+    shortSellingAllowed: boolean('short_selling_allowed')
+      .notNull()
+      .default(false),
+    concentrationLimitPct: decimal('concentration_limit_pct', {
+      precision: 5,
+      scale: 2,
+    }),
+    expectedVolatilityNote: varchar('expected_volatility_note', {
+      length: 500,
+    }),
+    maxDrawdownNote: varchar('max_drawdown_note', { length: 500 }),
+    riskSummary: text('risk_summary').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_model_risk_profiles_version_id').on(table.modelVersionId),
+    index('idx_model_risk_profiles_level_leverage').on(
+      table.riskLevel,
+      table.leverageAllowed
+    ),
+  ]
+);
+
 export const teamsRelations = relations(teams, ({ many }) => ({
   teamMembers: many(teamMembers),
   activityLogs: many(activityLogs),
@@ -219,6 +256,11 @@ export type NewModelCreator = typeof modelCreators.$inferInsert;
  */
 export type InvestmentModel = typeof investmentModels.$inferSelect;
 export type NewInvestmentModel = typeof investmentModels.$inferInsert;
+/**
+ * ModelRiskProfile is a persisted risk disclosure profile owned by a future ModelVersion.
+ */
+export type ModelRiskProfile = typeof modelRiskProfiles.$inferSelect;
+export type NewModelRiskProfile = typeof modelRiskProfiles.$inferInsert;
 export type TeamDataWithMembers = Team & {
   teamMembers: (TeamMember & {
     user: Pick<User, 'id' | 'name' | 'email'>;
