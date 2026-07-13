@@ -1,6 +1,8 @@
 # investModel
 
-investModel is the base code for an AI investment-model marketplace app. It currently stays close to the original SaaS starter foundation and is not yet customized with investment features.
+investModel is a mobile-first PWA prototype for an AI investment-model marketplace. The current MVP uses mock-only financial state so the team can validate model discovery, model detail, signals, feed, and portfolio screens without real deposits, real account linking, broker orders, legal approval, or live payment processing.
+
+The repository still includes some original SaaS starter surfaces such as `/pricing`, Stripe checkout, and subscription management. Treat those as starter residue, not investModel funding or deposit features. `IS-001` remains open because production build validation still needs owner-provided Stripe test secrets outside the repository.
 
 Project path:
 
@@ -8,24 +10,35 @@ Project path:
 C:\invest-model-project\invest-model
 ```
 
-## Features
+## Current investModel MVP
+
+- Mobile PWA route at `/invest-model`
+- Mock `InvestmentModel` discovery, detail, comparison, signals, feed, and portfolio screens
+- `MockDeposit`, simulated portfolio values, and `TradeIntent` states for UI validation only
+- Korean-first UI with English switching through `?lang=en`
+- PWA manifest, app icons, mobile safe-area handling, and bottom-tab navigation
+- Creator and admin review prototype screens with mock-safe data boundaries
+
+## Starter Surfaces Kept For Now
 
 - Marketing landing page (`/`) with animated Terminal element
-- Pricing page (`/pricing`) which connects to Stripe Checkout
+- Pricing page (`/pricing`) from the starter, connected to Stripe Checkout
 - Dashboard pages with CRUD operations on users/teams
 - Basic RBAC with Owner and Member roles
 - Subscription management with Stripe Customer Portal
 - Email/password authentication with JWTs stored to cookies
 - Global middleware to protect logged-in routes
 - Local middleware to protect Server Actions or validate Zod schemas
-- Activity logging system for any user events
+- Activity logging system for starter user events
+
+The Stripe and pricing routes are not part of the approved investModel financial-operation scope. Do not enter Stripe secrets, claim production build readiness, or present these routes as real deposit/payment functionality until `IS-001` is resolved or the starter payment surface is isolated through a separate reviewed task.
 
 ## Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/)
 - **Database**: [MySQL](https://www.mysql.com/)
 - **ORM**: [Drizzle](https://orm.drizzle.team/)
-- **Payments**: [Stripe](https://stripe.com/)
+- **Starter payments**: [Stripe](https://stripe.com/) remains in the original SaaS starter surface only
 - **UI Library**: [shadcn/ui](https://ui.shadcn.com/)
 
 ## Getting Started
@@ -37,13 +50,7 @@ pnpm install
 
 ## Running Locally
 
-[Install](https://docs.stripe.com/stripe-cli) and log in to your Stripe account:
-
-```bash
-stripe login
-```
-
-Use the included setup script to create your `.env` file:
+Use the included setup script to create your `.env` file only when the project owner has provided the required local test secrets outside the repository:
 
 ```bash
 pnpm db:setup
@@ -69,17 +76,17 @@ Finally, run the Next.js development server:
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see investModel in action.
+Open [http://localhost:3000/invest-model](http://localhost:3000/invest-model) in your browser to see the current investModel PWA prototype.
 
-You can listen for Stripe webhooks locally through their CLI to handle subscription change events:
+The starter Stripe webhook flow is optional and remains outside the investModel MVP. Use it only with owner-provided test credentials:
 
 ```bash
 stripe listen --forward-to localhost:3000/api/stripe/webhook
 ```
 
-## Testing Payments
+## Testing Starter Payments
 
-To test Stripe payments, use the following test card details:
+To test the starter Stripe payment surface after `IS-001` is resolved, use Stripe's documented test card details:
 
 - Card Number: `4242 4242 4242 4242`
 - Expiration: Any future date
@@ -87,7 +94,9 @@ To test Stripe payments, use the following test card details:
 
 ## Going to Production
 
-When you're ready to deploy investModel to production, follow these steps:
+Do not treat the current repository as production-ready while `IS-001` and `IS-003` remain open. Public launch, real payments, real deposits, broker account connections, real orders, and final legal/disclosure copy all require separate review.
+
+When the project owner is ready to deploy the starter payment surface, follow these steps:
 
 ### Set up a production Stripe webhook
 
@@ -106,8 +115,8 @@ When you're ready to deploy investModel to production, follow these steps:
 In your Vercel project settings (or during deployment), add all the necessary environment variables. Make sure to update the values for the production environment, including:
 
 1. `BASE_URL`: Set this to your production domain.
-2. `STRIPE_SECRET_KEY`: Use your Stripe secret key for the production environment.
-3. `STRIPE_WEBHOOK_SECRET`: Use the webhook secret from the production webhook you created in step 1.
+2. `STRIPE_SECRET_KEY`: Use your Stripe secret key for the production environment. Never commit it.
+3. `STRIPE_WEBHOOK_SECRET`: Use the webhook secret from the production webhook you created in step 1. Never commit it.
 4. `MYSQL_URL`: Set this to your production database URL.
 5. `AUTH_SECRET`: Set this to a random string. `openssl rand -base64 32` will generate one.
 
