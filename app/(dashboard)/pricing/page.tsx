@@ -20,6 +20,14 @@ export default async function PricingPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mx-auto mb-8 max-w-2xl rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <p className="font-medium">Starter billing surface</p>
+        <p className="mt-1">
+          This pricing page belongs to the original SaaS starter. It is not an
+          investModel deposit, brokerage account, order, or live payment flow;
+          production Stripe setup remains blocked by IS-001.
+        </p>
+      </div>
       <div className="grid md:grid-cols-2 gap-8 max-w-xl mx-auto">
         <PricingCard
           name={basePlan?.name || 'Base'}
