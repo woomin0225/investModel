@@ -1,7 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
-import { getUser, getTeamForUser } from '@/lib/db/queries';
 import { SWRConfig } from 'swr';
 
 export const metadata: Metadata = {
@@ -37,11 +36,29 @@ export const viewport: Viewport = {
 
 const manrope = Manrope({ subsets: ['latin'] });
 
-export default function RootLayout({
+async function getAuthFallback() {
+  if (!process.env.MYSQL_URL) {
+    return {
+      user: null,
+      team: null
+    };
+  }
+
+  const { getUser, getTeamForUser } = await import('@/lib/db/queries');
+
+  return {
+    user: getUser(),
+    team: getTeamForUser()
+  };
+}
+
+export default async function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  const authFallback = await getAuthFallback();
+
   return (
     <html
       lang="en"
@@ -53,8 +70,8 @@ export default function RootLayout({
             fallback: {
               // 여기서는 await하지 않는다.
               // 이 데이터를 읽는 컴포넌트만 suspend된다.
-              '/api/user': getUser(),
-              '/api/team': getTeamForUser()
+              '/api/user': authFallback.user,
+              '/api/team': authFallback.team
             }
           }}
         >
