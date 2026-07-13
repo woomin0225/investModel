@@ -316,3 +316,18 @@ export interface FeedPost {
   postType: 'model_note' | 'market_context' | 'risk_note' | 'review_note';
   publishedAt?: string;
 }
+
+/**
+ * ModelViewEvent records a privacy-minimal model list or detail view event.
+ * It must not store raw IP addresses, user agents, account identifiers, or trading behavior.
+ */
+export interface ModelViewEvent {
+  publicId: DomainPublicId;
+  surface: 'model_list' | 'model_detail';
+  viewerRole: AccessRole;
+  viewerPublicId?: DomainPublicId;
+  modelPublicId?: DomainPublicId;
+  modelVersionPublicId?: DomainPublicId;
+  locale: 'ko' | 'en';
+  occurredAt: string;
+}
