@@ -10,6 +10,14 @@ description: "Use when the user provides web or app screenshots and wants Codex 
 관찰 가능한 UI 요소만 추출하고, 사용자의 디자인 의도가 필요한 부분은 placeholder로 남깁니다.
 -->
 
+## Project Sample Folders
+
+- Raw screenshots: `design-samples/raw/`
+- Selected design references: `design-samples/selected/`
+- Analysis output: `design-samples/analyzed/`
+
+Prefer `design-samples/selected/` when the user asks to build or update the project design harness from saved samples. Use `raw/` only when the user has not selected final references yet.
+
 ## Workflow
 
 1. Inspect the screenshot visually.
@@ -31,4 +39,3 @@ description: "Use when the user provides web or app screenshots and wants Codex 
 - Do not copy protected branding, logos, or distinctive assets.
 - Do not claim exact color/spacing values unless measured from the image.
 - Do not hide investment risk information for visual cleanliness.
-
