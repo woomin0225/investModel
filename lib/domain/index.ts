@@ -3,4 +3,5 @@
  * Domain folders below this directory define ownership boundaries, while shared MVP types remain in types.ts until a focused split is needed.
  */
 export * from './types';
+export * from './audit/audit-log';
 export * from './models/model-description';
