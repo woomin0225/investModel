@@ -171,7 +171,6 @@ export default async function CreatorDashboardPage({
     </MobileShell>
   );
 }
-
 function CreatorDashboardModelCard({
   model,
   locale
@@ -243,4 +242,3 @@ function DashboardDetail({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
