@@ -1,6 +1,8 @@
 import {
   mysqlTable,
   int,
+  index,
+  uniqueIndex,
   varchar,
   text,
   timestamp,
@@ -67,6 +69,70 @@ export const invitations = mysqlTable('invitations', {
   status: varchar('status', { length: 20 }).notNull().default('pending'),
 });
 
+/**
+ * modelCreators stores the creator profile shell required before an InvestmentModel can be registered.
+ * Verification workflow details stay in creator/review tasks and do not approve investment performance.
+ */
+export const modelCreators = mysqlTable(
+  'model_creators',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    displayName: varchar('display_name', { length: 100 }).notNull(),
+    bio: text('bio'),
+    verificationStatus: varchar('verification_status', { length: 30 })
+      .notNull()
+      .default('unverified'),
+    verifiedAt: timestamp('verified_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_model_creators_user_id').on(table.userId),
+    index('idx_model_creators_verification_status').on(
+      table.verificationStatus
+    ),
+  ]
+);
+
+/**
+ * investmentModels is the marketplace model unit users browse and select.
+ * Strategy, risk, mandate, and disclosures belong to version/profile tables rather than user preferences.
+ */
+export const investmentModels = mysqlTable(
+  'investment_models',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    creatorId: int('creator_id')
+      .notNull()
+      .references(() => modelCreators.id),
+    slug: varchar('slug', { length: 120 }).notNull(),
+    name: varchar('name', { length: 160 }).notNull(),
+    status: varchar('status', { length: 30 }).notNull().default('draft'),
+    visibility: varchar('visibility', { length: 30 })
+      .notNull()
+      .default('private'),
+    currentVersionId: int('current_version_id'),
+    shortDescription: varchar('short_description', { length: 500 }),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    retiredAt: timestamp('retired_at'),
+  },
+  (table) => [
+    uniqueIndex('uq_investment_models_slug').on(table.slug),
+    index('idx_investment_models_creator_id').on(table.creatorId),
+    index('idx_investment_models_status_visibility').on(
+      table.status,
+      table.visibility
+    ),
+    index('idx_investment_models_current_version_id').on(
+      table.currentVersionId
+    ),
+  ]
+);
+
 export const teamsRelations = relations(teams, ({ many }) => ({
   teamMembers: many(teamMembers),
   activityLogs: many(activityLogs),
@@ -76,6 +142,7 @@ export const teamsRelations = relations(teams, ({ many }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   teamMembers: many(teamMembers),
   invitationsSent: many(invitations),
+  modelCreators: many(modelCreators),
 }));
 
 export const invitationsRelations = relations(invitations, ({ one }) => ({
@@ -111,6 +178,27 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   }),
 }));
 
+export const modelCreatorsRelations = relations(
+  modelCreators,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [modelCreators.userId],
+      references: [users.id],
+    }),
+    investmentModels: many(investmentModels),
+  })
+);
+
+export const investmentModelsRelations = relations(
+  investmentModels,
+  ({ one }) => ({
+    creator: one(modelCreators, {
+      fields: [investmentModels.creatorId],
+      references: [modelCreators.id],
+    }),
+  })
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Team = typeof teams.$inferSelect;
@@ -121,6 +209,16 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 export type NewActivityLog = typeof activityLogs.$inferInsert;
 export type Invitation = typeof invitations.$inferSelect;
 export type NewInvitation = typeof invitations.$inferInsert;
+/**
+ * ModelCreator is the persisted creator identity shell used to own InvestmentModel rows.
+ */
+export type ModelCreator = typeof modelCreators.$inferSelect;
+export type NewModelCreator = typeof modelCreators.$inferInsert;
+/**
+ * InvestmentModel is the persisted marketplace model row, not a user preference or trading bot.
+ */
+export type InvestmentModel = typeof investmentModels.$inferSelect;
+export type NewInvestmentModel = typeof investmentModels.$inferInsert;
 export type TeamDataWithMembers = Team & {
   teamMembers: (TeamMember & {
     user: Pick<User, 'id' | 'name' | 'email'>;
