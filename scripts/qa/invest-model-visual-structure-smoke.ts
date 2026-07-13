@@ -37,7 +37,9 @@ const screens: ScreenCheck[] = [
     requiredCopy: [
       investModelHomeMock.account.balanceDescription,
       investModelHomeMock.account.policyDescription,
-      investModelHomeMock.signal.status
+      investModelHomeMock.signal.status,
+      investModelHomeMock.timeline[0]?.sourceLabel ?? '',
+      investModelHomeMock.timeline[0]?.statusLabel ?? ''
     ]
   },
   {
@@ -115,6 +117,12 @@ function collectScreenTextValues() {
     investModelHomeMock.account.policyDescription,
     investModelHomeMock.activeModel.summary,
     investModelHomeMock.signal.description,
+    ...investModelHomeMock.timeline.flatMap((item) => [
+      item.time,
+      item.sourceLabel,
+      item.statusLabel,
+      item.description
+    ]),
     investModelDiscoveryMock.notice.description,
     ...investModelDiscoveryMock.filters,
     ...investModelDiscoveryMock.models.flatMap((model) => [

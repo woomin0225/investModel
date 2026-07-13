@@ -1,4 +1,4 @@
-import { Bell, Radio, Search } from 'lucide-react';
+import { Bell, Clock3, Database, Radio, Search, ShieldCheck } from 'lucide-react';
 import {
   MetricCard,
   MobileShell,
@@ -106,24 +106,45 @@ export default async function InvestModelPreviewPage({
             description={homeCopy.activitySection.description}
           />
           <div className="space-y-3">
-            {homeCopy.timeline.map((item) => (
-              <article
-                key={`${item.time}-${item.title}`}
-                className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
-              >
-                <div className="flex items-start gap-3">
-                  <RiskBadge>{item.time}</RiskBadge>
-                  <div className="min-w-0">
-                    <h3 className="text-[15px] font-semibold leading-6 text-invest-text">
-                      {item.title}
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-invest-text-muted">
-                      {item.description}
-                    </p>
+            {homeCopy.timeline.map((item, index) => {
+              const metadata = investModelHomeMock.timeline[index];
+
+              return (
+                <article
+                  key={`${item.time}-${item.title}`}
+                  className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="grid size-9 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+                      <Clock3 aria-hidden className="size-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <RiskBadge>{item.time}</RiskBadge>
+                        {metadata ? (
+                          <>
+                            <RiskBadge>
+                              <Database aria-hidden className="mr-1 inline size-3" />
+                              {metadata.sourceLabel}
+                            </RiskBadge>
+                            <RiskBadge tone="medium">
+                              <ShieldCheck aria-hidden className="mr-1 inline size-3" />
+                              {metadata.statusLabel}
+                            </RiskBadge>
+                          </>
+                        ) : null}
+                      </div>
+                      <h3 className="text-[15px] font-semibold leading-6 text-invest-text">
+                        {item.title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-6 text-invest-text-muted">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </div>
 

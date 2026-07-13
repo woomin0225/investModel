@@ -31,12 +31,16 @@ export const investModelHomeMock = {
     {
       time: '09:10',
       title: 'Market traffic snapshot',
-      description: 'Mock article volume increased around US mega-cap earnings.'
+      description: 'Mock article volume increased around US mega-cap earnings.',
+      sourceLabel: 'Mock NewsTraffic',
+      statusLabel: 'observed input'
     },
     {
       time: '09:16',
       title: 'TradeIntent blocked',
-      description: 'Simulation stayed below live order stage because leverage policy is not approved.'
+      description: 'Simulation stayed below live order stage because leverage policy is not approved.',
+      sourceLabel: 'Mock decision engine',
+      statusLabel: 'policy blocked'
     }
   ]
 } as const;
