@@ -54,6 +54,9 @@ export const investModelDetailCopy = {
       '이 모델을 선택하기 전에 모델이 정한 운용 범위, 손실 가능성, 금지된 동작을 먼저 확인해야 합니다. 현재 버튼은 mock 확인용이며 실제 선택 저장은 아직 연결하지 않습니다.',
     highRiskNotice:
       '고위험 모델입니다. 레버리지, 집중 투자, 큰 손실 가능성을 추가로 확인해야 합니다.',
+    highRiskConfirmLabel: '고위험 모델 확인 필요',
+    highRiskConfirmDescription:
+      '레버리지, 집중 투자, 큰 손실 가능성 확인은 mock 확인 단계이며 실제 투자 동의가 아닙니다.',
     selectionDisabledLabel: '선택 저장은 다음 단계에서 연결',
     models: [
       {
@@ -244,6 +247,9 @@ export const investModelDetailCopy = {
       'Before choosing this model, review its model-defined mandate, loss possibility, and forbidden actions. This button is mock confirmation only; model selection persistence is not connected yet.',
     highRiskNotice:
       'This is a high-risk model. Additional review is required for leverage, concentration, and large loss possibility.',
+    highRiskConfirmLabel: 'High-risk model confirmation required',
+    highRiskConfirmDescription:
+      'Reviewing leverage, concentration, and large loss possibility is a mock confirmation step, not real investment consent.',
     selectionDisabledLabel: 'Selection persistence comes next',
     models: [
       {
@@ -434,6 +440,8 @@ export const investModelDetailCopy = {
     selectionReviewTitle: string;
     selectionReviewDescription: string;
     highRiskNotice: string;
+    highRiskConfirmLabel: string;
+    highRiskConfirmDescription: string;
     selectionDisabledLabel: string;
     models: MockInvestmentModelDetail[];
   }

@@ -73,6 +73,8 @@ const screens: ScreenCheck[] = [
     requiredCopy: [
       investModelDetailCopy.en.performanceGroupTitle,
       investModelDetailCopy.en.selectionReviewTitle,
+      investModelDetailCopy.en.highRiskNotice,
+      investModelDetailCopy.en.highRiskConfirmLabel,
       investModelDetailCopy.en.noLiveTradingLabel
     ]
   },
@@ -258,6 +260,21 @@ assertCondition(
     )
   ),
   'Model Detail is missing volatility context for at least one model'
+);
+assertCondition(
+  investModelDetailCopy.en.models
+    .filter((model) => model.riskTone === 'high')
+    .every(
+      (model) =>
+        model.leverageLabel.toLowerCase().includes('leveraged') &&
+        investModelDetailCopy.en.highRiskNotice
+          .toLowerCase()
+          .includes('concentration') &&
+        investModelDetailCopy.en.highRiskConfirmDescription
+          .toLowerCase()
+          .includes('not real investment consent')
+    ),
+  'Model Detail high-risk models must require mock confirmation for leverage, concentration, and large loss context'
 );
 assertCondition(
   investModelFeedMock.posts.some((post) =>

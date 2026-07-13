@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, FileText, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, FileText, ShieldAlert, SquareCheckBig } from 'lucide-react';
 import {
   MobileShell,
   ModelRiskBadgeGroup,
@@ -153,9 +153,23 @@ export default async function InvestModelDetailPage({
             <RiskBadge tone="blocked">{copy.noLiveTradingLabel}</RiskBadge>
           </div>
           {model.riskTone === 'high' ? (
-            <p className="mt-3 rounded-invest-control bg-invest-risk-soft p-3 text-sm leading-6 text-invest-risk">
-              {copy.highRiskNotice}
-            </p>
+            <div className="mt-3 rounded-invest-control bg-invest-risk-soft p-3 text-invest-risk">
+              <p className="text-sm leading-6">{copy.highRiskNotice}</p>
+              <div className="mt-3 flex gap-2 rounded-invest-control border border-invest-risk/25 bg-invest-surface/80 p-3">
+                <SquareCheckBig
+                  aria-hidden
+                  className="mt-0.5 size-5 shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-bold leading-5">
+                    {copy.highRiskConfirmLabel}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-invest-text-muted">
+                    {copy.highRiskConfirmDescription}
+                  </p>
+                </div>
+              </div>
+            </div>
           ) : null}
         </section>
 
