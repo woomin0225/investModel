@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Filter, Search } from 'lucide-react';
 import {
   MobileShell,
@@ -8,7 +9,8 @@ import {
 } from '@/components/invest-model';
 import {
   investModelCopy,
-  resolveInvestModelLocale
+  resolveInvestModelLocale,
+  withInvestModelLocale
 } from '@/lib/i18n/invest-model';
 
 const riskToneByModel = {
@@ -83,15 +85,23 @@ export default async function InvestModelDiscoveryPage({
           <div className="space-y-invest-card-gap">
             {discoverableInvestmentModels.map((model) => (
               <div key={model.id} className="space-y-2">
-                <ModelCard
-                  name={model.name}
-                  summary={model.summary}
-                  market={model.market}
-                  riskLabel={model.riskLabel}
-                  riskTone={riskToneByModel[model.riskTone]}
-                  performanceLabel={model.performanceLabel}
-                  mandateLabel={model.mandateLabel}
-                />
+                <Link
+                  href={withInvestModelLocale(
+                    `/invest-model/models/${model.id}`,
+                    locale
+                  )}
+                  className="block rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
+                >
+                  <ModelCard
+                    name={model.name}
+                    summary={model.summary}
+                    market={model.market}
+                    riskLabel={model.riskLabel}
+                    riskTone={riskToneByModel[model.riskTone]}
+                    performanceLabel={model.performanceLabel}
+                    mandateLabel={model.mandateLabel}
+                  />
+                </Link>
                 <div className="flex flex-wrap gap-2 px-1">
                   <RiskBadge>{model.reviewLabel}</RiskBadge>
                   <RiskBadge tone="low">{model.simulatedAumLabel}</RiskBadge>
