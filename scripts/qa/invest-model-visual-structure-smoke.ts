@@ -18,6 +18,7 @@ import { investModelSignalsMock } from '../../lib/mock/invest-model-signals';
 import { investModelDetailCopy } from '../../lib/mock/invest-model-model-detail';
 import { investModelFeedMock } from '../../lib/mock/invest-model-feed';
 import { investModelPortfolioMock } from '../../lib/mock/invest-model-portfolio';
+import { pendingAdminReviewModels } from '../../lib/mock/invest-model-admin-review';
 
 type ScreenCheck = {
   name: string;
@@ -76,6 +77,30 @@ const screens: ScreenCheck[] = [
       investModelDetailCopy.en.highRiskNotice,
       investModelDetailCopy.en.highRiskConfirmLabel,
       investModelDetailCopy.en.noLiveTradingLabel
+    ]
+  },
+  {
+    name: 'Admin Review Queue',
+    route: '/invest-model/admin/reviews',
+    pageFile: 'app/invest-model/admin/reviews/page.tsx',
+    activeTab: 'models',
+    requiredCopy: [
+      pendingAdminReviewModels[0]?.modelName ?? '',
+      pendingAdminReviewModels[0]?.creatorName ?? '',
+      pendingAdminReviewModels[0]?.blockedActionLabel ?? '',
+      pendingAdminReviewModels[0]?.disclosureStatusLabel ?? ''
+    ]
+  },
+  {
+    name: 'Admin Review Detail',
+    route: '/invest-model/admin/reviews/review-quant-us-leverage-alpha-v2',
+    pageFile: 'app/invest-model/admin/reviews/[reviewId]/page.tsx',
+    activeTab: 'models',
+    requiredCopy: [
+      pendingAdminReviewModels[0]?.strategySummary ?? '',
+      pendingAdminReviewModels[0]?.mandateSummary ?? '',
+      pendingAdminReviewModels[0]?.performanceSourceLabel ?? '',
+      pendingAdminReviewModels[0]?.requiredReviewItems[0] ?? ''
     ]
   },
   {
@@ -173,6 +198,25 @@ function collectScreenTextValues() {
       ...model.riskItems,
       ...model.limitationItems
     ]),
+    ...pendingAdminReviewModels.flatMap((model) => [
+      model.modelName,
+      model.creatorName,
+      model.submittedAtLabel,
+      model.versionLabel,
+      model.marketLabel,
+      model.riskLabel,
+      model.leverageLabel,
+      model.assetScopeLabel,
+      model.mandateSummary,
+      model.disclosureStatusLabel,
+      model.blockedActionLabel,
+      model.strategySummary,
+      model.performanceSourceLabel,
+      ...model.requiredReviewItems,
+      ...model.dataInputs,
+      ...model.forbiddenAssets,
+      ...model.reviewNotes
+    ]),
     investModelFeedMock.summary.description,
     ...investModelFeedMock.posts.flatMap((post) => [
       post.title,
@@ -232,7 +276,8 @@ const screenResults = screens.map((screen) => {
   assertCondition(
     source.includes(`currentPath="${screen.route}"`) ||
       source.includes(`const currentPath = \`${screen.route.split('/').slice(0, -1).join('/')}`) ||
-      source.includes('currentPath={currentPath}'),
+      source.includes('currentPath={currentPath}') ||
+      source.includes('currentPath={`/invest-model/admin/reviews/${model.id}`}'),
     `${screen.name}: page does not preserve currentPath for language toggle`
   );
   assertCondition(
@@ -283,6 +328,33 @@ assertCondition(
           .includes('not real investment consent')
     ),
   'Model Detail high-risk models must require mock confirmation for leverage, concentration, and large loss context'
+);
+assertCondition(
+  pendingAdminReviewModels.every((model) =>
+    model.blockedActionLabel.toLowerCase().includes('read-only')
+  ),
+  'Admin Review screens must keep pending_review actions read-only'
+);
+assertCondition(
+  pendingAdminReviewModels.every((model) =>
+    model.strategySummary.toLowerCase().includes('tradeintent') ||
+    model.forbiddenAssets.some((asset) => {
+      const normalizedAsset = asset.toLowerCase();
+      return (
+        normalizedAsset.includes('order') ||
+        normalizedAsset.includes('deposit') ||
+        normalizedAsset.includes('withdrawal')
+      );
+    })
+  ),
+  'Admin Review detail lacks no-real-order/deposit boundary language'
+);
+assertCondition(
+  pendingAdminReviewModels.every((model) =>
+    model.disclosureStatusLabel.toLowerCase().includes('review') ||
+    model.disclosureStatusLabel.toLowerCase().includes('placeholder')
+  ),
+  'Admin Review models must keep disclosure wording in review or placeholder state'
 );
 assertCondition(
   investModelFeedMock.posts.some((post) =>
