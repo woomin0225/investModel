@@ -11,7 +11,7 @@ import {
   RiskBadge,
   SectionHeader
 } from '@/components/invest-model';
-import type { NotificationCenterDto } from '@/lib/db/notification-read-model';
+import type { NotificationCenterDto } from '@/lib/domain/notifications/notification-center';
 import {
   investModelCopy,
   resolveInvestModelLocale,

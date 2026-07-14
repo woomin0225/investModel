@@ -9,30 +9,12 @@ import {
 } from '@/lib/db/schema';
 import {
   buildFeedPostDto,
-  type FeedPostDto,
   type PolicyNoticeDto
 } from '@/lib/domain/feed/feed-post';
-
-export type NotificationCenterItemDto = {
-  notificationPublicId: string;
-  source: 'feed_post';
-  title: string;
-  body: string;
-  status: 'unread' | 'read';
-  eventLabel: string;
-  occurredAt?: string;
-  href: string;
-  feedPost: FeedPostDto;
-  notices: PolicyNoticeDto[];
-};
-
-export type NotificationCenterDto = {
-  userPublicId: string;
-  unreadCount: number;
-  items: NotificationCenterItemDto[];
-  dataContext: 'mock' | 'informational_placeholder';
-  notices: PolicyNoticeDto[];
-};
+import type {
+  NotificationCenterDto,
+  NotificationCenterItemDto
+} from '@/lib/domain/notifications/notification-center';
 
 type ReadNotificationCenterInput = {
   userPublicId: string;

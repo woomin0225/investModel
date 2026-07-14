@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 
 import { GET as readNotifications } from '@/app/api/notifications/route';
-import type { NotificationCenterDto } from '@/lib/db/notification-read-model';
+import type { NotificationCenterDto } from '@/lib/domain/notifications/notification-center';
 
 export async function readInvestModelNotificationUnreadLabel() {
   try {
