@@ -1,9 +1,6 @@
 import { NextRequest } from 'next/server';
-import { and, desc, eq, isNull, type SQL } from 'drizzle-orm';
-import { db } from '@/lib/db/drizzle';
-import { feedPosts, investmentModels, users } from '@/lib/db/schema';
+import { readFeedPostDtos } from '@/lib/db/feed-read-model';
 import {
-  buildFeedPostDto,
   canReadFeed,
   parseFeedLimit,
   parseFeedPostType
@@ -74,36 +71,12 @@ export async function GET(request: NextRequest) {
   }
 
   const limit = parseFeedLimit(request.nextUrl.searchParams.get('limit'));
-  const filters: SQL[] = [
-    eq(feedPosts.visibility, 'public'),
-    isNull(users.deletedAt)
-  ];
-
-  if (postType) {
-    filters.push(eq(feedPosts.postType, postType));
-  }
 
   try {
-    const rows = await db
-      .select({
-        postPublicId: feedPosts.publicId,
-        modelPublicId: investmentModels.publicId,
-        linkedModelName: investmentModels.name,
-        authorDisplayName: users.name,
-        postType: feedPosts.postType,
-        title: feedPosts.title,
-        body: feedPosts.body,
-        publishedAt: feedPosts.publishedAt
-      })
-      .from(feedPosts)
-      .leftJoin(investmentModels, eq(feedPosts.modelId, investmentModels.id))
-      .leftJoin(users, eq(feedPosts.authorUserId, users.id))
-      .where(and(...filters))
-      .orderBy(desc(feedPosts.publishedAt), desc(feedPosts.createdAt))
-      .limit(limit);
+    const posts = await readFeedPostDtos({ postType, limit });
 
     return Response.json({
-      data: rows.map(buildFeedPostDto),
+      data: posts,
       meta: {
         routeStatus: 'db_backed',
         persistence: 'persisted',
