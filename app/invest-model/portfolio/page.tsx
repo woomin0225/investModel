@@ -77,6 +77,12 @@ function parseWeightPercent(weightLabel: string) {
   return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 100) : 0;
 }
 
+const positionAccentClass = [
+  'bg-invest-primary',
+  'bg-invest-warning',
+  'bg-invest-positive'
+] as const;
+
 export default async function InvestModelPortfolioPage({
   searchParams
 }: InvestModelPortfolioPageProps) {
@@ -205,17 +211,24 @@ export default async function InvestModelPortfolioPage({
             description={copy.positionDescription}
           />
           <div className="space-y-3">
-            {portfolio.positions.map((position) => (
+            {portfolio.positions.map((position, index) => (
               <article
                 key={position.symbol}
+                aria-label={`${position.symbol} ${position.weightLabel} ${position.valueLabel}`}
                 className={cn(
-                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
                   investMotionClass.interactiveCard
                 )}
               >
+                <div
+                  className={cn(
+                    'mb-3 h-1.5 rounded-full',
+                    positionAccentClass[index % positionAccentClass.length]
+                  )}
+                />
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 gap-3">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-[13px] font-bold text-invest-primary">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-[13px] font-bold text-invest-primary shadow-invest-card">
                       {position.symbol.slice(0, 2)}
                     </div>
                     <div className="min-w-0">
