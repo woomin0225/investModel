@@ -48,6 +48,9 @@ export default async function InvestModelSignalsPage({
   const copy = investModelCopy[locale];
   const signalsCopy = copy.signals;
   const { summary, filters, signals } = signalsCopy;
+  const selectedFilter = filters[0];
+  const visibleSignalCountLabel =
+    locale === 'ko' ? `${signals.length}개 표시` : `${signals.length} shown`;
 
   return (
     <MobileShell
@@ -117,18 +120,31 @@ export default async function InvestModelSignalsPage({
                     type="button"
                     aria-pressed={isSelected}
                     className={cn(
-                      'min-h-invest-touch-target rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
+                      'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
                       isSelected
                         ? 'border-invest-primary bg-invest-primary text-white'
                         : 'border-invest-border bg-invest-surface text-invest-text',
                       investMotionClass.interactiveControl
                     )}
                   >
+                    {isSelected ? (
+                      <span
+                        aria-hidden
+                        className="size-1.5 rounded-full bg-white"
+                      />
+                    ) : null}
                     {filter}
                   </button>
                 );
               })}
             </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-4 text-invest-text-muted">
+            <span className="min-w-0 truncate text-invest-text">
+              {selectedFilter}
+            </span>
+            <span className="shrink-0">{visibleSignalCountLabel}</span>
           </div>
 
           <div className="space-y-invest-card-gap">
