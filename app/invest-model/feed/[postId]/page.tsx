@@ -2,7 +2,6 @@ import {
   ArrowLeft,
   Bookmark,
   Eye,
-  Heart,
   MessageCircle,
   MessageSquareText,
   ShieldCheck
@@ -11,6 +10,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import {
+  FeedLikeAction,
   investMotionClass,
   MobileShell,
   NotificationAction,
@@ -139,11 +139,6 @@ export default async function InvestModelFeedDetailPage({
       icon: Bookmark
     },
     {
-      label: locale === 'ko' ? '좋아요' : 'Likes',
-      value: String(post.userState.likeCount),
-      icon: Heart
-    },
-    {
       label: locale === 'ko' ? '댓글' : 'Comments',
       value: String(post.userState.commentCount),
       icon: MessageCircle
@@ -234,6 +229,12 @@ export default async function InvestModelFeedDetailPage({
               </div>
             );
           })}
+          <FeedLikeAction
+            postPublicId={post.postPublicId}
+            userPublicId={userPublicId}
+            initialState={post.userState}
+            locale={locale}
+          />
         </div>
 
         <div className="space-y-invest-card-gap">
