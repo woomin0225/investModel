@@ -154,6 +154,26 @@ function notificationItemVisibleBoundaries(locale: 'ko' | 'en') {
     : ['DB FeedPost', 'informational alert', 'not account messaging'];
 }
 
+function notificationEmptyVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? [
+        'DB 빈 상태',
+        '실제 푸시 없음',
+        'email/SMS 없음',
+        '실주문 없음',
+        '브로커 미연결',
+        '추천 아님'
+      ]
+    : [
+        'DB empty state',
+        'no real push',
+        'no email/SMS',
+        'no orders',
+        'no brokerage',
+        'not advice'
+      ];
+}
+
 async function readInvestModelNotifications() {
   const response = await readNotifications(
     new NextRequest(
@@ -218,6 +238,10 @@ export default async function InvestModelNotificationsPage({
     notificationCenter
   );
   const safetyAccessibleLabel = notificationSafetyAccessibleLabel(locale);
+  const emptyAccessibleLabel =
+    locale === 'ko'
+      ? `${copy.emptyTitle}. ${copy.emptyDescription} DB-backed notification empty state이며 실제 push, email, SMS, 주문, 브로커 동작, 투자 조언이 아닙니다.`
+      : `${copy.emptyTitle}. ${copy.emptyDescription} DB-backed notification empty state, not real push, email, SMS, orders, brokerage action, or investment advice.`;
 
   return (
     <MobileShell
@@ -408,13 +432,26 @@ export default async function InvestModelNotificationsPage({
                 );
               })
             ) : (
-              <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5">
+              <div
+                aria-label={emptyAccessibleLabel}
+                title={emptyAccessibleLabel}
+                className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5"
+              >
                 <h3 className="text-[16px] font-bold leading-6 text-invest-text">
                   {copy.emptyTitle}
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                   {copy.emptyDescription}
                 </p>
+                <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+                  {notificationEmptyVisibleBoundaries(locale).map(
+                    (boundary) => (
+                      <RiskBadge key={boundary} tone="neutral">
+                        {boundary}
+                      </RiskBadge>
+                    )
+                  )}
+                </div>
               </div>
             )}
           </div>
