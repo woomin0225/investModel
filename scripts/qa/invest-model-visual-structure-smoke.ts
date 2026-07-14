@@ -46,6 +46,17 @@ const screens: ScreenCheck[] = [
     ]
   },
   {
+    name: 'Notifications',
+    route: '/invest-model/notifications',
+    pageFile: 'app/invest-model/notifications/page.tsx',
+    activeTab: 'home',
+    requiredCopy: [
+      'DB-backed notification center',
+      'Latest notification candidates',
+      'No real push'
+    ]
+  },
+  {
     name: 'Discover Models',
     route: '/invest-model/models',
     pageFile: 'app/invest-model/models/page.tsx',

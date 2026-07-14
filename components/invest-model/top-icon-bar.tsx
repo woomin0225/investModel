@@ -74,6 +74,7 @@ export function SearchAndNotificationActions({
         {
           key: 'notifications',
           label: notificationLabel,
+          href: '/invest-model/notifications',
           icon: Bell,
           tone: 'primary',
           badgeLabel: unreadLabel,
@@ -98,6 +99,7 @@ export function NotificationAction({
         {
           key: 'notifications',
           label,
+          href: '/invest-model/notifications',
           icon: Bell,
           tone: 'primary',
           dot,
