@@ -211,7 +211,11 @@ export default async function InvestModelPreviewPage({
             title={homeCopy.activitySection.title}
             description={homeCopy.activitySection.description}
           />
-          <div className="space-y-3">
+          <div
+            role="list"
+            aria-label={homeCopy.activitySection.title}
+            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+          >
             {homeCopy.timeline.map((item, index) => {
               const metadata = investModelHomeMock.timeline[index];
               const accentClass =
@@ -220,9 +224,10 @@ export default async function InvestModelPreviewPage({
               return (
                 <article
                   key={`${item.time}-${item.title}`}
+                  role="listitem"
                   aria-label={`${item.title} ${item.time}`}
                   className={cn(
-                    'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+                    'rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
                     investMotionClass.interactiveCard
                   )}
                 >
@@ -257,12 +262,12 @@ export default async function InvestModelPreviewPage({
                         {item.description}
                       </p>
                       {metadata ? (
-                        <div className="mt-3 grid gap-2 border-t border-invest-border pt-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                        <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
                           <RiskBadge className="justify-center text-center">
                             <Database aria-hidden className="mr-1 inline size-3" />
                             {metadata.sourceLabel}
                           </RiskBadge>
-                          <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface-muted px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
+                          <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
                             {metadata.statusLabel}
                           </span>
                         </div>
