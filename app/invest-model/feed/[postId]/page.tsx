@@ -7,7 +7,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { NextRequest } from 'next/server';
 
+import { GET as readFeedPostDetail } from '@/app/api/feed/[postId]/route';
 import {
   FeedCommentAction,
   FeedLikeAction,
@@ -18,8 +20,10 @@ import {
   NotificationAction,
   RiskBadge
 } from '@/components/invest-model';
-import { readFeedPostDetailDto } from '@/lib/db/feed-detail-read-model';
-import type { FeedCommentDto } from '@/lib/domain/feed/feed-post';
+import type {
+  FeedCommentDto,
+  FeedPostDetailDto
+} from '@/lib/domain/feed/feed-post';
 import {
   investModelCopy,
   resolveInvestModelLocale
@@ -37,6 +41,17 @@ type FeedDetailPageProps = {
 type FeedLocale = 'ko' | 'en';
 
 const sampleUserPublicId = 'user_demo_001';
+
+type FeedDetailApiResponse = {
+  data: FeedPostDetailDto;
+  meta: {
+    routeStatus: string;
+    informationalOnly: boolean;
+    realOrder: boolean;
+    brokerageConnection: boolean;
+    financialAdvice: boolean;
+  };
+};
 
 function firstSearchParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -107,6 +122,43 @@ function CommentItem({
   );
 }
 
+async function readInvestModelFeedPostDetail({
+  postPublicId,
+  userPublicId
+}: {
+  postPublicId: string;
+  userPublicId: string;
+}) {
+  const response = await readFeedPostDetail(
+    new NextRequest(
+      `http://localhost/api/feed/${postPublicId}?userPublicId=${encodeURIComponent(
+        userPublicId
+      )}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'user'
+        }
+      }
+    ),
+    {
+      params: Promise.resolve({
+        postId: postPublicId
+      })
+    }
+  );
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error('InvestModel FeedPost detail API contract returned an error.');
+  }
+
+  return ((await response.json()) as FeedDetailApiResponse).data;
+}
+
 export default async function InvestModelFeedDetailPage({
   params,
   searchParams
@@ -119,16 +171,15 @@ export default async function InvestModelFeedDetailPage({
   const copy = investModelCopy[locale];
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const feedCopy = copy.feed;
-  const result = await readFeedPostDetailDto({
+  const post = await readInvestModelFeedPostDetail({
     postPublicId: resolvedParams.postId,
     userPublicId
   });
 
-  if (result.status !== 'ok') {
+  if (!post) {
     notFound();
   }
 
-  const post = result.data;
   const backHref = `/invest-model/feed?lang=${locale}`;
   const stateItems = [
     {
