@@ -2,7 +2,8 @@ import {
   ArrowLeft,
   MessageCircle,
   MessageSquareText,
-  ShieldCheck
+  ShieldCheck,
+  Trophy
 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -238,6 +239,54 @@ export default async function InvestModelFeedDetailPage({
             locale={locale}
           />
         </div>
+
+        {post.recentLikeRanking ? (
+          <section className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex flex-wrap gap-2">
+                  <RiskBadge tone="neutral">
+                    {post.recentLikeRanking.windowLabel}
+                  </RiskBadge>
+                  <RiskBadge tone="low">
+                    {locale === 'ko' ? 'Engagement only' : 'Engagement only'}
+                  </RiskBadge>
+                </div>
+                <h2 className="mt-3 text-[20px] font-bold leading-7 text-invest-text">
+                  {locale === 'ko'
+                    ? 'Recent like ranking'
+                    : 'Recent like ranking'}
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-invest-text-muted">
+                  {locale === 'ko'
+                    ? 'Like ranking is a DB-backed reading signal. It is not model quality, advice, return, or order intent.'
+                    : 'Like ranking is a DB-backed reading signal. It is not model quality, advice, return, or order intent.'}
+                </p>
+              </div>
+              <div className="grid size-11 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+                <Trophy aria-hidden className="size-5" />
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2 rounded-invest-card bg-invest-bg-soft p-2">
+              <div className="rounded-invest-control bg-invest-surface p-3">
+                <p className="text-[11px] font-bold leading-4 text-invest-text-muted">
+                  {locale === 'ko' ? 'Rank' : 'Rank'}
+                </p>
+                <p className="mt-1 text-[24px] font-bold leading-8 text-invest-text tabular-nums">
+                  #{post.recentLikeRanking.rank}
+                </p>
+              </div>
+              <div className="rounded-invest-control bg-invest-surface p-3">
+                <p className="text-[11px] font-bold leading-4 text-invest-text-muted">
+                  {locale === 'ko' ? 'Likes' : 'Likes'}
+                </p>
+                <p className="mt-1 text-[24px] font-bold leading-8 text-invest-primary tabular-nums">
+                  {post.recentLikeRanking.likeCount}
+                </p>
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <FeedCommentAction
           postPublicId={post.postPublicId}
