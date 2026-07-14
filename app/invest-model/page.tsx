@@ -4,6 +4,8 @@ import {
   MetricCard,
   MobileShell,
   ModelCard,
+  ModelSelectionReadStatus,
+  modelSelectionReadStatusCopy,
   RiskBadge,
   SectionHeader,
   SoftBanner
@@ -217,6 +219,7 @@ export default async function InvestModelPreviewPage({
             performanceLabel={homeCopy.activeModel.performanceLabel}
             mandateLabel={homeCopy.activeModel.mandateLabel}
           />
+          <ModelSelectionReadStatus copy={modelSelectionReadStatusCopy[locale]} />
         </div>
 
         <SoftBanner

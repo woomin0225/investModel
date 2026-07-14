@@ -4,6 +4,7 @@ import {
   MetricCard,
   MobileShell,
   ModelSelectionReadStatus,
+  modelSelectionReadStatusCopy,
   RiskBadge,
   SectionHeader,
   SoftBanner
@@ -34,18 +35,6 @@ const portfolioCopy = {
     selectedModelTitle: '선택한 InvestmentModel',
     selectedModelDescription:
       '사용자 성향 설정이 아니라 모델이 가진 PortfolioMandate 기준입니다.',
-    selectedModelReadStatus: {
-      title: 'DB 선택 기록',
-      loading: '저장된 선택 기록을 확인하는 중입니다.',
-      empty: '아직 DB에 active 선택 기록이 없습니다.',
-      signedOut: '로그인 사용자 publicId를 찾지 못했습니다.',
-      error: '선택 기록을 불러오지 못했습니다.',
-      persisted: 'DB 저장됨',
-      noRealAction: '실입금·실주문 아님',
-      modelLabel: 'InvestmentModel public id',
-      versionLabel: 'ModelVersion public id',
-      selectionLabel: 'Selection public id'
-    },
     positionTitle: '구성 비중',
     positionDescription:
       '모든 금액과 비중은 관찰 데이터와 정책 검증 결과로 계산된 시뮬레이션입니다.',
@@ -73,18 +62,6 @@ const portfolioCopy = {
     selectedModelTitle: 'Selected InvestmentModel',
     selectedModelDescription:
       'This is the model-owned PortfolioMandate, not a user preference control.',
-    selectedModelReadStatus: {
-      title: 'DB selection record',
-      loading: 'Checking the persisted selection record.',
-      empty: 'No active DB selection record yet.',
-      signedOut: 'Could not find a signed-in user public id.',
-      error: 'Could not load the selection record.',
-      persisted: 'DB persisted',
-      noRealAction: 'No deposit/order',
-      modelLabel: 'InvestmentModel public id',
-      versionLabel: 'ModelVersion public id',
-      selectionLabel: 'Selection public id'
-    },
     positionTitle: 'Allocation mix',
     positionDescription:
       'All values and weights are simulated from observed data and policy checks.',
@@ -237,7 +214,7 @@ export default async function InvestModelPortfolioPage({
                   <RiskBadge>{portfolio.mockDeposit.sourceLabel}</RiskBadge>
                 </div>
                 <ModelSelectionReadStatus
-                  copy={copy.selectedModelReadStatus}
+                  copy={modelSelectionReadStatusCopy[locale]}
                 />
               </div>
             </div>

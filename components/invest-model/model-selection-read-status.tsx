@@ -3,20 +3,8 @@
 import { useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle2, Database, Loader2 } from 'lucide-react';
 import { investMotionClass, RiskBadge } from '@/components/invest-model/ui';
+import type { ModelSelectionReadStatusCopy } from './model-selection-read-status-copy';
 import { cn } from '@/lib/utils';
-
-type ModelSelectionReadStatusCopy = {
-  title: string;
-  loading: string;
-  empty: string;
-  signedOut: string;
-  error: string;
-  persisted: string;
-  noRealAction: string;
-  modelLabel: string;
-  versionLabel: string;
-  selectionLabel: string;
-};
 
 type ModelSelectionReadStatusProps = {
   copy: ModelSelectionReadStatusCopy;
