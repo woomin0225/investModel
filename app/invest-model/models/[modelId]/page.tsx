@@ -337,12 +337,17 @@ function DetailPanel({
       </h2>
       <ul className="mt-3 space-y-2">
         {items.map((item) => (
-          <li key={item} className="flex gap-2 text-sm leading-6">
+          <li
+            key={item}
+            className="group flex gap-2 rounded-invest-control px-2 py-1.5 text-sm leading-6 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100"
+          >
             <span
               aria-hidden
-              className={`mt-2 size-1.5 shrink-0 rounded-full ${markerClassName}`}
+              className={`mt-2 size-1.5 shrink-0 rounded-full transition-transform duration-200 ease-out group-hover:scale-125 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100 ${markerClassName}`}
             />
-            <span className="min-w-0 text-invest-text-muted">{item}</span>
+            <span className="min-w-0 text-invest-text-muted transition-colors duration-200 ease-out group-hover:text-invest-text motion-reduce:transition-none">
+              {item}
+            </span>
           </li>
         ))}
       </ul>
