@@ -1,5 +1,6 @@
 'use server';
 
+import crypto from 'crypto';
 import { z } from 'zod';
 import { and, eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
@@ -126,6 +127,7 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
   const passwordHash = await hashPassword(password);
 
   const newUser: NewUser = {
+    publicId: `user_${crypto.randomUUID()}`,
     email,
     passwordHash,
     role: 'owner' // 기본 역할이며, 초대가 있으면 덮어쓴다.

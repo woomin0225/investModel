@@ -1,4 +1,5 @@
 import { isStripeConfigured, stripe } from '../payments/stripe';
+import crypto from 'crypto';
 import { db } from './drizzle';
 import { users, teams, teamMembers } from './schema';
 import { hashPassword } from '@/lib/auth/session';
@@ -55,6 +56,7 @@ async function seed() {
     .insert(users)
     .values([
       {
+        publicId: `user_${crypto.randomUUID()}`,
         email: email,
         passwordHash: passwordHash,
         role: "owner",

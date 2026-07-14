@@ -41,6 +41,7 @@ CREATE TABLE model_creators (
 
 CREATE TABLE investment_models (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  public_id VARCHAR(120) NOT NULL,
   creator_id BIGINT UNSIGNED NOT NULL,
   slug VARCHAR(120) NOT NULL,
   name VARCHAR(160) NOT NULL,
@@ -52,6 +53,7 @@ CREATE TABLE investment_models (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   retired_at DATETIME NULL,
   PRIMARY KEY (id),
+  UNIQUE KEY uq_investment_models_public_id (public_id),
   UNIQUE KEY uq_investment_models_slug (slug),
   KEY idx_investment_models_creator_id (creator_id),
   KEY idx_investment_models_status_visibility (status, visibility),
@@ -61,6 +63,7 @@ CREATE TABLE investment_models (
 
 CREATE TABLE model_versions (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  public_id VARCHAR(120) NOT NULL,
   model_id BIGINT UNSIGNED NOT NULL,
   version_label VARCHAR(60) NOT NULL,
   strategy_summary TEXT NOT NULL,
@@ -75,6 +78,7 @@ CREATE TABLE model_versions (
   effective_from DATETIME NULL,
   retired_at DATETIME NULL,
   PRIMARY KEY (id),
+  UNIQUE KEY uq_model_versions_public_id (public_id),
   UNIQUE KEY uq_model_versions_model_label (model_id, version_label),
   KEY idx_model_versions_artifact_status (model_artifact_status),
   KEY idx_model_versions_created_by_user_id (created_by_user_id),
@@ -192,6 +196,7 @@ CREATE TABLE market_instruments (
 
 CREATE TABLE user_model_selections (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  public_id VARCHAR(120) NOT NULL,
   user_id BIGINT UNSIGNED NOT NULL,
   model_id BIGINT UNSIGNED NOT NULL,
   model_version_id BIGINT UNSIGNED NOT NULL,
@@ -200,6 +205,7 @@ CREATE TABLE user_model_selections (
   selected_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   revoked_at DATETIME NULL,
   PRIMARY KEY (id),
+  UNIQUE KEY uq_user_model_selections_public_id (public_id),
   KEY idx_user_model_selections_user_status (user_id, status),
   KEY idx_user_model_selections_model_version (model_id, model_version_id),
   CONSTRAINT fk_user_model_selections_user_id FOREIGN KEY (user_id) REFERENCES users(id),

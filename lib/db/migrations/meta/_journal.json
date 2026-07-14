@@ -43,6 +43,13 @@
       "when": 1784027471157,
       "tag": "0005_lowly_husk",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1784028261952,
+      "tag": "0006_odd_bishop",
+      "breakpoints": true
     }
   ]
 }

@@ -14,6 +14,7 @@ import { relations } from 'drizzle-orm';
 
 export const users = mysqlTable('users', {
   id: int('id').autoincrement().primaryKey(),
+  publicId: varchar('public_id', { length: 120 }).notNull().unique(),
   name: varchar('name', { length: 100 }),
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: text('password_hash').notNull(),
@@ -108,6 +109,7 @@ export const investmentModels = mysqlTable(
   'investment_models',
   {
     id: int('id').autoincrement().primaryKey(),
+    publicId: varchar('public_id', { length: 120 }).notNull(),
     creatorId: int('creator_id')
       .notNull()
       .references(() => modelCreators.id),
@@ -124,6 +126,7 @@ export const investmentModels = mysqlTable(
     retiredAt: timestamp('retired_at'),
   },
   (table) => [
+    uniqueIndex('uq_investment_models_public_id').on(table.publicId),
     uniqueIndex('uq_investment_models_slug').on(table.slug),
     index('idx_investment_models_creator_id').on(table.creatorId),
     index('idx_investment_models_status_visibility').on(
@@ -144,6 +147,7 @@ export const modelVersions = mysqlTable(
   'model_versions',
   {
     id: int('id').autoincrement().primaryKey(),
+    publicId: varchar('public_id', { length: 120 }).notNull(),
     modelId: int('model_id')
       .notNull()
       .references(() => investmentModels.id),
@@ -167,6 +171,7 @@ export const modelVersions = mysqlTable(
     retiredAt: timestamp('retired_at'),
   },
   (table) => [
+    uniqueIndex('uq_model_versions_public_id').on(table.publicId),
     uniqueIndex('uq_model_versions_model_label').on(
       table.modelId,
       table.versionLabel
@@ -395,6 +400,7 @@ export const userModelSelections = mysqlTable(
   'user_model_selections',
   {
     id: int('id').autoincrement().primaryKey(),
+    publicId: varchar('public_id', { length: 120 }).notNull(),
     userId: int('user_id')
       .notNull()
       .references(() => users.id),
@@ -410,6 +416,7 @@ export const userModelSelections = mysqlTable(
     revokedAt: timestamp('revoked_at'),
   },
   (table) => [
+    uniqueIndex('uq_user_model_selections_public_id').on(table.publicId),
     index('idx_user_model_selections_user_status').on(
       table.userId,
       table.status
