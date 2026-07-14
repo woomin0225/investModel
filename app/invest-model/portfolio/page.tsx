@@ -72,6 +72,11 @@ const portfolioCopy = {
   }
 } as const;
 
+function parseWeightPercent(weightLabel: string) {
+  const parsed = Number.parseInt(weightLabel, 10);
+  return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 100) : 0;
+}
+
 export default async function InvestModelPortfolioPage({
   searchParams
 }: InvestModelPortfolioPageProps) {
@@ -209,16 +214,18 @@ export default async function InvestModelPortfolioPage({
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-[17px] font-semibold leading-6 text-invest-text">
+                  <div className="flex min-w-0 gap-3">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-[13px] font-bold text-invest-primary">
+                      {position.symbol.slice(0, 2)}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="truncate text-[17px] font-semibold leading-6 text-invest-text">
                         {position.symbol}
                       </h3>
-                      <RiskBadge tone="neutral">{position.stateLabel}</RiskBadge>
+                      <p className="mt-0.5 line-clamp-2 text-sm leading-5 text-invest-text-muted">
+                        {position.name}
+                      </p>
                     </div>
-                    <p className="mt-1 text-sm leading-6 text-invest-text-muted">
-                      {position.name}
-                    </p>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-[15px] font-bold leading-5 text-invest-text">
@@ -229,11 +236,27 @@ export default async function InvestModelPortfolioPage({
                     </p>
                   </div>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <RiskBadge>{position.sourceLabel}</RiskBadge>
-                  <RiskBadge tone="medium">
-                    {locale === 'ko' ? '관찰 데이터' : 'observed data'}
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
+                  <div
+                    className="h-full rounded-full bg-invest-primary"
+                    style={{
+                      width: `${parseWeightPercent(position.weightLabel)}%`
+                    }}
+                  />
+                </div>
+                <div className="mt-3 grid gap-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                  <RiskBadge
+                    tone="neutral"
+                    className="justify-center text-center"
+                  >
+                    {position.stateLabel}
                   </RiskBadge>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <RiskBadge>{position.sourceLabel}</RiskBadge>
+                    <RiskBadge tone="medium">
+                      {locale === 'ko' ? '관찰 데이터' : 'observed data'}
+                    </RiskBadge>
+                  </div>
                 </div>
               </article>
             ))}
