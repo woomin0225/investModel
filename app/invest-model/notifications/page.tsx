@@ -37,6 +37,9 @@ type InvestModelNotificationsResponse = {
   };
 };
 
+type NotificationCenterItem =
+  InvestModelNotificationsResponse['data']['items'][number];
+
 const notificationCopy = {
   ko: {
     eyebrow: 'Notifications',
@@ -85,6 +88,53 @@ const notificationCopy = {
       'Notifications here are prototype UI records from local DB read models. They do not recommend securities, guarantee returns, connect accounts, or execute orders.'
   }
 } as const;
+
+function notificationSummaryAccessibleLabel(
+  locale: 'ko' | 'en',
+  notificationCenter: NotificationCenterDto
+) {
+  if (locale === 'ko') {
+    return `DB-backed notification center. 읽지 않은 알림 ${notificationCenter.unreadCount}개, DB row ${notificationCenter.items.length}개. FeedPost read state에서 파생된 prototype 알림이며 실제 push, email, SMS, 주문, 브로커, 계좌 메시지, 투자 조언이 아닙니다.`;
+  }
+
+  return `DB-backed notification center. ${notificationCenter.unreadCount} unread notifications and ${notificationCenter.items.length} DB rows. Prototype notifications derived from FeedPost read state; not real push, email, SMS, orders, brokerage, account messaging, or investment advice.`;
+}
+
+function notificationMarkAllReadAccessibleLabel(
+  locale: 'ko' | 'en',
+  notificationCenter: NotificationCenterDto
+) {
+  if (locale === 'ko') {
+    return notificationCenter.unreadCount > 0
+      ? `모두 읽음 처리. ${notificationCenter.unreadCount}개 FeedPost 알림 후보의 local DB read state만 업데이트합니다. 실제 push, email, SMS, 주문, 브로커, 계좌 메시지, 투자 조언은 전송하지 않습니다.`
+      : '모든 DB-backed notification 후보가 읽음 상태입니다. 실제 push, email, SMS, 주문, 브로커, 계좌 메시지, 투자 조언은 연결되지 않았습니다.';
+  }
+
+  return notificationCenter.unreadCount > 0
+    ? `Mark all read. Updates only local DB read state for ${notificationCenter.unreadCount} FeedPost notification candidates. No real push, email, SMS, orders, brokerage, account messaging, or investment advice is sent.`
+    : 'All DB-backed notification candidates are read. No real push, email, SMS, orders, brokerage, account messaging, or investment advice is connected.';
+}
+
+function notificationItemAccessibleLabel(
+  locale: 'ko' | 'en',
+  item: NotificationCenterItem
+) {
+  const modelName = item.feedPost.linkedModelName ?? 'Unlinked FeedPost';
+
+  if (locale === 'ko') {
+    return `${item.status === 'unread' ? '읽지 않은' : '읽은'} DB-backed FeedPost 알림 후보: ${item.title}. ${item.eventLabel}. 연결 모델: ${modelName}. informational-only read model이며 실제 push, email, SMS, 주문, 브로커 동작, 투자 조언이 아닙니다.`;
+  }
+
+  return `${item.status === 'unread' ? 'Unread' : 'Read'} DB-backed FeedPost notification candidate: ${item.title}. ${item.eventLabel}. Linked model: ${modelName}. Informational-only read model; not real push, email, SMS, orders, brokerage action, or investment advice.`;
+}
+
+function notificationSafetyAccessibleLabel(locale: 'ko' | 'en') {
+  if (locale === 'ko') {
+    return 'Notifications 안전 경계. 이 화면은 local DB read model prototype입니다. 증권 추천, 수익 보장, 계좌 연결, 실제 주문, push, email, SMS 전송을 수행하지 않습니다.';
+  }
+
+  return 'Notifications safety boundary. This screen is a local DB read model prototype. It does not recommend securities, guarantee returns, connect accounts, execute orders, or send push, email, or SMS messages.';
+}
 
 async function readInvestModelNotifications() {
   const response = await readNotifications(
@@ -141,6 +191,15 @@ export default async function InvestModelNotificationsPage({
   const actionsCopy = investModelCopy[locale].actions;
   const { data: notificationCenter } = await readInvestModelNotifications();
   const hasUnreadNotifications = notificationCenter.unreadCount > 0;
+  const summaryAccessibleLabel = notificationSummaryAccessibleLabel(
+    locale,
+    notificationCenter
+  );
+  const markAllReadAccessibleLabel = notificationMarkAllReadAccessibleLabel(
+    locale,
+    notificationCenter
+  );
+  const safetyAccessibleLabel = notificationSafetyAccessibleLabel(locale);
 
   return (
     <MobileShell
@@ -163,7 +222,11 @@ export default async function InvestModelNotificationsPage({
       }
     >
       <section className="space-y-invest-section-gap">
-        <section className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+        <section
+          aria-label={summaryAccessibleLabel}
+          title={summaryAccessibleLabel}
+          className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+        >
           <div className="flex items-start gap-3">
             <div className="grid size-11 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
               <Bell aria-hidden className="size-5" />
@@ -199,11 +262,15 @@ export default async function InvestModelNotificationsPage({
               </div>
               <form
                 action={markAllNotificationsReadAction}
+                aria-label={markAllReadAccessibleLabel}
+                title={markAllReadAccessibleLabel}
                 className="mt-4 space-y-2"
               >
                 <button
                   type="submit"
                   disabled={!hasUnreadNotifications}
+                  aria-label={markAllReadAccessibleLabel}
+                  title={markAllReadAccessibleLabel}
                   className={cn(
                     'inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control px-4 py-3 text-sm font-bold leading-5 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
                     hasUnreadNotifications
@@ -231,17 +298,24 @@ export default async function InvestModelNotificationsPage({
 
           <div
             role="list"
+            aria-label={copy.sectionDescription}
             className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
             {notificationCenter.items.length > 0 ? (
               notificationCenter.items.map((item) => {
                 const isUnread = item.status === 'unread';
+                const itemAccessibleLabel = notificationItemAccessibleLabel(
+                  locale,
+                  item
+                );
 
                 return (
                   <Link
                     key={item.notificationPublicId}
                     href={withInvestModelLocale(item.href, locale)}
                     role="listitem"
+                    aria-label={itemAccessibleLabel}
+                    title={itemAccessibleLabel}
                     className={cn(
                       'group block rounded-invest-card border bg-invest-surface p-4 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
                       isUnread
@@ -305,7 +379,11 @@ export default async function InvestModelNotificationsPage({
           </div>
         </div>
 
-        <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
+        <div
+          aria-label={safetyAccessibleLabel}
+          title={safetyAccessibleLabel}
+          className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding"
+        >
           <div className="flex items-start gap-3">
             <ShieldCheck
               aria-hidden
