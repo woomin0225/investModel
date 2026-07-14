@@ -55,6 +55,10 @@ export interface ModelCardDto {
   notices: PolicyNoticeDto[];
 }
 
+export interface ModelListQueryDto {
+  searchQuery?: string;
+}
+
 export interface ModelDetailDto extends ModelCardDto {
   strategySummary?: string;
   assetUniverseSummary?: string;
@@ -131,6 +135,16 @@ export function parseModelLimit(value: string | null, fallback = 20) {
   }
 
   return Math.min(Math.max(parsed, 1), 50);
+}
+
+export function parseModelSearchQuery(value: string | null) {
+  const query = value?.trim();
+
+  if (!query) {
+    return undefined;
+  }
+
+  return query.slice(0, 80);
 }
 
 export function modelPolicyNotices(): PolicyNoticeDto[] {

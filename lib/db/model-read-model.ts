@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, or, type SQL } from 'drizzle-orm';
+import { and, desc, eq, inArray, like, or, type SQL } from 'drizzle-orm';
 
 import { db } from '@/lib/db/drizzle';
 import {
@@ -15,7 +15,8 @@ import {
   buildModelDetailDto,
   buildModelDisclosureDto,
   type ModelCardDto,
-  type ModelDetailDto
+  type ModelDetailDto,
+  type ModelListQueryDto
 } from '@/lib/domain/models/model-read-model';
 
 const visibleModelStatuses = ['approved', 'live'] as const;
@@ -67,11 +68,36 @@ function modelDetailSelectFields() {
   };
 }
 
-function visibleModelFilters(): SQL[] {
-  return [
+function modelListFilters(query?: ModelListQueryDto): SQL[] {
+  const filters: SQL[] = [
     inArray(investmentModels.status, visibleModelStatuses),
     inArray(investmentModels.visibility, visibleModelVisibilities)
   ];
+
+  if (query?.searchQuery) {
+    const searchPattern = `%${escapeLikePattern(query.searchQuery)}%`;
+    const searchFilter = or(
+      like(investmentModels.name, searchPattern),
+      like(investmentModels.shortDescription, searchPattern),
+      like(modelCreators.displayName, searchPattern),
+      like(modelVersions.targetMarkets, searchPattern),
+      like(modelVersions.assetUniverseSummary, searchPattern)
+    );
+
+    if (searchFilter) {
+      filters.push(searchFilter);
+    }
+  }
+
+  return filters;
+}
+
+function visibleModelFilters(): SQL[] {
+  return modelListFilters();
+}
+
+function escapeLikePattern(value: string) {
+  return value.replace(/[\\%_]/g, (match) => `\\${match}`);
 }
 
 function modelBaseQuery() {
@@ -116,9 +142,12 @@ function modelDetailBaseQuery() {
     );
 }
 
-export async function readModelCardDtos(limit: number): Promise<ModelCardDto[]> {
+export async function readModelCardDtos(
+  limit: number,
+  query?: ModelListQueryDto
+): Promise<ModelCardDto[]> {
   const rows = await modelBaseQuery()
-    .where(and(...visibleModelFilters()))
+    .where(and(...modelListFilters(query)))
     .orderBy(
       desc(modelPerformanceSnapshots.measuredAt),
       desc(investmentModels.updatedAt)

@@ -128,15 +128,27 @@ function modelDiscoveryVisibleBoundaries(locale: 'ko' | 'en') {
 
 function getDiscoveryFilterHref(
   filterId: string,
-  locale: 'ko' | 'en'
+  locale: 'ko' | 'en',
+  searchQuery?: string
 ) {
   const basePath = withInvestModelLocale('/invest-model/models', locale);
+  const params = new URLSearchParams();
 
-  if (filterId === 'all') {
+  if (filterId !== 'all') {
+    params.set('filter', filterId);
+  }
+
+  if (searchQuery) {
+    params.set('q', searchQuery);
+  }
+
+  const query = params.toString();
+
+  if (!query) {
     return basePath;
   }
 
-  return `${basePath}${locale === 'en' ? '&' : '?'}filter=${filterId}`;
+  return `${basePath}${locale === 'en' ? '&' : '?'}${query}`;
 }
 
 function modelRiskTone(card: ModelCardDto): DiscoveryRiskTone {
@@ -179,10 +191,28 @@ function toDiscoverableInvestmentModelView(
   };
 }
 
-async function readDiscoverableInvestmentModels(locale: 'ko' | 'en') {
+function getFirstSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function normalizeModelSearchQuery(value: string | string[] | undefined) {
+  const query = getFirstSearchParam(value)?.trim();
+  return query ? query.slice(0, 80) : undefined;
+}
+
+async function readDiscoverableInvestmentModels(
+  locale: 'ko' | 'en',
+  searchQuery?: string
+) {
   try {
+    const params = new URLSearchParams({ limit: '30' });
+
+    if (searchQuery) {
+      params.set('q', searchQuery);
+    }
+
     const response = await readModels(
-      new NextRequest('http://localhost/api/models?limit=30', {
+      new NextRequest(`http://localhost/api/models?${params.toString()}`, {
         method: 'GET',
         headers: {
           'x-invest-model-role': 'public'
@@ -228,12 +258,13 @@ export default async function InvestModelDiscoveryPage({
   const selectedFilter = resolveInvestModelDiscoveryFilter(
     resolvedSearchParams?.filter
   );
+  const searchQuery = normalizeModelSearchQuery(resolvedSearchParams?.q);
   const copy = investModelCopy[locale];
   const modelsCopy = copy.models;
   const {
     models: discoverableInvestmentModels,
     readFailed: modelReadFailed
-  } = await readDiscoverableInvestmentModels(locale);
+  } = await readDiscoverableInvestmentModels(locale, searchQuery);
   const filteredInvestmentModels = discoverableInvestmentModels.filter(
     (model) => matchesInvestModelDiscoveryFilter(model, selectedFilter)
   );
@@ -333,6 +364,42 @@ export default async function InvestModelDiscoveryPage({
           </Link>
 
           <div className="space-y-2">
+            <form
+              action={withInvestModelLocale('/invest-model/models', locale)}
+              className="flex min-h-invest-touch-target items-center gap-2 rounded-invest-card border border-invest-border bg-invest-surface px-3 py-2 shadow-invest-card focus-within:border-invest-primary focus-within:ring-2 focus-within:ring-invest-primary/15"
+            >
+              {locale === 'en' ? (
+                <input type="hidden" name="lang" value="en" />
+              ) : null}
+              {selectedFilter !== 'all' ? (
+                <input type="hidden" name="filter" value={selectedFilter} />
+              ) : null}
+              <Search
+                aria-hidden
+                className="size-4 shrink-0 text-invest-text-muted"
+              />
+              <input
+                name="q"
+                type="search"
+                defaultValue={searchQuery ?? ''}
+                placeholder={
+                  locale === 'ko' ? 'Search models' : 'Search models'
+                }
+                aria-label={
+                  locale === 'ko' ? 'Search models' : 'Search models'
+                }
+                className="min-w-0 flex-1 bg-transparent text-sm font-semibold leading-6 text-invest-text outline-none placeholder:text-invest-text-subtle"
+              />
+              <button
+                type="submit"
+                className={cn(
+                  'inline-flex min-h-9 shrink-0 items-center justify-center rounded-invest-control bg-invest-primary px-3 text-xs font-bold text-white shadow-invest-card',
+                  investMotionClass.interactiveControl
+                )}
+              >
+                {locale === 'ko' ? 'Search' : 'Search'}
+              </button>
+            </form>
             <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
               <div className="flex w-max gap-2 pr-invest-screen-x">
                 {investModelDiscoveryFilterIds.map((filterId, index) => {
@@ -341,7 +408,11 @@ export default async function InvestModelDiscoveryPage({
                   return (
                     <Link
                       key={filterId}
-                      href={getDiscoveryFilterHref(filterId, locale)}
+                      href={getDiscoveryFilterHref(
+                        filterId,
+                        locale,
+                        searchQuery
+                      )}
                       aria-current={isSelected ? 'true' : undefined}
                       aria-pressed={isSelected}
                       className={cn(

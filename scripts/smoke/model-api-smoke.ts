@@ -70,6 +70,46 @@ async function main() {
     'model list keeps safe API meta'
   );
 
+  const searchTerm = model.name.split(/\s+/)[0];
+  const searchResponse = await GET_MODELS(
+    new NextRequest(
+      `http://localhost/api/models?limit=10&q=${encodeURIComponent(searchTerm)}`,
+      {
+        method: 'GET'
+      }
+    )
+  );
+  const searchJson = await searchResponse.json();
+
+  assertCondition(searchResponse.status === 200, 'model search responds');
+  assertCondition(
+    searchJson.meta?.q === searchTerm &&
+      searchJson.meta?.filtersApplied?.search === true,
+    'model search reports applied q filter'
+  );
+  assertCondition(
+    Array.isArray(searchJson.data) &&
+      searchJson.data.some(
+        (searchModel: { modelPublicId?: string }) =>
+          searchModel.modelPublicId === model.modelPublicId
+      ),
+    'model search returns the matching seeded model'
+  );
+
+  const emptySearchResponse = await GET_MODELS(
+    new NextRequest('http://localhost/api/models?limit=10&q=no-such-model-xyz', {
+      method: 'GET'
+    })
+  );
+  const emptySearchJson = await emptySearchResponse.json();
+
+  assertCondition(
+    emptySearchResponse.status === 200 &&
+      Array.isArray(emptySearchJson.data) &&
+      emptySearchJson.data.length === 0,
+    'model search returns an empty list for unmatched q without falling back'
+  );
+
   const detailResponse = await GET_MODEL_DETAIL(
     new NextRequest(`http://localhost/api/models/${model.slug}`, {
       method: 'GET'

@@ -3,7 +3,8 @@ import { NextRequest } from 'next/server';
 import { readModelCardDtos } from '@/lib/db/model-read-model';
 import {
   canReadModels,
-  parseModelLimit
+  parseModelLimit,
+  parseModelSearchQuery
 } from '@/lib/domain/models/model-read-model';
 import type { AccessRole } from '@/lib/domain/types';
 
@@ -54,9 +55,12 @@ export async function GET(request: NextRequest) {
   }
 
   const limit = parseModelLimit(request.nextUrl.searchParams.get('limit'));
+  const searchQuery = parseModelSearchQuery(
+    request.nextUrl.searchParams.get('q')
+  );
 
   try {
-    const models = await readModelCardDtos(limit);
+    const models = await readModelCardDtos(limit, { searchQuery });
 
     return Response.json({
       data: models,
@@ -71,6 +75,10 @@ export async function GET(request: NextRequest) {
           'model_performance_snapshots'
         ],
         limit,
+        q: searchQuery ?? null,
+        filtersApplied: {
+          search: Boolean(searchQuery)
+        },
         marketplaceVisibleOnly: true,
         backtestMetricsOnly: true,
         financialAdvice: false,

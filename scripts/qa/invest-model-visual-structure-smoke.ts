@@ -334,6 +334,7 @@ const mobileShellSource = readProjectFile(
 );
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
+const modelsPageSource = readProjectFile('app/invest-model/models/page.tsx');
 const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
 const portfolioPageSource = readProjectFile(
   'app/invest-model/portfolio/page.tsx'
@@ -398,6 +399,13 @@ assertCondition(
   signalsPageSource.includes('detailHref: signalDetailHref') &&
     signalsPageSource.includes("href={'detailHref' in signal ? signal.detailHref : '#'}"),
   'Realtime Signals list must link DB-backed SignalEvent rows to Signal Detail routes'
+);
+assertCondition(
+  modelsPageSource.includes('name="q"') &&
+    modelsPageSource.includes('searchQuery') &&
+    modelsPageSource.includes("params.set('q', searchQuery)") &&
+    modelsPageSource.includes('getDiscoveryFilterHref('),
+  'Discover Models must wire search input to the DB-backed /api/models q filter and preserve it across filters'
 );
 assertCondition(
   feedPageSource.includes('<FeedCardSaveAction') &&
