@@ -60,6 +60,36 @@ function buildModelDetailHref(modelId: string, locale: 'ko' | 'en') {
   return withInvestModelLocale(`/invest-model/models/${modelId}`, locale);
 }
 
+function searchFormAccessibleLabel(
+  locale: 'ko' | 'en',
+  query: string,
+  resultLabel: string
+) {
+  const queryLabel =
+    query.length > 0
+      ? locale === 'ko'
+        ? `${query} 검색`
+        : `Search for ${query}`
+      : locale === 'ko'
+        ? '최근 DB 기반 검색 결과'
+        : 'Recent DB-backed search results';
+
+  return locale === 'ko'
+    ? `${queryLabel}. ${resultLabel}. InvestmentModels, DB-backed FeedPosts, SignalEvents만 검색합니다. 추천, 주문, 브로커 계좌, 실시간 외부 데이터, 실잔고 검색이 아닙니다.`
+    : `${queryLabel}. ${resultLabel}. Searches only InvestmentModels, DB-backed FeedPosts, and SignalEvents. This is not recommendation, order, brokerage account, realtime external data, or real balance search.`;
+}
+
+function searchResultAccessibleLabel(
+  locale: 'ko' | 'en',
+  kind: 'InvestmentModel' | 'FeedPost' | 'SignalEvent',
+  title: string,
+  detail: string
+) {
+  return locale === 'ko'
+    ? `${kind} 결과: ${title}. ${detail}. DB-backed read model 결과이며 추천, 주문, 브로커 동작 또는 실시간 외부 데이터가 아닙니다.`
+    : `${kind} result: ${title}. ${detail}. DB-backed read model result, not a recommendation, order, brokerage action, or realtime external data.`;
+}
+
 async function readInvestModelSearchResults(
   query: string
 ): Promise<InvestModelSearchResults> {
@@ -107,6 +137,11 @@ export default async function InvestModelSearchPage({
     query.length > 0
       ? `${filteredModels.length} InvestmentModels | ${filteredFeedPosts.length} FeedPosts | ${filteredSignals.length} SignalEvents`
       : `${filteredModels.length} discoverable InvestmentModels | ${filteredFeedPosts.length} recent FeedPosts | ${filteredSignals.length} recent SignalEvents`;
+  const searchAccessibleLabel = searchFormAccessibleLabel(
+    locale,
+    query,
+    resultLabel
+  );
 
   return (
     <MobileShell
@@ -126,6 +161,8 @@ export default async function InvestModelSearchPage({
       <section className="space-y-invest-section-gap">
         <form
           action="/invest-model/search"
+          aria-label={searchAccessibleLabel}
+          title={searchAccessibleLabel}
           className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
         >
           <input type="hidden" name="lang" value={locale} />
@@ -143,6 +180,8 @@ export default async function InvestModelSearchPage({
               id="invest-model-search-query"
               name="q"
               defaultValue={query}
+              aria-label={searchAccessibleLabel}
+              title={searchAccessibleLabel}
               placeholder={
                 locale === 'ko'
                   ? 'Model, market, risk, or headline'
@@ -155,6 +194,8 @@ export default async function InvestModelSearchPage({
             />
             <button
               type="submit"
+              aria-label={searchAccessibleLabel}
+              title={searchAccessibleLabel}
               className={cn(
                 'inline-flex min-h-invest-touch-target shrink-0 items-center justify-center rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-white shadow-invest-card',
                 investMotionClass.interactiveControl
@@ -195,6 +236,18 @@ export default async function InvestModelSearchPage({
                     key={model.modelId}
                     href={buildModelDetailHref(model.modelId, locale)}
                     role="listitem"
+                    aria-label={searchResultAccessibleLabel(
+                      locale,
+                      'InvestmentModel',
+                      model.name,
+                      `${statusDisplay.label}. ${model.riskLabel}. ${model.market}. ${model.performanceLabel}`
+                    )}
+                    title={searchResultAccessibleLabel(
+                      locale,
+                      'InvestmentModel',
+                      model.name,
+                      `${statusDisplay.label}. ${model.riskLabel}. ${model.market}. ${model.performanceLabel}`
+                    )}
                     className={cn(
                       'group block rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
                       investMotionClass.interactiveCard
@@ -267,6 +320,18 @@ export default async function InvestModelSearchPage({
                   key={post.postPublicId}
                   href={buildFeedDetailHref(post.postPublicId, locale)}
                   role="listitem"
+                  aria-label={searchResultAccessibleLabel(
+                    locale,
+                    'FeedPost',
+                    post.title,
+                    post.linkedModelName ?? 'Unlinked FeedPost'
+                  )}
+                  title={searchResultAccessibleLabel(
+                    locale,
+                    'FeedPost',
+                    post.title,
+                    post.linkedModelName ?? 'Unlinked FeedPost'
+                  )}
                   className={cn(
                     'group block rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
                     investMotionClass.interactiveCard
@@ -329,6 +394,18 @@ export default async function InvestModelSearchPage({
                   key={signal.signalPublicId}
                   href={buildSignalDetailHref(signal.signalPublicId, locale)}
                   role="listitem"
+                  aria-label={searchResultAccessibleLabel(
+                    locale,
+                    'SignalEvent',
+                    signal.title,
+                    `${signal.signalType}. ${signal.linkedModelName}. ${signal.scoreDisplay}`
+                  )}
+                  title={searchResultAccessibleLabel(
+                    locale,
+                    'SignalEvent',
+                    signal.title,
+                    `${signal.signalType}. ${signal.linkedModelName}. ${signal.scoreDisplay}`
+                  )}
                   className={cn(
                     'group block rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
                     investMotionClass.interactiveCard
@@ -373,7 +450,19 @@ export default async function InvestModelSearchPage({
           </div>
         </div>
 
-        <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
+        <div
+          aria-label={
+            locale === 'ko'
+              ? '검색 안전 경계. 결과는 모델 탐색, 정보성 FeedPost, 관찰 SignalEvent이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터, 계좌 데이터가 아닙니다.'
+              : 'Search safety boundary. Results are model discovery, informational FeedPost, and observed SignalEvent records, not recommendations, orders, return claims, brokerage actions, realtime external data, or account data.'
+          }
+          title={
+            locale === 'ko'
+              ? '검색 안전 경계. 결과는 모델 탐색, 정보성 FeedPost, 관찰 SignalEvent이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터, 계좌 데이터가 아닙니다.'
+              : 'Search safety boundary. Results are model discovery, informational FeedPost, and observed SignalEvent records, not recommendations, orders, return claims, brokerage actions, realtime external data, or account data.'
+          }
+          className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding"
+        >
           <div className="flex items-start gap-3">
             <ShieldCheck
               aria-hidden
