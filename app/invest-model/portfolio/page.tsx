@@ -300,8 +300,8 @@ export default async function InvestModelPortfolioPage({
               <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
                 <Database aria-hidden className="size-5" />
               </div>
-              <div className="min-w-0">
-                <div className="flex flex-wrap gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-3">
                   <RiskBadge tone="low">
                     {portfolio.allocationDecision.statusLabel}
                   </RiskBadge>
@@ -312,7 +312,7 @@ export default async function InvestModelPortfolioPage({
                     {portfolio.allocationDecision.generatedAtLabel}
                   </RiskBadge>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-invest-text-muted">
+                <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-3 py-2.5 text-sm leading-6 text-invest-text-muted">
                   {portfolio.allocationDecision.rationale}
                 </p>
               </div>
