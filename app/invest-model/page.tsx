@@ -247,14 +247,22 @@ export default async function InvestModelPreviewPage({
                   role="listitem"
                   aria-label={`${item.title} ${item.time}`}
                   className={cn(
-                    'rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
+                    'group rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
                     investMotionClass.interactiveCard
                   )}
                 >
-                  <div className={cn('mb-3 h-1.5 rounded-full', accentClass)} />
+                  <div
+                    className={cn(
+                      'mb-3 h-1.5 origin-left rounded-full transition-transform duration-200 ease-out group-hover:scale-x-105 group-active:scale-x-95 motion-reduce:transition-none motion-reduce:group-hover:scale-x-100 motion-reduce:group-active:scale-x-100',
+                      accentClass
+                    )}
+                  />
                   <div className="flex items-start gap-3">
-                    <div className="grid size-9 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary shadow-invest-card">
-                      <Clock3 aria-hidden className="size-4" />
+                    <div className="grid size-9 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary shadow-invest-card transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary group-hover:text-white group-active:scale-95 motion-reduce:transition-none motion-reduce:group-active:scale-100">
+                      <Clock3
+                        aria-hidden
+                        className="size-4 transition-transform duration-200 ease-out group-hover:rotate-6 motion-reduce:transition-none motion-reduce:group-hover:rotate-0"
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
@@ -282,7 +290,7 @@ export default async function InvestModelPreviewPage({
                         {item.description}
                       </p>
                       {metadata ? (
-                        <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                        <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-active:scale-100 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
                           <RiskBadge className="justify-center text-center">
                             <Database aria-hidden className="mr-1 inline size-3" />
                             {metadata.sourceLabel}
