@@ -145,6 +145,26 @@ function portfolioBlockedActionAccessibleLabel(
   return `Blocked real-world action: ${action}. It is not executed in the Portfolio mock summary.`;
 }
 
+function portfolioBlockedVisibleBoundaries(locale: 'ko' | 'en') {
+  if (locale === 'ko') {
+    return [
+      '실제 입금 없음',
+      '실계좌 연결 없음',
+      '실주문 없음',
+      '브로커 미연결',
+      '투자 조언 아님'
+    ];
+  }
+
+  return [
+    'no real deposit',
+    'no account link',
+    'no real order',
+    'no brokerage',
+    'no advice'
+  ];
+}
+
 async function readPortfolioSummaryRoute(): Promise<InvestModelPortfolioSummary> {
   const response = await readPortfolioMockSummary(
     new NextRequest('http://localhost/api/portfolio/mock-summary', {
@@ -195,6 +215,7 @@ export default async function InvestModelPortfolioPage({
     locale,
     portfolio
   );
+  const blockedVisibleBoundaries = portfolioBlockedVisibleBoundaries(locale);
 
   return (
     <MobileShell
@@ -550,6 +571,21 @@ export default async function InvestModelPortfolioPage({
                     )}
                   >
                     <RiskBadge tone="blocked">{action}</RiskBadge>
+                  </span>
+                ))}
+              </div>
+              <div
+                role="list"
+                aria-label={
+                  locale === 'ko'
+                    ? 'Portfolio mock summary 안전 경계'
+                    : 'Portfolio mock summary safety boundaries'
+                }
+                className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control border border-invest-risk/10 bg-invest-surface px-2 py-2"
+              >
+                {blockedVisibleBoundaries.map((boundary) => (
+                  <span key={boundary} role="listitem">
+                    <RiskBadge tone="neutral">{boundary}</RiskBadge>
                   </span>
                 ))}
               </div>
