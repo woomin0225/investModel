@@ -5,6 +5,9 @@ import {
   ShieldAlert,
   WalletCards
 } from 'lucide-react';
+import { NextRequest } from 'next/server';
+
+import { GET as readPortfolioMockSummary } from '@/app/api/portfolio/mock-summary/route';
 import {
   investMotionClass,
   MetricCard,
@@ -17,7 +20,7 @@ import {
   SoftBanner
 } from '@/components/invest-model';
 import { resolveInvestModelLocale } from '@/lib/i18n/invest-model';
-import { readInvestModelPortfolioSummary } from '@/lib/db/portfolio-read-model';
+import type { InvestModelPortfolioSummary } from '@/lib/db/portfolio-read-model';
 import { cn } from '@/lib/utils';
 
 type InvestModelPortfolioPageProps = {
@@ -86,6 +89,31 @@ function parseWeightPercent(weightLabel: string) {
   return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 100) : 0;
 }
 
+async function readPortfolioSummaryRoute(): Promise<InvestModelPortfolioSummary> {
+  const response = await readPortfolioMockSummary(
+    new NextRequest('http://localhost/api/portfolio/mock-summary', {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+
+  if (!response.ok) {
+    throw new Error('Portfolio mock summary route read failed.');
+  }
+
+  const payload = (await response.json()) as {
+    data?: InvestModelPortfolioSummary;
+  };
+
+  if (!payload.data) {
+    throw new Error('Portfolio mock summary route returned no data.');
+  }
+
+  return payload.data;
+}
+
 const positionAccentClass = [
   'bg-invest-primary',
   'bg-invest-warning',
@@ -97,7 +125,7 @@ export default async function InvestModelPortfolioPage({
 }: InvestModelPortfolioPageProps) {
   const locale = resolveInvestModelLocale(await searchParams);
   const copy = portfolioCopy[locale];
-  const portfolio = await readInvestModelPortfolioSummary('user_demo_001');
+  const portfolio = await readPortfolioSummaryRoute();
 
   return (
     <MobileShell
