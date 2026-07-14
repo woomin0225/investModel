@@ -9,6 +9,7 @@ import {
 import { NextRequest } from 'next/server';
 import Link from 'next/link';
 
+import { GET as readFeedPosts } from '@/app/api/feed/route';
 import { GET as readFeedRankings } from '@/app/api/feed/rankings/route';
 import {
   investMotionClass,
@@ -19,7 +20,6 @@ import {
   SectionHeader,
   SoftBanner
 } from '@/components/invest-model';
-import { readFeedPostDtos } from '@/lib/db/feed-read-model';
 import {
   parseFeedPostType,
   type FeedPostDto,
@@ -223,6 +223,33 @@ async function readInvestModelFeedRankings(
   return (payload.data ?? []).map((ranking) => toRankingCard(ranking, locale));
 }
 
+async function readInvestModelFeedPosts(
+  postType: FeedPostType | null
+): Promise<FeedPostDto[]> {
+  const params = new URLSearchParams({ limit: '20' });
+
+  if (postType) {
+    params.set('postType', postType);
+  }
+
+  const response = await readFeedPosts(
+    new NextRequest(`http://localhost/api/feed?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+
+  if (!response.ok) {
+    throw new Error('FeedPost route read failed.');
+  }
+
+  const payload = (await response.json()) as { data?: FeedPostDto[] };
+
+  return payload.data ?? [];
+}
+
 export default async function InvestModelFeedPage({
   searchParams
 }: InvestModelFeedPageProps) {
@@ -251,7 +278,7 @@ export default async function InvestModelFeedPage({
   let rankingCards: RankingCard[] = [];
 
   try {
-    dbPosts = await readFeedPostDtos({ postType: selectedPostType, limit: 20 });
+    dbPosts = await readInvestModelFeedPosts(selectedPostType);
 
     if (dbPosts.length === 0) {
       feedReadState = 'empty';
