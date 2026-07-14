@@ -19,6 +19,7 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
 
 type SignalDetailPageProps = {
@@ -128,6 +129,7 @@ export default async function InvestModelSignalDetailPage({
   const resolvedSearchParams = (await searchParams) ?? {};
   const locale = resolveInvestModelLocale(resolvedSearchParams);
   const copy = investModelCopy[locale];
+  const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const signal = await readSignalEventDtoByPublicId(resolvedParams.signalId);
 
   if (!signal) {
@@ -165,7 +167,11 @@ export default async function InvestModelSignalDetailPage({
       locale={locale}
       currentPath={currentPath}
       trailing={
-        <NotificationAction locale={locale} label={copy.actions.signalAlerts} />
+        <NotificationAction
+          locale={locale}
+          label={copy.actions.signalAlerts}
+          unreadLabel={unreadLabel}
+        />
       }
     >
       <section className="space-y-invest-section-gap">

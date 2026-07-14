@@ -35,6 +35,7 @@ type SearchAndNotificationActionsProps = {
 type NotificationActionProps = {
   locale: InvestModelLocale;
   label: string;
+  unreadLabel?: string;
   dot?: boolean;
   className?: string;
 };
@@ -88,7 +89,8 @@ export function SearchAndNotificationActions({
 export function NotificationAction({
   locale,
   label,
-  dot = true,
+  unreadLabel,
+  dot = false,
   className
 }: NotificationActionProps) {
   return (
@@ -102,7 +104,8 @@ export function NotificationAction({
           href: '/invest-model/notifications',
           icon: Bell,
           tone: 'primary',
-          dot,
+          badgeLabel: unreadLabel,
+          dot: unreadLabel ? false : dot,
           rotateOnHover: true
         }
       ]}

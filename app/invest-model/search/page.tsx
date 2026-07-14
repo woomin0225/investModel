@@ -19,6 +19,7 @@ import {
   resolveInvestModelLocale,
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
 
 type InvestModelSearchPageProps = {
@@ -95,6 +96,7 @@ export default async function InvestModelSearchPage({
   const resolvedSearchParams = (await searchParams) ?? {};
   const locale = resolveInvestModelLocale(resolvedSearchParams);
   const copy = investModelCopy[locale];
+  const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const rawQuery = firstSearchParam(resolvedSearchParams.q) ?? '';
   const query = rawQuery.trim();
   const searchResults = await readInvestModelSearchResults(query);
@@ -117,6 +119,7 @@ export default async function InvestModelSearchPage({
         <NotificationAction
           locale={locale}
           label={copy.actions.notifications}
+          unreadLabel={unreadLabel}
         />
       }
     >

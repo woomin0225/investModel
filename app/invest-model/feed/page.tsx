@@ -30,6 +30,7 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
 
 const postToneBadge = {
@@ -259,6 +260,7 @@ export default async function InvestModelFeedPage({
     firstSearchParam(resolvedSearchParams.postType) ?? null
   );
   const copy = investModelCopy[locale];
+  const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const feedCopy = copy.feed;
   const { summary, filters, posts: fallbackPosts } = feedCopy;
   const filterOptions = [
@@ -327,6 +329,7 @@ export default async function InvestModelFeedPage({
         <NotificationAction
           locale={locale}
           label={copy.actions.feedNotifications}
+          unreadLabel={unreadLabel}
         />
       }
     >

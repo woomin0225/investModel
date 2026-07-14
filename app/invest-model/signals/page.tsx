@@ -13,6 +13,7 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { readSignalEventDtos } from '@/lib/db/signal-read-model';
 import {
   parseSignalEventType,
@@ -186,6 +187,7 @@ export default async function InvestModelSignalsPage({
     resolvedSearchParams.signalType
   );
   const copy = investModelCopy[locale];
+  const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const signalsCopy = copy.signals;
   const { summary, filters, signals: fallbackSignals } = signalsCopy;
   const filterOptions = signalFilterIds.map((filterId, index) => ({
@@ -258,7 +260,11 @@ export default async function InvestModelSignalsPage({
       locale={locale}
       currentPath="/invest-model/signals"
       trailing={
-        <NotificationAction locale={locale} label={copy.actions.signalAlerts} />
+        <NotificationAction
+          locale={locale}
+          label={copy.actions.signalAlerts}
+          unreadLabel={unreadLabel}
+        />
       }
     >
       <section className="space-y-invest-section-gap">

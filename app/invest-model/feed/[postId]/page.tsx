@@ -24,6 +24,7 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
 
 type FeedDetailPageProps = {
@@ -116,6 +117,7 @@ export default async function InvestModelFeedDetailPage({
   const userPublicId =
     firstSearchParam(resolvedSearchParams.userPublicId) ?? sampleUserPublicId;
   const copy = investModelCopy[locale];
+  const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const feedCopy = copy.feed;
   const result = await readFeedPostDetailDto({
     postPublicId: resolvedParams.postId,
@@ -147,6 +149,7 @@ export default async function InvestModelFeedDetailPage({
         <NotificationAction
           locale={locale}
           label={copy.actions.feedNotifications}
+          unreadLabel={unreadLabel}
         />
       }
     >

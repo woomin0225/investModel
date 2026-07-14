@@ -21,6 +21,7 @@ import {
 } from '@/components/invest-model';
 import { resolveInvestModelLocale } from '@/lib/i18n/invest-model';
 import type { InvestModelPortfolioSummary } from '@/lib/db/portfolio-read-model';
+import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
 
 type InvestModelPortfolioPageProps = {
@@ -125,6 +126,7 @@ export default async function InvestModelPortfolioPage({
 }: InvestModelPortfolioPageProps) {
   const locale = resolveInvestModelLocale(await searchParams);
   const copy = portfolioCopy[locale];
+  const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const portfolio = await readPortfolioSummaryRoute();
 
   return (
@@ -135,7 +137,11 @@ export default async function InvestModelPortfolioPage({
       locale={locale}
       currentPath="/invest-model/portfolio"
       trailing={
-        <NotificationAction locale={locale} label={copy.alertLabel} />
+        <NotificationAction
+          locale={locale}
+          label={copy.alertLabel}
+          unreadLabel={unreadLabel}
+        />
       }
     >
       <section className="space-y-invest-section-gap">
