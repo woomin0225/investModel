@@ -50,6 +50,28 @@ const homeMetricSummaryCopy = {
   }
 } as const;
 
+function homeVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? [
+        'DB/mock read model',
+        '선택 모델 맥락',
+        'MockDeposit funds',
+        '실계좌 아님',
+        '주문 아님',
+        '브로커 미연결',
+        '투자 조언 아님'
+      ]
+    : [
+        'DB/mock read model',
+        'selected model context',
+        'MockDeposit funds',
+        'no real account',
+        'not an order',
+        'no brokerage',
+        'not financial advice'
+      ];
+}
+
 export default async function InvestModelPreviewPage({
   searchParams
 }: InvestModelPageProps) {
@@ -182,6 +204,13 @@ export default async function InvestModelPreviewPage({
             performanceLabel={homeCopy.activeModel.performanceLabel}
             mandateLabel={homeCopy.activeModel.mandateLabel}
           />
+          <div className="flex flex-wrap gap-1.5 rounded-invest-card border border-invest-border bg-invest-surface-muted p-3 shadow-invest-card">
+            {homeVisibleBoundaries(locale).map((boundary) => (
+              <RiskBadge key={boundary} tone="neutral">
+                {boundary}
+              </RiskBadge>
+            ))}
+          </div>
           <ModelSelectionReadStatus copy={modelSelectionReadStatusCopy[locale]} />
         </div>
 
