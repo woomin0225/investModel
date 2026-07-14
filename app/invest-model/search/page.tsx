@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Activity, ArrowRight, Database, Search, ShieldCheck } from 'lucide-react';
+import { NextRequest } from 'next/server';
 
 import {
   investMotionClass,
@@ -8,15 +9,13 @@ import {
   RiskBadge,
   SectionHeader
 } from '@/components/invest-model';
-import { readFeedPostDtos } from '@/lib/db/feed-read-model';
-import { readSignalEventDtos } from '@/lib/db/signal-read-model';
+import { GET as readSearchResults } from '@/app/api/search/route';
 import type { FeedPostDto } from '@/lib/domain/feed/feed-post';
 import type { SignalEventDto } from '@/lib/domain/signals/signal-event';
 import {
   getInvestmentModelStatusDisplay,
   investModelCopy,
   type InvestmentModelPublicationStatus,
-  isPublicDiscoverableInvestmentModel,
   resolveInvestModelLocale,
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
@@ -27,99 +26,25 @@ type InvestModelSearchPageProps = {
 };
 
 type SearchableInvestmentModel = {
-  id: string;
+  modelId: string;
   name: string;
   summary: string;
   market: string;
   riskLabel: string;
-  riskTone: 'neutral' | 'low' | 'medium' | 'high' | 'blocked';
   performanceLabel: string;
-  mandateLabel: string;
   status: InvestmentModelPublicationStatus;
   tags: readonly string[];
-  reviewLabel: string;
-  simulatedAumLabel: string;
+  href: string;
+};
+
+type InvestModelSearchResults = {
+  investmentModels: SearchableInvestmentModel[];
+  feedPosts: Array<FeedPostDto & { href: string }>;
+  signalEvents: Array<SignalEventDto & { href: string }>;
 };
 
 function firstSearchParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
-}
-
-function normalizeSearchText(value: string) {
-  return value.trim().toLocaleLowerCase();
-}
-
-function matchesFeedPostSearch(post: FeedPostDto, query: string) {
-  const normalizedQuery = normalizeSearchText(query);
-
-  if (!normalizedQuery) {
-    return true;
-  }
-
-  const searchableText = [
-    post.title,
-    post.body,
-    post.linkedModelName,
-    post.authorDisplayName,
-    post.postType,
-    ...post.tags
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLocaleLowerCase();
-
-  return searchableText.includes(normalizedQuery);
-}
-
-function matchesSignalEventSearch(signal: SignalEventDto, query: string) {
-  const normalizedQuery = normalizeSearchText(query);
-
-  if (!normalizedQuery) {
-    return true;
-  }
-
-  const searchableText = [
-    signal.title,
-    signal.summary,
-    signal.linkedModelName,
-    signal.signalType,
-    signal.sourceLabel,
-    signal.scoreDisplay
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLocaleLowerCase();
-
-  return searchableText.includes(normalizedQuery);
-}
-
-function matchesInvestmentModelSearch(
-  model: SearchableInvestmentModel,
-  query: string
-) {
-  const normalizedQuery = normalizeSearchText(query);
-
-  if (!normalizedQuery) {
-    return true;
-  }
-
-  const searchableText = [
-    model.name,
-    model.summary,
-    model.market,
-    model.riskLabel,
-    model.performanceLabel,
-    model.mandateLabel,
-    model.reviewLabel,
-    model.simulatedAumLabel,
-    model.status,
-    ...model.tags
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLocaleLowerCase();
-
-  return searchableText.includes(normalizedQuery);
 }
 
 function buildFeedDetailHref(postPublicId: string, locale: 'ko' | 'en') {
@@ -134,6 +59,36 @@ function buildModelDetailHref(modelId: string, locale: 'ko' | 'en') {
   return withInvestModelLocale(`/invest-model/models/${modelId}`, locale);
 }
 
+async function readInvestModelSearchResults(
+  query: string
+): Promise<InvestModelSearchResults> {
+  const search = query ? `?q=${encodeURIComponent(query)}` : '';
+  const response = await readSearchResults(
+    new NextRequest(`http://localhost/api/search${search}`, {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+
+  if (!response.ok) {
+    return {
+      investmentModels: [],
+      feedPosts: [],
+      signalEvents: []
+    };
+  }
+
+  const payload = (await response.json()) as { data?: InvestModelSearchResults };
+
+  return {
+    investmentModels: payload.data?.investmentModels ?? [],
+    feedPosts: payload.data?.feedPosts ?? [],
+    signalEvents: payload.data?.signalEvents ?? []
+  };
+}
+
 export default async function InvestModelSearchPage({
   searchParams
 }: InvestModelSearchPageProps) {
@@ -142,22 +97,10 @@ export default async function InvestModelSearchPage({
   const copy = investModelCopy[locale];
   const rawQuery = firstSearchParam(resolvedSearchParams.q) ?? '';
   const query = rawQuery.trim();
-  const [feedPosts, signals] = await Promise.all([
-    readFeedPostDtos({ limit: 30 }),
-    readSignalEventDtos({ limit: 20 })
-  ]);
-  const discoverableModels = copy.models.models.filter(
-    isPublicDiscoverableInvestmentModel
-  );
-  const filteredModels = discoverableModels.filter((model) =>
-    matchesInvestmentModelSearch(model, query)
-  );
-  const filteredFeedPosts = feedPosts.filter((post) =>
-    matchesFeedPostSearch(post, query)
-  );
-  const filteredSignals = signals.filter((signal) =>
-    matchesSignalEventSearch(signal, query)
-  );
+  const searchResults = await readInvestModelSearchResults(query);
+  const filteredModels = searchResults.investmentModels;
+  const filteredFeedPosts = searchResults.feedPosts;
+  const filteredSignals = searchResults.signalEvents;
   const resultLabel =
     query.length > 0
       ? `${filteredModels.length} InvestmentModels | ${filteredFeedPosts.length} FeedPosts | ${filteredSignals.length} SignalEvents`
@@ -246,8 +189,8 @@ export default async function InvestModelSearchPage({
 
                 return (
                   <Link
-                    key={model.id}
-                    href={buildModelDetailHref(model.id, locale)}
+                    key={model.modelId}
+                    href={buildModelDetailHref(model.modelId, locale)}
                     role="listitem"
                     className={cn(
                       'group block rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
@@ -264,7 +207,7 @@ export default async function InvestModelSearchPage({
                           <RiskBadge tone={statusDisplay.tone}>
                             {statusDisplay.label}
                           </RiskBadge>
-                          <RiskBadge tone={model.riskTone}>
+                          <RiskBadge tone="medium">
                             {model.riskLabel}
                           </RiskBadge>
                         </div>
