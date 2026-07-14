@@ -117,6 +117,38 @@ function searchResultVisibleBoundaries(
   return ['DB SignalEvent', 'observed input', 'no realtime external data'];
 }
 
+function EmptySearchResultCard({
+  locale,
+  kind,
+  message
+}: {
+  locale: 'ko' | 'en';
+  kind: 'InvestmentModel' | 'FeedPost' | 'SignalEvent';
+  message: string;
+}) {
+  const emptyAccessibleLabel =
+    locale === 'ko'
+      ? `${kind} 빈 검색 결과. ${message} DB-backed scoped search의 빈 상태이며 추천, 주문, 브로커 동작, 실시간 외부 데이터, 실잔고 검색이 아닙니다.`
+      : `${kind} empty search result. ${message} Empty state for DB-backed scoped search, not a recommendation, order, brokerage action, realtime external data, or real balance search.`;
+
+  return (
+    <div
+      aria-label={emptyAccessibleLabel}
+      title={emptyAccessibleLabel}
+      className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted"
+    >
+      <p>{message}</p>
+      <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+        {searchResultVisibleBoundaries(locale, kind).map((boundary) => (
+          <RiskBadge key={boundary} tone="neutral">
+            {boundary}
+          </RiskBadge>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 async function readInvestModelSearchResults(
   query: string
 ): Promise<InvestModelSearchResults> {
@@ -333,11 +365,11 @@ export default async function InvestModelSearchPage({
                 );
               })
             ) : (
-              <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted">
-                {locale === 'ko'
-                  ? 'No InvestmentModel matched this search.'
-                  : 'No InvestmentModel matched this search.'}
-              </div>
+              <EmptySearchResultCard
+                locale={locale}
+                kind="InvestmentModel"
+                message="No InvestmentModel matched this search."
+              />
             )}
           </div>
         </div>
@@ -412,11 +444,11 @@ export default async function InvestModelSearchPage({
                 </Link>
               ))
             ) : (
-              <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted">
-                {locale === 'ko'
-                  ? 'No DB-backed FeedPost matched this search.'
-                  : 'No DB-backed FeedPost matched this search.'}
-              </div>
+              <EmptySearchResultCard
+                locale={locale}
+                kind="FeedPost"
+                message="No DB-backed FeedPost matched this search."
+              />
             )}
           </div>
         </div>
@@ -497,11 +529,11 @@ export default async function InvestModelSearchPage({
                 </Link>
               ))
             ) : (
-              <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted">
-                {locale === 'ko'
-                  ? 'No DB-backed SignalEvent matched this search.'
-                  : 'No DB-backed SignalEvent matched this search.'}
-              </div>
+              <EmptySearchResultCard
+                locale={locale}
+                kind="SignalEvent"
+                message="No DB-backed SignalEvent matched this search."
+              />
             )}
           </div>
         </div>
