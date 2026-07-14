@@ -1,4 +1,6 @@
 import { Clock3, Database, Radio, ShieldCheck } from 'lucide-react';
+import { NextRequest } from 'next/server';
+import { GET as readPortfolioMockSummary } from '@/app/api/portfolio/mock-summary/route';
 import {
   investMotionClass,
   MetricCard,
@@ -15,6 +17,7 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import type { InvestModelPortfolioSummary } from '@/lib/db/portfolio-read-model';
 import { investModelHomeMock } from '@/lib/mock/invest-model-home';
 import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
@@ -72,6 +75,31 @@ function homeVisibleBoundaries(locale: 'ko' | 'en') {
       ];
 }
 
+async function readHomePortfolioSummaryRoute(): Promise<InvestModelPortfolioSummary> {
+  const response = await readPortfolioMockSummary(
+    new NextRequest('http://localhost/api/portfolio/mock-summary', {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+
+  if (!response.ok) {
+    throw new Error('Home portfolio summary route read failed.');
+  }
+
+  const payload = (await response.json()) as {
+    data?: InvestModelPortfolioSummary;
+  };
+
+  if (!payload.data) {
+    throw new Error('Home portfolio summary route returned no data.');
+  }
+
+  return payload.data;
+}
+
 export default async function InvestModelPreviewPage({
   searchParams
 }: InvestModelPageProps) {
@@ -79,7 +107,13 @@ export default async function InvestModelPreviewPage({
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const copy = investModelCopy[locale];
   const homeCopy = copy.home;
-  const { account } = investModelHomeMock;
+  const portfolio = await readHomePortfolioSummaryRoute();
+  const account = {
+    mockBalanceLabel: portfolio.mockDeposit.amountLabel,
+    backtestReturnLabel:
+      portfolio.timeSnapshots[0]?.valueLabel ??
+      investModelHomeMock.account.backtestReturnLabel
+  };
   const metricSummaryCopy = homeMetricSummaryCopy[locale];
   const metricSummaryItems = [
     {
@@ -196,13 +230,13 @@ export default async function InvestModelPreviewPage({
             actionLabel={copy.actions.view}
           />
           <ModelCard
-            name={homeCopy.activeModel.name}
-            summary={homeCopy.activeModel.summary}
-            market={homeCopy.activeModel.market}
-            riskLabel={homeCopy.activeModel.riskLabel}
+            name={portfolio.selectedModel.name}
+            summary={portfolio.selectedModel.statusDescription}
+            market={portfolio.selectedModel.mandateLabel}
+            riskLabel={portfolio.selectedModel.riskLabel}
             riskTone="high"
-            performanceLabel={homeCopy.activeModel.performanceLabel}
-            mandateLabel={homeCopy.activeModel.mandateLabel}
+            performanceLabel={portfolio.selectedModel.versionLabel}
+            mandateLabel={portfolio.selectedModel.modelVersionPublicId}
           />
           <div className="flex flex-wrap gap-1.5 rounded-invest-card border border-invest-border bg-invest-surface-muted p-3 shadow-invest-card">
             {homeVisibleBoundaries(locale).map((boundary) => (
