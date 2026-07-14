@@ -164,6 +164,24 @@ function signalRelatedVisibleBoundaries(locale: SignalLocale) {
     : ['DB FeedPost', 'reference reading', 'not order evidence'];
 }
 
+function signalScoreSnapshotVisibleBoundaries(locale: SignalLocale) {
+  return locale === 'ko'
+    ? [
+        '점수 스냅샷',
+        'DB SignalEvent',
+        'seed/mock 관찰',
+        '외부 실시간 미연결',
+        '주문 아님'
+      ]
+    : [
+        'score snapshot',
+        'DB SignalEvent',
+        'seed/mock observation',
+        'no realtime external data',
+        'not an order'
+      ];
+}
+
 export default async function InvestModelSignalDetailPage({
   params,
   searchParams
@@ -320,6 +338,13 @@ export default async function InvestModelSignalDetailPage({
               className={cn('h-full rounded-full', scoreBarClass[scoreTone])}
               style={{ width: scoreWidth(signal.score) }}
             />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+            {signalScoreSnapshotVisibleBoundaries(locale).map((boundary) => (
+              <RiskBadge key={boundary} tone="neutral">
+                {boundary}
+              </RiskBadge>
+            ))}
           </div>
 
           <div className="mt-5 grid gap-2">
