@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
+import { GET as readFeedDetail } from '../../app/api/feed/[postId]/route';
 import { POST } from '../../app/api/feed/[postId]/reads/route';
 import { client } from '../../lib/db/drizzle';
 
@@ -47,6 +48,23 @@ function readRequest(postId: string, body: unknown, role = 'user') {
   );
 }
 
+function detailRequest(postId: string) {
+  return readFeedDetail(
+    new NextRequest(
+      `http://localhost/api/feed/${postId}?userPublicId=user_demo_001`,
+      {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'user'
+        }
+      }
+    ),
+    {
+      params: Promise.resolve({ postId })
+    }
+  );
+}
+
 async function main() {
   await applyTrackedFeedSeed();
 
@@ -77,6 +95,8 @@ async function main() {
     userPublicId: 'user_demo_001'
   });
   const repeatMarkReadJson = await repeatMarkReadResponse.json();
+  const revisitResponse = await detailRequest('feed_mock_003');
+  const revisitJson = await revisitResponse.json();
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(
@@ -102,6 +122,12 @@ async function main() {
     repeatMarkReadJson.data?.read === true &&
       typeof repeatMarkReadJson.data?.readAt === 'string',
     'repeat mark read keeps read state'
+  );
+  assertCondition(
+    revisitResponse.status === 200 &&
+      revisitJson.data?.userState?.read === true &&
+      typeof revisitJson.data?.userState?.readAt === 'string',
+    'read state persists through FeedPost detail revisit'
   );
   assertCondition(
     markReadJson.meta?.routeStatus === 'db_backed' &&

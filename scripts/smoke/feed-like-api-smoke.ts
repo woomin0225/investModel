@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
+import { GET as readFeedDetail } from '../../app/api/feed/[postId]/route';
 import { POST } from '../../app/api/feed/[postId]/likes/route';
 import { client } from '../../lib/db/drizzle';
 
@@ -51,6 +52,23 @@ function likeRequest(
   );
 }
 
+function detailRequest(postId: string) {
+  return readFeedDetail(
+    new NextRequest(
+      `http://localhost/api/feed/${postId}?userPublicId=user_demo_001`,
+      {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'user'
+        }
+      }
+    ),
+    {
+      params: Promise.resolve({ postId })
+    }
+  );
+}
+
 async function main() {
   await applyTrackedFeedSeed();
 
@@ -87,6 +105,8 @@ async function main() {
     desiredState: true
   });
   const likeJson = await likeResponse.json();
+  const revisitResponse = await detailRequest('feed_mock_001');
+  const revisitJson = await revisitResponse.json();
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(
@@ -114,6 +134,12 @@ async function main() {
       likeJson.data?.liked === true &&
       likeJson.data?.likeCount === 1,
     'like restores active sample reaction state'
+  );
+  assertCondition(
+    revisitResponse.status === 200 &&
+      revisitJson.data?.userState?.liked === true &&
+      revisitJson.data?.userState?.likeCount === 1,
+    'like state persists through FeedPost detail revisit'
   );
   assertCondition(
     likeJson.meta?.routeStatus === 'db_backed' &&

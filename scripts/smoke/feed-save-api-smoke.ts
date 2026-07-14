@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
+import { GET as readFeedDetail } from '../../app/api/feed/[postId]/route';
 import { POST } from '../../app/api/feed/[postId]/saves/route';
 import { client } from '../../lib/db/drizzle';
 
@@ -41,6 +42,23 @@ function saveRequest(postId: string, body: unknown, role = 'user') {
       },
       body: JSON.stringify(body)
     }),
+    {
+      params: Promise.resolve({ postId })
+    }
+  );
+}
+
+function detailRequest(postId: string) {
+  return readFeedDetail(
+    new NextRequest(
+      `http://localhost/api/feed/${postId}?userPublicId=user_demo_001`,
+      {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'user'
+        }
+      }
+    ),
     {
       params: Promise.resolve({ postId })
     }
@@ -83,6 +101,8 @@ async function main() {
     desiredState: true
   });
   const saveJson = await saveResponse.json();
+  const revisitResponse = await detailRequest('feed_mock_002');
+  const revisitJson = await revisitResponse.json();
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(
@@ -110,6 +130,12 @@ async function main() {
       saveJson.data?.saved === true &&
       typeof saveJson.data?.savedAt === 'string',
     'save restores private saved state'
+  );
+  assertCondition(
+    revisitResponse.status === 200 &&
+      revisitJson.data?.userState?.saved === true &&
+      typeof revisitJson.data?.userState?.savedAt === 'string',
+    'saved state persists through FeedPost detail revisit'
   );
   assertCondition(
     saveJson.meta?.routeStatus === 'db_backed' &&
