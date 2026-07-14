@@ -1,5 +1,6 @@
 import { Bell, BriefcaseBusiness, Database, ShieldAlert, WalletCards } from 'lucide-react';
 import {
+  investMotionClass,
   MetricCard,
   MobileShell,
   RiskBadge,
@@ -8,6 +9,7 @@ import {
 } from '@/components/invest-model';
 import { resolveInvestModelLocale } from '@/lib/i18n/invest-model';
 import { investModelPortfolioMock } from '@/lib/mock/invest-model-portfolio';
+import { cn } from '@/lib/utils';
 
 type InvestModelPortfolioPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -88,7 +90,10 @@ export default async function InvestModelPortfolioPage({
         <button
           type="button"
           aria-label={copy.alertLabel}
-          className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
+          className={cn(
+            'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+            investMotionClass.interactiveControl
+          )}
         >
           <Bell aria-hidden className="size-5" />
         </button>
@@ -131,7 +136,12 @@ export default async function InvestModelPortfolioPage({
             title={copy.selectedModelTitle}
             description={copy.selectedModelDescription}
           />
-          <article className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+          <article
+            className={cn(
+              'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+              investMotionClass.interactiveCard
+            )}
+          >
             <div className="flex items-start gap-3">
               <div className="grid size-11 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-invest-primary">
                 <BriefcaseBusiness aria-hidden className="size-5" />
@@ -193,7 +203,10 @@ export default async function InvestModelPortfolioPage({
             {portfolio.positions.map((position) => (
               <article
                 key={position.symbol}
-                className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+                className={cn(
+                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+                  investMotionClass.interactiveCard
+                )}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -232,7 +245,12 @@ export default async function InvestModelPortfolioPage({
             title={copy.decisionTitle}
             description={copy.decisionDescription}
           />
-          <article className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+          <article
+            className={cn(
+              'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+              investMotionClass.interactiveCard
+            )}
+          >
             <div className="flex items-start gap-3">
               <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
                 <Database aria-hidden className="size-5" />
@@ -257,7 +275,12 @@ export default async function InvestModelPortfolioPage({
           </article>
         </div>
 
-        <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
+        <div
+          className={cn(
+            'rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding',
+            investMotionClass.interactiveCard
+          )}
+        >
           <div className="flex items-start gap-3">
             <ShieldAlert
               aria-hidden
