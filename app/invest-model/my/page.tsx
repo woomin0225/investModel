@@ -161,6 +161,16 @@ export default async function InvestModelMyPage({
       : locale === 'ko'
         ? '대기'
         : 'pending';
+  const recentActivityRows = [
+    ...activitySummary.recentSavedPosts.map((item) => ({
+      ...item,
+      label: 'Saved'
+    })),
+    ...activitySummary.recentCommentPosts.map((item) => ({
+      ...item,
+      label: 'Comment'
+    }))
+  ].slice(0, 4);
 
   return (
     <MobileShell
@@ -286,6 +296,79 @@ export default async function InvestModelMyPage({
                 </Link>
               );
             })}
+          </div>
+          <div className="rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-sm font-bold leading-5 text-invest-text">
+                  Recent FeedPost activity
+                </h2>
+                <p className="mt-1 text-[12px] leading-5 text-invest-text-muted">
+                  DB-backed saved and comment shortcuts for user 1.
+                </p>
+              </div>
+              <RiskBadge
+                tone={
+                  activitySummary.sourceLabel === 'db_read_model'
+                    ? 'low'
+                    : 'medium'
+                }
+              >
+                {activitySummary.sourceLabel === 'db_read_model'
+                  ? 'DB read model'
+                  : 'mock-safe'}
+              </RiskBadge>
+            </div>
+
+            {recentActivityRows.length > 0 ? (
+              <div
+                role="list"
+                aria-label="Recent FeedPost activity"
+                className="mt-3 space-y-2"
+              >
+                {recentActivityRows.map((item) => (
+                  <Link
+                    key={`${item.activityLabel}-${item.postPublicId}-${item.activityAt ?? 'none'}`}
+                    href={withInvestModelLocale(
+                      `/invest-model/feed/${item.postPublicId}`,
+                      locale
+                    )}
+                    role="listitem"
+                    className={cn(
+                      'group flex min-h-invest-touch-target items-start justify-between gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface',
+                      investMotionClass.interactiveControl
+                    )}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-[12px] font-semibold leading-4 text-invest-primary">
+                        {item.label}
+                      </p>
+                      <p className="mt-1 line-clamp-2 text-sm font-semibold leading-5 text-invest-text">
+                        {item.title}
+                      </p>
+                      {item.activityAt ? (
+                        <p className="mt-1 text-[11px] leading-4 text-invest-text-muted">
+                          {item.activityAt}
+                        </p>
+                      ) : null}
+                    </div>
+                    <ArrowRight
+                      aria-hidden
+                      className="mt-1 size-4 shrink-0 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-active:scale-100"
+                    />
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-sm leading-5 text-invest-text-muted">
+                No DB FeedPost activity to show yet.
+              </p>
+            )}
+
+            <p className="mt-3 text-[12px] leading-5 text-invest-text-muted">
+              Saved/comment activity is an informational reading shortcut only,
+              not advice, orders, real accounts, or notification delivery.
+            </p>
           </div>
         </div>
 

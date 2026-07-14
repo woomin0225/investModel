@@ -16,13 +16,24 @@ export type MyPageFeedActivitySummary = {
   latestCommentAt?: string;
   latestSavedPostTitle?: string;
   latestCommentPostTitle?: string;
+  recentSavedPosts: MyPageFeedActivityItem[];
+  recentCommentPosts: MyPageFeedActivityItem[];
   sourceLabel: 'db_read_model' | 'mock_safe_fallback';
+};
+
+export type MyPageFeedActivityItem = {
+  postPublicId: string;
+  title: string;
+  activityAt?: string;
+  activityLabel: 'saved' | 'commented';
 };
 
 const fallbackSummary: MyPageFeedActivitySummary = {
   userPublicId: 'user_demo_001',
   savedCount: 0,
   commentCount: 0,
+  recentSavedPosts: [],
+  recentCommentPosts: [],
   sourceLabel: 'mock_safe_fallback'
 };
 
@@ -68,9 +79,10 @@ export async function readMyPageFeedActivitySummary(
         )
       );
 
-    const [latestSave] = await db
+    const recentSaves = await db
       .select({
         savedAt: feedPostSaves.savedAt,
+        postPublicId: feedPosts.publicId,
         title: feedPosts.title
       })
       .from(feedPostSaves)
@@ -83,11 +95,12 @@ export async function readMyPageFeedActivitySummary(
         )
       )
       .orderBy(desc(feedPostSaves.savedAt))
-      .limit(1);
+      .limit(2);
 
-    const [latestComment] = await db
+    const recentComments = await db
       .select({
         createdAt: feedPostComments.createdAt,
+        postPublicId: feedPosts.publicId,
         title: feedPosts.title
       })
       .from(feedPostComments)
@@ -100,7 +113,10 @@ export async function readMyPageFeedActivitySummary(
         )
       )
       .orderBy(desc(feedPostComments.createdAt))
-      .limit(1);
+      .limit(2);
+
+    const latestSave = recentSaves[0];
+    const latestComment = recentComments[0];
 
     return {
       userPublicId: user.publicId,
@@ -110,6 +126,18 @@ export async function readMyPageFeedActivitySummary(
       latestCommentAt: toIso(latestComment?.createdAt),
       latestSavedPostTitle: latestSave?.title,
       latestCommentPostTitle: latestComment?.title,
+      recentSavedPosts: recentSaves.map((item) => ({
+        postPublicId: item.postPublicId,
+        title: item.title,
+        activityAt: toIso(item.savedAt),
+        activityLabel: 'saved'
+      })),
+      recentCommentPosts: recentComments.map((item) => ({
+        postPublicId: item.postPublicId,
+        title: item.title,
+        activityAt: toIso(item.createdAt),
+        activityLabel: 'commented'
+      })),
       sourceLabel: 'db_read_model'
     };
   } catch {
