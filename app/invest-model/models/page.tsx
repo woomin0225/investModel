@@ -37,6 +37,31 @@ const compareCtaCopy = {
   }
 } as const;
 
+const discoverySummaryCopy = {
+  ko: {
+    shownLabel: '표시 모델',
+    shownNote: '선택한 필터',
+    reviewLabel: '검토 상태',
+    reviewValue: '운영 검토',
+    reviewNote: '공개 모델 기준',
+    compareLabel: '비교 준비',
+    compareValue: '비교 가능',
+    compareNote: '수익·위험 함께 보기',
+    shownSuffix: '개'
+  },
+  en: {
+    shownLabel: 'Shown',
+    shownNote: 'Selected filter',
+    reviewLabel: 'Review',
+    reviewValue: 'Reviewed',
+    reviewNote: 'Public list',
+    compareLabel: 'Compare',
+    compareValue: 'Ready',
+    compareNote: 'Return and risk',
+    shownSuffix: ''
+  }
+} as const;
+
 function getDiscoveryFilterHref(
   filterId: string,
   locale: 'ko' | 'en'
@@ -74,6 +99,27 @@ export default async function InvestModelDiscoveryPage({
     investModelDiscoveryFilterIds.indexOf(selectedFilter);
   const selectedFilterLabel =
     modelsCopy.filters[selectedFilterIndex] ?? modelsCopy.filters[0];
+  const summaryCopy = discoverySummaryCopy[locale];
+  const discoverySummaryItems = [
+    {
+      label: summaryCopy.shownLabel,
+      value:
+        locale === 'ko'
+          ? `${filteredInvestmentModels.length}${summaryCopy.shownSuffix}`
+          : `${filteredInvestmentModels.length} shown`,
+      note: summaryCopy.shownNote
+    },
+    {
+      label: summaryCopy.reviewLabel,
+      value: summaryCopy.reviewValue,
+      note: summaryCopy.reviewNote
+    },
+    {
+      label: summaryCopy.compareLabel,
+      value: summaryCopy.compareValue,
+      note: summaryCopy.compareNote
+    }
+  ];
 
   return (
     <MobileShell
@@ -173,12 +219,32 @@ export default async function InvestModelDiscoveryPage({
                 })}
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-invest-control bg-invest-bg-soft px-3 py-2 text-xs font-semibold text-invest-text-muted">
-              <span>{selectedFilterLabel}</span>
-              <span>
-                {filteredInvestmentModels.length}
-                {locale === 'ko' ? '개 표시' : ' shown'}
-              </span>
+            <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-3">
+              <div className="flex items-center justify-between gap-3 text-xs font-semibold text-invest-text-muted">
+                <span>{selectedFilterLabel}</span>
+                <span className="shrink-0">
+                  {filteredInvestmentModels.length}
+                  {locale === 'ko' ? '개 표시' : ' shown'}
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {discoverySummaryItems.map((item) => (
+                  <div
+                    key={item.label}
+                    className="min-w-0 rounded-invest-control bg-invest-surface px-2.5 py-2 shadow-invest-card"
+                  >
+                    <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
+                      {item.label}
+                    </p>
+                    <p className="mt-1 truncate text-[13px] font-bold leading-5 text-invest-text">
+                      {item.value}
+                    </p>
+                    <p className="mt-0.5 truncate text-[10px] font-semibold leading-4 text-invest-text-subtle">
+                      {item.note}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
