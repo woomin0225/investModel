@@ -169,14 +169,15 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
+| Status | DB-backed action API implemented in `app/api/feed/[postId]/reads/route.ts`. |
 | Purpose | Mark the signed-in user's feed post as read. |
-| Request | Path parameter `postId`; optional JSON body `{ readAt?: string }` when a client timestamp is accepted later. |
+| Request | Path parameter `postId`; JSON body `{ userPublicId: string }`. |
 | Response DTO | `FeedReactionStateDto` |
-| Permission | Signed-in user; only the actor's own read state can change. |
+| Permission | Signed-in user/admin role; only the actor's own read state can change. |
 | Screens | Feed Detail, Feed Insights list row actions |
-| Source tables | Future `feed_post_reads` from `BK-293`, `feed_posts`, `users` |
-| Mock source | Future feed interaction seed/sample files from `BK-293`. |
-| Safety notes | Read state is private UI state. It must not expose other users' behavior or imply regulatory review/compliance approval. |
+| Source tables | `feed_post_reads`, `feed_posts`, `users`, plus `feed_post_reactions`, `feed_post_saves`, and `feed_post_comments` for refreshed state. |
+| Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` and DB-backed read model. |
+| Safety notes | Read state is private UI state. It must not expose other users' behavior, imply regulatory review/compliance approval, or act as recommendation, quality, return, allocation, or order signal. |
 
 ### `POST /api/model-selections`
 

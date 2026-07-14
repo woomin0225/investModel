@@ -34,6 +34,11 @@ type FeedSaveActionResult =
   | { status: 'post_not_found' }
   | { status: 'user_not_found' };
 
+type FeedReadActionResult =
+  | { status: 'ok'; data: FeedReactionStateDto }
+  | { status: 'post_not_found' }
+  | { status: 'user_not_found' };
+
 type CommentRow = {
   id: number;
   publicId: string;
@@ -433,6 +438,79 @@ export async function setFeedPostSaveState({
       userId: user.id,
       status: nextStatus,
       savedAt: now,
+      updatedAt: now
+    });
+  }
+
+  const detail = await readFeedPostDetailDto({ postPublicId, userPublicId });
+
+  if (detail.status !== 'ok') {
+    return detail;
+  }
+
+  return {
+    status: 'ok',
+    data: detail.data.userState
+  };
+}
+
+export async function setFeedPostReadState({
+  postPublicId,
+  userPublicId
+}: {
+  postPublicId: string;
+  userPublicId: string;
+}): Promise<FeedReadActionResult> {
+  const [user] = await db
+    .select({
+      id: users.id,
+      publicId: users.publicId
+    })
+    .from(users)
+    .where(and(eq(users.publicId, userPublicId), isNull(users.deletedAt)))
+    .limit(1);
+
+  if (!user) {
+    return { status: 'user_not_found' };
+  }
+
+  const [post] = await db
+    .select({
+      id: feedPosts.id
+    })
+    .from(feedPosts)
+    .where(
+      and(eq(feedPosts.publicId, postPublicId), eq(feedPosts.visibility, 'public'))
+    )
+    .limit(1);
+
+  if (!post) {
+    return { status: 'post_not_found' };
+  }
+
+  const [existing] = await db
+    .select({
+      id: feedPostReads.id
+    })
+    .from(feedPostReads)
+    .where(and(eq(feedPostReads.postId, post.id), eq(feedPostReads.userId, user.id)))
+    .limit(1);
+
+  const now = new Date();
+
+  if (existing) {
+    await db
+      .update(feedPostReads)
+      .set({
+        readAt: now,
+        updatedAt: now
+      })
+      .where(eq(feedPostReads.id, existing.id));
+  } else {
+    await db.insert(feedPostReads).values({
+      postId: post.id,
+      userId: user.id,
+      readAt: now,
       updatedAt: now
     });
   }
