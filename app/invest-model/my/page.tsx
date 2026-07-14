@@ -66,6 +66,38 @@ async function readMyPageActivityRoute(): Promise<MyPageFeedActivitySummary> {
   return payload.data;
 }
 
+function myPageActivityAccessibleLabel(
+  locale: 'ko' | 'en',
+  title: string,
+  description: string,
+  badge: string
+) {
+  return locale === 'ko'
+    ? `${title}. ${description}. 상태: ${badge}. My Page DB read model 또는 mock-safe 상태이며 실제 계좌, 주문, 브로커 동작, push/email/SMS 전송, 투자 조언이 아닙니다.`
+    : `${title}. ${description}. Status: ${badge}. My Page DB read model or mock-safe state, not a real account, order, brokerage action, push/email/SMS delivery, or investment advice.`;
+}
+
+function recentFeedActivityAccessibleLabel(
+  locale: 'ko' | 'en',
+  label: string,
+  title: string,
+  activityAt?: string
+) {
+  const timeLabel =
+    activityAt ??
+    (locale === 'ko' ? '활동 시각 없음' : 'No activity timestamp');
+
+  return locale === 'ko'
+    ? `${label} FeedPost 활동: ${title}. ${timeLabel}. user-scoped DB read model의 읽기 shortcut이며 추천, 주문, 브로커 동작, 실계좌 데이터가 아닙니다.`
+    : `${label} FeedPost activity: ${title}. ${timeLabel}. User-scoped DB read model reading shortcut, not advice, an order, a brokerage action, or real account data.`;
+}
+
+function myPageSafetyAccessibleLabel(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? 'My Page 안전 경계. 값은 user 1의 앱 내 DB read model 또는 mock-safe 상태이며 실제 계좌 잔고, 은행 연결, 브로커 주문, push/email/SMS 전송, 법률 판단 또는 투자 조언이 아닙니다.'
+    : 'My Page safety boundary. Values are user 1 in-app DB read models or mock-safe state, not real account balances, bank links, brokerage orders, push/email/SMS delivery, legal judgments, or investment advice.';
+}
+
 const myPageCopy = {
   ko: {
     eyebrow: '내 정보',
@@ -200,6 +232,7 @@ export default async function InvestModelMyPage({
       : locale === 'ko'
         ? '대기'
         : 'pending';
+  const safetyAccessibleLabel = myPageSafetyAccessibleLabel(locale);
   const recentActivityRows = [
     ...activitySummary.recentSavedPosts.map((item) => ({
       ...item,
@@ -289,12 +322,20 @@ export default async function InvestModelMyPage({
                 index < 2 && activitySummary.sourceLabel === 'db_read_model'
                   ? 'DB read model'
                   : item.badge;
+              const activityAccessibleLabel = myPageActivityAccessibleLabel(
+                locale,
+                item.title,
+                item.description,
+                badge
+              );
 
               return (
                 <Link
                   key={item.title}
                   href={withInvestModelLocale(item.href, locale)}
                   role="listitem"
+                  aria-label={activityAccessibleLabel}
+                  title={activityAccessibleLabel}
                   className={cn(
                     'group block rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
                     investMotionClass.interactiveCard
@@ -356,7 +397,11 @@ export default async function InvestModelMyPage({
             {recentActivityRows.length > 0 ? (
               <div
                 role="list"
-                aria-label="Recent FeedPost activity"
+                aria-label={
+                  locale === 'ko'
+                    ? '최근 FeedPost 활동. user 1의 저장 및 댓글 DB read model shortcut입니다.'
+                    : 'Recent FeedPost activity. User 1 saved and comment DB read model shortcuts.'
+                }
                 className="mt-3 space-y-2"
               >
                 {recentActivityRows.map((item) => (
@@ -367,6 +412,18 @@ export default async function InvestModelMyPage({
                       locale
                     )}
                     role="listitem"
+                    aria-label={recentFeedActivityAccessibleLabel(
+                      locale,
+                      item.label,
+                      item.title,
+                      item.activityAt
+                    )}
+                    title={recentFeedActivityAccessibleLabel(
+                      locale,
+                      item.label,
+                      item.title,
+                      item.activityAt
+                    )}
                     className={cn(
                       'group flex min-h-invest-touch-target items-start justify-between gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface',
                       investMotionClass.interactiveControl
@@ -408,7 +465,11 @@ export default async function InvestModelMyPage({
           </div>
         </div>
 
-        <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
+        <div
+          aria-label={safetyAccessibleLabel}
+          title={safetyAccessibleLabel}
+          className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding"
+        >
           <div className="flex flex-wrap gap-2">
             <RiskBadge tone="blocked">
               {locale === 'ko' ? '실계좌 없음' : 'No real account'}
