@@ -168,13 +168,23 @@ export function BottomNav({
                   isActive ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
                 )}
               />
-              <Icon
+              <span
                 aria-hidden
                 className={cn(
-                  'size-5 shrink-0 transition-transform duration-200 ease-out group-active:scale-95 motion-reduce:transition-none motion-reduce:group-active:scale-100',
-                  isActive && '-translate-y-0.5'
+                  'grid size-7 shrink-0 place-items-center rounded-invest-control transition-[background-color,box-shadow,transform] duration-200 ease-out group-active:scale-95 motion-reduce:transition-none motion-reduce:group-active:scale-100',
+                  isActive
+                    ? 'bg-invest-surface text-invest-primary shadow-[0_4px_12px_rgb(47_128_237_/_0.16)]'
+                    : 'text-inherit group-hover:bg-invest-surface-muted'
                 )}
-              />
+              >
+                <Icon
+                  aria-hidden
+                  className={cn(
+                    'size-5 shrink-0 transition-transform duration-200 ease-out motion-reduce:transition-none',
+                    isActive && '-translate-y-0.5'
+                  )}
+                />
+              </span>
               <span className="max-w-full truncate">{labels[item.key]}</span>
             </Link>
           );
