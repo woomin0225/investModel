@@ -231,13 +231,26 @@ export default async function InvestModelDetailPage({
               </div>
             ))}
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <RiskBadge tone={model.riskTone}>{model.riskLabel}</RiskBadge>
-            <RiskBadge>{model.mandateLabel}</RiskBadge>
-            <RiskBadge tone="blocked">{copy.noLiveTradingLabel}</RiskBadge>
+          <div
+            role="list"
+            aria-label={copy.selectionReviewTitle}
+            className="mt-4 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-bg-soft p-2"
+          >
+            <span role="listitem">
+              <RiskBadge tone={model.riskTone}>{model.riskLabel}</RiskBadge>
+            </span>
+            <span role="listitem">
+              <RiskBadge>{model.mandateLabel}</RiskBadge>
+            </span>
+            <span role="listitem">
+              <RiskBadge tone="blocked">{copy.noLiveTradingLabel}</RiskBadge>
+            </span>
           </div>
           {model.riskTone === 'high' ? (
-            <div className="mt-3 rounded-invest-control border border-invest-risk/20 bg-invest-risk-soft p-3 text-invest-risk">
+            <div
+              role="note"
+              className="mt-3 rounded-invest-control border border-invest-risk/20 bg-invest-risk-soft p-2.5 text-invest-risk"
+            >
               <div className="flex gap-2">
                 <ShieldAlert
                   aria-hidden
@@ -249,7 +262,7 @@ export default async function InvestModelDetailPage({
               </div>
               <div
                 className={cn(
-                  'mt-3 flex gap-2 rounded-invest-control border border-invest-risk/25 bg-invest-surface/95 p-3 text-invest-text shadow-invest-card',
+                  'mt-2.5 flex gap-2 rounded-invest-control border border-invest-risk/25 bg-invest-surface/95 p-2.5 text-invest-text shadow-invest-card',
                   investMotionClass.interactiveCard
                 )}
               >
