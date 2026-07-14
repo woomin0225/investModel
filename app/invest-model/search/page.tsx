@@ -90,6 +90,33 @@ function searchResultAccessibleLabel(
     : `${kind} result: ${title}. ${detail}. DB-backed read model result, not a recommendation, order, brokerage action, or realtime external data.`;
 }
 
+function searchResultVisibleBoundaries(
+  locale: 'ko' | 'en',
+  kind: 'InvestmentModel' | 'FeedPost' | 'SignalEvent'
+) {
+  if (locale === 'ko') {
+    if (kind === 'InvestmentModel') {
+      return ['DB 모델 탐색', '추천 아님', '실주문 없음'];
+    }
+
+    if (kind === 'FeedPost') {
+      return ['DB FeedPost', '정보 전용', '브로커 미연결'];
+    }
+
+    return ['DB SignalEvent', '관찰 입력', '실시간 외부연동 없음'];
+  }
+
+  if (kind === 'InvestmentModel') {
+    return ['DB model discovery', 'not advice', 'no orders'];
+  }
+
+  if (kind === 'FeedPost') {
+    return ['DB FeedPost', 'informational only', 'no brokerage'];
+  }
+
+  return ['DB SignalEvent', 'observed input', 'no realtime external data'];
+}
+
 async function readInvestModelSearchResults(
   query: string
 ): Promise<InvestModelSearchResults> {
@@ -290,6 +317,16 @@ export default async function InvestModelSearchPage({
                             className="size-4 shrink-0 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
                           />
                         </div>
+                        <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+                          {searchResultVisibleBoundaries(
+                            locale,
+                            'InvestmentModel'
+                          ).map((boundary) => (
+                            <RiskBadge key={boundary} tone="neutral">
+                              {boundary}
+                            </RiskBadge>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </Link>
@@ -360,6 +397,15 @@ export default async function InvestModelSearchPage({
                           aria-hidden
                           className="size-4 shrink-0 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
                         />
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+                        {searchResultVisibleBoundaries(locale, 'FeedPost').map(
+                          (boundary) => (
+                            <RiskBadge key={boundary} tone="neutral">
+                              {boundary}
+                            </RiskBadge>
+                          )
+                        )}
                       </div>
                     </div>
                   </div>
@@ -435,6 +481,16 @@ export default async function InvestModelSearchPage({
                         <span className="text-[12px] font-bold leading-4 text-invest-primary">
                           {signal.scoreDisplay}
                         </span>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+                        {searchResultVisibleBoundaries(
+                          locale,
+                          'SignalEvent'
+                        ).map((boundary) => (
+                          <RiskBadge key={boundary} tone="neutral">
+                            {boundary}
+                          </RiskBadge>
+                        ))}
                       </div>
                     </div>
                   </div>
