@@ -70,6 +70,10 @@ export default async function InvestModelDiscoveryPage({
   const filteredInvestmentModels = discoverableInvestmentModels.filter((model) =>
     matchesInvestModelDiscoveryFilter(model, selectedFilter)
   );
+  const selectedFilterIndex =
+    investModelDiscoveryFilterIds.indexOf(selectedFilter);
+  const selectedFilterLabel =
+    modelsCopy.filters[selectedFilterIndex] ?? modelsCopy.filters[0];
 
   return (
     <MobileShell
@@ -129,28 +133,45 @@ export default async function InvestModelDiscoveryPage({
             </span>
           </Link>
 
-          <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
-            <div className="flex w-max gap-2 pr-invest-screen-x">
-              {investModelDiscoveryFilterIds.map((filterId, index) => {
-                const isSelected = selectedFilter === filterId;
+          <div className="space-y-2">
+            <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
+              <div className="flex w-max gap-2 pr-invest-screen-x">
+                {investModelDiscoveryFilterIds.map((filterId, index) => {
+                  const isSelected = selectedFilter === filterId;
 
-                return (
-                  <Link
-                    key={filterId}
-                    href={getDiscoveryFilterHref(filterId, locale)}
-                    aria-current={isSelected ? 'true' : undefined}
-                    className={cn(
-                      'inline-flex min-h-invest-touch-target items-center rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
-                      investMotionClass.interactiveControl,
-                      isSelected
-                        ? 'border-invest-primary bg-invest-primary text-white'
-                        : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft hover:text-invest-primary'
-                    )}
-                  >
-                    {modelsCopy.filters[index]}
-                  </Link>
-                );
-              })}
+                  return (
+                    <Link
+                      key={filterId}
+                      href={getDiscoveryFilterHref(filterId, locale)}
+                      aria-current={isSelected ? 'true' : undefined}
+                      aria-pressed={isSelected}
+                      className={cn(
+                        'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
+                        investMotionClass.interactiveControl,
+                        isSelected
+                          ? 'border-invest-primary bg-invest-primary text-white shadow-invest-card-strong'
+                          : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft hover:text-invest-primary'
+                      )}
+                    >
+                      <span
+                        aria-hidden
+                        className={cn(
+                          'size-1.5 rounded-full',
+                          isSelected ? 'bg-white' : 'bg-invest-border'
+                        )}
+                      />
+                      {modelsCopy.filters[index]}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex items-center justify-between rounded-invest-control bg-invest-bg-soft px-3 py-2 text-xs font-semibold text-invest-text-muted">
+              <span>{selectedFilterLabel}</span>
+              <span>
+                {filteredInvestmentModels.length}
+                {locale === 'ko' ? '개 표시' : ' shown'}
+              </span>
             </div>
           </div>
 
