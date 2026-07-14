@@ -338,8 +338,8 @@ export default async function InvestModelPortfolioPage({
                   {portfolio.tradeIntent.boundaryLabel}
                 </span>
               </p>
-              <div className="mt-3 grid gap-2 min-[360px]:grid-cols-2">
-                <div className="rounded-invest-control border border-invest-risk/10 bg-invest-risk-soft/50 p-3">
+              <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-2">
+                <div className="rounded-invest-control border border-invest-risk/10 bg-invest-risk-soft/55 p-2.5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-invest-text-muted">
                     {locale === 'ko' ? '차단 상태' : 'Blocked'}
                   </p>
@@ -348,7 +348,7 @@ export default async function InvestModelPortfolioPage({
                     {locale === 'ko' ? '개 기능' : ' actions'}
                   </p>
                 </div>
-                <div className="rounded-invest-control border border-invest-primary/10 bg-invest-primary-soft/45 p-3">
+                <div className="rounded-invest-control border border-invest-primary/10 bg-invest-primary-soft/50 p-2.5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-invest-text-muted">
                     {locale === 'ko' ? '연결 상태' : 'Connection'}
                   </p>
@@ -357,11 +357,15 @@ export default async function InvestModelPortfolioPage({
                   </p>
                 </div>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div
+                role="list"
+                aria-label={copy.blockedActionsTitle}
+                className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-risk-soft/40 p-2"
+              >
                 {portfolio.tradeIntent.blockedActions.map((action) => (
-                  <RiskBadge key={action} tone="blocked">
-                    {action}
-                  </RiskBadge>
+                  <span key={action} role="listitem">
+                    <RiskBadge tone="blocked">{action}</RiskBadge>
+                  </span>
                 ))}
               </div>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
