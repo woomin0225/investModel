@@ -205,6 +205,8 @@ const screens: ScreenCheck[] = [
       investModelPortfolioMock.selectedModel.mandateLabel,
       investModelPortfolioMock.mockDeposit.safetyLabel,
       'Mock time dashboard',
+      'Read-model trace',
+      'mock time windows from DB-backed',
       investModelPortfolioMock.timeSnapshots[0]?.safetyLabel ?? '',
       investModelPortfolioMock.allocationDecision.sourceLabel,
       investModelPortfolioMock.tradeIntent.boundaryLabel
@@ -416,7 +418,9 @@ assertCondition(
     !portfolioPageSource.includes('<MetricCard') &&
     portfolioPageSource.includes('portfolio.mockDeposit.amountLabel') &&
     portfolioPageSource.includes('portfolio.allocationDecision.statusLabel') &&
-    portfolioPageSource.includes('portfolio.tradeIntent.statusLabel'),
+    portfolioPageSource.includes('portfolio.tradeIntent.statusLabel') &&
+    portfolioPageSource.includes('Portfolio time dashboard read-model trace') &&
+    portfolioPageSource.includes('portfolio.timeSnapshots.length'),
   'Portfolio must start with the DB-backed time dashboard summary instead of top simulation banner/metric cards'
 );
 

@@ -323,6 +323,28 @@ export default async function InvestModelPortfolioPage({
             ))}
           </div>
           <div
+            aria-label="Portfolio time dashboard read-model trace"
+            className="grid gap-2 rounded-invest-card border border-invest-primary/10 bg-invest-primary-soft/35 p-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto]"
+          >
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase leading-4 text-invest-text-muted">
+                Read-model trace
+              </p>
+              <p className="mt-1 text-sm font-semibold leading-5 text-invest-text">
+                {portfolio.timeSnapshots.length} mock time windows from DB-backed
+                Portfolio state
+              </p>
+            </div>
+            <div className="flex flex-wrap items-start gap-1.5 min-[360px]:justify-end">
+              <RiskBadge tone="medium">
+                {portfolio.allocationDecision.generatedAtLabel}
+              </RiskBadge>
+              <RiskBadge tone="neutral">
+                {portfolio.allocationDecision.sourceLabel}
+              </RiskBadge>
+            </div>
+          </div>
+          <div
             role="list"
             aria-label="Mock time dashboard"
             className="grid grid-cols-3 gap-2 rounded-invest-card bg-invest-bg-soft p-1.5"

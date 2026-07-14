@@ -65,6 +65,30 @@ async function main() {
     'portfolio summary keeps mock-safe DTO boundaries'
   );
   assertCondition(
+    Array.isArray(summaryJson.data?.timeSnapshots) &&
+      summaryJson.data.timeSnapshots.length === 3 &&
+      ['1D', '1W', '1M'].every((rangeLabel) =>
+        summaryJson.data.timeSnapshots.some(
+          (snapshot: { rangeLabel?: string }) =>
+            snapshot.rangeLabel === rangeLabel
+        )
+      ) &&
+      summaryJson.data.timeSnapshots.every(
+        (snapshot: {
+          valueLabel?: string;
+          checkpointLabel?: string;
+          signalLabel?: string;
+          safetyLabel?: string;
+        }) =>
+          Boolean(snapshot.valueLabel) &&
+          Boolean(snapshot.checkpointLabel) &&
+          Boolean(snapshot.signalLabel) &&
+          Boolean(snapshot.safetyLabel) &&
+          !snapshot.safetyLabel?.toLowerCase().includes('guarantee')
+      ),
+    'portfolio summary exposes complete mock-safe 1D/1W/1M time snapshots'
+  );
+  assertCondition(
     summaryJson.meta?.routeStatus === 'db_backed' &&
       summaryJson.meta?.mockOnly === true &&
       summaryJson.meta?.realDeposit === false &&
