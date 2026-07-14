@@ -244,7 +244,7 @@ export default async function InvestModelPortfolioPage({
                 />
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 gap-3">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-[13px] font-bold text-invest-primary shadow-invest-card">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-[13px] font-bold text-invest-primary shadow-invest-card transition-[background-color,transform] duration-200 ease-out group-hover:scale-[1.03] group-hover:bg-invest-primary-soft group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
                       {position.symbol.slice(0, 2)}
                     </div>
                     <div className="min-w-0">
@@ -256,8 +256,8 @@ export default async function InvestModelPortfolioPage({
                       </p>
                     </div>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-[15px] font-bold leading-5 text-invest-text">
+                  <div className="shrink-0 rounded-invest-control px-2 py-1 text-right transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-bg-soft group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-active:scale-100">
+                    <p className="text-[15px] font-bold leading-5 text-invest-text transition-transform duration-200 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
                       {position.weightLabel}
                     </p>
                     <p className="mt-1 text-xs leading-4 text-invest-text-muted">
@@ -276,7 +276,7 @@ export default async function InvestModelPortfolioPage({
                 <div className="mt-3 grid gap-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
                   <RiskBadge
                     tone="neutral"
-                    className="justify-center text-center"
+                    className="justify-center text-center transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
                   >
                     {position.stateLabel}
                   </RiskBadge>
