@@ -117,25 +117,56 @@ export default async function InvestModelDetailPage({
           sourceLabel={copy.performanceGroupSourceLabel}
         />
 
+        <nav
+          aria-label="Model detail sections"
+          className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]"
+        >
+          <div className="flex w-max gap-2 pr-invest-screen-x">
+            {[
+              ['#model-mandate', model.mandateTitle],
+              ['#model-risk', model.riskTitle],
+              ['#model-limitations', model.limitationTitle],
+              ['#model-disclosure', model.disclosureTitle]
+            ].map(([href, label]) => (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  'inline-flex min-h-invest-touch-target items-center rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-bold text-invest-text shadow-invest-card',
+                  investMotionClass.interactiveControl
+                )}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </nav>
+
         <DetailPanel
+          id="model-mandate"
           title={model.mandateTitle}
           items={model.mandateItems}
           markerClassName="bg-invest-primary"
         />
 
         <DetailPanel
+          id="model-risk"
           title={model.riskTitle}
           items={model.riskItems}
           markerClassName="bg-invest-risk"
         />
 
         <DetailPanel
+          id="model-limitations"
           title={model.limitationTitle}
           items={model.limitationItems}
           markerClassName="bg-invest-text"
         />
 
-        <section className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+        <section
+          id="model-disclosure"
+          className="scroll-mt-24 rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+        >
           <SectionHeader
             title={model.disclosureTitle}
             description={copy.reviewPlaceholderLabel}
@@ -151,8 +182,9 @@ export default async function InvestModelDetailPage({
         </section>
 
         <section
+          id="model-selection-review"
           className={cn(
-            'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+            'scroll-mt-24 rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
             investMotionClass.interactiveCard
           )}
         >
@@ -217,16 +249,21 @@ export default async function InvestModelDetailPage({
 }
 
 function DetailPanel({
+  id,
   title,
   items,
   markerClassName
 }: {
+  id: string;
   title: string;
   items: string[];
   markerClassName: string;
 }) {
   return (
-    <section className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+    <section
+      id={id}
+      className="scroll-mt-24 rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+    >
       <h2 className="text-[20px] font-bold leading-7 text-invest-text">
         {title}
       </h2>
