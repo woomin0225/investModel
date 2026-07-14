@@ -136,6 +136,50 @@ export const investmentModels = mysqlTable(
 );
 
 /**
+ * modelVersions fixes an InvestmentModel's mandate, risk inputs, and performance context.
+ * It is model-owned metadata, not a user-customized investment profile.
+ */
+export const modelVersions = mysqlTable(
+  'model_versions',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    modelId: int('model_id')
+      .notNull()
+      .references(() => investmentModels.id),
+    versionLabel: varchar('version_label', { length: 60 }).notNull(),
+    strategySummary: text('strategy_summary').notNull(),
+    targetMarkets: varchar('target_markets', { length: 500 }).notNull(),
+    assetUniverseSummary: varchar('asset_universe_summary', {
+      length: 700,
+    }).notNull(),
+    rebalanceFrequency: varchar('rebalance_frequency', { length: 80 }),
+    inputDataSummary: text('input_data_summary'),
+    forbiddenScope: text('forbidden_scope'),
+    modelArtifactStatus: varchar('model_artifact_status', { length: 30 })
+      .notNull()
+      .default('metadata_only'),
+    createdByUserId: int('created_by_user_id')
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    effectiveFrom: timestamp('effective_from'),
+    retiredAt: timestamp('retired_at'),
+  },
+  (table) => [
+    uniqueIndex('uq_model_versions_model_label').on(
+      table.modelId,
+      table.versionLabel
+    ),
+    index('idx_model_versions_artifact_status').on(
+      table.modelArtifactStatus
+    ),
+    index('idx_model_versions_created_by_user_id').on(
+      table.createdByUserId
+    ),
+  ]
+);
+
+/**
  * modelRiskProfiles stores model-version-owned risk traits for display and review.
  * It is not a user risk preference, suitability judgment, or performance promise.
  */
@@ -143,7 +187,9 @@ export const modelRiskProfiles = mysqlTable(
   'model_risk_profiles',
   {
     id: int('id').autoincrement().primaryKey(),
-    modelVersionId: int('model_version_id').notNull(),
+    modelVersionId: int('model_version_id')
+      .notNull()
+      .references(() => modelVersions.id),
     riskLevel: varchar('risk_level', { length: 30 }).notNull(),
     leverageAllowed: boolean('leverage_allowed').notNull().default(false),
     derivativeAllowed: boolean('derivative_allowed').notNull().default(false),
@@ -178,7 +224,9 @@ export const modelDisclosures = mysqlTable(
   'model_disclosures',
   {
     id: int('id').autoincrement().primaryKey(),
-    modelVersionId: int('model_version_id').notNull(),
+    modelVersionId: int('model_version_id')
+      .notNull()
+      .references(() => modelVersions.id),
     disclosureType: varchar('disclosure_type', { length: 40 }).notNull(),
     title: varchar('title', { length: 160 }).notNull(),
     body: text('body').notNull(),
@@ -198,6 +246,113 @@ export const modelDisclosures = mysqlTable(
       table.requiresLegalReview
     ),
     index('idx_model_disclosures_reviewed_by').on(table.reviewedByUserId),
+  ]
+);
+
+/**
+ * portfolioMandates describe what a ModelVersion may analyze.
+ * Users do not directly edit these mandate limits in the MVP.
+ */
+export const portfolioMandates = mysqlTable(
+  'portfolio_mandates',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    modelVersionId: int('model_version_id')
+      .notNull()
+      .references(() => modelVersions.id),
+    allowedMarkets: varchar('allowed_markets', { length: 700 }).notNull(),
+    allowedAssetClasses: varchar('allowed_asset_classes', {
+      length: 700,
+    }).notNull(),
+    forbiddenAssets: text('forbidden_assets'),
+    minCashPct: decimal('min_cash_pct', { precision: 5, scale: 2 }),
+    maxSinglePositionPct: decimal('max_single_position_pct', {
+      precision: 5,
+      scale: 2,
+    }),
+    leveragePolicy: varchar('leverage_policy', { length: 500 }),
+    rebalancePolicy: varchar('rebalance_policy', { length: 700 }),
+    userOverrideAllowed: boolean('user_override_allowed')
+      .notNull()
+      .default(false),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_portfolio_mandates_version_id').on(
+      table.modelVersionId
+    ),
+  ]
+);
+
+/**
+ * complianceReviews records operator review workflow state.
+ * An approved row is not a Codex legal suitability determination.
+ */
+export const complianceReviews = mysqlTable(
+  'compliance_reviews',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    modelId: int('model_id')
+      .notNull()
+      .references(() => investmentModels.id),
+    modelVersionId: int('model_version_id').references(
+      () => modelVersions.id
+    ),
+    reviewType: varchar('review_type', { length: 40 }).notNull(),
+    status: varchar('status', { length: 30 }).notNull().default('pending'),
+    reviewerUserId: int('reviewer_user_id').references(() => users.id),
+    notes: text('notes'),
+    reviewedAt: timestamp('reviewed_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_compliance_reviews_model_status').on(
+      table.modelId,
+      table.status
+    ),
+    index('idx_compliance_reviews_version_type').on(
+      table.modelVersionId,
+      table.reviewType
+    ),
+    index('idx_compliance_reviews_reviewer').on(table.reviewerUserId),
+  ]
+);
+
+/**
+ * modelPerformanceSnapshots stores measured backtest or placeholder context only.
+ * These values must not be presented as future return promises.
+ */
+export const modelPerformanceSnapshots = mysqlTable(
+  'model_performance_snapshots',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    modelVersionId: int('model_version_id')
+      .notNull()
+      .references(() => modelVersions.id),
+    periodLabel: varchar('period_label', { length: 40 }).notNull(),
+    cumulativeReturnPct: decimal('cumulative_return_pct', {
+      precision: 8,
+      scale: 4,
+    }),
+    volatilityPct: decimal('volatility_pct', {
+      precision: 8,
+      scale: 4,
+    }),
+    maxDrawdownPct: decimal('max_drawdown_pct', {
+      precision: 8,
+      scale: 4,
+    }),
+    benchmarkSymbol: varchar('benchmark_symbol', { length: 30 }),
+    isBacktest: boolean('is_backtest').notNull().default(true),
+    measuredAt: timestamp('measured_at').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_model_performance_version_period').on(
+      table.modelVersionId,
+      table.periodLabel,
+      table.measuredAt
+    ),
   ]
 );
 
@@ -259,10 +414,97 @@ export const modelCreatorsRelations = relations(
 
 export const investmentModelsRelations = relations(
   investmentModels,
-  ({ one }) => ({
+  ({ one, many }) => ({
     creator: one(modelCreators, {
       fields: [investmentModels.creatorId],
       references: [modelCreators.id],
+    }),
+    currentVersion: one(modelVersions, {
+      fields: [investmentModels.currentVersionId],
+      references: [modelVersions.id],
+    }),
+    modelVersions: many(modelVersions),
+    complianceReviews: many(complianceReviews),
+  })
+);
+
+export const modelVersionsRelations = relations(
+  modelVersions,
+  ({ one, many }) => ({
+    model: one(investmentModels, {
+      fields: [modelVersions.modelId],
+      references: [investmentModels.id],
+    }),
+    createdBy: one(users, {
+      fields: [modelVersions.createdByUserId],
+      references: [users.id],
+    }),
+    riskProfile: one(modelRiskProfiles),
+    portfolioMandate: one(portfolioMandates),
+    disclosures: many(modelDisclosures),
+    performanceSnapshots: many(modelPerformanceSnapshots),
+    complianceReviews: many(complianceReviews),
+  })
+);
+
+export const modelRiskProfilesRelations = relations(
+  modelRiskProfiles,
+  ({ one }) => ({
+    modelVersion: one(modelVersions, {
+      fields: [modelRiskProfiles.modelVersionId],
+      references: [modelVersions.id],
+    }),
+  })
+);
+
+export const modelDisclosuresRelations = relations(
+  modelDisclosures,
+  ({ one }) => ({
+    modelVersion: one(modelVersions, {
+      fields: [modelDisclosures.modelVersionId],
+      references: [modelVersions.id],
+    }),
+    reviewedBy: one(users, {
+      fields: [modelDisclosures.reviewedByUserId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const portfolioMandatesRelations = relations(
+  portfolioMandates,
+  ({ one }) => ({
+    modelVersion: one(modelVersions, {
+      fields: [portfolioMandates.modelVersionId],
+      references: [modelVersions.id],
+    }),
+  })
+);
+
+export const complianceReviewsRelations = relations(
+  complianceReviews,
+  ({ one }) => ({
+    model: one(investmentModels, {
+      fields: [complianceReviews.modelId],
+      references: [investmentModels.id],
+    }),
+    modelVersion: one(modelVersions, {
+      fields: [complianceReviews.modelVersionId],
+      references: [modelVersions.id],
+    }),
+    reviewer: one(users, {
+      fields: [complianceReviews.reviewerUserId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const modelPerformanceSnapshotsRelations = relations(
+  modelPerformanceSnapshots,
+  ({ one }) => ({
+    modelVersion: one(modelVersions, {
+      fields: [modelPerformanceSnapshots.modelVersionId],
+      references: [modelVersions.id],
     }),
   })
 );
@@ -288,6 +530,11 @@ export type NewModelCreator = typeof modelCreators.$inferInsert;
 export type InvestmentModel = typeof investmentModels.$inferSelect;
 export type NewInvestmentModel = typeof investmentModels.$inferInsert;
 /**
+ * ModelVersion fixes model-owned mandate and performance context for a reviewable version.
+ */
+export type ModelVersion = typeof modelVersions.$inferSelect;
+export type NewModelVersion = typeof modelVersions.$inferInsert;
+/**
  * ModelRiskProfile is a persisted risk disclosure profile owned by a future ModelVersion.
  */
 export type ModelRiskProfile = typeof modelRiskProfiles.$inferSelect;
@@ -297,6 +544,23 @@ export type NewModelRiskProfile = typeof modelRiskProfiles.$inferInsert;
  */
 export type ModelDisclosure = typeof modelDisclosures.$inferSelect;
 export type NewModelDisclosure = typeof modelDisclosures.$inferInsert;
+/**
+ * PortfolioMandate stores model-owned analysis boundaries, not user preferences.
+ */
+export type PortfolioMandate = typeof portfolioMandates.$inferSelect;
+export type NewPortfolioMandate = typeof portfolioMandates.$inferInsert;
+/**
+ * ComplianceReview is an operator review workflow record, not a legal decision.
+ */
+export type ComplianceReview = typeof complianceReviews.$inferSelect;
+export type NewComplianceReview = typeof complianceReviews.$inferInsert;
+/**
+ * ModelPerformanceSnapshot stores backtest or placeholder performance context only.
+ */
+export type ModelPerformanceSnapshot =
+  typeof modelPerformanceSnapshots.$inferSelect;
+export type NewModelPerformanceSnapshot =
+  typeof modelPerformanceSnapshots.$inferInsert;
 export type TeamDataWithMembers = Team & {
   teamMembers: (TeamMember & {
     user: Pick<User, 'id' | 'name' | 'email'>;
