@@ -266,7 +266,7 @@ export default async function InvestModelFeedPage({
                             aria-label={`${post.title} ${action}`}
                             aria-pressed={isPrimaryAction}
                             className={cn(
-                              'inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border px-2 text-[12px] font-semibold leading-4',
+                              'group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border px-2 text-[12px] font-semibold leading-4',
                               isPrimaryAction
                                 ? 'border-invest-primary/20 bg-invest-primary-soft text-invest-primary'
                                 : 'border-transparent bg-invest-bg-soft text-invest-text-muted hover:text-invest-primary',
@@ -276,7 +276,7 @@ export default async function InvestModelFeedPage({
                             <Icon
                               aria-hidden
                               className={cn(
-                                'size-3.5',
+                                'size-3.5 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
                                 isPrimaryAction && 'fill-invest-primary/10'
                               )}
                             />
