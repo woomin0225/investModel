@@ -286,6 +286,46 @@ export default async function InvestModelSignalDetailPage({
       value: formatCapturedAt(signal.capturedAt, locale)
     }
   ];
+  const evidenceRows = [
+    {
+      label: locale === 'ko' ? '관련 뉴스 맥락' : 'Related news context',
+      value:
+        signal.signalType === 'news_traffic'
+          ? signal.summary
+          : locale === 'ko'
+            ? '이 SignalEvent에는 별도 뉴스 트래픽 근거가 연결되지 않았습니다.'
+            : 'No separate news traffic evidence is linked to this SignalEvent.'
+    },
+    {
+      label: locale === 'ko' ? '가격 추세 맥락' : 'Price trend context',
+      value:
+        signal.signalType === 'price_trend'
+          ? signal.summary
+          : locale === 'ko'
+            ? '이 SignalEvent에는 별도 가격 추세 근거가 연결되지 않았습니다.'
+            : 'No separate price trend evidence is linked to this SignalEvent.'
+    },
+    {
+      label: locale === 'ko' ? '트래픽 근거' : 'Traffic evidence',
+      value:
+        signal.signalType === 'news_traffic'
+          ? signal.sourceLabel
+          : locale === 'ko'
+            ? '트래픽 값은 seed/mock 관찰 범위에서만 표시됩니다.'
+            : 'Traffic values are shown only within seed/mock observation scope.'
+    },
+    {
+      label: locale === 'ko' ? '연결 모델' : 'Linked model',
+      value: signal.linkedModelName
+    },
+    {
+      label: locale === 'ko' ? '점수 변동 기록' : 'Score movement history',
+      value:
+        locale === 'ko'
+          ? `${signal.scoreDisplay}. BK-266 점수 스냅샷 전까지 현재 DB SignalEvent 점수를 최신 관찰값으로 표시합니다.`
+          : `${signal.scoreDisplay}. Until BK-266 score snapshots are implemented, the current DB SignalEvent score is shown as the latest observation.`
+    }
+  ];
 
   return (
     <MobileShell
@@ -419,6 +459,35 @@ export default async function InvestModelSignalDetailPage({
                   {row.label}
                 </p>
                 <p className="min-w-0 text-sm font-semibold leading-5 text-invest-text">
+                  {row.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="min-w-0 text-[15px] font-bold leading-6 text-invest-text">
+                {locale === 'ko'
+                  ? 'DB-backed detail evidence'
+                  : 'DB-backed detail evidence'}
+              </h3>
+              <RiskBadge tone="neutral">
+                {locale === 'ko' ? 'SignalEvent' : 'SignalEvent'}
+              </RiskBadge>
+            </div>
+            {evidenceRows.map((row) => (
+              <div
+                key={row.label}
+                className={cn(
+                  'rounded-invest-control border border-invest-border bg-invest-bg-soft p-3',
+                  investMotionClass.interactiveCard
+                )}
+              >
+                <p className="text-[12px] font-bold leading-4 text-invest-text-muted">
+                  {row.label}
+                </p>
+                <p className="mt-1 text-sm font-semibold leading-6 text-invest-text">
                   {row.value}
                 </p>
               </div>

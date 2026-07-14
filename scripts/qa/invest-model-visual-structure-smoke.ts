@@ -118,7 +118,12 @@ const screens: ScreenCheck[] = [
       'No recommendation',
       'No order',
       'Related Feed search',
-      'Realtime search volume'
+      'Realtime search volume',
+      'DB-backed detail evidence',
+      'Related news context',
+      'Price trend context',
+      'Traffic evidence',
+      'Score movement history'
     ]
   },
   {
@@ -382,6 +387,11 @@ assertCondition(
   signalsPageSource.includes('investMotionClass.interactiveCard') &&
     signalsPageSource.includes('investMotionClass.interactiveControl'),
   'Realtime Signals must reuse shared motion classes for cards and filter controls'
+);
+assertCondition(
+  signalsPageSource.includes('detailHref: signalDetailHref') &&
+    signalsPageSource.includes("href={'detailHref' in signal ? signal.detailHref : '#'}"),
+  'Realtime Signals list must link DB-backed SignalEvent rows to Signal Detail routes'
 );
 assertCondition(
   feedPageSource.includes('<FeedCardSaveAction') &&
