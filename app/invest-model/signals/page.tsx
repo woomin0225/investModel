@@ -13,6 +13,12 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { readSignalEventDtos } from '@/lib/db/signal-read-model';
+import {
+  parseSignalEventType,
+  type SignalEventDto,
+  type SignalEventType
+} from '@/lib/domain/signals/signal-event';
 import { cn } from '@/lib/utils';
 
 const signalToneClass = {
@@ -44,6 +50,8 @@ type InvestModelSignalsPageProps = {
 };
 
 type SignalFilterId = 'all' | 'news_traffic' | 'price_trend' | 'risk_alert';
+type SignalLocale = 'ko' | 'en';
+type SignalTone = keyof typeof signalToneClass;
 
 const signalFilterIds = [
   'all',
@@ -76,6 +84,92 @@ function signalFilterHref(locale: 'ko' | 'en', filterId: SignalFilterId) {
   return `/invest-model/signals?${params.toString()}`;
 }
 
+function signalTypeFromFilter(
+  filterId: SignalFilterId
+): SignalEventType | null {
+  return filterId === 'all' ? null : parseSignalEventType(filterId);
+}
+
+function signalToneFromScore(score: number): SignalTone {
+  if (score >= 80) {
+    return 'high';
+  }
+
+  if (score >= 65) {
+    return 'medium';
+  }
+
+  return 'low';
+}
+
+function signalTypeLabel(locale: SignalLocale, signalType: SignalEventType) {
+  const labels = {
+    ko: {
+      news_traffic: '뉴스 트래픽',
+      price_trend: '가격 추세',
+      macro: '시장 맥락',
+      risk: '위험 알림'
+    },
+    en: {
+      news_traffic: 'News traffic',
+      price_trend: 'Price trend',
+      macro: 'Market context',
+      risk: 'Risk alert'
+    }
+  } as const;
+
+  return labels[locale][signalType];
+}
+
+function formatCapturedAt(value: string, locale: SignalLocale) {
+  const capturedAt = new Date(value);
+
+  if (Number.isNaN(capturedAt.getTime())) {
+    return locale === 'ko' ? '시점 확인 중' : 'Time pending';
+  }
+
+  return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(capturedAt);
+}
+
+function signalStatusLabel(locale: SignalLocale, signal: SignalEventDto) {
+  if (signal.signalType === 'risk') {
+    return locale === 'ko'
+      ? '위험 관찰 입력값입니다. 매수·매도·주문 신호로 사용하지 않습니다.'
+      : 'Risk observation input only. It is not a buy, sell, or order signal.';
+  }
+
+  return locale === 'ko'
+    ? '모델이 참고한 관찰 입력값입니다. 투자 조언이나 주문 생성이 아닙니다.'
+    : 'Observed input for model context only. It is not advice or order creation.';
+}
+
+function toDbSignalCard(
+  signal: SignalEventDto,
+  index: number,
+  locale: SignalLocale
+) {
+  const scoreTone = signalToneFromScore(signal.score);
+
+  return {
+    id: signal.signalPublicId,
+    rank: `#${index + 1}`,
+    title: signal.title,
+    sourceLabel: signalTypeLabel(locale, signal.signalType),
+    marketLabel: signal.sourceLabel,
+    scoreLabel: signal.scoreDisplay,
+    scoreTone,
+    description: signal.summary,
+    linkedModelName: signal.linkedModelName,
+    freshnessLabel: formatCapturedAt(signal.capturedAt, locale),
+    statusLabel: signalStatusLabel(locale, signal)
+  };
+}
+
 export default async function InvestModelSignalsPage({
   searchParams
 }: InvestModelSignalsPageProps) {
@@ -86,7 +180,7 @@ export default async function InvestModelSignalsPage({
   );
   const copy = investModelCopy[locale];
   const signalsCopy = copy.signals;
-  const { summary, filters, signals } = signalsCopy;
+  const { summary, filters, signals: fallbackSignals } = signalsCopy;
   const filterOptions = signalFilterIds.map((filterId, index) => ({
     id: filterId,
     label: filters[index]
@@ -94,26 +188,60 @@ export default async function InvestModelSignalsPage({
   const selectedFilter =
     filterOptions.find((filter) => filter.id === selectedFilterId) ??
     filterOptions[0];
+  const selectedSignalType = signalTypeFromFilter(selectedFilterId);
+  let signalReadState: 'db' | 'empty' | 'fallback' = 'db';
+  let dbSignals: SignalEventDto[] = [];
+
+  try {
+    dbSignals = await readSignalEventDtos({
+      signalType: selectedSignalType,
+      limit: 20
+    });
+
+    if (dbSignals.length === 0) {
+      signalReadState = 'empty';
+    }
+  } catch {
+    signalReadState = 'fallback';
+  }
+
   const visibleSignals =
-    selectedFilterId === 'all'
-      ? signals
-      : signals.filter((signal) => {
-          if (selectedFilterId === 'news_traffic') {
-            return signal.sourceLabel === filters[1];
-          }
+    signalReadState === 'db'
+      ? dbSignals.map((signal, index) => toDbSignalCard(signal, index, locale))
+      : signalReadState === 'fallback'
+        ? selectedFilterId === 'all'
+          ? fallbackSignals
+          : fallbackSignals.filter((signal) => {
+              if (selectedFilterId === 'news_traffic') {
+                return signal.sourceLabel === filters[1];
+              }
 
-          if (selectedFilterId === 'price_trend') {
-            return signal.sourceLabel === filters[2];
-          }
+              if (selectedFilterId === 'price_trend') {
+                return signal.sourceLabel === filters[2];
+              }
 
-          return signal.sourceLabel === filters[3];
-        });
+              return signal.sourceLabel === filters[3];
+            })
+        : [];
   const visibleSignalCountLabel =
     locale === 'ko'
       ? `${visibleSignals.length}개 표시`
       : `${visibleSignals.length} shown`;
   const signalListLabel =
     locale === 'ko' ? '표시 중인 신호 목록' : 'Shown signal list';
+
+  const signalDataStateLabel =
+    signalReadState === 'db'
+      ? locale === 'ko'
+        ? 'DB 기반 관찰값'
+        : 'DB-backed observations'
+      : signalReadState === 'empty'
+        ? locale === 'ko'
+          ? 'DB 신호 없음'
+          : 'No DB signals'
+        : locale === 'ko'
+          ? '샘플 fallback 표시'
+          : 'Sample fallback shown';
 
   return (
     <MobileShell
@@ -138,7 +266,7 @@ export default async function InvestModelSignalsPage({
           <MetricCard
             label={signalsCopy.metrics.activeFeed}
             value={summary.activeCountLabel}
-            description={signalsCopy.metrics.observedMockInputs}
+            description={signalDataStateLabel}
             trend={signalsCopy.metrics.sample}
           />
           <MetricCard
@@ -195,7 +323,7 @@ export default async function InvestModelSignalsPage({
                         isSelected
                           ? 'bg-white/80 opacity-90'
                           : 'bg-invest-primary opacity-0 group-hover:opacity-45'
-                        )}
+                      )}
                     />
                   </Link>
                 );
@@ -215,91 +343,102 @@ export default async function InvestModelSignalsPage({
             aria-label={signalListLabel}
             className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
-            {visibleSignals.map((signal) => (
-              <article
-                key={signal.id}
-                role="listitem"
-                aria-label={`${signal.title} ${signal.scoreLabel}`}
-                className={cn(
-                  'group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
-                  investMotionClass.interactiveCard
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={cn(
-                      'grid size-11 shrink-0 place-items-center rounded-invest-control text-[15px] font-bold transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
-                      signalToneClass[signal.scoreTone]
-                    )}
-                  >
-                    {signal.rank}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-invest-text">
-                          {signal.title}
-                        </h3>
-                        <div className="mt-2 grid gap-1.5 min-[360px]:grid-cols-2">
-                          <RiskBadge className="justify-center text-center">
-                            {signal.sourceLabel}
-                          </RiskBadge>
-                          <RiskBadge className="justify-center text-center">
-                            {signal.marketLabel}
+            {visibleSignals.length > 0 ? (
+              visibleSignals.map((signal) => (
+                <article
+                  key={signal.id}
+                  role="listitem"
+                  aria-label={`${signal.title} ${signal.scoreLabel}`}
+                  className={cn(
+                    'group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
+                    investMotionClass.interactiveCard
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={cn(
+                        'grid size-11 shrink-0 place-items-center rounded-invest-control text-[15px] font-bold transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
+                        signalToneClass[signal.scoreTone]
+                      )}
+                    >
+                      {signal.rank}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-invest-text">
+                            {signal.title}
+                          </h3>
+                          <div className="mt-2 grid gap-1.5 min-[360px]:grid-cols-2">
+                            <RiskBadge className="justify-center text-center">
+                              {signal.sourceLabel}
+                            </RiskBadge>
+                            <RiskBadge className="justify-center text-center">
+                              {signal.marketLabel}
+                            </RiskBadge>
+                          </div>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <RiskBadge tone={badgeToneByScore[signal.scoreTone]}>
+                            {signal.scoreLabel}
                           </RiskBadge>
                         </div>
                       </div>
-                      <div className="shrink-0 text-right">
-                        <RiskBadge tone={badgeToneByScore[signal.scoreTone]}>
-                          {signal.scoreLabel}
-                        </RiskBadge>
+                      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
+                        <div
+                          className={cn(
+                            'h-full origin-left rounded-full transition-transform duration-200 ease-out group-hover:scale-y-110 group-active:scale-y-95 motion-reduce:transition-none motion-reduce:group-hover:scale-y-100 motion-reduce:group-active:scale-y-100',
+                            signalStrengthClass[signal.scoreTone]
+                          )}
+                          style={{
+                            width: signalStrengthWidth[signal.scoreTone]
+                          }}
+                        />
                       </div>
-                    </div>
-                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
+                      <p className="mt-2 text-sm leading-6 text-invest-text-muted">
+                        {signal.description}
+                      </p>
                       <div
                         className={cn(
-                          'h-full origin-left rounded-full transition-transform duration-200 ease-out group-hover:scale-y-110 group-active:scale-y-95 motion-reduce:transition-none motion-reduce:group-hover:scale-y-100 motion-reduce:group-active:scale-y-100',
-                          signalStrengthClass[signal.scoreTone]
+                          'mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/35 group-active:scale-[0.995] group-focus-within:bg-invest-primary-soft/45 min-[360px]:grid-cols-[minmax(0,1fr)_auto]',
+                          'motion-reduce:transition-none motion-reduce:group-active:scale-100'
                         )}
-                        style={{
-                          width: signalStrengthWidth[signal.scoreTone]
-                        }}
-                      />
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-invest-text-muted">
-                      {signal.description}
-                    </p>
-                    <div
-                      className={cn(
-                        'mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/35 group-active:scale-[0.995] group-focus-within:bg-invest-primary-soft/45 min-[360px]:grid-cols-[minmax(0,1fr)_auto]',
-                        'motion-reduce:transition-none motion-reduce:group-active:scale-100'
-                      )}
-                    >
-                      <RiskBadge
-                        tone="neutral"
-                        className="justify-center text-center transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
                       >
-                        {signal.linkedModelName}
-                      </RiskBadge>
-                      <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted transition-[color,transform] duration-200 ease-out group-hover:scale-[1.01] group-hover:text-invest-text group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
-                        {signal.freshnessLabel}
-                      </span>
-                    </div>
-                    <div className="mt-2.5 flex items-start gap-2.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2.5 transition-[background-color,border-color,transform] duration-200 ease-out group-hover:border-invest-primary/25 group-hover:bg-invest-surface group-active:scale-[0.995] group-focus-within:border-invest-primary/35 motion-reduce:transition-none motion-reduce:group-active:scale-100">
-                      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-invest-surface text-invest-primary shadow-invest-card transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
-                        <Activity
-                          aria-hidden
-                          className="size-4 transition-transform duration-200 ease-out group-hover:rotate-6 motion-reduce:transition-none motion-reduce:group-hover:rotate-0"
-                        />
-                      </span>
-                      <p className="pt-0.5 text-sm font-semibold leading-5 text-invest-text-muted transition-colors duration-200 ease-out group-hover:text-invest-text motion-reduce:transition-none">
-                        {signal.statusLabel}
-                      </p>
+                        <RiskBadge
+                          tone="neutral"
+                          className="justify-center text-center transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
+                        >
+                          {signal.linkedModelName}
+                        </RiskBadge>
+                        <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted transition-[color,transform] duration-200 ease-out group-hover:scale-[1.01] group-hover:text-invest-text group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
+                          {signal.freshnessLabel}
+                        </span>
+                      </div>
+                      <div className="mt-2.5 flex items-start gap-2.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2.5 transition-[background-color,border-color,transform] duration-200 ease-out group-hover:border-invest-primary/25 group-hover:bg-invest-surface group-active:scale-[0.995] group-focus-within:border-invest-primary/35 motion-reduce:transition-none motion-reduce:group-active:scale-100">
+                        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-invest-surface text-invest-primary shadow-invest-card transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
+                          <Activity
+                            aria-hidden
+                            className="size-4 transition-transform duration-200 ease-out group-hover:rotate-6 motion-reduce:transition-none motion-reduce:group-hover:rotate-0"
+                          />
+                        </span>
+                        <p className="pt-0.5 text-sm font-semibold leading-5 text-invest-text-muted transition-colors duration-200 ease-out group-hover:text-invest-text motion-reduce:transition-none">
+                          {signal.statusLabel}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              ))
+            ) : (
+              <div
+                role="listitem"
+                className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-invest-card-padding text-sm font-semibold leading-6 text-invest-text-muted"
+              >
+                {locale === 'ko'
+                  ? '선택한 필터에 표시할 DB 신호가 없습니다. 신호는 seed/mock 관찰값 기준으로만 표시됩니다.'
+                  : 'No DB signals are available for this filter. Signals remain seed/mock observations only.'}
+              </div>
+            )}
           </div>
         </div>
 
