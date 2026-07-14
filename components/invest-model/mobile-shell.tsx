@@ -199,15 +199,15 @@ function LanguageToggle({ locale, currentPath }: LanguageToggleProps) {
     <div className="mt-2 flex justify-end">
       <div
         aria-label={copy.label}
-        className="grid min-h-8 grid-cols-2 overflow-hidden rounded-invest-control border border-invest-border bg-invest-surface text-[11px] font-bold shadow-invest-card"
+        className="grid min-h-8 grid-cols-2 overflow-hidden rounded-invest-control border border-invest-border bg-invest-surface p-0.5 text-[11px] font-bold shadow-invest-card"
       >
         <Link
           href={withInvestModelLocale(currentPath, 'ko')}
           aria-current={locale === 'ko' ? 'true' : undefined}
           className={cn(
-            'grid min-w-12 place-items-center px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-inset',
+            'grid min-w-12 place-items-center rounded-[6px] px-2 transition-[background-color,color,box-shadow,transform] duration-200 ease-out active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-inset motion-reduce:transition-none motion-reduce:active:scale-100',
             locale === 'ko'
-              ? 'bg-invest-primary text-invest-surface'
+              ? 'bg-invest-primary text-invest-surface shadow-[0_4px_12px_rgb(47_128_237_/_0.22)]'
               : 'text-invest-text-muted hover:text-invest-text'
           )}
         >
@@ -217,9 +217,9 @@ function LanguageToggle({ locale, currentPath }: LanguageToggleProps) {
           href={withInvestModelLocale(currentPath, 'en')}
           aria-current={locale === 'en' ? 'true' : undefined}
           className={cn(
-            'grid min-w-12 place-items-center px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-inset',
+            'grid min-w-12 place-items-center rounded-[6px] px-2 transition-[background-color,color,box-shadow,transform] duration-200 ease-out active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-inset motion-reduce:transition-none motion-reduce:active:scale-100',
             locale === 'en'
-              ? 'bg-invest-primary text-invest-surface'
+              ? 'bg-invest-primary text-invest-surface shadow-[0_4px_12px_rgb(47_128_237_/_0.22)]'
               : 'text-invest-text-muted hover:text-invest-text'
           )}
         >
