@@ -1,6 +1,5 @@
 import {
   ArrowLeft,
-  Eye,
   MessageCircle,
   MessageSquareText,
   ShieldCheck
@@ -10,6 +9,7 @@ import { notFound } from 'next/navigation';
 
 import {
   FeedLikeAction,
+  FeedReadAction,
   FeedSaveAction,
   investMotionClass,
   MobileShell,
@@ -129,11 +129,6 @@ export default async function InvestModelFeedDetailPage({
   const backHref = `/invest-model/feed?lang=${locale}`;
   const stateItems = [
     {
-      label: locale === 'ko' ? '읽음' : 'Read',
-      value: post.userState.read ? (locale === 'ko' ? '완료' : 'Done') : '-',
-      icon: Eye
-    },
-    {
       label: locale === 'ko' ? '댓글' : 'Comments',
       value: String(post.userState.commentCount),
       icon: MessageCircle
@@ -204,6 +199,12 @@ export default async function InvestModelFeedDetailPage({
         </article>
 
         <div className="grid grid-cols-2 gap-invest-card-gap">
+          <FeedReadAction
+            postPublicId={post.postPublicId}
+            userPublicId={userPublicId}
+            initialState={post.userState}
+            locale={locale}
+          />
           {stateItems.map((item) => {
             const Icon = item.icon;
 
