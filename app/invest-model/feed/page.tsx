@@ -74,14 +74,21 @@ export default async function InvestModelFeedPage({
           type="button"
           aria-label={copy.actions.feedNotifications}
           className={cn(
-            'relative grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-primary/20 bg-invest-primary-soft text-invest-primary shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
+            'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border border-invest-primary/20 bg-invest-primary-soft text-invest-primary shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
             investMotionClass.interactiveControl
           )}
         >
-          <Bell aria-hidden className="size-5" />
+          <Bell
+            aria-hidden
+            className="size-5 transition-transform duration-200 ease-out group-hover:-rotate-6 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:rotate-0 motion-reduce:group-active:scale-100"
+          />
           <span
             aria-hidden
-            className="absolute right-2 top-2 size-2 rounded-full bg-invest-risk ring-2 ring-invest-primary-soft"
+            className="absolute right-1.5 top-1.5 size-2.5 rounded-full bg-invest-risk ring-2 ring-invest-primary-soft"
+          />
+          <span
+            aria-hidden
+            className="absolute inset-x-2 bottom-1 h-0.5 rounded-full bg-invest-primary opacity-70 transition-[opacity,transform] duration-200 ease-out group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-active:scale-x-100"
           />
         </button>
       }
