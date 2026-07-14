@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Bell, Bookmark, MessageCircle, ShieldCheck, UserRound } from 'lucide-react';
 import {
   investMotionClass,
@@ -9,7 +10,10 @@ import {
   SectionHeader,
   SoftBanner
 } from '@/components/invest-model';
-import { resolveInvestModelLocale } from '@/lib/i18n/invest-model';
+import {
+  resolveInvestModelLocale,
+  withInvestModelLocale
+} from '@/lib/i18n/invest-model';
 import { cn } from '@/lib/utils';
 
 type InvestModelMyPageProps = {
@@ -129,8 +133,8 @@ export default async function InvestModelMyPage({
       locale={locale}
       currentPath="/invest-model/my"
       trailing={
-        <button
-          type="button"
+        <Link
+          href={withInvestModelLocale('/invest-model/notifications', locale)}
           aria-label={copy.alertLabel}
           className={cn(
             'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border border-invest-primary/20 bg-invest-primary-soft text-invest-primary shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
@@ -149,7 +153,7 @@ export default async function InvestModelMyPage({
             aria-hidden
             className="absolute inset-x-2 bottom-1 h-0.5 rounded-full bg-invest-primary opacity-70 transition-[opacity,transform] duration-200 ease-out group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-active:scale-x-100"
           />
-        </button>
+        </Link>
       }
     >
       <section className="space-y-invest-section-gap">

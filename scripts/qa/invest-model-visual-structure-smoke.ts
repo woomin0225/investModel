@@ -57,6 +57,19 @@ const screens: ScreenCheck[] = [
     ]
   },
   {
+    name: 'My Page',
+    route: '/invest-model/my',
+    pageFile: 'app/invest-model/my/page.tsx',
+    activeTab: 'home',
+    requiredCopy: [
+      'My Page',
+      'No real account',
+      'No real orders',
+      'DB read model',
+      '/invest-model/notifications'
+    ]
+  },
+  {
     name: 'Search',
     route: '/invest-model/search',
     pageFile: 'app/invest-model/search/page.tsx',
