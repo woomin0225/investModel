@@ -23,7 +23,7 @@
 | Home / My AI Investment | `/invest-model` | `GET /api/portfolio/mock-summary`; `GET /api/signals?limit=3`; `GET /api/feed?limit=2` | `PortfolioSummaryDto`; `SignalEventDto[]`; `FeedPostDto[]` | `lib/mock/invest-model-home.ts`; `lib/mock/invest-model-signals.ts`; `lib/mock/invest-model-feed.ts` | `user` for portfolio, signed-in for signals/feed | mock balance, selected model, recent signals, recent feed only. No real account balance. |
 | Discover Models | `/invest-model/models` | `GET /api/models` | `ModelCardDto[]` | `lib/mock/invest-model-discovery.ts` | `public` or signed-in | only approved/live models; pending_review excluded. |
 | Realtime Signals | `/invest-model/signals` | `GET /api/signals` | `SignalEventDto[]` | `lib/mock/invest-model-signals.ts` | signed-in | observed inputs only; no recommendation/order language. |
-| Signal Detail | `/invest-model/signals/[signalId]` | future `GET /api/signals/:signalId` | future `SignalDetailDto` from `BK-298` | `SignalEventDto` list item plus future detail mock | signed-in | route param uses public id only; observed context only; no buy/sell/hold advice. |
+| Signal Detail | `/invest-model/signals/[signalId]` | future `GET /api/signals/:signalId` | `SignalDetailDto` | `SignalEventDto` list item plus future detail mock | signed-in | route param uses public id only; observed context only; no buy/sell/hold advice. |
 | Model Detail | `/invest-model/models/[modelId]` | `GET /api/models/:id`; `POST /api/model-selections` after acknowledgement | `ModelDetailDto`; `ModelSelectionDto` | detail data derived from `lib/mock/invest-model-discovery.ts` and page-local copy | public or signed-in for detail; `user` for selection | selection stores model version only, not user allocation preferences. |
 | Feed Insights | `/invest-model/feed` | `GET /api/feed` | `FeedPostDto[]` | `lib/mock/invest-model-feed.ts` | signed-in | informational model/market/review notes only. |
 | Feed Detail | `/invest-model/feed/[postId]` | future `GET /api/feed/:postId` | future `FeedPostDetailDto` from `BK-299` | `FeedPostDto` list item plus future detail mock | signed-in | route param uses public id only; informational content only; comments/actions are separate contracts. |
@@ -115,7 +115,7 @@ Data needs:
 
 - signal headline, source type, score display, captured time, linked model name
 - source attribution and observed input summary
-- future score history and score breakdown from `BK-298`
+- score history and score breakdown from `SignalDetailDto`
 - policy notices that this is observed context, not an investment recommendation
 
 API sequence:
@@ -125,7 +125,7 @@ API sequence:
 
 Fallback:
 
-- Until `SignalDetailDto` exists, detail links may use the list `SignalEventDto` record and a safe placeholder detail section.
+- Until the detail API is implemented, detail links may use the list `SignalEventDto` record and a safe placeholder detail section that matches `SignalDetailDto`.
 - Empty/unavailable state should keep the bottom tab shell and safe-area spacing intact on 390px mobile.
 
 ### Model Detail

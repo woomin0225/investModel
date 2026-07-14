@@ -135,6 +135,97 @@ Safety requirements:
 - Do not include fields named `recommendation`, `order`, `execution`, or `brokerAction`.
 - A signal must not create live `TradeIntent` records in the MVP.
 
+## `SignalDetailDto`
+
+Used by future `GET /api/signals/:signalId` and the Signal Detail screen.
+
+```ts
+interface SignalDetailDto {
+  signalPublicId: string;
+  modelVersionPublicId: string;
+  linkedModelName: string;
+  signalType: 'news_traffic' | 'price_trend' | 'macro' | 'risk';
+  title: string;
+  summary: string;
+  capturedAt: string;
+  dataContext: 'mock' | 'observed_placeholder';
+  currentScore: {
+    score: number;
+    scoreDisplay: string;
+    rank?: number;
+    rankDisplay?: string;
+    previousScore?: number;
+    previousRank?: number;
+    deltaDisplay?: string;
+    updatedAt: string;
+    context: 'mock_score' | 'observed_placeholder_score';
+  };
+  scoreBreakdown: Array<{
+    factor:
+      | 'model_attention'
+      | 'news_traffic'
+      | 'search_traffic'
+      | 'price_trend'
+      | 'risk_alert'
+      | 'portfolio_inclusion';
+    label: string;
+    rawValueDisplay: string;
+    normalizedScore: number;
+    weight: number;
+    contributionDisplay: string;
+    evidenceLabel: string;
+    evidenceContext: 'mock' | 'observed_placeholder';
+  }>;
+  scoreHistory: Array<{
+    capturedAt: string;
+    score: number;
+    rank?: number;
+    sourceCountDisplay: string;
+    context: 'mock_score' | 'observed_placeholder_score';
+  }>;
+  relatedNews: Array<{
+    sourceName: string;
+    title: string;
+    sourceUrl?: string;
+    publishedAt?: string;
+    trafficLabel: string;
+    dataContext: 'mock' | 'observed_placeholder';
+  }>;
+  priceTrend?: {
+    instrumentPublicId: string;
+    symbol: string;
+    direction: 'up' | 'down' | 'flat' | 'volatile';
+    changeDisplay: string;
+    capturedAt: string;
+    dataContext: 'mock' | 'observed_placeholder';
+  };
+  relatedModels: Array<{
+    modelPublicId: string;
+    modelVersionPublicId: string;
+    name: string;
+    attentionLabel: string;
+    dataContext: 'mock' | 'observed_placeholder';
+  }>;
+  sourceAttribution: {
+    primarySourceLabel: string;
+    sourceUrl?: string;
+    observedWindowLabel: string;
+    generatedBy: 'mock_seed' | 'mock_ingestion' | 'system_observed_placeholder';
+  };
+  notices: PolicyNoticeDto[];
+}
+```
+
+Source tables: `model_signal_events`, `market_instruments`, `market_price_snapshots`, `news_articles`, `news_traffic_snapshots`, future score snapshot/input tables from `BK-266`, and model/version relation tables.
+
+Safety requirements:
+
+- Detail score fields describe observed/mock ranking context only.
+- Do not include fields named `recommendation`, `tradeAction`, `order`, `execution`, `fill`, `brokerAction`, or `rebalanceInstruction`.
+- `relatedModels` means models that observed or referenced the SignalEvent; it must not imply those models recommend a user action.
+- `sourceUrl` is optional and must never require external paid API keys during seed/mock ingestion.
+- Missing, hidden, or inaccessible records use not-found/unavailable behavior and do not reveal private record existence.
+
 ## `FeedPostDto`
 
 Used by `GET /api/feed` and the Feed Insights screen.
