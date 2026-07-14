@@ -313,19 +313,38 @@ export default async function InvestModelPortfolioPage({
 
         <div
           className={cn(
-            'rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding',
+            'rounded-invest-card border border-invest-risk/15 bg-invest-surface p-invest-card-padding shadow-invest-card',
             investMotionClass.interactiveCard
           )}
         >
+          <div className="mb-3 h-1.5 rounded-full bg-invest-risk" />
           <div className="flex items-start gap-3">
-            <ShieldAlert
-              aria-hidden
-              className="mt-0.5 size-5 shrink-0 text-invest-risk"
-            />
+            <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-risk-soft text-invest-risk">
+              <ShieldAlert aria-hidden className="size-5" />
+            </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold leading-5 text-invest-text">
                 {copy.blockedActionsTitle}
               </p>
+              <div className="mt-3 grid gap-2 min-[360px]:grid-cols-2">
+                <div className="rounded-invest-control bg-invest-surface-muted p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-invest-text-muted">
+                    {locale === 'ko' ? '차단 상태' : 'Blocked'}
+                  </p>
+                  <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
+                    {portfolio.tradeIntent.blockedActions.length}
+                    {locale === 'ko' ? '개 기능' : ' actions'}
+                  </p>
+                </div>
+                <div className="rounded-invest-control bg-invest-surface-muted p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-invest-text-muted">
+                    {locale === 'ko' ? '연결 상태' : 'Connection'}
+                  </p>
+                  <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
+                    {portfolio.tradeIntent.boundaryLabel}
+                  </p>
+                </div>
+              </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {portfolio.tradeIntent.blockedActions.map((action) => (
                   <RiskBadge key={action} tone="blocked">
