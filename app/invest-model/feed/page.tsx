@@ -20,6 +20,20 @@ const postToneBadge = {
   high: 'high'
 } as const;
 
+const postToneAccent = {
+  neutral: 'bg-invest-primary',
+  low: 'bg-invest-positive',
+  medium: 'bg-invest-warning',
+  high: 'bg-invest-risk'
+} as const;
+
+const postToneIcon = {
+  neutral: 'bg-invest-bg-soft text-invest-primary',
+  low: 'bg-invest-positive-soft text-invest-positive',
+  medium: 'bg-invest-warning-soft text-[#966300]',
+  high: 'bg-invest-risk-soft text-invest-risk'
+} as const;
+
 type InvestModelFeedPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -110,13 +124,25 @@ export default async function InvestModelFeedPage({
             {posts.map((post) => (
               <article
                 key={post.id}
+                aria-label={`${post.title} ${post.typeLabel}`}
                 className={cn(
-                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
                   investMotionClass.interactiveCard
                 )}
               >
+                <div
+                  className={cn(
+                    'mb-3 h-1.5 rounded-full',
+                    postToneAccent[post.tone]
+                  )}
+                />
                 <div className="flex items-start gap-3">
-                  <div className="grid size-11 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-invest-primary">
+                  <div
+                    className={cn(
+                      'grid size-11 shrink-0 place-items-center rounded-invest-control',
+                      postToneIcon[post.tone]
+                    )}
+                  >
                     <MessageSquareText aria-hidden className="size-5" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -144,11 +170,11 @@ export default async function InvestModelFeedPage({
                     <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                       {post.excerpt}
                     </p>
-                    <div className="mt-3 flex items-center justify-between gap-3 border-t border-invest-border pt-3">
-                      <p className="min-w-0 truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
+                    <div className="mt-3 grid gap-2 border-t border-invest-border pt-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                      <p className="min-w-0 truncate rounded-full bg-invest-surface-muted px-3 py-1.5 text-[12px] font-semibold leading-4 text-invest-text-muted">
                         {post.linkedModelName}
                       </p>
-                      <div className="flex shrink-0 gap-1.5">
+                      <div className="flex min-w-0 flex-wrap justify-start gap-1.5 min-[360px]:justify-end">
                         {post.tags.slice(0, 2).map((tag) => (
                           <RiskBadge key={`${post.id}-${tag}`} tone="neutral">
                             {tag}
