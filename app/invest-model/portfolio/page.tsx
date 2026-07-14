@@ -17,7 +17,7 @@ import {
   SoftBanner
 } from '@/components/invest-model';
 import { resolveInvestModelLocale } from '@/lib/i18n/invest-model';
-import { investModelPortfolioMock } from '@/lib/mock/invest-model-portfolio';
+import { readInvestModelPortfolioSummary } from '@/lib/db/portfolio-read-model';
 import { cn } from '@/lib/utils';
 
 type InvestModelPortfolioPageProps = {
@@ -97,7 +97,7 @@ export default async function InvestModelPortfolioPage({
 }: InvestModelPortfolioPageProps) {
   const locale = resolveInvestModelLocale(await searchParams);
   const copy = portfolioCopy[locale];
-  const portfolio = investModelPortfolioMock;
+  const portfolio = await readInvestModelPortfolioSummary('user_demo_001');
 
   return (
     <MobileShell
