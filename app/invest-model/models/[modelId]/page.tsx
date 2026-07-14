@@ -217,12 +217,25 @@ export default async function InvestModelDetailPage({
             <RiskBadge tone="blocked">{copy.noLiveTradingLabel}</RiskBadge>
           </div>
           {model.riskTone === 'high' ? (
-            <div className="mt-3 rounded-invest-control bg-invest-risk-soft p-3 text-invest-risk">
-              <p className="text-sm leading-6">{copy.highRiskNotice}</p>
-              <div className="mt-3 flex gap-2 rounded-invest-control border border-invest-risk/25 bg-invest-surface/90 p-3 shadow-invest-card transition-[border-color,box-shadow,transform] duration-200 ease-out hover:border-invest-risk/40 hover:shadow-invest-nav active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
-                <SquareCheckBig
+            <div className="mt-3 rounded-invest-control border border-invest-risk/20 bg-invest-risk-soft p-3 text-invest-risk">
+              <div className="flex gap-2">
+                <ShieldAlert
                   aria-hidden
                   className="mt-0.5 size-5 shrink-0"
+                />
+                <p className="text-sm font-semibold leading-6">
+                  {copy.highRiskNotice}
+                </p>
+              </div>
+              <div
+                className={cn(
+                  'mt-3 flex gap-2 rounded-invest-control border border-invest-risk/25 bg-invest-surface/95 p-3 text-invest-text shadow-invest-card',
+                  investMotionClass.interactiveCard
+                )}
+              >
+                <SquareCheckBig
+                  aria-hidden
+                  className="mt-0.5 size-5 shrink-0 text-invest-risk"
                 />
                 <div className="min-w-0">
                   <p className="text-sm font-bold leading-5">
