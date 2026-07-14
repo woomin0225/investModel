@@ -94,7 +94,36 @@ function signalDetailHref(locale: 'ko' | 'en', signalPublicId: string) {
 function signalTypeFromFilter(
   filterId: SignalFilterId
 ): SignalEventType | null {
-  return filterId === 'all' ? null : parseSignalEventType(filterId);
+  if (filterId === 'all') {
+    return null;
+  }
+
+  if (filterId === 'risk_alert') {
+    return 'risk';
+  }
+
+  return parseSignalEventType(filterId);
+}
+
+function signalFilterTitle(
+  locale: SignalLocale,
+  label: string,
+  isSelected: boolean
+) {
+  const safeBoundary =
+    locale === 'ko'
+      ? 'DB seed/mock 관찰값만 필터링합니다. 추천, 주문, TradeIntent 또는 실시간 외부 데이터 연결이 아닙니다.'
+      : 'Filters DB seed/mock observations only. This is not a recommendation, order, TradeIntent, or realtime external data connection.';
+  const stateLabel =
+    locale === 'ko'
+      ? isSelected
+        ? '선택됨'
+        : '선택 가능'
+      : isSelected
+        ? 'selected'
+        : 'available';
+
+  return `${label} ${stateLabel}. ${safeBoundary}`;
 }
 
 function signalToneFromScore(score: number): SignalTone {
@@ -314,6 +343,12 @@ export default async function InvestModelSignalsPage({
                     key={filter.id}
                     href={signalFilterHref(locale, filter.id)}
                     aria-pressed={isSelected}
+                    aria-current={isSelected ? 'page' : undefined}
+                    title={signalFilterTitle(
+                      locale,
+                      filter.label,
+                      isSelected
+                    )}
                     className={cn(
                       'group relative inline-flex min-h-invest-touch-target items-center gap-2 overflow-hidden rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
                       isSelected
