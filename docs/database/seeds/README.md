@@ -13,12 +13,16 @@ files. Do not insert sample rows directly in a MySQL console for product work.
 - `002_feed_interaction_seed.sql` is the first focused seed slice. It creates
   the local sample user plus FeedPost, comment, reply, like, save, and read
   rows needed by Feed detail/read-state work.
+- `003_signal_event_seed.sql` creates the local demo creator, model, model
+  version, simulated instrument, and SignalEvent rows needed by Signals
+  filter/detail read-model work.
 
 ## Planned Seed Order
 
 1. Identity and model creator rows for user 1 and sample creators.
 2. InvestmentModel rows, model versions, mandates, risk profiles, disclosures.
 3. SignalEvent rows, score snapshots, and mock ingestion inputs.
+   - The first tracked slice is `003_signal_event_seed.sql`.
 4. FeedPost rows, comments, reactions, saves, reads, and ranking examples.
    - The first tracked slice is `002_feed_interaction_seed.sql`.
 5. MockDeposit, portfolio, positions, allocation decisions, and TradeIntent
