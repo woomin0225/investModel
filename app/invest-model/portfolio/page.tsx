@@ -22,8 +22,8 @@ const portfolioCopy = {
     bannerTitle: '선택 모델 운용 현황',
     bannerDescription:
       '선택한 InvestmentModel의 운용 범위 안에서 구성된 포트폴리오 상태를 보여줍니다.',
-    mockBalance: '시뮬레이션 운용금액',
-    mockSafety: '실제 계좌와 분리된 금액입니다',
+    mockBalance: '운용금액',
+    mockSafety: '시뮬레이션 기준, 실제 계좌와 분리',
     allocationState: 'AllocationDecision',
     preOrderOnly: '주문 전 시뮬레이션 단계입니다',
     policyState: 'TradeIntent',
@@ -31,7 +31,7 @@ const portfolioCopy = {
     selectedModelTitle: '선택한 InvestmentModel',
     selectedModelDescription:
       '사용자 성향 설정이 아니라 모델이 가진 PortfolioMandate 기준입니다.',
-    positionTitle: 'Simulated positions',
+    positionTitle: '구성 비중',
     positionDescription:
       '모든 금액과 비중은 관찰 데이터와 정책 검증 결과로 계산된 시뮬레이션입니다.',
     decisionTitle: '결정 파이프라인',
@@ -49,8 +49,8 @@ const portfolioCopy = {
     bannerTitle: 'Selected model portfolio',
     bannerDescription:
       'Portfolio state is shown within the mandate of the selected InvestmentModel.',
-    mockBalance: 'Simulated operating amount',
-    mockSafety: 'Separated from real accounts',
+    mockBalance: 'Operating amount',
+    mockSafety: 'Simulation basis, separated from real accounts',
     allocationState: 'AllocationDecision',
     preOrderOnly: 'Pre-order simulation stage only',
     policyState: 'TradeIntent',
@@ -58,7 +58,7 @@ const portfolioCopy = {
     selectedModelTitle: 'Selected InvestmentModel',
     selectedModelDescription:
       'This is the model-owned PortfolioMandate, not a user preference control.',
-    positionTitle: 'Simulated positions',
+    positionTitle: 'Allocation mix',
     positionDescription:
       'All values and weights are simulated from observed data and policy checks.',
     decisionTitle: 'Decision pipeline',
