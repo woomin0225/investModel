@@ -1,0 +1,1 @@
+ALTER TABLE `feed_post_comments` ADD CONSTRAINT `feed_post_comments_parent_comment_id_feed_post_comments_id_fk` FOREIGN KEY (`parent_comment_id`) REFERENCES `feed_post_comments`(`id`) ON DELETE no action ON UPDATE no action;

@@ -50,6 +50,20 @@
       "when": 1784028261952,
       "tag": "0006_odd_bishop",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1784032532312,
+      "tag": "0007_mysterious_greymalkin",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1784032750648,
+      "tag": "0008_chunky_nuke",
+      "breakpoints": true
     }
   ]
 }

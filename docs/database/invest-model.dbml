@@ -367,18 +367,82 @@ Table model_signal_events {
 
 Table feed_posts {
   id bigint [pk, increment]
+  public_id varchar(120) [not null, unique]
   model_id bigint
   author_user_id bigint
-  post_type varchar(40) [not null, note: "model_comment, market_insight, notice"]
+  post_type varchar(40) [not null, note: "model_note, market_context, risk_note, review_note"]
   title varchar(220) [not null]
   body text [not null]
-  visibility varchar(30) [not null, default: "public", note: "public, selected_users, admin_only"]
+  visibility varchar(30) [not null, default: "public", note: "public, selected_users, admin_only, hidden"]
   published_at datetime
   created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`]
 
   indexes {
     (model_id, published_at)
     (post_type, visibility)
+    public_id [unique]
+  }
+}
+
+Table feed_post_comments {
+  id bigint [pk, increment]
+  public_id varchar(120) [not null, unique]
+  post_id bigint [not null]
+  parent_comment_id bigint
+  author_user_id bigint [not null]
+  body text [not null]
+  status varchar(30) [not null, default: "visible", note: "visible, hidden, deleted"]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (post_id, parent_comment_id, created_at)
+    (author_user_id, created_at)
+    status
+    public_id [unique]
+  }
+}
+
+Table feed_post_reactions {
+  id bigint [pk, increment]
+  post_id bigint [not null]
+  user_id bigint [not null]
+  reaction_type varchar(30) [not null, default: "like", note: "like"]
+  status varchar(30) [not null, default: "active", note: "active, removed"]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (post_id, user_id, reaction_type) [unique]
+    (user_id, status)
+  }
+}
+
+Table feed_post_saves {
+  id bigint [pk, increment]
+  post_id bigint [not null]
+  user_id bigint [not null]
+  status varchar(30) [not null, default: "saved", note: "saved, removed"]
+  saved_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (post_id, user_id) [unique]
+    (user_id, status, saved_at)
+  }
+}
+
+Table feed_post_reads {
+  id bigint [pk, increment]
+  post_id bigint [not null]
+  user_id bigint [not null]
+  read_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (post_id, user_id) [unique]
+    (user_id, read_at)
   }
 }
 
@@ -434,4 +498,13 @@ Ref: model_signal_events.source_article_id > news_articles.id
 Ref: model_signal_events.source_instrument_id > market_instruments.id
 Ref: feed_posts.model_id > investment_models.id
 Ref: feed_posts.author_user_id > users.id
+Ref: feed_post_comments.post_id > feed_posts.id
+Ref: feed_post_comments.parent_comment_id > feed_post_comments.id
+Ref: feed_post_comments.author_user_id > users.id
+Ref: feed_post_reactions.post_id > feed_posts.id
+Ref: feed_post_reactions.user_id > users.id
+Ref: feed_post_saves.post_id > feed_posts.id
+Ref: feed_post_saves.user_id > users.id
+Ref: feed_post_reads.post_id > feed_posts.id
+Ref: feed_post_reads.user_id > users.id
 Ref: audit_logs.actor_user_id > users.id

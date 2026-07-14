@@ -9,6 +9,7 @@ import {
   varchar,
   text,
   timestamp,
+  type AnyMySqlColumn,
 } from 'drizzle-orm/mysql-core';
 import { relations } from 'drizzle-orm';
 
@@ -393,6 +394,162 @@ export const marketInstruments = mysqlTable(
 );
 
 /**
+ * feedPosts store informational commentary for Feed screens.
+ * They must not contain investment advice, return guarantees, or trade instructions.
+ */
+export const feedPosts = mysqlTable(
+  'feed_posts',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    publicId: varchar('public_id', { length: 120 }).notNull(),
+    modelId: int('model_id').references(() => investmentModels.id),
+    authorUserId: int('author_user_id').references(() => users.id),
+    postType: varchar('post_type', { length: 40 }).notNull(),
+    title: varchar('title', { length: 220 }).notNull(),
+    body: text('body').notNull(),
+    visibility: varchar('visibility', { length: 30 })
+      .notNull()
+      .default('public'),
+    publishedAt: timestamp('published_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_feed_posts_public_id').on(table.publicId),
+    index('idx_feed_posts_model_time').on(table.modelId, table.publishedAt),
+    index('idx_feed_posts_type_visibility').on(
+      table.postType,
+      table.visibility
+    ),
+    index('idx_feed_posts_author_user_id').on(table.authorUserId),
+  ]
+);
+
+/**
+ * feedPostComments store user discussion for informational FeedPost detail pages.
+ * Parent ids support replies; comments are moderation-ready and not advice.
+ */
+export const feedPostComments = mysqlTable(
+  'feed_post_comments',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    publicId: varchar('public_id', { length: 120 }).notNull(),
+    postId: int('post_id')
+      .notNull()
+      .references(() => feedPosts.id),
+    parentCommentId: int('parent_comment_id').references(
+      (): AnyMySqlColumn => feedPostComments.id
+    ),
+    authorUserId: int('author_user_id')
+      .notNull()
+      .references(() => users.id),
+    body: text('body').notNull(),
+    status: varchar('status', { length: 30 }).notNull().default('visible'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_feed_post_comments_public_id').on(table.publicId),
+    index('idx_feed_post_comments_post_parent_time').on(
+      table.postId,
+      table.parentCommentId,
+      table.createdAt
+    ),
+    index('idx_feed_post_comments_author_time').on(
+      table.authorUserId,
+      table.createdAt
+    ),
+    index('idx_feed_post_comments_status').on(table.status),
+    index('idx_feed_post_comments_parent_id').on(table.parentCommentId),
+  ]
+);
+
+/**
+ * feedPostReactions store user-scoped likes for FeedPost engagement.
+ * They are not recommendation, suitability, or order-intent signals.
+ */
+export const feedPostReactions = mysqlTable(
+  'feed_post_reactions',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    postId: int('post_id')
+      .notNull()
+      .references(() => feedPosts.id),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    reactionType: varchar('reaction_type', { length: 30 })
+      .notNull()
+      .default('like'),
+    status: varchar('status', { length: 30 }).notNull().default('active'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_feed_post_reactions_post_user_type').on(
+      table.postId,
+      table.userId,
+      table.reactionType
+    ),
+    index('idx_feed_post_reactions_user_status').on(
+      table.userId,
+      table.status
+    ),
+  ]
+);
+
+/**
+ * feedPostSaves store user-scoped saved/bookmarked FeedPost state.
+ * Save state is a reading shortcut only, not model selection or allocation intent.
+ */
+export const feedPostSaves = mysqlTable(
+  'feed_post_saves',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    postId: int('post_id')
+      .notNull()
+      .references(() => feedPosts.id),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    status: varchar('status', { length: 30 }).notNull().default('saved'),
+    savedAt: timestamp('saved_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_feed_post_saves_post_user').on(table.postId, table.userId),
+    index('idx_feed_post_saves_user_status_time').on(
+      table.userId,
+      table.status,
+      table.savedAt
+    ),
+  ]
+);
+
+/**
+ * feedPostReads store private user read state for FeedPost detail/list UX.
+ * They must not expose other users' behavior or imply compliance approval.
+ */
+export const feedPostReads = mysqlTable(
+  'feed_post_reads',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    postId: int('post_id')
+      .notNull()
+      .references(() => feedPosts.id),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    readAt: timestamp('read_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_feed_post_reads_post_user').on(table.postId, table.userId),
+    index('idx_feed_post_reads_user_time').on(table.userId, table.readAt),
+  ]
+);
+
+/**
  * userModelSelections records a user's selected ModelVersion.
  * It is a mock-safe selection record, not a suitability profile or funding instruction.
  */
@@ -612,6 +769,11 @@ export const usersRelations = relations(users, ({ many }) => ({
   userModelSelections: many(userModelSelections),
   mockDeposits: many(mockDeposits),
   portfolios: many(portfolios),
+  feedPosts: many(feedPosts),
+  feedPostComments: many(feedPostComments),
+  feedPostReactions: many(feedPostReactions),
+  feedPostSaves: many(feedPostSaves),
+  feedPostReads: many(feedPostReads),
 }));
 
 export const invitationsRelations = relations(invitations, ({ one }) => ({
@@ -672,6 +834,7 @@ export const investmentModelsRelations = relations(
     modelVersions: many(modelVersions),
     complianceReviews: many(complianceReviews),
     userModelSelections: many(userModelSelections),
+    feedPosts: many(feedPosts),
   })
 );
 
@@ -763,6 +926,80 @@ export const marketInstrumentsRelations = relations(
   ({ many }) => ({
     portfolioPositions: many(portfolioPositions),
     tradeIntents: many(tradeIntents),
+  })
+);
+
+export const feedPostsRelations = relations(
+  feedPosts,
+  ({ one, many }) => ({
+    model: one(investmentModels, {
+      fields: [feedPosts.modelId],
+      references: [investmentModels.id],
+    }),
+    author: one(users, {
+      fields: [feedPosts.authorUserId],
+      references: [users.id],
+    }),
+    comments: many(feedPostComments),
+    reactions: many(feedPostReactions),
+    saves: many(feedPostSaves),
+    reads: many(feedPostReads),
+  })
+);
+
+export const feedPostCommentsRelations = relations(
+  feedPostComments,
+  ({ one }) => ({
+    post: one(feedPosts, {
+      fields: [feedPostComments.postId],
+      references: [feedPosts.id],
+    }),
+    author: one(users, {
+      fields: [feedPostComments.authorUserId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const feedPostReactionsRelations = relations(
+  feedPostReactions,
+  ({ one }) => ({
+    post: one(feedPosts, {
+      fields: [feedPostReactions.postId],
+      references: [feedPosts.id],
+    }),
+    user: one(users, {
+      fields: [feedPostReactions.userId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const feedPostSavesRelations = relations(
+  feedPostSaves,
+  ({ one }) => ({
+    post: one(feedPosts, {
+      fields: [feedPostSaves.postId],
+      references: [feedPosts.id],
+    }),
+    user: one(users, {
+      fields: [feedPostSaves.userId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const feedPostReadsRelations = relations(
+  feedPostReads,
+  ({ one }) => ({
+    post: one(feedPosts, {
+      fields: [feedPostReads.postId],
+      references: [feedPosts.id],
+    }),
+    user: one(users, {
+      fields: [feedPostReads.userId],
+      references: [users.id],
+    }),
   })
 );
 
@@ -916,6 +1153,31 @@ export type NewModelPerformanceSnapshot =
  */
 export type MarketInstrument = typeof marketInstruments.$inferSelect;
 export type NewMarketInstrument = typeof marketInstruments.$inferInsert;
+/**
+ * FeedPost is informational commentary for feed list/detail read models.
+ */
+export type FeedPost = typeof feedPosts.$inferSelect;
+export type NewFeedPost = typeof feedPosts.$inferInsert;
+/**
+ * FeedPostComment is a moderation-ready comment or reply on a FeedPost.
+ */
+export type FeedPostComment = typeof feedPostComments.$inferSelect;
+export type NewFeedPostComment = typeof feedPostComments.$inferInsert;
+/**
+ * FeedPostReaction is user-scoped engagement state, not investment advice.
+ */
+export type FeedPostReaction = typeof feedPostReactions.$inferSelect;
+export type NewFeedPostReaction = typeof feedPostReactions.$inferInsert;
+/**
+ * FeedPostSave is user-scoped saved state for reading shortcuts only.
+ */
+export type FeedPostSave = typeof feedPostSaves.$inferSelect;
+export type NewFeedPostSave = typeof feedPostSaves.$inferInsert;
+/**
+ * FeedPostRead is private user read state for Feed UX.
+ */
+export type FeedPostRead = typeof feedPostReads.$inferSelect;
+export type NewFeedPostRead = typeof feedPostReads.$inferInsert;
 /**
  * UserModelSelection records selected ModelVersion state without funding or suitability settings.
  */

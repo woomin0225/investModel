@@ -371,20 +371,86 @@ CREATE TABLE model_signal_events (
 
 CREATE TABLE feed_posts (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  public_id VARCHAR(120) NOT NULL,
   model_id BIGINT UNSIGNED NULL,
   author_user_id BIGINT UNSIGNED NULL,
-  post_type ENUM('model_comment', 'market_insight', 'notice') NOT NULL,
+  post_type ENUM('model_note', 'market_context', 'risk_note', 'review_note') NOT NULL,
   title VARCHAR(220) NOT NULL,
   body TEXT NOT NULL,
-  visibility ENUM('public', 'selected_users', 'admin_only') NOT NULL DEFAULT 'public',
+  visibility ENUM('public', 'selected_users', 'admin_only', 'hidden') NOT NULL DEFAULT 'public',
   published_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
+  UNIQUE KEY uq_feed_posts_public_id (public_id),
   KEY idx_feed_posts_model_time (model_id, published_at),
   KEY idx_feed_posts_type_visibility (post_type, visibility),
   KEY idx_feed_posts_author_user_id (author_user_id),
   CONSTRAINT fk_feed_posts_model_id FOREIGN KEY (model_id) REFERENCES investment_models(id),
   CONSTRAINT fk_feed_posts_author_user_id FOREIGN KEY (author_user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE feed_post_comments (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  public_id VARCHAR(120) NOT NULL,
+  post_id BIGINT UNSIGNED NOT NULL,
+  parent_comment_id BIGINT UNSIGNED NULL,
+  author_user_id BIGINT UNSIGNED NOT NULL,
+  body TEXT NOT NULL,
+  status ENUM('visible', 'hidden', 'deleted') NOT NULL DEFAULT 'visible',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_feed_post_comments_public_id (public_id),
+  KEY idx_feed_post_comments_post_parent_time (post_id, parent_comment_id, created_at),
+  KEY idx_feed_post_comments_author_time (author_user_id, created_at),
+  KEY idx_feed_post_comments_status (status),
+  KEY idx_feed_post_comments_parent_id (parent_comment_id),
+  CONSTRAINT fk_feed_post_comments_post_id FOREIGN KEY (post_id) REFERENCES feed_posts(id),
+  CONSTRAINT fk_feed_post_comments_parent_id FOREIGN KEY (parent_comment_id) REFERENCES feed_post_comments(id),
+  CONSTRAINT fk_feed_post_comments_author_user_id FOREIGN KEY (author_user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE feed_post_reactions (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  post_id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,
+  reaction_type ENUM('like') NOT NULL DEFAULT 'like',
+  status ENUM('active', 'removed') NOT NULL DEFAULT 'active',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_feed_post_reactions_post_user_type (post_id, user_id, reaction_type),
+  KEY idx_feed_post_reactions_user_status (user_id, status),
+  CONSTRAINT fk_feed_post_reactions_post_id FOREIGN KEY (post_id) REFERENCES feed_posts(id),
+  CONSTRAINT fk_feed_post_reactions_user_id FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE feed_post_saves (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  post_id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,
+  status ENUM('saved', 'removed') NOT NULL DEFAULT 'saved',
+  saved_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_feed_post_saves_post_user (post_id, user_id),
+  KEY idx_feed_post_saves_user_status_time (user_id, status, saved_at),
+  CONSTRAINT fk_feed_post_saves_post_id FOREIGN KEY (post_id) REFERENCES feed_posts(id),
+  CONSTRAINT fk_feed_post_saves_user_id FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE feed_post_reads (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  post_id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,
+  read_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_feed_post_reads_post_user (post_id, user_id),
+  KEY idx_feed_post_reads_user_time (user_id, read_at),
+  CONSTRAINT fk_feed_post_reads_post_id FOREIGN KEY (post_id) REFERENCES feed_posts(id),
+  CONSTRAINT fk_feed_post_reads_user_id FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE audit_logs (
