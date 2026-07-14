@@ -9,6 +9,7 @@ import {
   investModelNavItems,
   type InvestModelTabKey
 } from '../../components/invest-model/mobile-shell';
+import { investMotionClass } from '../../components/invest-model/ui';
 import { investModelHomeMock } from '../../lib/mock/invest-model-home';
 import {
   discoverableInvestmentModels,
@@ -244,6 +245,8 @@ function collectScreenTextValues() {
 const mobileShellSource = readProjectFile(
   'components/invest-model/mobile-shell.tsx'
 );
+const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
+const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
 
 assertCondition(
   mobileShellSource.includes('max-w-[var(--invest-mobile-frame-width)]'),
@@ -273,6 +276,29 @@ assertCondition(
 assertCondition(
   new Set(investModelNavItems.map((item) => item.key)).size === 5,
   'BottomNav tab keys are not unique'
+);
+assertCondition(
+  investModelUiSource.includes('investMotionClass'),
+  'Shared UI motion utility is missing from investModel UI components'
+);
+assertCondition(
+  investMotionClass.interactiveCard.includes('duration-200') &&
+    investMotionClass.interactiveCard.includes('hover:-translate-y-0.5') &&
+    investMotionClass.interactiveCard.includes('active:scale-[0.99]') &&
+    investMotionClass.interactiveCard.includes('motion-reduce:transition-none'),
+  'Shared card motion must keep subtle 200ms lift, pressed, and reduced-motion behavior'
+);
+assertCondition(
+  investMotionClass.interactiveControl.includes('duration-200') &&
+    investMotionClass.interactiveControl.includes('active:scale-95') &&
+    investMotionClass.interactiveControl.includes('focus:ring-2') &&
+    investMotionClass.interactiveControl.includes('motion-reduce:transition-none'),
+  'Shared control motion must keep 200ms pressed, focus, and reduced-motion behavior'
+);
+assertCondition(
+  signalsPageSource.includes('investMotionClass.interactiveCard') &&
+    signalsPageSource.includes('investMotionClass.interactiveControl'),
+  'Realtime Signals must reuse shared motion classes for cards and filter controls'
 );
 
 const screenResults = screens.map((screen) => {
