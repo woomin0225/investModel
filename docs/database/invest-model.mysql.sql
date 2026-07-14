@@ -24,6 +24,34 @@ CREATE TABLE users (
   KEY idx_users_role_status (role, status)
 ) ENGINE=InnoDB;
 
+CREATE TABLE user_profiles (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  locale VARCHAR(10) NOT NULL DEFAULT 'ko-KR',
+  timezone VARCHAR(60) NOT NULL DEFAULT 'Asia/Seoul',
+  onboarding_status ENUM('mock_ready', 'completed', 'dismissed') NOT NULL DEFAULT 'mock_ready',
+  last_active_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_user_profiles_user_id (user_id),
+  KEY idx_user_profiles_onboarding_active (onboarding_status, last_active_at),
+  CONSTRAINT fk_user_profiles_user_id FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE search_query_logs (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  query_text VARCHAR(200) NOT NULL,
+  result_scope ENUM('all', 'models', 'signals', 'feed') NOT NULL DEFAULT 'all',
+  result_count INT NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_search_query_logs_user_time (user_id, created_at),
+  KEY idx_search_query_logs_scope_time (result_scope, created_at),
+  CONSTRAINT fk_search_query_logs_user_id FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
 CREATE TABLE model_creators (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -297,6 +325,27 @@ CREATE TABLE trade_intents (
   CONSTRAINT fk_trade_intents_instrument_id FOREIGN KEY (instrument_id) REFERENCES market_instruments(id)
 ) ENGINE=InnoDB;
 
+CREATE TABLE portfolio_analysis_snapshots (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  portfolio_id BIGINT UNSIGNED NOT NULL,
+  allocation_decision_id BIGINT UNSIGNED NULL,
+  snapshot_type ENUM('timeline', 'risk', 'allocation', 'mock_deposit') NOT NULL DEFAULT 'timeline',
+  headline VARCHAR(220) NOT NULL,
+  summary TEXT NULL,
+  cash_balance DECIMAL(18,2) NULL,
+  total_market_value DECIMAL(18,2) NULL,
+  exposure_pct DECIMAL(8,4) NULL,
+  metadata_json JSON NULL,
+  captured_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_portfolio_analysis_portfolio_time (portfolio_id, captured_at),
+  KEY idx_portfolio_analysis_type_time (snapshot_type, captured_at),
+  KEY idx_portfolio_analysis_decision_id (allocation_decision_id),
+  CONSTRAINT fk_portfolio_analysis_portfolio_id FOREIGN KEY (portfolio_id) REFERENCES portfolios(id),
+  CONSTRAINT fk_portfolio_analysis_decision_id FOREIGN KEY (allocation_decision_id) REFERENCES allocation_decisions(id)
+) ENGINE=InnoDB;
+
 CREATE TABLE market_price_snapshots (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   instrument_id BIGINT UNSIGNED NOT NULL,
@@ -369,6 +418,38 @@ CREATE TABLE model_signal_events (
   CONSTRAINT fk_model_signal_version_id FOREIGN KEY (model_version_id) REFERENCES model_versions(id),
   CONSTRAINT fk_model_signal_source_article_id FOREIGN KEY (source_article_id) REFERENCES news_articles(id),
   CONSTRAINT fk_model_signal_source_instrument_id FOREIGN KEY (source_instrument_id) REFERENCES market_instruments(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE signal_score_snapshots (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  signal_event_id BIGINT UNSIGNED NOT NULL,
+  total_score DECIMAL(8,4) NOT NULL,
+  rank_value INT NULL,
+  rank_delta INT NULL,
+  calculation_context ENUM('mock_seed', 'scheduled_mock', 'external_review_required') NOT NULL DEFAULT 'mock_seed',
+  captured_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_signal_score_signal_time (signal_event_id, captured_at),
+  KEY idx_signal_score_rank_time (rank_value, captured_at),
+  KEY idx_signal_score_context (calculation_context),
+  CONSTRAINT fk_signal_score_signal_id FOREIGN KEY (signal_event_id) REFERENCES model_signal_events(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE signal_score_inputs (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  score_snapshot_id BIGINT UNSIGNED NOT NULL,
+  source_type ENUM('news_traffic', 'search_traffic', 'price_trend', 'ai_attention', 'model_inclusion') NOT NULL,
+  raw_value DECIMAL(18,6) NULL,
+  normalized_score DECIMAL(8,4) NOT NULL,
+  weight DECIMAL(8,4) NOT NULL,
+  source_label VARCHAR(160) NULL,
+  captured_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_signal_score_inputs_snapshot_source (score_snapshot_id, source_type),
+  KEY idx_signal_score_inputs_source_time (source_type, captured_at),
+  CONSTRAINT fk_signal_score_inputs_snapshot_id FOREIGN KEY (score_snapshot_id) REFERENCES signal_score_snapshots(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE feed_posts (
@@ -453,6 +534,40 @@ CREATE TABLE feed_post_reads (
   KEY idx_feed_post_reads_user_time (user_id, read_at),
   CONSTRAINT fk_feed_post_reads_post_id FOREIGN KEY (post_id) REFERENCES feed_posts(id),
   CONSTRAINT fk_feed_post_reads_user_id FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE feed_post_ranking_snapshots (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  post_id BIGINT UNSIGNED NOT NULL,
+  ranking_window VARCHAR(40) NOT NULL DEFAULT 'recent_7d',
+  ranking_basis ENUM('active_like_count', 'read_count', 'saved_count') NOT NULL DEFAULT 'active_like_count',
+  rank_value INT NOT NULL,
+  score_value DECIMAL(18,6) NOT NULL DEFAULT 0,
+  captured_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_feed_post_ranking_window_rank_time (ranking_window, rank_value, captured_at),
+  KEY idx_feed_post_ranking_post_window_time (post_id, ranking_window, captured_at),
+  CONSTRAINT fk_feed_post_ranking_post_id FOREIGN KEY (post_id) REFERENCES feed_posts(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE user_notifications (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  public_id VARCHAR(120) NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,
+  source_type ENUM('feed_post', 'signal_event', 'model_status', 'review_result') NOT NULL,
+  source_public_id VARCHAR(120) NOT NULL,
+  title VARCHAR(220) NOT NULL,
+  body VARCHAR(700) NULL,
+  status ENUM('unread', 'read', 'dismissed') NOT NULL DEFAULT 'unread',
+  delivery_channel ENUM('in_app_mock') NOT NULL DEFAULT 'in_app_mock',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  read_at DATETIME NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_user_notifications_public_id (public_id),
+  KEY idx_user_notifications_user_status_time (user_id, status, created_at),
+  KEY idx_user_notifications_source (source_type, source_public_id),
+  CONSTRAINT fk_user_notifications_user_id FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE audit_logs (
