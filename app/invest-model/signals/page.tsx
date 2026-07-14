@@ -19,6 +19,18 @@ const signalToneClass = {
   high: 'bg-invest-risk-soft text-invest-risk'
 } as const;
 
+const signalStrengthClass = {
+  low: 'bg-invest-positive',
+  medium: 'bg-invest-warning',
+  high: 'bg-invest-risk'
+} as const;
+
+const signalStrengthWidth = {
+  low: '46%',
+  medium: '68%',
+  high: '88%'
+} as const;
+
 const badgeToneByScore = {
   low: 'low',
   medium: 'medium',
@@ -115,6 +127,7 @@ export default async function InvestModelSignalsPage({
             {signals.map((signal) => (
               <article
                 key={signal.id}
+                aria-label={`${signal.title} ${signal.scoreLabel}`}
                 className={cn(
                   'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
                   investMotionClass.interactiveCard
@@ -147,6 +160,17 @@ export default async function InvestModelSignalsPage({
                         </RiskBadge>
                       </div>
                     </div>
+                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
+                      <div
+                        className={cn(
+                          'h-full rounded-full',
+                          signalStrengthClass[signal.scoreTone]
+                        )}
+                        style={{
+                          width: signalStrengthWidth[signal.scoreTone]
+                        }}
+                      />
+                    </div>
                     <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                       {signal.description}
                     </p>
@@ -158,12 +182,11 @@ export default async function InvestModelSignalsPage({
                         {signal.freshnessLabel}
                       </span>
                     </div>
-                    <div className="mt-3 flex items-start gap-2 rounded-invest-control border border-invest-border/70 bg-invest-surface-muted p-3">
-                      <Activity
-                        aria-hidden
-                        className="mt-0.5 size-4 shrink-0 text-invest-primary"
-                      />
-                      <p className="text-sm leading-5 text-invest-text-muted">
+                    <div className="mt-3 flex items-start gap-2.5 rounded-invest-control border border-invest-border/70 bg-invest-surface-muted p-3">
+                      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-invest-surface text-invest-primary shadow-invest-card">
+                        <Activity aria-hidden className="size-4" />
+                      </span>
+                      <p className="pt-0.5 text-sm font-semibold leading-5 text-invest-text-muted">
                         {signal.statusLabel}
                       </p>
                     </div>
