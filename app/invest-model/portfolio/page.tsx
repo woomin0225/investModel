@@ -90,6 +90,61 @@ function parseWeightPercent(weightLabel: string) {
   return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 100) : 0;
 }
 
+function portfolioSelectedModelAccessibleLabel(
+  locale: 'ko' | 'en',
+  portfolio: InvestModelPortfolioSummary
+) {
+  if (locale === 'ko') {
+    return `선택된 InvestmentModel: ${portfolio.selectedModel.name}. ${portfolio.selectedModel.statusLabel}. ${portfolio.selectedModel.mandateLabel}. ModelVersion ${portfolio.selectedModel.versionLabel}. DB-backed mock summary이며 사용자 투자성향 설정, 실제 계좌, 주문, 브로커 동작, 투자 조언이 아닙니다.`;
+  }
+
+  return `Selected InvestmentModel: ${portfolio.selectedModel.name}. ${portfolio.selectedModel.statusLabel}. ${portfolio.selectedModel.mandateLabel}. ModelVersion ${portfolio.selectedModel.versionLabel}. DB-backed mock summary; not a user preference setting, real account, order, brokerage action, or investment advice.`;
+}
+
+function portfolioPositionAccessibleLabel(
+  locale: 'ko' | 'en',
+  position: InvestModelPortfolioSummary['positions'][number]
+) {
+  if (locale === 'ko') {
+    return `${position.symbol} 포지션. ${position.name}. ${position.weightLabel}, ${position.valueLabel}. ${position.stateLabel}. ${position.sourceLabel}. 시뮬레이션 allocation mix이며 실제 보유 종목, 실잔고, 주문 지시, 투자 조언이 아닙니다.`;
+  }
+
+  return `${position.symbol} position. ${position.name}. ${position.weightLabel}, ${position.valueLabel}. ${position.stateLabel}. ${position.sourceLabel}. Simulated allocation mix; not a real holding, real balance, order instruction, or investment advice.`;
+}
+
+function portfolioDecisionAccessibleLabel(
+  locale: 'ko' | 'en',
+  portfolio: InvestModelPortfolioSummary
+) {
+  if (locale === 'ko') {
+    return `AllocationDecision: ${portfolio.allocationDecision.statusLabel}. ${portfolio.allocationDecision.sourceLabel}. ${portfolio.allocationDecision.generatedAtLabel}. ${portfolio.allocationDecision.rationale}. simulation-only 결정 파이프라인이며 실제 주문, 체결, 브로커 동작, 투자 조언이 아닙니다.`;
+  }
+
+  return `AllocationDecision: ${portfolio.allocationDecision.statusLabel}. ${portfolio.allocationDecision.sourceLabel}. ${portfolio.allocationDecision.generatedAtLabel}. ${portfolio.allocationDecision.rationale}. Simulation-only decision pipeline; not a real order, fill, brokerage action, or investment advice.`;
+}
+
+function portfolioBlockedActionsAccessibleLabel(
+  locale: 'ko' | 'en',
+  portfolio: InvestModelPortfolioSummary
+) {
+  if (locale === 'ko') {
+    return `TradeIntent 차단 상태. ${portfolio.tradeIntent.boundaryLabel}. ${portfolio.tradeIntent.blockedActions.length}개 실제 기능 비활성화. 실제 입금, 실계좌 연결, 주문 실행, 브로커 동작, 투자 조언이 연결되지 않았습니다.`;
+  }
+
+  return `TradeIntent blocked state. ${portfolio.tradeIntent.boundaryLabel}. ${portfolio.tradeIntent.blockedActions.length} real-world actions disabled. No real deposit, account connection, order execution, brokerage action, or investment advice is connected.`;
+}
+
+function portfolioBlockedActionAccessibleLabel(
+  locale: 'ko' | 'en',
+  action: string
+) {
+  if (locale === 'ko') {
+    return `차단된 실제 기능: ${action}. Portfolio mock summary에서는 실행되지 않습니다.`;
+  }
+
+  return `Blocked real-world action: ${action}. It is not executed in the Portfolio mock summary.`;
+}
+
 async function readPortfolioSummaryRoute(): Promise<InvestModelPortfolioSummary> {
   const response = await readPortfolioMockSummary(
     new NextRequest('http://localhost/api/portfolio/mock-summary', {
@@ -128,6 +183,18 @@ export default async function InvestModelPortfolioPage({
   const copy = portfolioCopy[locale];
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const portfolio = await readPortfolioSummaryRoute();
+  const selectedModelAccessibleLabel = portfolioSelectedModelAccessibleLabel(
+    locale,
+    portfolio
+  );
+  const decisionAccessibleLabel = portfolioDecisionAccessibleLabel(
+    locale,
+    portfolio
+  );
+  const blockedActionsAccessibleLabel = portfolioBlockedActionsAccessibleLabel(
+    locale,
+    portfolio
+  );
 
   return (
     <MobileShell
@@ -241,6 +308,8 @@ export default async function InvestModelPortfolioPage({
             description={copy.selectedModelDescription}
           />
           <article
+            aria-label={selectedModelAccessibleLabel}
+            title={selectedModelAccessibleLabel}
             className={cn(
               'group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
               investMotionClass.interactiveCard
@@ -311,69 +380,77 @@ export default async function InvestModelPortfolioPage({
             aria-label={copy.positionTitle}
             className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
-            {portfolio.positions.map((position, index) => (
-              <article
-                key={position.symbol}
-                role="listitem"
-                aria-label={`${position.symbol} ${position.weightLabel} ${position.valueLabel}`}
-                className={cn(
-                  'group rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
-                  investMotionClass.interactiveCard
-                )}
-              >
-                <div
+            {portfolio.positions.map((position, index) => {
+              const positionAccessibleLabel = portfolioPositionAccessibleLabel(
+                locale,
+                position
+              );
+
+              return (
+                <article
+                  key={position.symbol}
+                  role="listitem"
+                  aria-label={positionAccessibleLabel}
+                  title={positionAccessibleLabel}
                   className={cn(
-                    'mb-3 h-1.5 rounded-full',
-                    positionAccentClass[index % positionAccentClass.length]
+                    'group rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
+                    investMotionClass.interactiveCard
                   )}
-                />
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 gap-3">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-[13px] font-bold text-invest-primary shadow-invest-card transition-[background-color,transform] duration-200 ease-out group-hover:scale-[1.03] group-hover:bg-invest-primary-soft group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
-                      {position.symbol.slice(0, 2)}
+                >
+                  <div
+                    className={cn(
+                      'mb-3 h-1.5 rounded-full',
+                      positionAccentClass[index % positionAccentClass.length]
+                    )}
+                  />
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 gap-3">
+                      <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-[13px] font-bold text-invest-primary shadow-invest-card transition-[background-color,transform] duration-200 ease-out group-hover:scale-[1.03] group-hover:bg-invest-primary-soft group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
+                        {position.symbol.slice(0, 2)}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="truncate text-[17px] font-semibold leading-6 text-invest-text">
+                          {position.symbol}
+                        </h3>
+                        <p className="mt-0.5 line-clamp-2 text-sm leading-5 text-invest-text-muted">
+                          {position.name}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <h3 className="truncate text-[17px] font-semibold leading-6 text-invest-text">
-                        {position.symbol}
-                      </h3>
-                      <p className="mt-0.5 line-clamp-2 text-sm leading-5 text-invest-text-muted">
-                        {position.name}
+                    <div className="shrink-0 rounded-invest-control px-2 py-1 text-right transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-bg-soft group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-active:scale-100">
+                      <p className="text-[15px] font-bold leading-5 text-invest-text transition-transform duration-200 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
+                        {position.weightLabel}
+                      </p>
+                      <p className="mt-1 text-xs leading-4 text-invest-text-muted">
+                        {position.valueLabel}
                       </p>
                     </div>
                   </div>
-                  <div className="shrink-0 rounded-invest-control px-2 py-1 text-right transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-bg-soft group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-active:scale-100">
-                    <p className="text-[15px] font-bold leading-5 text-invest-text transition-transform duration-200 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
-                      {position.weightLabel}
-                    </p>
-                    <p className="mt-1 text-xs leading-4 text-invest-text-muted">
-                      {position.valueLabel}
-                    </p>
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
+                    <div
+                      className="h-full origin-left rounded-full bg-invest-primary transition-[transform,width] duration-200 ease-out group-hover:scale-y-110 group-active:scale-y-95 motion-reduce:transition-none motion-reduce:group-active:scale-y-100 motion-reduce:group-hover:scale-y-100"
+                      style={{
+                        width: `${parseWeightPercent(position.weightLabel)}%`
+                      }}
+                    />
                   </div>
-                </div>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
-                  <div
-                    className="h-full origin-left rounded-full bg-invest-primary transition-[transform,width] duration-200 ease-out group-hover:scale-y-110 group-active:scale-y-95 motion-reduce:transition-none motion-reduce:group-active:scale-y-100 motion-reduce:group-hover:scale-y-100"
-                    style={{
-                      width: `${parseWeightPercent(position.weightLabel)}%`
-                    }}
-                  />
-                </div>
-                <div className="mt-3 grid gap-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
-                  <RiskBadge
-                    tone="neutral"
-                    className="justify-center text-center transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
-                  >
-                    {position.stateLabel}
-                  </RiskBadge>
-                  <div className="flex flex-wrap justify-end gap-2">
-                    <RiskBadge>{position.sourceLabel}</RiskBadge>
-                    <RiskBadge tone="medium">
-                      {locale === 'ko' ? '관찰 데이터' : 'observed data'}
+                  <div className="mt-3 grid gap-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                    <RiskBadge
+                      tone="neutral"
+                      className="justify-center text-center transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
+                    >
+                      {position.stateLabel}
                     </RiskBadge>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <RiskBadge>{position.sourceLabel}</RiskBadge>
+                      <RiskBadge tone="medium">
+                        {locale === 'ko' ? '관찰 데이터' : 'observed data'}
+                      </RiskBadge>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </div>
 
@@ -383,6 +460,8 @@ export default async function InvestModelPortfolioPage({
             description={copy.decisionDescription}
           />
           <article
+            aria-label={decisionAccessibleLabel}
+            title={decisionAccessibleLabel}
             className={cn(
               'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
               investMotionClass.interactiveCard
@@ -413,6 +492,8 @@ export default async function InvestModelPortfolioPage({
         </div>
 
         <div
+          aria-label={blockedActionsAccessibleLabel}
+          title={blockedActionsAccessibleLabel}
           className={cn(
             'rounded-invest-card border border-invest-risk/15 bg-invest-surface p-invest-card-padding shadow-invest-card',
             investMotionClass.interactiveCard
@@ -451,11 +532,23 @@ export default async function InvestModelPortfolioPage({
               </div>
               <div
                 role="list"
-                aria-label={copy.blockedActionsTitle}
+                aria-label={blockedActionsAccessibleLabel}
+                title={blockedActionsAccessibleLabel}
                 className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-risk-soft/40 p-2"
               >
                 {portfolio.tradeIntent.blockedActions.map((action) => (
-                  <span key={action} role="listitem">
+                  <span
+                    key={action}
+                    role="listitem"
+                    aria-label={portfolioBlockedActionAccessibleLabel(
+                      locale,
+                      action
+                    )}
+                    title={portfolioBlockedActionAccessibleLabel(
+                      locale,
+                      action
+                    )}
+                  >
                     <RiskBadge tone="blocked">{action}</RiskBadge>
                   </span>
                 ))}
