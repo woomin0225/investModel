@@ -68,6 +68,7 @@ export function SearchAndNotificationActions({
         {
           key: 'search',
           label: searchLabel,
+          href: '/invest-model/search',
           icon: Search
         },
         {

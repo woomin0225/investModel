@@ -138,6 +138,7 @@ export default async function InvestModelDiscoveryPage({
             {
               key: 'search',
               label: copy.actions.searchApprovedModels,
+              href: '/invest-model/search',
               icon: Search
             }
           ]}
