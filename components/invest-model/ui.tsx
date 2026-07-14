@@ -363,30 +363,38 @@ export function PerformanceMetricGroup({
         <RiskBadge tone="neutral">{sourceLabel}</RiskBadge>
       </div>
 
-      <div className="mt-4 grid gap-3">
+      <div
+        role="list"
+        className="mt-4 space-y-2 rounded-invest-card bg-invest-bg-soft p-1.5"
+      >
         {metrics.map((metric) => (
           <div
             key={`${metric.label}-${metric.value}`}
-            className="rounded-invest-control bg-invest-surface-muted p-3"
+            role="listitem"
+            className="flex min-h-[76px] items-center justify-between gap-3 rounded-invest-control bg-invest-surface px-3 py-2.5 shadow-invest-card"
           >
-            <p className="text-xs font-medium text-invest-text-muted">
-              {metric.label}
-            </p>
-            <p
-              className={cn(
-                'mt-2 text-[22px] font-bold leading-7',
-                metric.tone === 'positive'
-                  ? 'text-invest-positive'
-                  : metric.tone === 'risk'
-                    ? 'text-invest-risk'
-                    : 'text-invest-text'
-              )}
-            >
-              {metric.value}
-            </p>
-            <p className="mt-1 text-xs leading-5 text-invest-text-muted">
-              {metric.description}
-            </p>
+            <div className="min-w-0">
+              <p className="text-[12px] font-bold leading-4 text-invest-text">
+                {metric.label}
+              </p>
+              <p className="mt-1 line-clamp-2 text-[11px] font-medium leading-4 text-invest-text-muted">
+                {metric.description}
+              </p>
+            </div>
+            <div className="shrink-0 text-right">
+              <p
+                className={cn(
+                  'text-[21px] font-bold leading-7 tabular-nums',
+                  metric.tone === 'positive'
+                    ? 'text-invest-positive'
+                    : metric.tone === 'risk'
+                      ? 'text-invest-risk'
+                      : 'text-invest-text'
+                )}
+              >
+                {metric.value}
+              </p>
+            </div>
           </div>
         ))}
       </div>
