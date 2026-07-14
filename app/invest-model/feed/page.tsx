@@ -123,6 +123,12 @@ function filterHref(locale: FeedLocale, postType: FeedPostType | null) {
   return `/invest-model/feed?${params.toString()}`;
 }
 
+function feedDetailHref(locale: FeedLocale, postId: string) {
+  const params = new URLSearchParams({ lang: locale });
+
+  return `/invest-model/feed/${postId}?${params.toString()}`;
+}
+
 function formatPublishedAt(value: string | undefined, locale: FeedLocale) {
   if (!value) {
     return locale === 'ko' ? '시각 미정' : 'Time pending';
@@ -324,17 +330,24 @@ export default async function InvestModelFeedPage({
                   role="listitem"
                   aria-label={`${post.title} ${post.typeLabel}`}
                   className={cn(
-                    'group rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
+                    'group relative rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
                     investMotionClass.interactiveCard
                   )}
                 >
+                  <Link
+                    href={feedDetailHref(locale, post.id)}
+                    aria-label={`${post.title} ${feedActions[0]}`}
+                    className="absolute inset-0 z-10 rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface"
+                  >
+                    <span className="sr-only">{post.title}</span>
+                  </Link>
                   <div
                     className={cn(
                       'mb-3 h-1.5 rounded-full',
                       postToneAccent[post.tone]
                     )}
                   />
-                  <div className="flex items-start gap-3">
+                  <div className="relative z-0 flex items-start gap-3">
                     <div
                       className={cn(
                         'grid size-11 shrink-0 place-items-center rounded-invest-control transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
@@ -411,29 +424,42 @@ export default async function InvestModelFeedPage({
                           const Icon = feedActionIcons[index];
                           const isPrimaryAction = index === 0;
 
-                          return (
-                            <button
-                              key={`${post.id}-${action}`}
-                              type="button"
-                              aria-label={`${post.title} ${action}`}
-                              aria-pressed={isPrimaryAction}
-                              className={cn(
-                                'group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border px-2 text-[12px] font-semibold leading-4',
-                                isPrimaryAction
-                                  ? 'border-invest-primary/20 bg-invest-primary-soft text-invest-primary'
-                                  : 'border-transparent bg-invest-bg-soft text-invest-text-muted hover:text-invest-primary',
-                                investMotionClass.interactiveControl
-                              )}
-                            >
-                              <Icon
-                                aria-hidden
+                        return (
+                            isPrimaryAction ? (
+                              <Link
+                                key={`${post.id}-${action}`}
+                                href={feedDetailHref(locale, post.id)}
+                                aria-label={`${post.title} ${action}`}
+                                aria-pressed="true"
                                 className={cn(
-                                  'size-3.5 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
-                                  isPrimaryAction && 'fill-invest-primary/10'
+                                  'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border border-invest-primary/20 bg-invest-primary-soft px-2 text-[12px] font-semibold leading-4 text-invest-primary',
+                                  investMotionClass.interactiveControl
                                 )}
-                              />
-                              <span className="truncate">{action}</span>
-                            </button>
+                              >
+                                <Icon
+                                  aria-hidden
+                                  className="size-3.5 fill-invest-primary/10 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
+                                />
+                                <span className="truncate">{action}</span>
+                              </Link>
+                            ) : (
+                              <button
+                                key={`${post.id}-${action}`}
+                                type="button"
+                                aria-label={`${post.title} ${action}`}
+                                aria-pressed="false"
+                                className={cn(
+                                  'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border border-transparent bg-invest-bg-soft px-2 text-[12px] font-semibold leading-4 text-invest-text-muted hover:text-invest-primary',
+                                  investMotionClass.interactiveControl
+                                )}
+                              >
+                                <Icon
+                                  aria-hidden
+                                  className="size-3.5 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
+                                />
+                                <span className="truncate">{action}</span>
+                              </button>
+                            )
                           );
                         })}
                       </div>
