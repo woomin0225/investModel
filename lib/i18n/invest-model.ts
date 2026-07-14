@@ -245,7 +245,7 @@ export const investModelCopy = {
         },
         {
           time: '09:16',
-          title: 'TradeIntent 차단',
+          title: '시뮬레이션 차단',
           description:
             '레버리지 정책이 승인되지 않아 시뮬레이션은 실주문 단계 아래에서 멈췄습니다.'
         }
@@ -595,7 +595,7 @@ export const investModelCopy = {
         },
         {
           time: '09:16',
-          title: 'TradeIntent blocked',
+          title: 'Simulation blocked',
           description:
             'Simulation stayed below live order stage because leverage policy is not approved.'
         }

@@ -1,5 +1,6 @@
 import { Bell, Clock3, Database, Radio, Search, ShieldCheck } from 'lucide-react';
 import {
+  investMotionClass,
   MetricCard,
   MobileShell,
   ModelCard,
@@ -12,6 +13,7 @@ import {
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
 import { investModelHomeMock } from '@/lib/mock/invest-model-home';
+import { cn } from '@/lib/utils';
 
 type InvestModelPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -37,14 +39,20 @@ export default async function InvestModelPreviewPage({
           <button
             type="button"
             aria-label={copy.actions.searchModels}
-            className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
+            className={cn(
+              'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+              investMotionClass.interactiveControl
+            )}
           >
             <Search aria-hidden className="size-5" />
           </button>
           <button
             type="button"
             aria-label={copy.actions.notifications}
-            className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
+            className={cn(
+              'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+              investMotionClass.interactiveControl
+            )}
           >
             <Bell aria-hidden className="size-5" />
           </button>
@@ -114,34 +122,48 @@ export default async function InvestModelPreviewPage({
               return (
                 <article
                   key={`${item.time}-${item.title}`}
-                  className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+                  className={cn(
+                    'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+                    investMotionClass.interactiveCard
+                  )}
                 >
                   <div className="flex items-start gap-3">
                     <div className="grid size-9 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
                       <Clock3 aria-hidden className="size-4" />
                     </div>
-                    <div className="min-w-0">
-                      <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <RiskBadge>{item.time}</RiskBadge>
-                        {metadata ? (
-                          <>
-                            <RiskBadge>
-                              <Database aria-hidden className="mr-1 inline size-3" />
-                              {metadata.sourceLabel}
-                            </RiskBadge>
-                            <RiskBadge tone="medium">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
+                            {metadata?.sourceLabel ?? homeCopy.activitySection.title}
+                          </p>
+                          <h3 className="mt-1 text-[15px] font-semibold leading-6 text-invest-text">
+                            {item.title}
+                          </h3>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-[12px] font-semibold leading-4 text-invest-text-muted">
+                            {item.time}
+                          </p>
+                          {metadata ? (
+                            <RiskBadge tone="medium" className="mt-2">
                               <ShieldCheck aria-hidden className="mr-1 inline size-3" />
                               {metadata.statusLabel}
                             </RiskBadge>
-                          </>
-                        ) : null}
+                          ) : null}
+                        </div>
                       </div>
-                      <h3 className="text-[15px] font-semibold leading-6 text-invest-text">
-                        {item.title}
-                      </h3>
                       <p className="mt-1 text-sm leading-6 text-invest-text-muted">
                         {item.description}
                       </p>
+                      {metadata ? (
+                        <div className="mt-3 border-t border-invest-border pt-3">
+                          <RiskBadge>
+                            <Database aria-hidden className="mr-1 inline size-3" />
+                            {metadata.sourceLabel}
+                          </RiskBadge>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </article>
