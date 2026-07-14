@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import { NextRequest } from 'next/server';
 import { ArrowLeft, FileText, ShieldAlert, SquareCheckBig } from 'lucide-react';
+import { GET as readModelDetail } from '@/app/api/models/[modelId]/route';
 import {
   investMotionClass,
   MobileShell,
@@ -438,11 +440,28 @@ async function readInvestmentModelDetailView(
   modelId: string
 ): Promise<InvestmentModelDetailView | undefined> {
   try {
-    const { readModelDetailDto } = await import('@/lib/db/model-read-model');
-    const dbModel = await readModelDetailDto(modelId);
+    const response = await readModelDetail(
+      new NextRequest(`http://localhost/api/models/${modelId}`, {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'public'
+        }
+      }),
+      {
+        params: Promise.resolve({
+          modelId
+        })
+      }
+    );
 
-    if (dbModel) {
-      return toInvestmentModelDetailView(dbModel, locale);
+    if (response.ok) {
+      const payload = (await response.json()) as {
+        data?: ModelDetailDto;
+      };
+
+      if (payload.data) {
+        return toInvestmentModelDetailView(payload.data, locale);
+      }
     }
   } catch {
     // Fall through to the legacy mock detail so old comparison links remain visible
