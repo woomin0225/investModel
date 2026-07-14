@@ -36,6 +36,13 @@
       "when": 1784026915395,
       "tag": "0004_greedy_silver_sable",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1784027471157,
+      "tag": "0005_lowly_husk",
+      "breakpoints": true
     }
   ]
 }

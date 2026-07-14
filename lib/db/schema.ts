@@ -3,6 +3,7 @@ import {
   int,
   boolean,
   decimal,
+  json,
   index,
   uniqueIndex,
   varchar,
@@ -356,6 +357,241 @@ export const modelPerformanceSnapshots = mysqlTable(
   ]
 );
 
+/**
+ * marketInstruments are reference instruments for mock analysis and signals.
+ * They do not imply live market data connectivity or broker tradability.
+ */
+export const marketInstruments = mysqlTable(
+  'market_instruments',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    symbol: varchar('symbol', { length: 40 }).notNull(),
+    name: varchar('name', { length: 200 }).notNull(),
+    assetType: varchar('asset_type', { length: 30 }).notNull(),
+    market: varchar('market', { length: 30 }).notNull(),
+    exchange: varchar('exchange', { length: 60 }),
+    currency: varchar('currency', { length: 3 }).notNull(),
+    isLeveraged: boolean('is_leveraged').notNull().default(false),
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_market_instruments_symbol_market').on(
+      table.symbol,
+      table.market
+    ),
+    index('idx_market_instruments_asset_market').on(
+      table.assetType,
+      table.market
+    ),
+  ]
+);
+
+/**
+ * userModelSelections records a user's selected ModelVersion.
+ * It is a mock-safe selection record, not a suitability profile or funding instruction.
+ */
+export const userModelSelections = mysqlTable(
+  'user_model_selections',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    modelId: int('model_id')
+      .notNull()
+      .references(() => investmentModels.id),
+    modelVersionId: int('model_version_id')
+      .notNull()
+      .references(() => modelVersions.id),
+    status: varchar('status', { length: 30 }).notNull().default('active'),
+    riskAcknowledgedAt: timestamp('risk_acknowledged_at'),
+    selectedAt: timestamp('selected_at').notNull().defaultNow(),
+    revokedAt: timestamp('revoked_at'),
+  },
+  (table) => [
+    index('idx_user_model_selections_user_status').on(
+      table.userId,
+      table.status
+    ),
+    index('idx_user_model_selections_model_version').on(
+      table.modelId,
+      table.modelVersionId
+    ),
+  ]
+);
+
+/**
+ * mockDeposits are simulated funds for prototype visibility.
+ * They are not real deposits, cash balances, payments, or bank transfers.
+ */
+export const mockDeposits = mysqlTable(
+  'mock_deposits',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    amount: decimal('amount', { precision: 18, scale: 2 }).notNull(),
+    currency: varchar('currency', { length: 3 }).notNull().default('KRW'),
+    status: varchar('status', { length: 30 }).notNull().default('pending'),
+    sourceType: varchar('source_type', { length: 40 })
+      .notNull()
+      .default('mock'),
+    memo: varchar('memo', { length: 255 }),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    completedAt: timestamp('completed_at'),
+  },
+  (table) => [
+    index('idx_mock_deposits_user_status').on(table.userId, table.status),
+  ]
+);
+
+/**
+ * portfolios store a simulated portfolio state for a selected ModelVersion.
+ * Balances and positions are mock read-model values, not real account data.
+ */
+export const portfolios = mysqlTable(
+  'portfolios',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    modelSelectionId: int('model_selection_id')
+      .notNull()
+      .references(() => userModelSelections.id),
+    cashBalance: decimal('cash_balance', {
+      precision: 18,
+      scale: 2,
+    })
+      .notNull()
+      .default('0'),
+    totalMarketValue: decimal('total_market_value', {
+      precision: 18,
+      scale: 2,
+    })
+      .notNull()
+      .default('0'),
+    currency: varchar('currency', { length: 3 }).notNull().default('KRW'),
+    status: varchar('status', { length: 30 })
+      .notNull()
+      .default('mock_active'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_portfolios_user_status').on(table.userId, table.status),
+    index('idx_portfolios_model_selection_id').on(table.modelSelectionId),
+  ]
+);
+
+/**
+ * portfolioPositions are simulated holdings used by Portfolio read models.
+ * They must not be displayed as broker-confirmed positions.
+ */
+export const portfolioPositions = mysqlTable(
+  'portfolio_positions',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    portfolioId: int('portfolio_id')
+      .notNull()
+      .references(() => portfolios.id),
+    instrumentId: int('instrument_id')
+      .notNull()
+      .references(() => marketInstruments.id),
+    quantity: decimal('quantity', { precision: 24, scale: 8 })
+      .notNull()
+      .default('0'),
+    averagePrice: decimal('average_price', { precision: 18, scale: 6 }),
+    marketValue: decimal('market_value', { precision: 18, scale: 2 }),
+    asOf: timestamp('as_of').notNull(),
+  },
+  (table) => [
+    uniqueIndex('uq_portfolio_positions_portfolio_instrument').on(
+      table.portfolioId,
+      table.instrumentId
+    ),
+    index('idx_portfolio_positions_as_of').on(table.asOf),
+    index('idx_portfolio_positions_instrument_id').on(table.instrumentId),
+  ]
+);
+
+/**
+ * allocationDecisions are simulated model analysis outputs.
+ * They are not investment advice and do not execute allocations.
+ */
+export const allocationDecisions = mysqlTable(
+  'allocation_decisions',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    modelVersionId: int('model_version_id')
+      .notNull()
+      .references(() => modelVersions.id),
+    portfolioId: int('portfolio_id')
+      .notNull()
+      .references(() => portfolios.id),
+    decisionStatus: varchar('decision_status', { length: 40 })
+      .notNull()
+      .default('draft'),
+    rationale: text('rationale').notNull(),
+    inputSnapshotJson: json('input_snapshot_json'),
+    policyResultJson: json('policy_result_json'),
+    decidedAt: timestamp('decided_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_allocation_decisions_model_time').on(
+      table.modelVersionId,
+      table.decidedAt
+    ),
+    index('idx_allocation_decisions_portfolio_time').on(
+      table.portfolioId,
+      table.decidedAt
+    ),
+  ]
+);
+
+/**
+ * tradeIntents are pre-order simulation intents only.
+ * They are not broker orders, executions, fills, or settlement records.
+ */
+export const tradeIntents = mysqlTable(
+  'trade_intents',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    allocationDecisionId: int('allocation_decision_id')
+      .notNull()
+      .references(() => allocationDecisions.id),
+    portfolioId: int('portfolio_id')
+      .notNull()
+      .references(() => portfolios.id),
+    instrumentId: int('instrument_id')
+      .notNull()
+      .references(() => marketInstruments.id),
+    intentType: varchar('intent_type', { length: 40 }).notNull(),
+    targetQuantity: decimal('target_quantity', {
+      precision: 24,
+      scale: 8,
+    }),
+    targetValue: decimal('target_value', { precision: 18, scale: 2 }),
+    status: varchar('status', { length: 40 })
+      .notNull()
+      .default('pending_policy_check'),
+    blockedReason: varchar('blocked_reason', { length: 700 }),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_trade_intents_allocation_decision_id').on(
+      table.allocationDecisionId
+    ),
+    index('idx_trade_intents_portfolio_status').on(
+      table.portfolioId,
+      table.status
+    ),
+    index('idx_trade_intents_instrument_id').on(table.instrumentId),
+  ]
+);
+
 export const teamsRelations = relations(teams, ({ many }) => ({
   teamMembers: many(teamMembers),
   activityLogs: many(activityLogs),
@@ -366,6 +602,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   teamMembers: many(teamMembers),
   invitationsSent: many(invitations),
   modelCreators: many(modelCreators),
+  userModelSelections: many(userModelSelections),
+  mockDeposits: many(mockDeposits),
+  portfolios: many(portfolios),
 }));
 
 export const invitationsRelations = relations(invitations, ({ one }) => ({
@@ -425,6 +664,7 @@ export const investmentModelsRelations = relations(
     }),
     modelVersions: many(modelVersions),
     complianceReviews: many(complianceReviews),
+    userModelSelections: many(userModelSelections),
   })
 );
 
@@ -444,6 +684,8 @@ export const modelVersionsRelations = relations(
     disclosures: many(modelDisclosures),
     performanceSnapshots: many(modelPerformanceSnapshots),
     complianceReviews: many(complianceReviews),
+    userModelSelections: many(userModelSelections),
+    allocationDecisions: many(allocationDecisions),
   })
 );
 
@@ -509,6 +751,107 @@ export const modelPerformanceSnapshotsRelations = relations(
   })
 );
 
+export const marketInstrumentsRelations = relations(
+  marketInstruments,
+  ({ many }) => ({
+    portfolioPositions: many(portfolioPositions),
+    tradeIntents: many(tradeIntents),
+  })
+);
+
+export const userModelSelectionsRelations = relations(
+  userModelSelections,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [userModelSelections.userId],
+      references: [users.id],
+    }),
+    model: one(investmentModels, {
+      fields: [userModelSelections.modelId],
+      references: [investmentModels.id],
+    }),
+    modelVersion: one(modelVersions, {
+      fields: [userModelSelections.modelVersionId],
+      references: [modelVersions.id],
+    }),
+    portfolios: many(portfolios),
+  })
+);
+
+export const mockDepositsRelations = relations(
+  mockDeposits,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [mockDeposits.userId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const portfoliosRelations = relations(
+  portfolios,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [portfolios.userId],
+      references: [users.id],
+    }),
+    modelSelection: one(userModelSelections, {
+      fields: [portfolios.modelSelectionId],
+      references: [userModelSelections.id],
+    }),
+    positions: many(portfolioPositions),
+    allocationDecisions: many(allocationDecisions),
+    tradeIntents: many(tradeIntents),
+  })
+);
+
+export const portfolioPositionsRelations = relations(
+  portfolioPositions,
+  ({ one }) => ({
+    portfolio: one(portfolios, {
+      fields: [portfolioPositions.portfolioId],
+      references: [portfolios.id],
+    }),
+    instrument: one(marketInstruments, {
+      fields: [portfolioPositions.instrumentId],
+      references: [marketInstruments.id],
+    }),
+  })
+);
+
+export const allocationDecisionsRelations = relations(
+  allocationDecisions,
+  ({ one, many }) => ({
+    modelVersion: one(modelVersions, {
+      fields: [allocationDecisions.modelVersionId],
+      references: [modelVersions.id],
+    }),
+    portfolio: one(portfolios, {
+      fields: [allocationDecisions.portfolioId],
+      references: [portfolios.id],
+    }),
+    tradeIntents: many(tradeIntents),
+  })
+);
+
+export const tradeIntentsRelations = relations(
+  tradeIntents,
+  ({ one }) => ({
+    allocationDecision: one(allocationDecisions, {
+      fields: [tradeIntents.allocationDecisionId],
+      references: [allocationDecisions.id],
+    }),
+    portfolio: one(portfolios, {
+      fields: [tradeIntents.portfolioId],
+      references: [portfolios.id],
+    }),
+    instrument: one(marketInstruments, {
+      fields: [tradeIntents.instrumentId],
+      references: [marketInstruments.id],
+    }),
+  })
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Team = typeof teams.$inferSelect;
@@ -561,6 +904,41 @@ export type ModelPerformanceSnapshot =
   typeof modelPerformanceSnapshots.$inferSelect;
 export type NewModelPerformanceSnapshot =
   typeof modelPerformanceSnapshots.$inferInsert;
+/**
+ * MarketInstrument is reference data for simulated model analysis and signals.
+ */
+export type MarketInstrument = typeof marketInstruments.$inferSelect;
+export type NewMarketInstrument = typeof marketInstruments.$inferInsert;
+/**
+ * UserModelSelection records selected ModelVersion state without funding or suitability settings.
+ */
+export type UserModelSelection = typeof userModelSelections.$inferSelect;
+export type NewUserModelSelection = typeof userModelSelections.$inferInsert;
+/**
+ * MockDeposit is simulated money for prototype read models, not real funds.
+ */
+export type MockDeposit = typeof mockDeposits.$inferSelect;
+export type NewMockDeposit = typeof mockDeposits.$inferInsert;
+/**
+ * Portfolio is a simulated read-model portfolio, not a broker account.
+ */
+export type Portfolio = typeof portfolios.$inferSelect;
+export type NewPortfolio = typeof portfolios.$inferInsert;
+/**
+ * PortfolioPosition stores simulated holdings for display and analysis.
+ */
+export type PortfolioPosition = typeof portfolioPositions.$inferSelect;
+export type NewPortfolioPosition = typeof portfolioPositions.$inferInsert;
+/**
+ * AllocationDecision is simulated model analysis, not investment advice.
+ */
+export type AllocationDecision = typeof allocationDecisions.$inferSelect;
+export type NewAllocationDecision = typeof allocationDecisions.$inferInsert;
+/**
+ * TradeIntent is a pre-order simulation intent, not an executed broker order.
+ */
+export type TradeIntent = typeof tradeIntents.$inferSelect;
+export type NewTradeIntent = typeof tradeIntents.$inferInsert;
 export type TeamDataWithMembers = Team & {
   teamMembers: (TeamMember & {
     user: Pick<User, 'id' | 'name' | 'email'>;
