@@ -326,12 +326,15 @@ export default async function InvestModelPortfolioPage({
             <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-risk-soft text-invest-risk">
               <ShieldAlert aria-hidden className="size-5" />
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold leading-5 text-invest-text">
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center justify-between gap-3 text-sm font-semibold leading-5 text-invest-text">
                 {copy.blockedActionsTitle}
+                <span className="shrink-0 rounded-full bg-invest-risk-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-risk">
+                  {portfolio.tradeIntent.boundaryLabel}
+                </span>
               </p>
               <div className="mt-3 grid gap-2 min-[360px]:grid-cols-2">
-                <div className="rounded-invest-control bg-invest-surface-muted p-3">
+                <div className="rounded-invest-control border border-invest-risk/10 bg-invest-risk-soft/50 p-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-invest-text-muted">
                     {locale === 'ko' ? '차단 상태' : 'Blocked'}
                   </p>
@@ -340,7 +343,7 @@ export default async function InvestModelPortfolioPage({
                     {locale === 'ko' ? '개 기능' : ' actions'}
                   </p>
                 </div>
-                <div className="rounded-invest-control bg-invest-surface-muted p-3">
+                <div className="rounded-invest-control border border-invest-primary/10 bg-invest-primary-soft/45 p-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-invest-text-muted">
                     {locale === 'ko' ? '연결 상태' : 'Connection'}
                   </p>
