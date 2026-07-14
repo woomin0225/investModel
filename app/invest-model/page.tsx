@@ -86,6 +86,48 @@ export default async function InvestModelPreviewPage({
           />
         </div>
 
+        <div className="grid gap-2 rounded-invest-card border border-invest-border bg-invest-surface-muted p-3 min-[360px]:grid-cols-3">
+          <div className="flex items-center gap-2">
+            <div className="grid size-8 shrink-0 place-items-center rounded-invest-control bg-invest-surface text-invest-primary">
+              <Database aria-hidden className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
+                {homeCopy.metrics.mockBalance}
+              </p>
+              <p className="truncate text-[13px] font-bold leading-5 text-invest-text">
+                {homeCopy.metrics.mock}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="grid size-8 shrink-0 place-items-center rounded-invest-control bg-invest-positive-soft text-invest-positive">
+              <Radio aria-hidden className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
+                {homeCopy.metrics.backtestMove}
+              </p>
+              <p className="truncate text-[13px] font-bold leading-5 text-invest-positive">
+                {account.backtestReturnLabel}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="grid size-8 shrink-0 place-items-center rounded-invest-control bg-invest-risk-soft text-invest-risk">
+              <ShieldCheck aria-hidden className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
+                {homeCopy.metrics.policyStatus}
+              </p>
+              <p className="truncate text-[13px] font-bold leading-5 text-invest-risk">
+                {homeCopy.metrics.blocked}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid gap-invest-card-gap">
           <MetricCard
             label={homeCopy.metrics.policyStatus}
