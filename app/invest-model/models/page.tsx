@@ -226,7 +226,7 @@ export default async function InvestModelDiscoveryPage({
                 })}
               </div>
             </div>
-            <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-3">
+            <div className="group rounded-invest-card border border-invest-border bg-invest-surface-muted p-3 transition-[border-color,background-color] duration-200 ease-out hover:border-invest-primary/20 hover:bg-invest-primary-soft/60 motion-reduce:transition-none">
               <div className="flex items-center justify-between gap-3 text-xs font-semibold text-invest-text-muted">
                 <span>{selectedFilterLabel}</span>
                 <span className="shrink-0">
@@ -234,11 +234,12 @@ export default async function InvestModelDiscoveryPage({
                   {locale === 'ko' ? '개 표시' : ' shown'}
                 </span>
               </div>
+              <div className="mt-2 h-0.5 origin-left scale-x-50 rounded-full bg-invest-primary/30 transition-transform duration-200 ease-out group-hover:scale-x-100 group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-hover:scale-x-50 motion-reduce:group-active:scale-x-50" />
               <div className="mt-3 grid grid-cols-3 gap-2">
                 {discoverySummaryItems.map((item) => (
                   <div
                     key={item.label}
-                    className="min-w-0 rounded-invest-control bg-invest-surface px-2.5 py-2 shadow-invest-card"
+                    className="min-w-0 rounded-invest-control bg-invest-surface px-2.5 py-2 shadow-invest-card transition-[background-color,transform] duration-200 ease-out group-hover:bg-white group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-active:scale-100"
                   >
                     <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
                       {item.label}
