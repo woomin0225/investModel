@@ -43,6 +43,7 @@ type FeedReadActionResult =
 type FeedCommentActionResult =
   | { status: 'ok'; data: FeedPostDetailDto }
   | { status: 'post_not_found' }
+  | { status: 'parent_comment_not_found' }
   | { status: 'user_not_found' };
 
 type CommentRow = {
@@ -574,6 +575,87 @@ export async function createFeedPostComment({
   await db.insert(feedPostComments).values({
     publicId: `feed_comment_${randomUUID()}`,
     postId: post.id,
+    authorUserId: user.id,
+    body,
+    status: 'visible',
+    createdAt: now,
+    updatedAt: now
+  });
+
+  const detail = await readFeedPostDetailDto({ postPublicId, userPublicId });
+
+  if (detail.status !== 'ok') {
+    return detail;
+  }
+
+  return {
+    status: 'ok',
+    data: detail.data
+  };
+}
+
+export async function createFeedPostCommentReply({
+  postPublicId,
+  parentCommentPublicId,
+  userPublicId,
+  body
+}: {
+  postPublicId: string;
+  parentCommentPublicId: string;
+  userPublicId: string;
+  body: string;
+}): Promise<FeedCommentActionResult> {
+  const [user] = await db
+    .select({
+      id: users.id,
+      publicId: users.publicId
+    })
+    .from(users)
+    .where(and(eq(users.publicId, userPublicId), isNull(users.deletedAt)))
+    .limit(1);
+
+  if (!user) {
+    return { status: 'user_not_found' };
+  }
+
+  const [post] = await db
+    .select({
+      id: feedPosts.id
+    })
+    .from(feedPosts)
+    .where(
+      and(eq(feedPosts.publicId, postPublicId), eq(feedPosts.visibility, 'public'))
+    )
+    .limit(1);
+
+  if (!post) {
+    return { status: 'post_not_found' };
+  }
+
+  const [parentComment] = await db
+    .select({
+      id: feedPostComments.id
+    })
+    .from(feedPostComments)
+    .where(
+      and(
+        eq(feedPostComments.publicId, parentCommentPublicId),
+        eq(feedPostComments.postId, post.id),
+        eq(feedPostComments.status, 'visible')
+      )
+    )
+    .limit(1);
+
+  if (!parentComment) {
+    return { status: 'parent_comment_not_found' };
+  }
+
+  const now = new Date();
+
+  await db.insert(feedPostComments).values({
+    publicId: `feed_comment_${randomUUID()}`,
+    postId: post.id,
+    parentCommentId: parentComment.id,
     authorUserId: user.id,
     body,
     status: 'visible',

@@ -17,6 +17,7 @@
     "test:feed-detail-api": "npx tsx scripts/smoke/feed-detail-api-smoke.ts",
     "test:feed-like-api": "npx tsx scripts/smoke/feed-like-api-smoke.ts",
     "test:feed-read-api": "npx tsx scripts/smoke/feed-read-api-smoke.ts",
+    "test:feed-reply-api": "npx tsx scripts/smoke/feed-reply-api-smoke.ts",
     "test:feed-save-api": "npx tsx scripts/smoke/feed-save-api-smoke.ts",
     "test:market-data": "npx tsx scripts/smoke/market-data-provider-smoke.ts",
     "test:model-status-notification": "npx tsx scripts/smoke/model-status-notification-smoke.ts",
