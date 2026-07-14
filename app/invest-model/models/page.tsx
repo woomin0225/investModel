@@ -106,7 +106,7 @@ export default async function InvestModelDiscoveryPage({
 
           <Link
             href={withInvestModelLocale('/invest-model/models/compare', locale)}
-            className="flex min-h-invest-touch-target items-center gap-3 rounded-invest-card border border-invest-border bg-invest-surface p-3 text-invest-text shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
+            className="flex min-h-invest-touch-target items-center gap-3 rounded-invest-card border border-invest-border bg-invest-surface p-3 text-invest-text shadow-invest-card transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-invest-primary/30 hover:shadow-invest-nav active:translate-y-0 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100"
           >
             <span className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-invest-primary">
               <Scale aria-hidden className="size-5" />
@@ -132,10 +132,10 @@ export default async function InvestModelDiscoveryPage({
                     href={getDiscoveryFilterHref(filterId, locale)}
                     aria-current={isSelected ? 'true' : undefined}
                     className={[
-                      'inline-flex min-h-invest-touch-target items-center rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
+                      'inline-flex min-h-invest-touch-target items-center rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card transition-[background-color,border-color,color,transform] duration-200 ease-out active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg motion-reduce:transition-none motion-reduce:active:scale-100',
                       isSelected
                         ? 'border-invest-primary bg-invest-primary text-white'
-                        : 'border-invest-border bg-invest-surface text-invest-text'
+                        : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft hover:text-invest-primary'
                     ].join(' ')}
                   >
                     {modelsCopy.filters[index]}

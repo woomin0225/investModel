@@ -17,6 +17,9 @@ const riskBadgeToneClass: Record<RiskBadgeTone, string> = {
   blocked: 'bg-invest-text text-invest-surface'
 };
 
+const interactiveCardClass =
+  'transition-[border-color,box-shadow,transform] duration-200 ease-out will-change-transform hover:-translate-y-0.5 hover:border-invest-primary/30 hover:shadow-invest-nav active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100';
+
 type RiskBadgeProps = {
   children: ReactNode;
   tone?: RiskBadgeTone;
@@ -142,7 +145,7 @@ export function RiskBadge({
   return (
     <span
       className={cn(
-        'inline-flex min-h-6 max-w-full items-center rounded-invest-badge px-2.5 py-1 text-[11px] font-semibold leading-4',
+        'inline-flex min-h-6 max-w-full items-center rounded-invest-badge px-2.5 py-1 text-[11px] font-semibold leading-4 transition-[background-color,color,transform] duration-200 ease-out motion-reduce:transition-none',
         riskBadgeToneClass[tone],
         className
       )}
@@ -211,7 +214,7 @@ export function SectionHeader({
       {actionLabel ? (
         <button
           type="button"
-          className="flex min-h-invest-touch-target shrink-0 items-center gap-1 rounded-invest-control px-2 text-sm font-semibold text-invest-primary focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
+          className="flex min-h-invest-touch-target shrink-0 items-center gap-1 rounded-invest-control px-2 text-sm font-semibold text-invest-primary transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg motion-reduce:transition-none motion-reduce:active:scale-100"
         >
           <span>{actionLabel}</span>
           <ArrowRight aria-hidden className="size-4" />
@@ -401,6 +404,7 @@ export function ModelCard({
     <article
       className={cn(
         'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        interactiveCardClass,
         isSelectionDisabled && 'border-invest-border bg-invest-surface-muted opacity-80',
         className
       )}
@@ -473,6 +477,7 @@ export function InvestmentModelCard({
     <article
       className={cn(
         'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        interactiveCardClass,
         className
       )}
     >
