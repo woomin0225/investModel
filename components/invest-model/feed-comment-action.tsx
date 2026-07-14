@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
-import { AlertCircle, Loader2, MessageCircle, Send } from 'lucide-react';
+import { AlertCircle, Loader2, MessageCircle, Reply, Send } from 'lucide-react';
 
 import {
   investMotionClass,
@@ -57,13 +57,104 @@ function formatPublishedAt(value: string | undefined, locale: 'ko' | 'en') {
 
 function CommentItem({
   comment,
+  postPublicId,
+  userPublicId,
   locale,
-  depth = 0
+  depth = 0,
+  onThreadUpdated
 }: {
   comment: FeedCommentDto;
+  postPublicId: string;
+  userPublicId: string;
   locale: 'ko' | 'en';
   depth?: number;
+  onThreadUpdated: (detail: FeedPostDetailDto) => void;
 }) {
+  const [isReplyOpen, setIsReplyOpen] = useState(false);
+  const [replyDraft, setReplyDraft] = useState('');
+  const [isReplyPending, setIsReplyPending] = useState(false);
+  const [replyErrorMessage, setReplyErrorMessage] = useState<string | null>(
+    null
+  );
+  const [replySuccessMessage, setReplySuccessMessage] = useState<string | null>(
+    null
+  );
+  const isKorean = locale === 'ko';
+  const replyRemainingCount = maxCommentLength - replyDraft.length;
+  const canSubmitReply =
+    replyDraft.trim().length > 0 &&
+    replyDraft.trim().length <= maxCommentLength;
+
+  async function handleReplySubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const trimmedDraft = replyDraft.trim();
+
+    if (isReplyPending || trimmedDraft.length === 0) {
+      return;
+    }
+
+    if (trimmedDraft.length > maxCommentLength) {
+      setReplyErrorMessage(
+        isKorean
+          ? 'Reply must be 600 characters or fewer.'
+          : 'Reply must be 600 characters or fewer.'
+      );
+      return;
+    }
+
+    setIsReplyPending(true);
+    setReplyErrorMessage(null);
+    setReplySuccessMessage(null);
+
+    try {
+      const response = await fetch(
+        `/api/feed/${encodeURIComponent(postPublicId)}/comments/${encodeURIComponent(
+          comment.commentPublicId
+        )}/replies`,
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-invest-model-role': 'user'
+          },
+          body: JSON.stringify({
+            userPublicId,
+            body: trimmedDraft
+          })
+        }
+      );
+      const body = (await response.json()) as FeedCommentResponse;
+
+      if (!response.ok || !body.data) {
+        setReplyErrorMessage(
+          body.error?.message ??
+            (isKorean
+              ? 'Could not add this informational reply.'
+              : 'Could not add this informational reply.')
+        );
+        return;
+      }
+
+      onThreadUpdated(body.data);
+      setReplyDraft('');
+      setIsReplyOpen(false);
+      setReplySuccessMessage(
+        isKorean
+          ? 'Reply added to the discussion.'
+          : 'Reply added to the discussion.'
+      );
+    } catch {
+      setReplyErrorMessage(
+        isKorean
+          ? 'Could not add this informational reply.'
+          : 'Could not add this informational reply.'
+      );
+    } finally {
+      setIsReplyPending(false);
+    }
+  }
+
   return (
     <div
       className={cn(
@@ -91,14 +182,122 @@ function CommentItem({
       <p className="mt-2 text-sm leading-6 text-invest-text-muted">
         {comment.body}
       </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            setIsReplyOpen((current) => !current);
+            setReplyErrorMessage(null);
+            setReplySuccessMessage(null);
+          }}
+          className={cn(
+            'inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border border-invest-border bg-invest-bg-soft px-3 text-[12px] font-bold text-invest-text hover:border-invest-primary hover:text-invest-primary focus:border-invest-primary focus:outline-none disabled:cursor-wait disabled:opacity-70',
+            isReplyOpen && 'border-invest-primary text-invest-primary',
+            investMotionClass.interactiveControl
+          )}
+          aria-expanded={isReplyOpen}
+        >
+          <Reply aria-hidden className="size-3.5" />
+          {isKorean ? 'Reply' : 'Reply'}
+        </button>
+        {replySuccessMessage ? (
+          <span className="text-[11px] font-semibold leading-4 text-invest-primary">
+            {replySuccessMessage}
+          </span>
+        ) : null}
+      </div>
+
+      {isReplyOpen ? (
+        <form
+          onSubmit={handleReplySubmit}
+          className="mt-3 rounded-invest-control border border-invest-border bg-invest-bg-soft p-2.5"
+        >
+          <textarea
+            value={replyDraft}
+            onChange={(event) => {
+              setReplyDraft(event.target.value);
+              setReplyErrorMessage(null);
+              setReplySuccessMessage(null);
+            }}
+            disabled={isReplyPending}
+            rows={3}
+            maxLength={maxCommentLength + 20}
+            placeholder={
+              isKorean
+                ? 'Add an informational reply.'
+                : 'Add an informational reply.'
+            }
+            className={cn(
+              'min-h-20 w-full resize-none rounded-invest-control border border-invest-border bg-invest-surface px-3 py-2 text-sm font-semibold leading-6 text-invest-text outline-none placeholder:text-invest-text-muted/70 focus:border-invest-primary disabled:cursor-wait disabled:opacity-75',
+              investMotionClass.interactiveControl
+            )}
+            aria-label={
+              isKorean ? 'Informational reply body' : 'Informational reply body'
+            }
+          />
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <p
+              className={cn(
+                'text-[11px] font-semibold leading-4',
+                replyRemainingCount < 0
+                  ? 'text-invest-risk'
+                  : 'text-invest-text-muted'
+              )}
+            >
+              {replyRemainingCount < 0
+                ? isKorean
+                  ? 'Reply is over the 600 character limit.'
+                  : 'Reply is over the 600 character limit.'
+                : isKorean
+                  ? 'Informational reply only. No advice, order, or approval is created.'
+                  : 'Informational reply only. No advice, order, or approval is created.'}
+            </p>
+            <span
+              className={cn(
+                'shrink-0 text-[11px] font-bold leading-4 tabular-nums',
+                replyRemainingCount < 0
+                  ? 'text-invest-risk'
+                  : 'text-invest-text-muted'
+              )}
+            >
+              {replyRemainingCount}
+            </span>
+          </div>
+          <button
+            type="submit"
+            disabled={!canSubmitReply || isReplyPending}
+            className={cn(
+              'mt-2 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-white shadow-invest-card disabled:cursor-not-allowed disabled:bg-invest-text-muted/40',
+              investMotionClass.interactiveControl
+            )}
+          >
+            {isReplyPending ? (
+              <Loader2 aria-hidden className="size-4 animate-spin" />
+            ) : (
+              <Send aria-hidden className="size-4" />
+            )}
+            {isKorean ? 'Post reply' : 'Post reply'}
+          </button>
+          {replyErrorMessage ? (
+            <p className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk">
+              <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+              <span>{replyErrorMessage}</span>
+            </p>
+          ) : null}
+        </form>
+      ) : null}
+
       {comment.replies?.length ? (
         <div className="mt-3 space-y-2">
           {comment.replies.map((reply) => (
             <CommentItem
               key={reply.commentPublicId}
               comment={reply}
+              postPublicId={postPublicId}
+              userPublicId={userPublicId}
               locale={locale}
               depth={depth + 1}
+              onThreadUpdated={onThreadUpdated}
             />
           ))}
         </div>
@@ -209,6 +408,11 @@ export function FeedCommentAction({
     }
   }
 
+  function handleThreadUpdated(detail: FeedPostDetailDto) {
+    setComments(detail.comments);
+    setReactionState(detail.userState);
+  }
+
   return (
     <div className="space-y-invest-card-gap">
       <SectionHeader
@@ -305,7 +509,10 @@ export function FeedCommentAction({
             <CommentItem
               key={comment.commentPublicId}
               comment={comment}
+              postPublicId={postPublicId}
+              userPublicId={userPublicId}
               locale={locale}
+              onThreadUpdated={handleThreadUpdated}
             />
           ))
         ) : (
