@@ -379,6 +379,40 @@ Safety requirements:
 - Ranking rows must not imply recommendation strength, model quality, expected return, suitability, allocation intent, or order intent.
 - The API must not include fields named `recommendation`, `qualityScore`, `expectedReturn`, `tradeAction`, `order`, `execution`, `fill`, `brokerAction`, or `TradeIntent`.
 
+## `MyPageFeedActivitySummaryDto`
+
+Used by `GET /api/my/activity` and the My Page saved/comment activity panels.
+
+```ts
+interface MyPageFeedActivitySummaryDto {
+  userPublicId: string;
+  savedCount: number;
+  commentCount: number;
+  latestSavedAt?: string;
+  latestCommentAt?: string;
+  latestSavedPostTitle?: string;
+  latestCommentPostTitle?: string;
+  recentSavedPosts: MyPageFeedActivityItemDto[];
+  recentCommentPosts: MyPageFeedActivityItemDto[];
+  sourceLabel: 'db_read_model' | 'mock_safe_fallback';
+}
+
+interface MyPageFeedActivityItemDto {
+  postPublicId: string;
+  title: string;
+  activityAt?: string;
+  activityLabel: 'saved' | 'commented';
+}
+```
+
+Source tables: `users`, `feed_posts`, `feed_post_saves`, `feed_post_comments`.
+
+Safety requirements:
+
+- Activity rows are private reading shortcuts only.
+- Do not expose internal numeric ids.
+- Do not include fields that imply push delivery, real account connection, brokerage action, order intent, allocation intent, or financial advice.
+
 ## `ModelSelectionDto`
 
 Used by `POST /api/model-selections`, Model Detail selection flow, and Home selected model state.

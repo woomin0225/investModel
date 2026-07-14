@@ -29,6 +29,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `POST` | `/api/feed/:postId/likes` | Toggle or set the signed-in user's like state. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/saves` | Toggle or set the signed-in user's saved state. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/read` | Mark the signed-in user's post as read. | signed-in | action contract defined; implementation pending |
+| `GET` | `/api/my/activity` | Read user-scoped My Page saved/comment activity summary. | user | DB-backed read implemented |
 | `POST` | `/api/model-selections` | Simulate a user selecting a specific model version. | user | mock-backed allowed |
 | `GET` | `/api/portfolio/mock-summary` | Read selected model, mock balance, simulated allocation, and sample positions. | user | mock-backed allowed |
 | `POST` | `/api/creator/models` | Create a creator model draft. | creator | design-only until RBAC is implemented |
@@ -195,6 +196,20 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Source tables | `feed_post_reads`, `feed_posts`, `users`, plus `feed_post_reactions`, `feed_post_saves`, and `feed_post_comments` for refreshed state. |
 | Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` and DB-backed read model. |
 | Safety notes | Read state is private UI state. It must not expose other users' behavior, imply regulatory review/compliance approval, or act as recommendation, quality, return, allocation, or order signal. |
+
+### `GET /api/my/activity`
+
+| Field | Value |
+| --- | --- |
+| Status | DB-backed read API implemented in `app/api/my/activity/route.ts`. |
+| Purpose | Provide My Page with user-scoped saved/comment FeedPost activity counts and recent activity shortcuts. |
+| Request | Optional query parameter `userPublicId`, limited to `user_demo_001` in the prototype. |
+| Response DTO | `MyPageFeedActivitySummaryDto` |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
+| Screens | My Page |
+| Source tables | `users`, `feed_posts`, `feed_post_saves`, `feed_post_comments` |
+| Mock source | Existing DB-backed feed interaction rows; unavailable DB/user state returns mock-safe fallback counts. |
+| Safety notes | Activity is a private reading shortcut only. It must not expose internal ids, send real push/email/SMS, connect accounts, create orders, imply brokerage actions, or provide financial advice. |
 
 ### `POST /api/model-selections`
 
