@@ -55,6 +55,24 @@ function formatPublishedAt(value: string | undefined, locale: 'ko' | 'en') {
   }).format(new Date(value));
 }
 
+function feedCommentVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? [
+        'DB comment thread',
+        '사용자 반응',
+        '정보성 토론',
+        '추천 아님',
+        '주문 아님'
+      ]
+    : [
+        'DB comment thread',
+        'user interaction',
+        'informational discussion',
+        'not advice',
+        'not an order'
+      ];
+}
+
 function CommentItem({
   comment,
   postPublicId,
@@ -200,6 +218,13 @@ function CommentItem({
       <p className="mt-2 text-sm leading-6 text-invest-text-muted">
         {comment.body}
       </p>
+      <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+        {feedCommentVisibleBoundaries(locale).map((boundary) => (
+          <RiskBadge key={boundary} tone="neutral">
+            {boundary}
+          </RiskBadge>
+        ))}
+      </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -235,6 +260,13 @@ function CommentItem({
           onSubmit={handleReplySubmit}
           className="mt-3 rounded-invest-control border border-invest-border bg-invest-bg-soft p-2.5"
         >
+          <div className="mb-2 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface px-2 py-2">
+            {feedCommentVisibleBoundaries(locale).map((boundary) => (
+              <RiskBadge key={boundary} tone="neutral">
+                {boundary}
+              </RiskBadge>
+            ))}
+          </div>
           <textarea
             value={replyDraft}
             onChange={(event) => {
@@ -482,6 +514,13 @@ export function FeedCommentAction({
           <MessageCircle aria-hidden className="size-4 text-invest-primary" />
           {isKorean ? 'Add comment' : 'Add comment'}
         </label>
+        <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+          {feedCommentVisibleBoundaries(locale).map((boundary) => (
+            <RiskBadge key={boundary} tone="neutral">
+              {boundary}
+            </RiskBadge>
+          ))}
+        </div>
         <textarea
           id="feed-comment-body"
           value={draft}
