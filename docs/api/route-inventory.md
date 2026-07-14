@@ -20,7 +20,9 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `GET` | `/api/models` | List discoverable approved/live mock investment models. | public or signed-in | mock-backed allowed |
 | `GET` | `/api/models/:id` | Read model detail, mandate, risk, disclosures, and performance context. | public or signed-in | mock-backed allowed |
 | `GET` | `/api/signals` | List observed mock model signal events. | signed-in | mock-backed allowed |
+| `GET` | `/api/signals/:signalId` | Read one observed signal detail by public id. | signed-in | design-only until `BK-298` detail DTO is implemented |
 | `GET` | `/api/feed` | List model notes, market context, risk notes, and review notes. | signed-in | mock-backed allowed |
+| `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | design-only until `BK-299` detail DTO is implemented |
 | `POST` | `/api/model-selections` | Simulate a user selecting a specific model version. | user | mock-backed allowed |
 | `GET` | `/api/portfolio/mock-summary` | Read selected model, mock balance, simulated allocation, and sample positions. | user | mock-backed allowed |
 | `POST` | `/api/creator/models` | Create a creator model draft. | creator | design-only until RBAC is implemented |
@@ -67,6 +69,19 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Mock source | `lib/mock/invest-model-signals.ts` |
 | Safety notes | Signals are observed inputs, not recommendations. They must not create live `TradeIntent` or order execution. |
 
+### `GET /api/signals/:signalId`
+
+| Field | Value |
+| --- | --- |
+| Purpose | Provide the future Signal Detail screen with one observed signal, related evidence, and score context. |
+| Request | Path parameter `signalId` must resolve by `SignalEventDto.signalPublicId` or a stable URL-safe alias. Internal numeric database ids are not allowed in route params. |
+| Response DTO | Future `SignalDetailDto` defined by `BK-298`; list pages may link by `SignalEventDto.signalPublicId` before the detail DTO exists. |
+| Permission | Signed-in user. Public access should be a later product decision. |
+| Screens | Signal Detail |
+| Source tables | `model_signal_events`, `market_instruments`, `news_articles`, `news_traffic_snapshots`, `market_price_snapshots`, future score snapshot tables from `BK-266` |
+| Mock source | `lib/mock/invest-model-signals.ts` until detail fixtures exist. |
+| Safety notes | Missing, hidden, or inaccessible signals return not-found/unavailable behavior. The route must not expose private record existence and must not create or imply `TradeIntent`, broker action, buy/sell/hold advice, or order execution. |
+
 ### `GET /api/feed`
 
 | Field | Value |
@@ -79,6 +94,19 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Source tables | `feed_posts`, `investment_models`, `users`, `model_disclosures` |
 | Mock source | `lib/mock/invest-model-feed.ts` |
 | Safety notes | Feed copy must not guarantee returns, encourage trades, or present legal/financial advice as final. |
+
+### `GET /api/feed/:postId`
+
+| Field | Value |
+| --- | --- |
+| Purpose | Provide the future Feed Detail screen with one informational post and related context. |
+| Request | Path parameter `postId` must resolve by `FeedPostDto.postPublicId` or a stable URL-safe alias. Internal numeric database ids are not allowed in route params. |
+| Response DTO | Future `FeedPostDetailDto` defined by `BK-299`; list pages may link by `FeedPostDto.postPublicId` before the detail DTO exists. |
+| Permission | Signed-in user for MVP. Public feed detail is a later product decision. |
+| Screens | Feed Detail |
+| Source tables | `feed_posts`, `investment_models`, `users`, `model_disclosures`; future comment/reaction/read tables from `BK-275` and `BK-276` |
+| Mock source | `lib/mock/invest-model-feed.ts` until detail fixtures exist. |
+| Safety notes | Missing, hidden, unpublished, admin-only, or inaccessible posts return not-found/unavailable behavior. The route must not expose private record existence and must not guarantee returns, encourage securities trading, or present legal/financial advice as final. |
 
 ### `POST /api/model-selections`
 

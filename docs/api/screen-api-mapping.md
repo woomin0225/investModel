@@ -23,8 +23,10 @@
 | Home / My AI Investment | `/invest-model` | `GET /api/portfolio/mock-summary`; `GET /api/signals?limit=3`; `GET /api/feed?limit=2` | `PortfolioSummaryDto`; `SignalEventDto[]`; `FeedPostDto[]` | `lib/mock/invest-model-home.ts`; `lib/mock/invest-model-signals.ts`; `lib/mock/invest-model-feed.ts` | `user` for portfolio, signed-in for signals/feed | mock balance, selected model, recent signals, recent feed only. No real account balance. |
 | Discover Models | `/invest-model/models` | `GET /api/models` | `ModelCardDto[]` | `lib/mock/invest-model-discovery.ts` | `public` or signed-in | only approved/live models; pending_review excluded. |
 | Realtime Signals | `/invest-model/signals` | `GET /api/signals` | `SignalEventDto[]` | `lib/mock/invest-model-signals.ts` | signed-in | observed inputs only; no recommendation/order language. |
+| Signal Detail | `/invest-model/signals/[signalId]` | future `GET /api/signals/:signalId` | future `SignalDetailDto` from `BK-298` | `SignalEventDto` list item plus future detail mock | signed-in | route param uses public id only; observed context only; no buy/sell/hold advice. |
 | Model Detail | `/invest-model/models/[modelId]` | `GET /api/models/:id`; `POST /api/model-selections` after acknowledgement | `ModelDetailDto`; `ModelSelectionDto` | detail data derived from `lib/mock/invest-model-discovery.ts` and page-local copy | public or signed-in for detail; `user` for selection | selection stores model version only, not user allocation preferences. |
 | Feed Insights | `/invest-model/feed` | `GET /api/feed` | `FeedPostDto[]` | `lib/mock/invest-model-feed.ts` | signed-in | informational model/market/review notes only. |
+| Feed Detail | `/invest-model/feed/[postId]` | future `GET /api/feed/:postId` | future `FeedPostDetailDto` from `BK-299` | `FeedPostDto` list item plus future detail mock | signed-in | route param uses public id only; informational content only; comments/actions are separate contracts. |
 
 ## Supporting Screens
 
@@ -98,6 +100,34 @@ Fallback:
 - Hide or neutralize language that sounds like direct buy/sell advice.
 - Never generate a live `TradeIntent` from this screen.
 
+### Signal Detail
+
+Route contract:
+
+- Screen route: `/invest-model/signals/[signalId]`.
+- `signalId` is the `SignalEventDto.signalPublicId` or a stable URL-safe alias that resolves to the same public record.
+- Do not use internal numeric database ids in links, route params, API requests, logs shown to users, or test fixtures.
+- Links from the Signals list must preserve locale query state with `?lang=ko` or `?lang=en` when present.
+- If a SignalEvent is missing, hidden, retired from display, or not visible to the actor, render an unavailable/not-found state and do not reveal whether a private record exists.
+- The page must label the record as observed/mock or observed-placeholder context. It must not include buy, sell, hold, rebalance, order, execution, broker, or TradeIntent creation copy.
+
+Data needs:
+
+- signal headline, source type, score display, captured time, linked model name
+- source attribution and observed input summary
+- future score history and score breakdown from `BK-298`
+- policy notices that this is observed context, not an investment recommendation
+
+API sequence:
+
+1. Future `GET /api/signals/:signalId`
+2. Optional related context later: score snapshots, linked feed posts, linked model detail
+
+Fallback:
+
+- Until `SignalDetailDto` exists, detail links may use the list `SignalEventDto` record and a safe placeholder detail section.
+- Empty/unavailable state should keep the bottom tab shell and safe-area spacing intact on 390px mobile.
+
 ### Model Detail
 
 Data needs:
@@ -138,6 +168,46 @@ Fallback:
 - Legal/financial placeholder copy must remain visibly review-bound.
 - Feed posts must not encourage a securities transaction.
 
+### Feed Detail
+
+Route contract:
+
+- Screen route: `/invest-model/feed/[postId]`.
+- `postId` is the `FeedPostDto.postPublicId` or a stable URL-safe alias that resolves to the same public record.
+- Do not use internal numeric database ids in links, route params, API requests, logs shown to users, or test fixtures.
+- Links from the Feed list must preserve locale query state with `?lang=ko` or `?lang=en` when present.
+- If a FeedPost is missing, hidden, unpublished, admin-only, or not visible to the actor, render an unavailable/not-found state and do not reveal whether a private record exists.
+- The page must label the record as informational/mock or informational-placeholder content. It must not include guaranteed return, trading encouragement, suitability, legal approval, order, execution, or broker copy.
+
+Data needs:
+
+- post title, body, type, tags, author/display source, published time
+- linked InvestmentModel and related SignalEvent references when available
+- future comment tree, reaction state, bookmark state, read state, and ranking context from `BK-299`/`BK-302`
+- policy notices that this is informational commentary, not investment advice
+
+API sequence:
+
+1. Future `GET /api/feed/:postId`
+2. Future action APIs for comments, reactions, bookmarks, and reads remain separate from this screen route contract.
+
+Fallback:
+
+- Until `FeedPostDetailDto` exists, detail links may use the list `FeedPostDto` record and a safe placeholder detail section.
+- Empty/unavailable state should keep the bottom tab shell and safe-area spacing intact on 390px mobile.
+
+## Public Id And Detail Link Rules
+
+These rules apply to Signal and Feed detail routes before list cards become links:
+
+- `SignalEventDto.signalPublicId` and `FeedPostDto.postPublicId` are the canonical route identifiers for MVP detail pages.
+- Any future slug may be added only as a presentation alias; the API and DB mapping still resolve through the public id.
+- List cards should use `<Link>` for the primary row/title area, not nested interactive controls inside the same tap target.
+- Filter chips, like/save/comment buttons, and other row actions must remain separate controls with their own labels and focus state.
+- `withInvestModelLocale` or an equivalent helper should be used so locale is not lost during navigation.
+- Missing or unauthorized records use the same not-found style. Private/admin-only existence must not be disclosed to normal users.
+- Detail pages must include a visible mock/informational/observed safety label before any score, performance-like, or market commentary section.
+
 ## API Priority From Screens
 
 | Priority | API | Why |
@@ -168,4 +238,3 @@ Fallback:
 - `BK-136`: define import alias and barrel export rules for DTO/mock/screen boundaries.
 - `BK-137`: document UI component dependency boundaries so screens do not import DB or ORM shapes.
 - `BK-141`: implement API guard helpers using the auth/error contract from `BK-127`.
-
