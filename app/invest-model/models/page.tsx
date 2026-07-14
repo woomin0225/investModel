@@ -12,20 +12,32 @@ import {
 import {
   getInvestmentModelStatusDisplay,
   investModelDiscoveryFilterIds,
-  isPublicDiscoverableInvestmentModel,
   investModelCopy,
   matchesInvestModelDiscoveryFilter,
   resolveInvestModelDiscoveryFilter,
   resolveInvestModelLocale,
+  type InvestmentModelPublicationStatus,
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import type { ModelCardDto } from '@/lib/domain/models/model-read-model';
 import { cn } from '@/lib/utils';
 
-const riskToneByModel = {
-  low: 'low',
-  medium: 'medium',
-  high: 'high'
-} as const;
+type DiscoveryRiskTone = 'low' | 'medium' | 'high';
+
+type DiscoverableInvestmentModelView = {
+  id: string;
+  name: string;
+  summary: string;
+  market: string;
+  riskLabel: string;
+  riskTone: DiscoveryRiskTone;
+  status: Extract<InvestmentModelPublicationStatus, 'approved' | 'live'>;
+  performanceLabel: string;
+  mandateLabel: string;
+  tags: string[];
+  reviewLabel: string;
+  simulatedAumLabel: string;
+};
 
 const compareCtaCopy = {
   ko: {
@@ -60,6 +72,33 @@ const discoverySummaryCopy = {
     compareValue: 'Ready',
     compareNote: 'Return and risk',
     shownSuffix: ''
+  }
+} as const;
+
+const modelReadStateCopy = {
+  ko: {
+    dbLabel: 'DB read model',
+    unavailableTitle: 'DB read model unavailable',
+    unavailableDescription:
+      'InvestmentModel 목록을 읽지 못했습니다. 추천, 주문, 브로커 연결은 생성되지 않았습니다.',
+    emptyTitle: 'No DB-backed InvestmentModels',
+    emptyDescription:
+      '현재 필터에 표시할 공개 InvestmentModel DTO가 없습니다. 실제 주문이나 모델 선택은 생성되지 않았습니다.',
+    marketplaceFallback: 'Marketplace model',
+    mandateFallback: 'Model mandate',
+    backtestSuffix: 'backtest'
+  },
+  en: {
+    dbLabel: 'DB read model',
+    unavailableTitle: 'DB read model unavailable',
+    unavailableDescription:
+      'InvestmentModel rows could not be read. No recommendation, order, or brokerage action was created.',
+    emptyTitle: 'No DB-backed InvestmentModels',
+    emptyDescription:
+      'There are no public InvestmentModel DTOs for this filter. No order or model selection was created.',
+    marketplaceFallback: 'Marketplace model',
+    mandateFallback: 'Model mandate',
+    backtestSuffix: 'backtest'
   }
 } as const;
 
@@ -98,6 +137,65 @@ function getDiscoveryFilterHref(
   return `${basePath}${locale === 'en' ? '&' : '?'}filter=${filterId}`;
 }
 
+function modelRiskTone(card: ModelCardDto): DiscoveryRiskTone {
+  if (card.risk.tone === 'low' || card.risk.tone === 'medium') {
+    return card.risk.tone;
+  }
+
+  return 'high';
+}
+
+function compactLabels(labels: string[]) {
+  return labels.filter(Boolean).slice(0, 4);
+}
+
+function toDiscoverableInvestmentModelView(
+  card: ModelCardDto,
+  locale: 'ko' | 'en'
+): DiscoverableInvestmentModelView {
+  const readStateCopy = modelReadStateCopy[locale];
+  const targetMarkets = card.targetMarkets.join(', ');
+  const assetLabels = card.assetClassLabels.join(', ');
+
+  return {
+    id: card.slug,
+    name: card.name,
+    summary: card.shortDescription ?? card.risk.summary ?? '',
+    market: targetMarkets || readStateCopy.marketplaceFallback,
+    riskLabel: card.risk.label,
+    riskTone: modelRiskTone(card),
+    status: card.status,
+    performanceLabel: `${card.backtestReturn.display} ${readStateCopy.backtestSuffix}`,
+    mandateLabel: assetLabels || readStateCopy.mandateFallback,
+    tags: compactLabels([
+      ...card.targetMarkets,
+      ...card.assetClassLabels,
+      card.leverageAllowed ? 'leverage allowed' : 'no leverage flag'
+    ]),
+    reviewLabel: card.reviewLabel,
+    simulatedAumLabel: readStateCopy.dbLabel
+  };
+}
+
+async function readDiscoverableInvestmentModels(locale: 'ko' | 'en') {
+  try {
+    const { readModelCardDtos } = await import('@/lib/db/model-read-model');
+    const modelCards = await readModelCardDtos(30);
+
+    return {
+      models: modelCards.map((card) =>
+        toDiscoverableInvestmentModelView(card, locale)
+      ),
+      readFailed: false
+    };
+  } catch {
+    return {
+      models: [] as DiscoverableInvestmentModelView[],
+      readFailed: true
+    };
+  }
+}
+
 type InvestModelDiscoveryPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -112,17 +210,19 @@ export default async function InvestModelDiscoveryPage({
   );
   const copy = investModelCopy[locale];
   const modelsCopy = copy.models;
-  const discoverableInvestmentModels = modelsCopy.models.filter(
-    isPublicDiscoverableInvestmentModel
-  );
-  const filteredInvestmentModels = discoverableInvestmentModels.filter((model) =>
-    matchesInvestModelDiscoveryFilter(model, selectedFilter)
+  const {
+    models: discoverableInvestmentModels,
+    readFailed: modelReadFailed
+  } = await readDiscoverableInvestmentModels(locale);
+  const filteredInvestmentModels = discoverableInvestmentModels.filter(
+    (model) => matchesInvestModelDiscoveryFilter(model, selectedFilter)
   );
   const selectedFilterIndex =
     investModelDiscoveryFilterIds.indexOf(selectedFilter);
   const selectedFilterLabel =
     modelsCopy.filters[selectedFilterIndex] ?? modelsCopy.filters[0];
   const summaryCopy = discoverySummaryCopy[locale];
+  const readStateCopy = modelReadStateCopy[locale];
   const modelListLabel =
     locale === 'ko' ? '표시 중인 투자 모델 목록' : 'Shown investment models';
   const discoverySummaryItems = [
@@ -292,7 +392,7 @@ export default async function InvestModelDiscoveryPage({
                   summary={model.summary}
                   market={model.market}
                   riskLabel={model.riskLabel}
-                  riskTone={riskToneByModel[model.riskTone]}
+                  riskTone={model.riskTone}
                   statusLabel={statusDisplay.label}
                   statusTone={statusDisplay.tone}
                   performanceLabel={model.performanceLabel}
@@ -353,6 +453,31 @@ export default async function InvestModelDiscoveryPage({
                 </div>
               );
             })}
+            {filteredInvestmentModels.length === 0 ? (
+              <div
+                role="listitem"
+                className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+              >
+                <div className="flex flex-wrap gap-1.5">
+                  <RiskBadge tone={modelReadFailed ? 'blocked' : 'neutral'}>
+                    {readStateCopy.dbLabel}
+                  </RiskBadge>
+                  <RiskBadge tone="medium">
+                    {modelsCopy.footerBadges.backtestMock}
+                  </RiskBadge>
+                </div>
+                <h2 className="mt-3 text-[16px] font-bold leading-6 text-invest-text">
+                  {modelReadFailed
+                    ? readStateCopy.unavailableTitle
+                    : readStateCopy.emptyTitle}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-invest-text-muted">
+                  {modelReadFailed
+                    ? readStateCopy.unavailableDescription
+                    : readStateCopy.emptyDescription}
+                </p>
+              </div>
+            ) : null}
           </div>
         </div>
 
