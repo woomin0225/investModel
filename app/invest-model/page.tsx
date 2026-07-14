@@ -161,11 +161,11 @@ export default async function InvestModelPreviewPage({
             return (
               <div
                 key={item.label}
-                className="flex min-w-0 items-center gap-2 rounded-invest-control bg-invest-surface px-2 py-2"
+                className="group flex min-w-0 items-center gap-2 rounded-invest-control bg-invest-surface px-2 py-2 shadow-invest-card transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100"
               >
                 <div
                   className={cn(
-                    'grid size-8 shrink-0 place-items-center rounded-invest-control',
+                    'grid size-8 shrink-0 place-items-center rounded-invest-control transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
                     item.iconClassName
                   )}
                 >
@@ -177,7 +177,7 @@ export default async function InvestModelPreviewPage({
                   </p>
                   <p
                     className={cn(
-                      'truncate text-[13px] font-bold leading-5',
+                      'truncate text-[13px] font-bold leading-5 transition-transform duration-200 ease-out group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100',
                       item.valueClassName
                     )}
                   >
