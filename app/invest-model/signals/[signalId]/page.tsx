@@ -109,6 +109,31 @@ function relatedFeedSearchHref(locale: SignalLocale, signal: SignalEventDto) {
   return `/invest-model/search?${params.toString()}`;
 }
 
+function signalDetailAccessibleLabel(
+  locale: SignalLocale,
+  signal: SignalEventDto,
+  signalTypeText: string
+) {
+  return locale === 'ko'
+    ? `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB seed/mock 관찰 입력 상세입니다. 추천, 주문, TradeIntent 또는 실시간 외부 데이터 연결이 아닙니다.`
+    : `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB seed/mock observation detail. This is not a recommendation, order, TradeIntent, or realtime external data connection.`;
+}
+
+function signalBackAccessibleLabel(locale: SignalLocale) {
+  return locale === 'ko'
+    ? 'DB seed/mock 신호 목록으로 돌아가기'
+    : 'Back to the DB seed/mock signal list';
+}
+
+function signalRelatedSearchAccessibleLabel(
+  locale: SignalLocale,
+  signal: SignalEventDto
+) {
+  return locale === 'ko'
+    ? `${signal.linkedModelName} 관련 DB FeedPost 검색. 참고용 읽기 자료이며 주문이나 추천 근거가 아닙니다.`
+    : `Search DB-backed FeedPosts for ${signal.linkedModelName}. Reference reading only, not evidence for an order or recommendation.`;
+}
+
 function signalSafetyDescription(locale: SignalLocale, signal: SignalEventDto) {
   if (signal.signalType === 'risk') {
     return locale === 'ko'
@@ -140,6 +165,18 @@ export default async function InvestModelSignalDetailPage({
   const currentPath = `/invest-model/signals/${resolvedParams.signalId}`;
   const backHref = `/invest-model/signals?lang=${locale}`;
   const relatedSearchHref = relatedFeedSearchHref(locale, signal);
+  const signalTypeText = signalTypeLabel(locale, signal.signalType);
+  const detailAccessibleLabel = signalDetailAccessibleLabel(
+    locale,
+    signal,
+    signalTypeText
+  );
+  const backAccessibleLabel = signalBackAccessibleLabel(locale);
+  const relatedSearchAccessibleLabel = signalRelatedSearchAccessibleLabel(
+    locale,
+    signal
+  );
+  const safetyAccessibleLabel = signalSafetyDescription(locale, signal);
   const sourceRows = [
     {
       label: locale === 'ko' ? '관찰 유형' : 'Observation type',
@@ -177,6 +214,8 @@ export default async function InvestModelSignalDetailPage({
       <section className="space-y-invest-section-gap">
         <Link
           href={backHref}
+          aria-label={backAccessibleLabel}
+          title={backAccessibleLabel}
           className={cn(
             'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-bold text-invest-text shadow-invest-card',
             investMotionClass.interactiveControl
@@ -187,7 +226,7 @@ export default async function InvestModelSignalDetailPage({
         </Link>
 
         <SoftBanner
-          eyebrow={signalTypeLabel(locale, signal.signalType)}
+          eyebrow={signalTypeText}
           title={signal.title}
           description={signal.summary}
           icon={Radio}
@@ -215,7 +254,11 @@ export default async function InvestModelSignalDetailPage({
           />
         </div>
 
-        <article className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+        <article
+          aria-label={detailAccessibleLabel}
+          title={detailAccessibleLabel}
+          className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+        >
           <div className="flex items-start gap-3">
             <div
               className={cn(
@@ -271,7 +314,11 @@ export default async function InvestModelSignalDetailPage({
           </div>
         </article>
 
-        <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
+        <div
+          aria-label={safetyAccessibleLabel}
+          title={safetyAccessibleLabel}
+          className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding"
+        >
           <div className="flex items-start gap-3">
             <ShieldAlert
               aria-hidden
@@ -287,7 +334,7 @@ export default async function InvestModelSignalDetailPage({
                 </RiskBadge>
               </div>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
-                {signalSafetyDescription(locale, signal)}
+                {safetyAccessibleLabel}
               </p>
             </div>
           </div>
@@ -295,6 +342,8 @@ export default async function InvestModelSignalDetailPage({
 
         <Link
           href={relatedSearchHref}
+          aria-label={relatedSearchAccessibleLabel}
+          title={relatedSearchAccessibleLabel}
           className={cn(
             'group block rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
             investMotionClass.interactiveCard
