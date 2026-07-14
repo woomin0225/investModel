@@ -1,4 +1,11 @@
-import { Bell, MessageSquareText, ShieldCheck } from 'lucide-react';
+import {
+  Bell,
+  Bookmark,
+  Eye,
+  MessageCircle,
+  MessageSquareText,
+  ShieldCheck
+} from 'lucide-react';
 import {
   investMotionClass,
   MetricCard,
@@ -34,6 +41,8 @@ const postToneIcon = {
   high: 'bg-invest-risk-soft text-invest-risk'
 } as const;
 
+const feedActionIcons = [Eye, Bookmark, MessageCircle] as const;
+
 type InvestModelFeedPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -48,6 +57,10 @@ export default async function InvestModelFeedPage({
   const selectedFilter = filters[0];
   const visiblePostCountLabel =
     locale === 'ko' ? `${posts.length}개 표시` : `${posts.length} shown`;
+  const feedActions =
+    locale === 'ko'
+      ? ['읽기', '저장', '의견']
+      : ['Read', 'Save', 'Discuss'];
 
   return (
     <MobileShell
@@ -215,6 +228,26 @@ export default async function InvestModelFeedPage({
                           {tag}
                         </RiskBadge>
                       ))}
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 gap-2 border-t border-invest-border pt-3">
+                      {feedActions.map((action, index) => {
+                        const Icon = feedActionIcons[index];
+
+                        return (
+                          <button
+                            key={`${post.id}-${action}`}
+                            type="button"
+                            aria-label={`${post.title} ${action}`}
+                            className={cn(
+                              'inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control bg-invest-bg-soft px-2 text-[12px] font-semibold leading-4 text-invest-text-muted',
+                              investMotionClass.interactiveControl
+                            )}
+                          >
+                            <Icon aria-hidden className="size-3.5" />
+                            <span className="truncate">{action}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
