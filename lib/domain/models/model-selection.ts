@@ -31,7 +31,7 @@ export type ModelSelectionValidationResult =
     };
 
 export interface UserModelSelectionDto extends UserModelSelection {
-  persistence: 'not_persisted';
+  persistence: 'not_persisted' | 'persisted';
   safetyBoundary: {
     mockOnly: true;
     noRealDeposit: true;
@@ -68,17 +68,19 @@ export function validateModelSelectionRequest(
 
 export function buildUserModelSelectionDto(
   input: ModelSelectionRequest,
-  selectedAt = new Date().toISOString()
+  selectedAt = new Date().toISOString(),
+  persistence: UserModelSelectionDto['persistence'] = 'not_persisted',
+  publicId: DomainPublicId = `model_selection_${crypto.randomUUID()}` as DomainPublicId
 ): UserModelSelectionDto {
   return {
-    publicId: `model_selection_${crypto.randomUUID()}` as DomainPublicId,
+    publicId,
     userPublicId: input.userPublicId as DomainPublicId,
     modelPublicId: input.modelPublicId as DomainPublicId,
     modelVersionPublicId: input.modelVersionPublicId as DomainPublicId,
     status: 'active',
     riskAcknowledgedAt: input.riskAcknowledgedAt ?? selectedAt,
     createdAt: selectedAt,
-    persistence: 'not_persisted',
+    persistence,
     safetyBoundary: {
       mockOnly: true,
       noRealDeposit: true,

@@ -1,17 +1,32 @@
 import { NextRequest } from 'next/server';
+import crypto from 'crypto';
+import { and, eq } from 'drizzle-orm';
+import { db } from '@/lib/db/drizzle';
+import {
+  investmentModels,
+  modelVersions,
+  userModelSelections,
+  users
+} from '@/lib/db/schema';
 import {
   buildUserModelSelectionDto,
   canCreateModelSelection,
+  type ModelSelectionRequest,
   validateModelSelectionRequest
 } from '@/lib/domain/models/model-selection';
 import type { AccessRole } from '@/lib/domain/types';
 
 /**
  * This route records a mock-safe user selection of an InvestmentModel version.
- * It returns the selection payload for UI development only and never persists funds, places orders, or connects brokerage accounts.
+ * It persists only the selected ModelVersion and never stores funds, places orders, or connects brokerage accounts.
  */
 
-type ApiErrorCode = 'forbidden' | 'validation_error';
+type ApiErrorCode =
+  | 'forbidden'
+  | 'validation_error'
+  | 'not_found'
+  | 'policy_blocked'
+  | 'server_error';
 
 function errorResponse(
   status: number,
@@ -47,6 +62,28 @@ function readRole(request: NextRequest): AccessRole {
   return 'public';
 }
 
+function canSelectModel(model: typeof investmentModels.$inferSelect) {
+  return (
+    (model.status === 'approved' || model.status === 'live') &&
+    model.visibility === 'marketplace'
+  );
+}
+
+function toSelectionDto(
+  input: ModelSelectionRequest,
+  row: typeof userModelSelections.$inferSelect
+) {
+  return buildUserModelSelectionDto(
+    {
+      ...input,
+      riskAcknowledgedAt: row.riskAcknowledgedAt?.toISOString()
+    },
+    row.selectedAt.toISOString(),
+    'persisted',
+    row.publicId
+  );
+}
+
 export async function POST(request: NextRequest) {
   const role = readRole(request);
 
@@ -58,24 +95,157 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  try {
-    const validation = validateModelSelectionRequest(await request.json());
+  let body: unknown;
 
-    if (!validation.success) {
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse(
+      422,
+      'validation_error',
+      'Request body must be valid JSON for a mock-safe model selection.'
+    );
+  }
+
+  const validation = validateModelSelectionRequest(body);
+
+  if (!validation.success) {
+    return errorResponse(
+      422,
+      'validation_error',
+      'Model selection requires userPublicId, modelPublicId, and modelVersionPublicId.',
+      validation.error
+    );
+  }
+
+  try {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.publicId, validation.data.userPublicId))
+      .limit(1);
+
+    if (!user || user.deletedAt) {
       return errorResponse(
-        422,
-        'validation_error',
-        'Model selection requires userPublicId, modelPublicId, and modelVersionPublicId.',
-        validation.error
+        404,
+        'not_found',
+        'User public id was not found for this mock-safe model selection.'
+      );
+    }
+
+    const [model] = await db
+      .select()
+      .from(investmentModels)
+      .where(eq(investmentModels.publicId, validation.data.modelPublicId))
+      .limit(1);
+
+    if (!model) {
+      return errorResponse(
+        404,
+        'not_found',
+        'InvestmentModel public id was not found for this mock-safe selection.'
+      );
+    }
+
+    if (!canSelectModel(model)) {
+      return errorResponse(
+        403,
+        'policy_blocked',
+        'Only approved or live marketplace InvestmentModels can be selected.'
+      );
+    }
+
+    const [modelVersion] = await db
+      .select()
+      .from(modelVersions)
+      .where(
+        and(
+          eq(modelVersions.publicId, validation.data.modelVersionPublicId),
+          eq(modelVersions.modelId, model.id)
+        )
+      )
+      .limit(1);
+
+    if (!modelVersion || modelVersion.retiredAt) {
+      return errorResponse(
+        404,
+        'not_found',
+        'ModelVersion public id was not found for this InvestmentModel.'
+      );
+    }
+
+    const [existingSelection] = await db
+      .select()
+      .from(userModelSelections)
+      .where(
+        and(
+          eq(userModelSelections.userId, user.id),
+          eq(userModelSelections.modelId, model.id),
+          eq(userModelSelections.modelVersionId, modelVersion.id),
+          eq(userModelSelections.status, 'active')
+        )
+      )
+      .limit(1);
+
+    if (existingSelection) {
+      return Response.json(
+        {
+          data: toSelectionDto(validation.data, existingSelection),
+          meta: {
+            routeStatus: 'db_backed',
+            persistence: 'persisted',
+            duplicateActiveSelection: true,
+            recordsModelVersion: true,
+            requiresRiskAcknowledgement: true,
+            financialOperationsEnabled: false,
+            realDeposit: false,
+            realOrder: false,
+            brokerageConnection: false
+          }
+        },
+        { status: 200 }
+      );
+    }
+
+    const selectedAt = new Date();
+    const riskAcknowledgedAt = validation.data.riskAcknowledgedAt
+      ? new Date(validation.data.riskAcknowledgedAt)
+      : selectedAt;
+
+    const [createdSelectionId] = await db
+      .insert(userModelSelections)
+      .values({
+        publicId: `model_selection_${crypto.randomUUID()}`,
+        userId: user.id,
+        modelId: model.id,
+        modelVersionId: modelVersion.id,
+        status: 'active',
+        riskAcknowledgedAt,
+        selectedAt
+      })
+      .$returningId();
+
+    const [createdSelection] = await db
+      .select()
+      .from(userModelSelections)
+      .where(eq(userModelSelections.id, createdSelectionId.id))
+      .limit(1);
+
+    if (!createdSelection) {
+      return errorResponse(
+        500,
+        'server_error',
+        'Model selection was created but could not be loaded.'
       );
     }
 
     return Response.json(
       {
-        data: buildUserModelSelectionDto(validation.data),
+        data: toSelectionDto(validation.data, createdSelection),
         meta: {
-          routeStatus: 'mock_backed',
-          persistence: 'not_persisted',
+          routeStatus: 'db_backed',
+          persistence: 'persisted',
+          duplicateActiveSelection: false,
           recordsModelVersion: true,
           requiresRiskAcknowledgement: true,
           financialOperationsEnabled: false,
@@ -88,9 +258,9 @@ export async function POST(request: NextRequest) {
     );
   } catch {
     return errorResponse(
-      422,
-      'validation_error',
-      'Request body must be valid JSON for a mock-safe model selection.'
+      500,
+      'server_error',
+      'Model selection could not be persisted. No funds, orders, or brokerage actions were attempted.'
     );
   }
 }

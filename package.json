@@ -14,6 +14,7 @@
     "test:admin-force-stop": "npx tsx scripts/smoke/admin-force-stop-smoke.ts",
     "test:market-data": "npx tsx scripts/smoke/market-data-provider-smoke.ts",
     "test:model-status-notification": "npx tsx scripts/smoke/model-status-notification-smoke.ts",
+    "test:model-selection": "npx tsx scripts/smoke/model-selection-api-smoke.ts",
     "test:mock-decision": "npx tsx scripts/smoke/mock-decision-engine-smoke.ts",
     "test:news-traffic": "npx tsx scripts/smoke/news-traffic-provider-smoke.ts",
     "test:rbac": "npx tsx scripts/smoke/rbac-access-smoke.ts",
