@@ -6,6 +6,7 @@ import {
   ModelCard,
   RiskBadge,
   SectionHeader,
+  TopIconBar,
   SoftBanner
 } from '@/components/invest-model';
 import {
@@ -131,21 +132,16 @@ export default async function InvestModelDiscoveryPage({
       locale={locale}
       currentPath="/invest-model/models"
       trailing={
-        <button
-          type="button"
-          aria-label={copy.actions.searchApprovedModels}
-          className={cn(
-            'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/25',
-            investMotionClass.interactiveControl
-          )}
-        >
-          <span className="absolute inset-1 rounded-[10px] border border-transparent transition-colors duration-200 ease-out group-hover:border-invest-primary/15 group-active:border-invest-primary/30 motion-reduce:transition-none" />
-          <Search
-            aria-hidden
-            className="size-5 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
-          />
-          <span className="absolute inset-x-3 bottom-1 h-0.5 origin-center scale-x-50 rounded-full bg-invest-text-muted/40 opacity-80 transition-[background-color,transform] duration-200 ease-out group-hover:scale-x-100 group-hover:bg-invest-primary/70 group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-hover:scale-x-50 motion-reduce:group-active:scale-x-50" />
-        </button>
+        <TopIconBar
+          locale={locale}
+          actions={[
+            {
+              key: 'search',
+              label: copy.actions.searchApprovedModels,
+              icon: Search
+            }
+          ]}
+        />
       }
     >
       <section className="space-y-invest-section-gap">

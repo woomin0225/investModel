@@ -1,4 +1,4 @@
-import { Bell, Clock3, Database, Radio, Search, ShieldCheck } from 'lucide-react';
+import { Clock3, Database, Radio, ShieldCheck } from 'lucide-react';
 import {
   investMotionClass,
   MetricCard,
@@ -8,6 +8,7 @@ import {
   modelSelectionReadStatusCopy,
   RiskBadge,
   SectionHeader,
+  SearchAndNotificationActions,
   SoftBanner
 } from '@/components/invest-model';
 import {
@@ -91,52 +92,11 @@ export default async function InvestModelPreviewPage({
       locale={locale}
       currentPath="/invest-model"
       trailing={
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label={copy.actions.searchModels}
-            className={cn(
-              'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/25',
-              investMotionClass.interactiveControl
-            )}
-          >
-            <span
-              aria-hidden
-              className="absolute inset-1 rounded-[10px] border border-transparent transition-colors duration-200 ease-out group-hover:border-invest-primary/15 group-active:border-invest-primary/30 motion-reduce:transition-none"
-            />
-            <Search
-              aria-hidden
-              className="size-5 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
-            />
-            <span
-              aria-hidden
-              className="absolute inset-x-3 bottom-1 h-0.5 origin-center scale-x-50 rounded-full bg-invest-text-muted/40 opacity-80 transition-[background-color,transform] duration-200 ease-out group-hover:scale-x-100 group-hover:bg-invest-primary/70 group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-hover:scale-x-50 motion-reduce:group-active:scale-x-50"
-            />
-          </button>
-          <button
-            type="button"
-            aria-label={copy.actions.notifications}
-            className={cn(
-              'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border border-invest-primary/25 bg-invest-primary-soft text-invest-primary shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
-              investMotionClass.interactiveControl
-            )}
-          >
-            <Bell
-              aria-hidden
-              className="size-5 transition-transform duration-200 ease-out group-hover:-rotate-6 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:rotate-0 motion-reduce:group-active:scale-100"
-            />
-            <span
-              aria-hidden
-              className="absolute right-1.5 top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full bg-invest-risk px-1 text-[10px] font-bold leading-none text-white ring-2 ring-invest-primary-soft"
-            >
-              2
-            </span>
-            <span
-              aria-hidden
-              className="absolute inset-x-2 bottom-1 h-0.5 rounded-full bg-invest-primary opacity-70 transition-[opacity,transform] duration-200 ease-out group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-active:scale-x-100"
-            />
-          </button>
-        </div>
+        <SearchAndNotificationActions
+          locale={locale}
+          searchLabel={copy.actions.searchModels}
+          notificationLabel={copy.actions.notifications}
+        />
       }
     >
       <section className="space-y-invest-section-gap">

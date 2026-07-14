@@ -3,6 +3,11 @@ export { ModelSelectionCta } from './model-selection-cta';
 export { modelSelectionReadStatusCopy } from './model-selection-read-status-copy';
 export { ModelSelectionReadStatus } from './model-selection-read-status';
 export {
+  NotificationAction,
+  SearchAndNotificationActions,
+  TopIconBar
+} from './top-icon-bar';
+export {
   BottomNav,
   MobileShell,
   investModelNavItems,
