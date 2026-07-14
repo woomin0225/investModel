@@ -26,7 +26,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `POST` | `/api/feed/:postId/comments` | Create a top-level informational comment. | signed-in | action contract defined; implementation pending |
 | `POST` | `/api/feed/:postId/comments/:commentId/replies` | Create an informational reply comment. | signed-in | action contract defined; implementation pending |
 | `POST` | `/api/feed/:postId/likes` | Toggle or set the signed-in user's like state. | signed-in | DB-backed action implemented |
-| `POST` | `/api/feed/:postId/saves` | Toggle or set the signed-in user's saved state. | signed-in | action contract defined; implementation pending |
+| `POST` | `/api/feed/:postId/saves` | Toggle or set the signed-in user's saved state. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/read` | Mark the signed-in user's post as read. | signed-in | action contract defined; implementation pending |
 | `POST` | `/api/model-selections` | Simulate a user selecting a specific model version. | user | mock-backed allowed |
 | `GET` | `/api/portfolio/mock-summary` | Read selected model, mock balance, simulated allocation, and sample positions. | user | mock-backed allowed |
@@ -161,8 +161,8 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Response DTO | `FeedReactionStateDto` |
 | Permission | Signed-in user; only the actor's own saved state can change. |
 | Screens | Feed Detail, Feed Insights list row actions |
-| Source tables | Future `feed_post_saves` from `BK-293`, `feed_posts`, `users` |
-| Mock source | Future feed interaction seed/sample files from `BK-293`. |
+| Source tables | `feed_post_saves`, `feed_posts`, `users`, plus `feed_post_reactions`, `feed_post_reads`, and `feed_post_comments` for refreshed state. |
+| Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` for local sample saved state. |
 | Safety notes | Save state is a private reading shortcut only and must not be treated as model selection, portfolio allocation, or order intent. |
 
 ### `POST /api/feed/:postId/read`

@@ -29,6 +29,11 @@ type FeedLikeActionResult =
   | { status: 'post_not_found' }
   | { status: 'user_not_found' };
 
+type FeedSaveActionResult =
+  | { status: 'ok'; data: FeedReactionStateDto }
+  | { status: 'post_not_found' }
+  | { status: 'user_not_found' };
+
 type CommentRow = {
   id: number;
   publicId: string;
@@ -347,6 +352,87 @@ export async function setFeedPostLikeState({
       reactionType: 'like',
       status: nextStatus,
       createdAt: now,
+      updatedAt: now
+    });
+  }
+
+  const detail = await readFeedPostDetailDto({ postPublicId, userPublicId });
+
+  if (detail.status !== 'ok') {
+    return detail;
+  }
+
+  return {
+    status: 'ok',
+    data: detail.data.userState
+  };
+}
+
+export async function setFeedPostSaveState({
+  postPublicId,
+  userPublicId,
+  desiredState
+}: {
+  postPublicId: string;
+  userPublicId: string;
+  desiredState?: boolean;
+}): Promise<FeedSaveActionResult> {
+  const [user] = await db
+    .select({
+      id: users.id,
+      publicId: users.publicId
+    })
+    .from(users)
+    .where(and(eq(users.publicId, userPublicId), isNull(users.deletedAt)))
+    .limit(1);
+
+  if (!user) {
+    return { status: 'user_not_found' };
+  }
+
+  const [post] = await db
+    .select({
+      id: feedPosts.id
+    })
+    .from(feedPosts)
+    .where(
+      and(eq(feedPosts.publicId, postPublicId), eq(feedPosts.visibility, 'public'))
+    )
+    .limit(1);
+
+  if (!post) {
+    return { status: 'post_not_found' };
+  }
+
+  const [existing] = await db
+    .select({
+      id: feedPostSaves.id,
+      status: feedPostSaves.status
+    })
+    .from(feedPostSaves)
+    .where(and(eq(feedPostSaves.postId, post.id), eq(feedPostSaves.userId, user.id)))
+    .limit(1);
+
+  const now = new Date();
+  const shouldSave =
+    typeof desiredState === 'boolean' ? desiredState : existing?.status !== 'saved';
+  const nextStatus = shouldSave ? 'saved' : 'removed';
+
+  if (existing) {
+    await db
+      .update(feedPostSaves)
+      .set({
+        status: nextStatus,
+        savedAt: shouldSave ? now : undefined,
+        updatedAt: now
+      })
+      .where(eq(feedPostSaves.id, existing.id));
+  } else {
+    await db.insert(feedPostSaves).values({
+      postId: post.id,
+      userId: user.id,
+      status: nextStatus,
+      savedAt: now,
       updatedAt: now
     });
   }
