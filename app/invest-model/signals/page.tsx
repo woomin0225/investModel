@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import { NextRequest } from 'next/server';
 import { Activity, Radio, ShieldAlert } from 'lucide-react';
+import { GET as readSignals } from '@/app/api/signals/route';
 import {
   MetricCard,
   MobileShell,
@@ -14,7 +16,6 @@ import {
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
 import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
-import { readSignalEventDtos } from '@/lib/db/signal-read-model';
 import {
   parseSignalEventType,
   type SignalEventDto,
@@ -207,6 +208,43 @@ function toDbSignalCard(
   };
 }
 
+async function readSignalsRoute({
+  signalType,
+  limit
+}: {
+  signalType: SignalEventType | null;
+  limit: number;
+}): Promise<SignalEventDto[]> {
+  const params = new URLSearchParams({ limit: String(limit) });
+
+  if (signalType) {
+    params.set('signalType', signalType);
+  }
+
+  const response = await readSignals(
+    new NextRequest(`http://localhost/api/signals?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+
+  if (!response.ok) {
+    throw new Error('Signals route read failed.');
+  }
+
+  const payload = (await response.json()) as {
+    data?: SignalEventDto[];
+  };
+
+  if (!Array.isArray(payload.data)) {
+    throw new Error('Signals route returned no data array.');
+  }
+
+  return payload.data;
+}
+
 export default async function InvestModelSignalsPage({
   searchParams
 }: InvestModelSignalsPageProps) {
@@ -231,7 +269,7 @@ export default async function InvestModelSignalsPage({
   let dbSignals: SignalEventDto[] = [];
 
   try {
-    dbSignals = await readSignalEventDtos({
+    dbSignals = await readSignalsRoute({
       signalType: selectedSignalType,
       limit: 20
     });
