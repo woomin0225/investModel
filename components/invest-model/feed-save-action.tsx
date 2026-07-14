@@ -57,6 +57,9 @@ export function FeedSaveAction({
   const [isPending, setIsPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isKorean = locale === 'ko';
+  const actionTitle = reactionState.saved
+    ? 'Saved as a private reading shortcut. Not model selection, allocation, or order intent.'
+    : 'Not saved. Save only creates a private reading shortcut, not model selection, allocation, or order intent.';
 
   async function handleToggleSave() {
     if (isPending) {
@@ -120,6 +123,7 @@ export function FeedSaveAction({
         disabled={isPending}
         aria-pressed={reactionState.saved}
         aria-live="polite"
+        title={actionTitle}
         className={cn(
           'flex min-h-invest-touch-target w-full items-start justify-between gap-2 rounded-invest-control text-left disabled:cursor-wait disabled:opacity-80',
           investMotionClass.interactiveControl

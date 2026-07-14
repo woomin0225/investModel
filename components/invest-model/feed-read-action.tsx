@@ -110,6 +110,11 @@ export function FeedReadAction({
 
   const isDone = status === 'done' && reactionState.read;
   const isPending = status === 'pending';
+  const readStateLabel = isDone
+    ? 'Read state marked as private reading history. Not advice, order, or approval signal.'
+    : isPending
+      ? 'Read state is being marked as private reading history. Not advice, order, or approval signal.'
+      : 'Read state is pending. Private reading history only; not advice, order, or approval signal.';
 
   return (
     <div
@@ -118,6 +123,8 @@ export function FeedReadAction({
         isDone ? 'border-invest-primary/35' : 'border-invest-border'
       )}
       aria-live="polite"
+      aria-label={readStateLabel}
+      title={readStateLabel}
     >
       <div className="flex items-start justify-between gap-2">
         <span className="min-w-0">

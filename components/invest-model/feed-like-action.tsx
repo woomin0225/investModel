@@ -43,6 +43,9 @@ export function FeedLikeAction({
   const [isPending, setIsPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isKorean = locale === 'ko';
+  const actionTitle = reactionState.liked
+    ? 'Liked by you. Popularity context only; not advice, return, or order signal.'
+    : 'Not liked by you. Popularity context only; not advice, return, or order signal.';
 
   async function handleToggleLike() {
     if (isPending) {
@@ -106,6 +109,7 @@ export function FeedLikeAction({
         disabled={isPending}
         aria-pressed={reactionState.liked}
         aria-live="polite"
+        title={actionTitle}
         className={cn(
           'flex min-h-invest-touch-target w-full items-start justify-between gap-2 rounded-invest-control text-left disabled:cursor-wait disabled:opacity-80',
           investMotionClass.interactiveControl
