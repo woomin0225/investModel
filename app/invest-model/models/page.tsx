@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Filter, Scale, Search } from 'lucide-react';
+import { ArrowRight, Filter, Scale, Search } from 'lucide-react';
 import {
   investMotionClass,
   MobileShell,
@@ -131,6 +131,13 @@ export default async function InvestModelDiscoveryPage({
                 {compareCtaCopy[locale].description}
               </span>
             </span>
+            <span className="hidden shrink-0 rounded-full bg-invest-primary-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary min-[360px]:inline-flex">
+              {locale === 'ko' ? '정보 비교' : 'Compare'}
+            </span>
+            <ArrowRight
+              aria-hidden
+              className="size-4 shrink-0 text-invest-text-muted"
+            />
           </Link>
 
           <div className="space-y-2">
