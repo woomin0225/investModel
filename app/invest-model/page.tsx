@@ -1,4 +1,5 @@
 import { Clock3, Database, Radio, ShieldCheck } from 'lucide-react';
+import { NextRequest } from 'next/server';
 import {
   investMotionClass,
   MetricCard,
@@ -15,6 +16,8 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { GET as readNotifications } from '@/app/api/notifications/route';
+import type { NotificationCenterDto } from '@/lib/db/notification-read-model';
 import { investModelHomeMock } from '@/lib/mock/invest-model-home';
 import { cn } from '@/lib/utils';
 
@@ -49,10 +52,40 @@ const homeMetricSummaryCopy = {
   }
 } as const;
 
+async function readHomeNotificationUnreadLabel() {
+  try {
+    const response = await readNotifications(
+      new NextRequest(
+        'http://localhost/api/notifications?userPublicId=user_demo_001&limit=12',
+        {
+          method: 'GET',
+          headers: {
+            'x-invest-model-role': 'user'
+          }
+        }
+      )
+    );
+
+    if (!response.ok) {
+      return undefined;
+    }
+
+    const payload = (await response.json()) as {
+      data?: NotificationCenterDto;
+    };
+    const unreadCount = payload.data?.unreadCount ?? 0;
+
+    return unreadCount > 0 ? String(unreadCount) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export default async function InvestModelPreviewPage({
   searchParams
 }: InvestModelPageProps) {
   const locale = resolveInvestModelLocale(await searchParams);
+  const unreadLabel = await readHomeNotificationUnreadLabel();
   const copy = investModelCopy[locale];
   const homeCopy = copy.home;
   const { account } = investModelHomeMock;
@@ -96,6 +129,7 @@ export default async function InvestModelPreviewPage({
           locale={locale}
           searchLabel={copy.actions.searchModels}
           notificationLabel={copy.actions.notifications}
+          unreadLabel={unreadLabel}
         />
       }
     >

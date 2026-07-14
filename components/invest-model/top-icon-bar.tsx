@@ -57,7 +57,7 @@ export function SearchAndNotificationActions({
   locale,
   searchLabel,
   notificationLabel,
-  unreadLabel = '2',
+  unreadLabel,
   className
 }: SearchAndNotificationActionsProps) {
   return (
