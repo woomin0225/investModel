@@ -45,6 +45,9 @@ export default async function InvestModelFeedPage({
   const copy = investModelCopy[locale];
   const feedCopy = copy.feed;
   const { summary, filters, posts } = feedCopy;
+  const selectedFilter = filters[0];
+  const visiblePostCountLabel =
+    locale === 'ko' ? `${posts.length}개 표시` : `${posts.length} shown`;
 
   return (
     <MobileShell
@@ -105,19 +108,36 @@ export default async function InvestModelFeedPage({
 
           <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
             <div className="flex w-max gap-2 pr-invest-screen-x">
-              {filters.map((filter) => (
+              {filters.map((filter, index) => (
                 <button
                   key={filter}
                   type="button"
+                  aria-pressed={index === 0}
                   className={cn(
-                    'min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card',
+                    'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
+                    index === 0
+                      ? 'border-invest-primary/25 bg-invest-primary-soft text-invest-primary'
+                      : 'border-invest-border bg-invest-surface text-invest-text',
                     investMotionClass.interactiveControl
                   )}
                 >
+                  {index === 0 ? (
+                    <span
+                      aria-hidden
+                      className="size-1.5 rounded-full bg-invest-primary"
+                    />
+                  ) : null}
                   {filter}
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-4 text-invest-text-muted">
+            <span className="min-w-0 truncate text-invest-text">
+              {selectedFilter}
+            </span>
+            <span className="shrink-0">{visiblePostCountLabel}</span>
           </div>
 
           <div className="space-y-invest-card-gap">
