@@ -271,8 +271,9 @@ export default async function InvestModelDetailPage({
           <button
             type="button"
             disabled
-            className="mt-4 min-h-invest-touch-target w-full rounded-invest-control bg-invest-text/75 px-4 text-sm font-bold text-invest-surface shadow-invest-card disabled:cursor-not-allowed disabled:opacity-90"
+            className="mt-4 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control border border-invest-text/10 bg-invest-text/75 px-4 text-sm font-bold text-invest-surface shadow-invest-card-strong transition-[box-shadow,transform] duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-90 motion-reduce:transition-none"
           >
+            <SquareCheckBig aria-hidden className="size-4" />
             {copy.selectionDisabledLabel}
           </button>
         </section>
