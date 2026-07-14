@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import { NextRequest } from 'next/server';
 import { ArrowRight, Filter, Scale, Search } from 'lucide-react';
+import { GET as readModels } from '@/app/api/models/route';
 import {
   investMotionClass,
   MobileShell,
@@ -179,11 +181,29 @@ function toDiscoverableInvestmentModelView(
 
 async function readDiscoverableInvestmentModels(locale: 'ko' | 'en') {
   try {
-    const { readModelCardDtos } = await import('@/lib/db/model-read-model');
-    const modelCards = await readModelCardDtos(30);
+    const response = await readModels(
+      new NextRequest('http://localhost/api/models?limit=30', {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'public'
+        }
+      })
+    );
+
+    if (!response.ok) {
+      throw new Error('Model route read failed.');
+    }
+
+    const payload = (await response.json()) as {
+      data?: ModelCardDto[];
+    };
+
+    if (!Array.isArray(payload.data)) {
+      throw new Error('Model route returned no data array.');
+    }
 
     return {
-      models: modelCards.map((card) =>
+      models: payload.data.map((card) =>
         toDiscoverableInvestmentModelView(card, locale)
       ),
       readFailed: false
