@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/server';
-import { Bell, CheckCircle2, Database, ShieldCheck } from 'lucide-react';
+import { Bell, CheckCircle2, Search, ShieldCheck } from 'lucide-react';
 
 import { POST as markAllNotificationsRead } from '@/app/api/notifications/mark-all-read/route';
 import { GET as readNotifications } from '@/app/api/notifications/route';
@@ -259,7 +259,7 @@ export default async function InvestModelNotificationsPage({
             investMotionClass.interactiveControl
           )}
         >
-          <Database aria-hidden className="size-5" />
+          <Search aria-hidden className="size-5" />
         </Link>
       }
     >
