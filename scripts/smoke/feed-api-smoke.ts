@@ -53,6 +53,12 @@ async function main() {
   );
   const listResponse = await readFeed('?limit=3');
   const listJson = await listResponse.json();
+  const modelNoteResponse = await readFeed('?postType=model_note&limit=10');
+  const modelNoteJson = await modelNoteResponse.json();
+  const marketContextResponse = await readFeed(
+    '?postType=market_context&limit=10'
+  );
+  const marketContextJson = await marketContextResponse.json();
   const filteredResponse = await readFeed('?postType=risk_note&limit=10');
   const filteredJson = await filteredResponse.json();
   const invalidResponse = await readFeed('?postType=trade_signal');
@@ -77,7 +83,22 @@ async function main() {
     'feed list keeps mock-safe API meta'
   );
   assertCondition(
+    modelNoteResponse.status === 200 &&
+      modelNoteJson.meta?.postType === 'model_note' &&
+      modelNoteJson.data.length === 1 &&
+      modelNoteJson.data[0].postType === 'model_note',
+    'postType filter returns model_note rows'
+  );
+  assertCondition(
+    marketContextResponse.status === 200 &&
+      marketContextJson.meta?.postType === 'market_context' &&
+      marketContextJson.data.length === 1 &&
+      marketContextJson.data[0].postType === 'market_context',
+    'postType filter returns market_context rows'
+  );
+  assertCondition(
     filteredResponse.status === 200 &&
+      filteredJson.meta?.postType === 'risk_note' &&
       filteredJson.data.length === 1 &&
       filteredJson.data[0].postType === 'risk_note',
     'postType filter returns risk_note rows'
