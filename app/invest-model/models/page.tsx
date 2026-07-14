@@ -169,7 +169,7 @@ export default async function InvestModelDiscoveryPage({
           <Link
             href={withInvestModelLocale('/invest-model/models/compare', locale)}
             className={cn(
-              'flex min-h-invest-touch-target items-center gap-3 rounded-invest-card border border-invest-border bg-invest-surface p-3 text-invest-text shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
+              'group flex min-h-invest-touch-target items-center gap-3 rounded-invest-card border border-invest-border bg-invest-surface p-3 text-invest-text shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
               investMotionClass.interactiveCard
             )}
           >
@@ -184,12 +184,12 @@ export default async function InvestModelDiscoveryPage({
                 {compareCtaCopy[locale].description}
               </span>
             </span>
-            <span className="hidden shrink-0 rounded-full bg-invest-primary-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary min-[360px]:inline-flex">
+            <span className="hidden shrink-0 rounded-full bg-invest-primary-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary transition-[background-color,color,transform] duration-200 ease-out group-hover:bg-invest-primary group-hover:text-white group-active:scale-95 motion-reduce:transition-none motion-reduce:group-active:scale-100 min-[360px]:inline-flex">
               {locale === 'ko' ? '정보 비교' : 'Compare'}
             </span>
             <ArrowRight
               aria-hidden
-              className="size-4 shrink-0 text-invest-text-muted"
+              className="size-4 shrink-0 text-invest-text-muted transition-[color,transform] duration-200 ease-out group-hover:translate-x-0.5 group-hover:text-invest-primary group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-active:scale-100"
             />
           </Link>
 
