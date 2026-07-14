@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
 
 import { db } from '@/lib/db/drizzle';
 import {
@@ -38,6 +38,15 @@ type ReadNotificationCenterInput = {
   userPublicId: string;
   limit: number;
 };
+
+export type MarkNotificationCenterReadResult =
+  | {
+      status: 'ok';
+      data: NotificationCenterDto;
+      markedCount: number;
+      readAt: string;
+    }
+  | { status: 'user_not_found' };
 
 function notificationPolicyNotices(): PolicyNoticeDto[] {
   return [
@@ -130,5 +139,88 @@ export async function readNotificationCenter({
     items,
     dataContext: 'mock',
     notices
+  };
+}
+
+export async function markNotificationCenterRead({
+  userPublicId,
+  limit
+}: ReadNotificationCenterInput): Promise<MarkNotificationCenterReadResult> {
+  const [user] = await db
+    .select({
+      id: users.id,
+      publicId: users.publicId
+    })
+    .from(users)
+    .where(and(eq(users.publicId, userPublicId), isNull(users.deletedAt)))
+    .limit(1);
+
+  if (!user) {
+    return { status: 'user_not_found' };
+  }
+
+  const centerBefore = await readNotificationCenter({ userPublicId, limit });
+  const now = new Date();
+  const postPublicIds = centerBefore.items.map(
+    (item) => item.feedPost.postPublicId
+  );
+
+  if (postPublicIds.length === 0) {
+    return {
+      status: 'ok',
+      data: centerBefore,
+      markedCount: 0,
+      readAt: now.toISOString()
+    };
+  }
+
+  const postRows = await db
+    .select({
+      id: feedPosts.id,
+      publicId: feedPosts.publicId
+    })
+    .from(feedPosts)
+    .where(inArray(feedPosts.publicId, postPublicIds));
+  const postIds = postRows.map((post) => post.id);
+  const existingReads = await db
+    .select({
+      id: feedPostReads.id,
+      postId: feedPostReads.postId
+    })
+    .from(feedPostReads)
+    .where(
+      and(eq(feedPostReads.userId, user.id), inArray(feedPostReads.postId, postIds))
+    );
+  const existingPostIds = new Set(existingReads.map((read) => read.postId));
+  const missingReads = postRows
+    .filter((post) => !existingPostIds.has(post.id))
+    .map((post) => ({
+      postId: post.id,
+      userId: user.id,
+      readAt: now,
+      updatedAt: now
+    }));
+
+  if (existingReads.length > 0) {
+    await db
+      .update(feedPostReads)
+      .set({
+        readAt: now,
+        updatedAt: now
+      })
+      .where(inArray(feedPostReads.id, existingReads.map((read) => read.id)));
+  }
+
+  if (missingReads.length > 0) {
+    await db.insert(feedPostReads).values(missingReads);
+  }
+
+  const data = await readNotificationCenter({ userPublicId, limit });
+
+  return {
+    status: 'ok',
+    data,
+    markedCount: centerBefore.unreadCount,
+    readAt: now.toISOString()
   };
 }
