@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, FileText, ShieldAlert, SquareCheckBig } from 'lucide-react';
 import {
+  investMotionClass,
   MobileShell,
   ModelRiskBadgeGroup,
   PerformanceMetricGroup,
@@ -16,6 +17,7 @@ import {
   resolveInvestModelLocale,
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { cn } from '@/lib/utils';
 
 type InvestModelDetailPageProps = {
   params: Promise<{
@@ -54,7 +56,10 @@ export default async function InvestModelDetailPage({
           />
           <Link
             href={withInvestModelLocale('/invest-model/models', locale)}
-            className="inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control px-2 text-sm font-semibold text-invest-primary"
+            className={cn(
+              'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control px-2 text-sm font-semibold text-invest-primary',
+              investMotionClass.interactiveControl
+            )}
           >
             <ArrowLeft aria-hidden className="size-4" />
             {copy.backLabel}
@@ -75,7 +80,10 @@ export default async function InvestModelDetailPage({
         <Link
           href={withInvestModelLocale('/invest-model/models', locale)}
           aria-label={copy.backLabel}
-          className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
+          className={cn(
+            'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+            investMotionClass.interactiveControl
+          )}
         >
           <ArrowLeft aria-hidden className="size-5" />
         </Link>
@@ -142,7 +150,12 @@ export default async function InvestModelDetailPage({
           </div>
         </section>
 
-        <section className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+        <section
+          className={cn(
+            'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+            investMotionClass.interactiveCard
+          )}
+        >
           <SectionHeader
             title={copy.selectionReviewTitle}
             description={copy.selectionReviewDescription}
@@ -155,7 +168,7 @@ export default async function InvestModelDetailPage({
             ].map((label, index) => (
               <div
                 key={label}
-                className="flex min-h-invest-touch-target items-center gap-3 rounded-invest-control bg-invest-surface-muted px-3 py-2"
+                className="flex min-h-invest-touch-target items-center gap-3 rounded-invest-control border border-transparent bg-invest-surface-muted px-3 py-2 transition-[background-color,border-color,transform] duration-200 ease-out hover:border-invest-primary/20 hover:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100"
               >
                 <span className="grid size-6 shrink-0 place-items-center rounded-full bg-invest-surface text-xs font-bold tabular-nums text-invest-primary">
                   {index + 1}
@@ -174,7 +187,7 @@ export default async function InvestModelDetailPage({
           {model.riskTone === 'high' ? (
             <div className="mt-3 rounded-invest-control bg-invest-risk-soft p-3 text-invest-risk">
               <p className="text-sm leading-6">{copy.highRiskNotice}</p>
-              <div className="mt-3 flex gap-2 rounded-invest-control border border-invest-risk/25 bg-invest-surface/80 p-3">
+              <div className="mt-3 flex gap-2 rounded-invest-control border border-invest-risk/25 bg-invest-surface/90 p-3 shadow-invest-card transition-[border-color,box-shadow,transform] duration-200 ease-out hover:border-invest-risk/40 hover:shadow-invest-nav active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                 <SquareCheckBig
                   aria-hidden
                   className="mt-0.5 size-5 shrink-0"
@@ -193,7 +206,7 @@ export default async function InvestModelDetailPage({
           <button
             type="button"
             disabled
-            className="mt-4 min-h-invest-touch-target w-full rounded-invest-control bg-invest-text/70 px-4 text-sm font-bold text-invest-surface shadow-invest-card"
+            className="mt-4 min-h-invest-touch-target w-full rounded-invest-control bg-invest-text/75 px-4 text-sm font-bold text-invest-surface shadow-invest-card disabled:cursor-not-allowed disabled:opacity-90"
           >
             {copy.selectionDisabledLabel}
           </button>
