@@ -252,6 +252,110 @@ Safety requirements:
 
 - Feed posts are informational.
 - Do not guarantee returns, encourage securities trading, or finalize legal/financial advice.
+- List DTOs do not include user-scoped like, save, read, or comment action state.
+
+## `FeedCommentDto`
+
+Used by `POST /api/feed/:postId/comments`, `POST /api/feed/:postId/comments/:commentId/replies`, and Feed Detail comment threads.
+
+```ts
+interface FeedCommentDto {
+  commentPublicId: string;
+  postPublicId: string;
+  parentCommentPublicId?: string;
+  authorDisplayName: string;
+  body: string;
+  status: 'visible' | 'hidden' | 'deleted';
+  createdAt: string;
+  updatedAt?: string;
+  replyCount: number;
+  replies?: FeedCommentDto[];
+  dataContext: 'mock' | 'informational_placeholder';
+  notices: PolicyNoticeDto[];
+}
+```
+
+Source tables: future `feed_post_comments` from `BK-293`, `feed_posts`, `users`.
+
+Safety requirements:
+
+- Comment ids are public ids only; internal numeric ids must not be exposed.
+- Comment body must pass validation, length limits, and moderation-ready status handling before display.
+- Hidden, deleted, or inaccessible comments must not reveal private moderation details.
+- Comments are informational discussion only and must not become personalized advice, legal judgment, or trading instructions.
+
+## `FeedReactionStateDto`
+
+Used by Feed Detail and feed action endpoints for the signed-in user's post state.
+
+```ts
+interface FeedReactionStateDto {
+  userPublicId: string;
+  postPublicId: string;
+  liked: boolean;
+  saved: boolean;
+  read: boolean;
+  likeCount: number;
+  commentCount: number;
+  savedAt?: string;
+  readAt?: string;
+  updatedAt: string;
+  dataContext: 'mock' | 'informational_placeholder';
+}
+```
+
+Source tables: future `feed_post_reactions`, `feed_post_saves`, and `feed_post_reads` from `BK-293`, `feed_post_comments`, `feed_posts`, `users`.
+
+Safety requirements:
+
+- `liked`, `saved`, and `read` are user-scoped UI state only.
+- Aggregate counts must not reveal hidden comments, private posts, or inaccessible user actions.
+- No reaction field may imply suitability, recommendation strength, or order intent.
+
+## `FeedPostDetailDto`
+
+Used by `GET /api/feed/:postId` and Feed Detail.
+
+```ts
+interface FeedPostDetailDto {
+  postPublicId: string;
+  modelPublicId?: string;
+  linkedModelName?: string;
+  relatedSignalPublicIds: string[];
+  authorDisplayName?: string;
+  postType: 'model_note' | 'market_context' | 'risk_note' | 'review_note';
+  title: string;
+  body: string;
+  tags: string[];
+  publishedAt?: string;
+  dataContext: 'mock' | 'informational_placeholder';
+  sourceAttribution: {
+    sourceLabel: string;
+    sourceUrl?: string;
+    reviewedBy?: string;
+    reviewState: 'mock_reviewed' | 'review_placeholder' | 'requires_review';
+  };
+  userState: FeedReactionStateDto;
+  comments: FeedCommentDto[];
+  recentLikeRanking?: {
+    rank: number;
+    windowLabel: string;
+    likeCount: number;
+    context: 'mock' | 'informational_placeholder';
+  };
+  notices: PolicyNoticeDto[];
+}
+```
+
+Source tables: `feed_posts`, `investment_models`, `users`, `model_disclosures`, future `feed_post_comments`, `feed_post_reactions`, `feed_post_saves`, and `feed_post_reads` from `BK-293`.
+
+Safety requirements:
+
+- Detail content is informational commentary, not investment advice.
+- `recentLikeRanking` is a popularity/context indicator only; it must not imply better model quality or expected return.
+- `sourceUrl` is optional and must never require external paid API keys during seed/mock ingestion.
+- Missing, hidden, unpublished, admin-only, or inaccessible posts use not-found/unavailable behavior and do not reveal private record existence.
+- Do not include fields named `recommendation`, `tradeAction`, `order`, `execution`, `fill`, `brokerAction`, `rebalanceInstruction`, or `TradeIntent`.
 
 ## `ModelSelectionDto`
 

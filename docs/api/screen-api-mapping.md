@@ -26,7 +26,7 @@
 | Signal Detail | `/invest-model/signals/[signalId]` | future `GET /api/signals/:signalId` | `SignalDetailDto` | `SignalEventDto` list item plus future detail mock | signed-in | route param uses public id only; observed context only; no buy/sell/hold advice. |
 | Model Detail | `/invest-model/models/[modelId]` | `GET /api/models/:id`; `POST /api/model-selections` after acknowledgement | `ModelDetailDto`; `ModelSelectionDto` | detail data derived from `lib/mock/invest-model-discovery.ts` and page-local copy | public or signed-in for detail; `user` for selection | selection stores model version only, not user allocation preferences. |
 | Feed Insights | `/invest-model/feed` | `GET /api/feed` | `FeedPostDto[]` | `lib/mock/invest-model-feed.ts` | signed-in | informational model/market/review notes only. |
-| Feed Detail | `/invest-model/feed/[postId]` | future `GET /api/feed/:postId` | future `FeedPostDetailDto` from `BK-299` | `FeedPostDto` list item plus future detail mock | signed-in | route param uses public id only; informational content only; comments/actions are separate contracts. |
+| Feed Detail | `/invest-model/feed/[postId]` | `GET /api/feed/:postId`; feed action APIs | `FeedPostDetailDto`; `FeedCommentDto`; `FeedReactionStateDto` | `FeedPostDto` list item plus future detail mock | signed-in | route param uses public id only; informational content only; comments/actions are user-scoped contracts. |
 
 ## Supporting Screens
 
@@ -183,17 +183,21 @@ Data needs:
 
 - post title, body, type, tags, author/display source, published time
 - linked InvestmentModel and related SignalEvent references when available
-- future comment tree, reaction state, bookmark state, read state, and ranking context from `BK-299`/`BK-302`
+- comment tree, reaction state, bookmark state, read state, and ranking context from `FeedPostDetailDto`
 - policy notices that this is informational commentary, not investment advice
 
 API sequence:
 
-1. Future `GET /api/feed/:postId`
-2. Future action APIs for comments, reactions, bookmarks, and reads remain separate from this screen route contract.
+1. `GET /api/feed/:postId`
+2. `POST /api/feed/:postId/comments`
+3. `POST /api/feed/:postId/comments/:commentId/replies`
+4. `POST /api/feed/:postId/likes`
+5. `POST /api/feed/:postId/saves`
+6. `POST /api/feed/:postId/read`
 
 Fallback:
 
-- Until `FeedPostDetailDto` exists, detail links may use the list `FeedPostDto` record and a safe placeholder detail section.
+- Until the detail API is implemented, detail links may use the list `FeedPostDto` record and a safe placeholder detail section shaped like `FeedPostDetailDto`.
 - Empty/unavailable state should keep the bottom tab shell and safe-area spacing intact on 390px mobile.
 
 ## Public Id And Detail Link Rules

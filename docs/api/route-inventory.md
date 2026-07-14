@@ -22,7 +22,12 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `GET` | `/api/signals` | List observed mock model signal events. | signed-in | mock-backed allowed |
 | `GET` | `/api/signals/:signalId` | Read one observed signal detail by public id. | signed-in | detail contract defined; implementation pending |
 | `GET` | `/api/feed` | List model notes, market context, risk notes, and review notes. | signed-in | mock-backed allowed |
-| `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | design-only until `BK-299` detail DTO is implemented |
+| `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | detail contract defined; implementation pending |
+| `POST` | `/api/feed/:postId/comments` | Create a top-level informational comment. | signed-in | action contract defined; implementation pending |
+| `POST` | `/api/feed/:postId/comments/:commentId/replies` | Create an informational reply comment. | signed-in | action contract defined; implementation pending |
+| `POST` | `/api/feed/:postId/likes` | Toggle or set the signed-in user's like state. | signed-in | action contract defined; implementation pending |
+| `POST` | `/api/feed/:postId/saves` | Toggle or set the signed-in user's saved state. | signed-in | action contract defined; implementation pending |
+| `POST` | `/api/feed/:postId/read` | Mark the signed-in user's post as read. | signed-in | action contract defined; implementation pending |
 | `POST` | `/api/model-selections` | Simulate a user selecting a specific model version. | user | mock-backed allowed |
 | `GET` | `/api/portfolio/mock-summary` | Read selected model, mock balance, simulated allocation, and sample positions. | user | mock-backed allowed |
 | `POST` | `/api/creator/models` | Create a creator model draft. | creator | design-only until RBAC is implemented |
@@ -99,14 +104,79 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
-| Purpose | Provide the future Feed Detail screen with one informational post and related context. |
+| Purpose | Provide Feed Detail with one informational post, related context, comments, and user-scoped action state. |
 | Request | Path parameter `postId` must resolve by `FeedPostDto.postPublicId` or a stable URL-safe alias. Internal numeric database ids are not allowed in route params. |
-| Response DTO | Future `FeedPostDetailDto` defined by `BK-299`; list pages may link by `FeedPostDto.postPublicId` before the detail DTO exists. |
+| Response DTO | `FeedPostDetailDto` |
 | Permission | Signed-in user for MVP. Public feed detail is a later product decision. |
 | Screens | Feed Detail |
-| Source tables | `feed_posts`, `investment_models`, `users`, `model_disclosures`; future comment/reaction/read tables from `BK-275` and `BK-276` |
+| Source tables | `feed_posts`, `investment_models`, `users`, `model_disclosures`, future `feed_post_comments`, `feed_post_reactions`, `feed_post_saves`, and `feed_post_reads` from `BK-293` |
 | Mock source | `lib/mock/invest-model-feed.ts` until detail fixtures exist. |
-| Safety notes | Missing, hidden, unpublished, admin-only, or inaccessible posts return not-found/unavailable behavior. The route must not expose private record existence and must not guarantee returns, encourage securities trading, or present legal/financial advice as final. |
+| Safety notes | Missing, hidden, unpublished, admin-only, or inaccessible posts return not-found/unavailable behavior. The route must not expose private record existence and must not guarantee returns, encourage securities trading, or present legal/financial advice as final. Like rankings are popularity context only, not model quality or expected return. |
+
+### `POST /api/feed/:postId/comments`
+
+| Field | Value |
+| --- | --- |
+| Purpose | Create a top-level informational comment for a visible feed post. |
+| Request | Path parameter `postId`; JSON body `{ body: string, clientRequestId?: string }`. |
+| Response DTO | `FeedCommentDto` and optionally refreshed `FeedReactionStateDto` when counts change. |
+| Permission | Signed-in user; only visible posts can receive comments. |
+| Screens | Feed Detail |
+| Source tables | Future `feed_post_comments` from `BK-293`, `feed_posts`, `users` |
+| Mock source | Future feed interaction seed/sample files from `BK-293`. |
+| Safety notes | Validate length/content, rate-limit later, store moderation-ready status, and treat comments as informational discussion only. No personalized advice, order, or trade instruction fields are allowed. |
+
+### `POST /api/feed/:postId/comments/:commentId/replies`
+
+| Field | Value |
+| --- | --- |
+| Purpose | Create an informational reply under a visible parent comment. |
+| Request | Path parameters `postId` and `commentId` must resolve by public ids; JSON body `{ body: string, clientRequestId?: string }`. |
+| Response DTO | `FeedCommentDto` and optionally refreshed parent `FeedCommentDto`. |
+| Permission | Signed-in user; parent comment must be visible to the actor. |
+| Screens | Feed Detail |
+| Source tables | Future `feed_post_comments` from `BK-293`, `feed_posts`, `users` |
+| Mock source | Future feed interaction seed/sample files from `BK-293`. |
+| Safety notes | Hidden, deleted, or inaccessible parent comments use unavailable behavior and must not reveal moderation/private details. Replies remain informational only. |
+
+### `POST /api/feed/:postId/likes`
+
+| Field | Value |
+| --- | --- |
+| Purpose | Toggle or set the signed-in user's like state for a feed post. |
+| Request | Path parameter `postId`; optional JSON body `{ desiredState?: boolean }`. |
+| Response DTO | `FeedReactionStateDto` |
+| Permission | Signed-in user; only the actor's own like state can change. |
+| Screens | Feed Detail, Feed Insights list row actions |
+| Source tables | Future `feed_post_reactions` from `BK-293`, `feed_posts`, `users` |
+| Mock source | Future feed interaction seed/sample files from `BK-293`. |
+| Safety notes | Like state is UI engagement only and must not imply recommendation strength, suitability, or expected return. |
+
+### `POST /api/feed/:postId/saves`
+
+| Field | Value |
+| --- | --- |
+| Purpose | Toggle or set the signed-in user's saved/bookmarked state for a feed post. |
+| Request | Path parameter `postId`; optional JSON body `{ desiredState?: boolean }`. |
+| Response DTO | `FeedReactionStateDto` |
+| Permission | Signed-in user; only the actor's own saved state can change. |
+| Screens | Feed Detail, Feed Insights list row actions |
+| Source tables | Future `feed_post_saves` from `BK-293`, `feed_posts`, `users` |
+| Mock source | Future feed interaction seed/sample files from `BK-293`. |
+| Safety notes | Save state is a private reading shortcut only and must not be treated as model selection, portfolio allocation, or order intent. |
+
+### `POST /api/feed/:postId/read`
+
+| Field | Value |
+| --- | --- |
+| Purpose | Mark the signed-in user's feed post as read. |
+| Request | Path parameter `postId`; optional JSON body `{ readAt?: string }` when a client timestamp is accepted later. |
+| Response DTO | `FeedReactionStateDto` |
+| Permission | Signed-in user; only the actor's own read state can change. |
+| Screens | Feed Detail, Feed Insights list row actions |
+| Source tables | Future `feed_post_reads` from `BK-293`, `feed_posts`, `users` |
+| Mock source | Future feed interaction seed/sample files from `BK-293`. |
+| Safety notes | Read state is private UI state. It must not expose other users' behavior or imply regulatory review/compliance approval. |
 
 ### `POST /api/model-selections`
 
