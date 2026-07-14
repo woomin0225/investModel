@@ -163,12 +163,16 @@ export default async function InvestModelDiscoveryPage({
                   performanceLabel={model.performanceLabel}
                   mandateLabel={model.mandateLabel}
                   constraintLabels={model.tags}
+                  footerBadges={[
+                    { label: model.reviewLabel },
+                    { label: model.simulatedAumLabel, tone: 'low' }
+                  ]}
                   isSelectionDisabled={statusDisplay.isSelectionDisabled}
                 />
               );
 
               return (
-                <div key={model.id} className="space-y-2">
+                <div key={model.id}>
                   {statusDisplay.isSelectionDisabled ? (
                     modelCard
                   ) : (
@@ -182,10 +186,6 @@ export default async function InvestModelDiscoveryPage({
                       {modelCard}
                     </Link>
                   )}
-                  <div className="flex flex-wrap gap-2 px-1">
-                    <RiskBadge>{model.reviewLabel}</RiskBadge>
-                    <RiskBadge tone="low">{model.simulatedAumLabel}</RiskBadge>
-                  </div>
                 </div>
               );
             })}

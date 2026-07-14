@@ -92,6 +92,10 @@ type ModelCardProps = {
   performanceLabel: string;
   mandateLabel: string;
   constraintLabels?: readonly string[];
+  footerBadges?: readonly {
+    label: string;
+    tone?: RiskBadgeTone;
+  }[];
   isSelectionDisabled?: boolean;
   className?: string;
 };
@@ -395,6 +399,7 @@ export function ModelCard({
   performanceLabel,
   mandateLabel,
   constraintLabels,
+  footerBadges = [],
   isSelectionDisabled = false,
   className
 }: ModelCardProps) {
@@ -451,6 +456,15 @@ export function ModelCard({
             riskTone={riskTone}
             constraintLabels={constraintLabels}
           />
+          {footerBadges.length > 0 ? (
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-invest-border pt-3">
+              {footerBadges.map((badge) => (
+                <RiskBadge key={badge.label} tone={badge.tone ?? 'neutral'}>
+                  {badge.label}
+                </RiskBadge>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
     </article>
