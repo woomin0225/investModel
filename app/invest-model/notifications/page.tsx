@@ -136,6 +136,24 @@ function notificationSafetyAccessibleLabel(locale: 'ko' | 'en') {
   return 'Notifications safety boundary. This screen is a local DB read model prototype. It does not recommend securities, guarantee returns, connect accounts, execute orders, or send push, email, or SMS messages.';
 }
 
+function notificationSummaryVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? ['DB 읽음 상태', 'FeedPost 기반', '실제 푸시 없음', '실주문 없음']
+    : ['DB read state', 'FeedPost derived', 'no real push', 'no orders'];
+}
+
+function notificationActionVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? ['로컬 읽음 처리', 'email/SMS 없음', '브로커 미연결', '추천 아님']
+    : ['local read mutation', 'no email/SMS', 'no brokerage', 'not advice'];
+}
+
+function notificationItemVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? ['DB FeedPost', '정보성 알림', '계좌 메시지 아님']
+    : ['DB FeedPost', 'informational alert', 'not account messaging'];
+}
+
 async function readInvestModelNotifications() {
   const response = await readNotifications(
     new NextRequest(
@@ -235,6 +253,13 @@ export default async function InvestModelNotificationsPage({
               <div className="flex flex-wrap gap-2">
                 <RiskBadge tone="medium">DB FeedPost</RiskBadge>
                 <RiskBadge tone="neutral">{copy.noPush}</RiskBadge>
+                {notificationSummaryVisibleBoundaries(locale).map(
+                  (boundary) => (
+                    <RiskBadge key={boundary} tone="neutral">
+                      {boundary}
+                    </RiskBadge>
+                  )
+                )}
               </div>
               <h2 className="mt-3 text-[20px] font-bold leading-7 text-invest-text">
                 {copy.summaryTitle}
@@ -285,6 +310,15 @@ export default async function InvestModelNotificationsPage({
                 <p className="text-[12px] font-semibold leading-5 text-invest-text-muted">
                   {copy.actionHint}
                 </p>
+                <div className="flex flex-wrap gap-2">
+                  {notificationActionVisibleBoundaries(locale).map(
+                    (boundary) => (
+                      <RiskBadge key={boundary} tone="neutral">
+                        {boundary}
+                      </RiskBadge>
+                    )
+                  )}
+                </div>
               </form>
             </div>
           </div>
@@ -345,6 +379,13 @@ export default async function InvestModelNotificationsPage({
                             {isUnread ? copy.unread : copy.read}
                           </RiskBadge>
                           <RiskBadge tone="neutral">{item.feedPost.postType}</RiskBadge>
+                          {notificationItemVisibleBoundaries(locale).map(
+                            (boundary) => (
+                              <RiskBadge key={boundary} tone="neutral">
+                                {boundary}
+                              </RiskBadge>
+                            )
+                          )}
                         </div>
                         <h3 className="mt-2 line-clamp-2 text-[16px] font-bold leading-6 text-invest-text">
                           {item.title}
