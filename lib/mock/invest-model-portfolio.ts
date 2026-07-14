@@ -31,6 +31,29 @@ export const investModelPortfolioMock = {
     rationale:
       'Mock market and news observations created pre-order simulation TradeIntent records after policy checks.'
   },
+  timeSnapshots: [
+    {
+      rangeLabel: '1D',
+      valueLabel: '$24,800 simulated',
+      checkpointLabel: '09:40 KST mock checkpoint',
+      signalLabel: '3 observed SignalEvents',
+      safetyLabel: 'No real P/L'
+    },
+    {
+      rangeLabel: '1W',
+      valueLabel: '$24,800 simulated',
+      checkpointLabel: '7-day sample window',
+      signalLabel: 'Mock volatility guard active',
+      safetyLabel: 'No return claim'
+    },
+    {
+      rangeLabel: '1M',
+      valueLabel: '$24,800 simulated',
+      checkpointLabel: '30-day sample window',
+      signalLabel: 'PortfolioMandate guardrails only',
+      safetyLabel: 'No brokerage data'
+    }
+  ],
   positions: [
     {
       symbol: 'NVDA',

@@ -181,6 +181,8 @@ const screens: ScreenCheck[] = [
       investModelPortfolioMock.selectedModel.statusLabel,
       investModelPortfolioMock.selectedModel.mandateLabel,
       investModelPortfolioMock.mockDeposit.safetyLabel,
+      'Mock time dashboard',
+      investModelPortfolioMock.timeSnapshots[0]?.safetyLabel ?? '',
       investModelPortfolioMock.allocationDecision.sourceLabel,
       investModelPortfolioMock.tradeIntent.boundaryLabel
     ]
@@ -282,6 +284,13 @@ function collectScreenTextValues() {
     investModelPortfolioMock.selectedModel.selectedAtLabel,
     investModelPortfolioMock.mockDeposit.displayLabel,
     investModelPortfolioMock.mockDeposit.safetyLabel,
+    ...investModelPortfolioMock.timeSnapshots.flatMap((snapshot) => [
+      snapshot.rangeLabel,
+      snapshot.valueLabel,
+      snapshot.checkpointLabel,
+      snapshot.signalLabel,
+      snapshot.safetyLabel
+    ]),
     investModelPortfolioMock.allocationDecision.rationale,
     ...investModelPortfolioMock.positions.flatMap((position) => [
       position.symbol,

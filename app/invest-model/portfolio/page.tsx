@@ -1,4 +1,10 @@
-import { BriefcaseBusiness, Database, ShieldAlert, WalletCards } from 'lucide-react';
+import {
+  BriefcaseBusiness,
+  Clock3,
+  Database,
+  ShieldAlert,
+  WalletCards
+} from 'lucide-react';
 import {
   investMotionClass,
   MetricCard,
@@ -135,6 +141,57 @@ export default async function InvestModelPortfolioPage({
           trend={portfolio.tradeIntent.boundaryLabel}
           tone="risk"
         />
+
+        <div className="space-y-invest-card-gap">
+          <SectionHeader
+            title={
+              locale === 'ko' ? 'Mock time dashboard' : 'Mock time dashboard'
+            }
+            description={
+              locale === 'ko'
+                ? '1D, 1W, 1M 상태는 시뮬레이션 checkpoint이며 실제 수익률이나 계좌 성과가 아닙니다.'
+                : '1D, 1W, and 1M states are simulated checkpoints, not real returns or account performance.'
+            }
+          />
+          <div
+            role="list"
+            aria-label="Mock time dashboard"
+            className="grid grid-cols-3 gap-2 rounded-invest-card bg-invest-bg-soft p-1.5"
+          >
+            {portfolio.timeSnapshots.map((snapshot) => (
+              <article
+                key={snapshot.rangeLabel}
+                role="listitem"
+                className={cn(
+                  'group min-w-0 rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card',
+                  investMotionClass.interactiveCard
+                )}
+              >
+                <div className="mb-2 flex items-center justify-between gap-1.5">
+                  <span className="rounded-full bg-invest-primary-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary">
+                    {snapshot.rangeLabel}
+                  </span>
+                  <Clock3
+                    aria-hidden
+                    className="size-4 shrink-0 text-invest-text-muted transition-transform duration-200 ease-out group-hover:rotate-12 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:rotate-0 motion-reduce:group-active:scale-100"
+                  />
+                </div>
+                <p className="text-[15px] font-bold leading-5 text-invest-text">
+                  {snapshot.valueLabel}
+                </p>
+                <p className="mt-1 text-[12px] leading-4 text-invest-text-muted">
+                  {snapshot.checkpointLabel}
+                </p>
+                <p className="mt-2 text-[12px] font-semibold leading-4 text-invest-primary">
+                  {snapshot.signalLabel}
+                </p>
+                <div className="mt-2">
+                  <RiskBadge tone="blocked">{snapshot.safetyLabel}</RiskBadge>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
