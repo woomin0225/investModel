@@ -12,13 +12,57 @@ import {
 } from '@/components/invest-model';
 import {
   findMockInvestmentModelDetail,
-  investModelDetailCopy
+  investModelDetailCopy,
+  type MockInvestmentModelDetail
 } from '@/lib/mock/invest-model-model-detail';
 import {
+  getInvestmentModelStatusDisplay,
   resolveInvestModelLocale,
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import type { ModelDetailDto } from '@/lib/domain/models/model-read-model';
 import { cn } from '@/lib/utils';
+
+type InvestmentModelDetailView = MockInvestmentModelDetail & {
+  dataContext: 'db_read_model' | 'mock_fallback';
+};
+
+const detailReadModelCopy = {
+  ko: {
+    dbDetailLabel: 'DB read model detail',
+    mockFallbackLabel: 'Mock detail fallback',
+    leverageAllowed: 'Leverage allowed',
+    noLeverageFlag: 'No leverage flag',
+    derivativeAllowed: 'Derivatives allowed',
+    shortSellingAllowed: 'Short selling allowed',
+    userOverrideBlocked: 'User override disabled',
+    noRealOrder: 'No real order, deposit, or brokerage connection is created.',
+    noFutureReturn:
+      'Backtest and placeholder metrics do not imply future performance.',
+    mandateFallback: 'Model mandate',
+    disclosureFallback:
+      'Disclosure rows are DB read-model context only and still require qualified review before production use.',
+    updatedFallback: 'DB snapshot',
+    volatilityLabel: 'Volatility'
+  },
+  en: {
+    dbDetailLabel: 'DB read model detail',
+    mockFallbackLabel: 'Mock detail fallback',
+    leverageAllowed: 'Leverage allowed',
+    noLeverageFlag: 'No leverage flag',
+    derivativeAllowed: 'Derivatives allowed',
+    shortSellingAllowed: 'Short selling allowed',
+    userOverrideBlocked: 'User override disabled',
+    noRealOrder: 'No real order, deposit, or brokerage connection is created.',
+    noFutureReturn:
+      'Backtest and placeholder metrics do not imply future performance.',
+    mandateFallback: 'Model mandate',
+    disclosureFallback:
+      'Disclosure rows are DB read-model context only and still require qualified review before production use.',
+    updatedFallback: 'DB snapshot',
+    volatilityLabel: 'Volatility'
+  }
+} as const;
 
 type InvestModelDetailPageProps = {
   params: Promise<{
@@ -37,7 +81,7 @@ export default async function InvestModelDetailPage({
   ]);
   const locale = resolveInvestModelLocale(resolvedSearchParams);
   const copy = investModelDetailCopy[locale];
-  const model = findMockInvestmentModelDetail(locale, modelId);
+  const model = await readInvestmentModelDetailView(locale, modelId);
   const currentPath = `/invest-model/models/${modelId}`;
   const selectionCtaCopy =
     locale === 'ko'
@@ -143,7 +187,11 @@ export default async function InvestModelDetailPage({
     >
       <section className="space-y-invest-section-gap">
         <SoftBanner
-          eyebrow={copy.mockOnlyLabel}
+          eyebrow={
+            model.dataContext === 'db_read_model'
+              ? detailReadModelCopy[locale].dbDetailLabel
+              : copy.mockOnlyLabel
+          }
           icon={FileText}
           title={model.mandateLabel}
           description={model.summary}
@@ -338,7 +386,9 @@ export default async function InvestModelDetailPage({
           ) : null}
           <div className="mt-4 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-2">
             <RiskBadge tone="neutral" className="justify-center text-center">
-              {copy.reviewPlaceholderLabel}
+              {model.dataContext === 'db_read_model'
+                ? detailReadModelCopy[locale].dbDetailLabel
+                : copy.reviewPlaceholderLabel}
             </RiskBadge>
             <RiskBadge tone="blocked" className="justify-center text-center">
               {copy.noLiveTradingLabel}
@@ -381,6 +431,156 @@ function modelDetailSelectionVisibleBoundaries() {
     'No brokerage',
     'No advice'
   ];
+}
+
+async function readInvestmentModelDetailView(
+  locale: 'ko' | 'en',
+  modelId: string
+): Promise<InvestmentModelDetailView | undefined> {
+  try {
+    const { readModelDetailDto } = await import('@/lib/db/model-read-model');
+    const dbModel = await readModelDetailDto(modelId);
+
+    if (dbModel) {
+      return toInvestmentModelDetailView(dbModel, locale);
+    }
+  } catch {
+    // Fall through to the legacy mock detail so old comparison links remain visible
+    // when a local DB is unavailable.
+  }
+
+  const mockModel = findMockInvestmentModelDetail(locale, modelId);
+
+  return mockModel
+    ? {
+        ...mockModel,
+        dataContext: 'mock_fallback'
+      }
+    : undefined;
+}
+
+function toInvestmentModelDetailView(
+  model: ModelDetailDto,
+  locale: 'ko' | 'en'
+): InvestmentModelDetailView {
+  const copy = investModelDetailCopy[locale];
+  const readCopy = detailReadModelCopy[locale];
+  const statusDisplay = getInvestmentModelStatusDisplay(model.status, locale);
+  const marketLabel =
+    model.targetMarkets.join(', ') || model.mandate.allowedMarkets.join(', ');
+  const mandateLabel =
+    model.assetClassLabels.join(', ') ||
+    model.mandate.allowedAssetClasses.join(', ') ||
+    readCopy.mandateFallback;
+  const leverageLabel = model.risk.leverageAllowed
+    ? readCopy.leverageAllowed
+    : readCopy.noLeverageFlag;
+  const riskTone = toDetailRiskTone(model.risk.tone);
+  const disclosureDescription =
+    model.disclosures.map((disclosure) => disclosure.body).join('\n') ||
+    readCopy.disclosureFallback;
+
+  return {
+    id: model.slug,
+    modelPublicId: model.modelPublicId,
+    modelVersionPublicId: model.modelVersionPublicId ?? model.modelPublicId,
+    name: model.name,
+    summary:
+      model.strategySummary ??
+      model.shortDescription ??
+      model.risk.summary ??
+      readCopy.mandateFallback,
+    marketLabel: marketLabel || readCopy.mandateFallback,
+    riskLabel: model.risk.label,
+    riskTone,
+    leverageLabel,
+    statusLabel: statusDisplay.label,
+    statusTone: toDetailStatusTone(statusDisplay.tone),
+    mandateLabel,
+    reviewLabel: model.reviewLabel,
+    updatedLabel: model.performance.measuredAt ?? readCopy.updatedFallback,
+    metrics: [
+      {
+        label: 'Backtest',
+        value: model.performance.cumulativeReturn.display,
+        description: readCopy.noFutureReturn,
+        tone:
+          model.performance.cumulativeReturn.value !== null &&
+          model.performance.cumulativeReturn.value >= 0
+            ? 'positive'
+            : 'risk'
+      },
+      {
+        label: 'Max drawdown',
+        value: model.performance.maxDrawdown.display,
+        description: model.risk.summary ?? readCopy.noFutureReturn,
+        tone: 'risk'
+      },
+      {
+        label: readCopy.volatilityLabel,
+        value: model.performance.volatility.display,
+        description: model.risk.summary ?? readCopy.noFutureReturn
+      }
+    ],
+    mandateTitle: copy.models[0]?.mandateTitle ?? 'Model mandate',
+    mandateItems: compactDetailItems([
+      model.strategySummary,
+      model.assetUniverseSummary,
+      model.inputDataSummary,
+      model.rebalanceFrequency,
+      model.mandate.leveragePolicy,
+      model.mandate.rebalancePolicy
+    ]),
+    riskTitle: copy.models[0]?.riskTitle ?? 'Risks and limits',
+    riskItems: compactDetailItems([
+      model.risk.summary,
+      model.risk.derivativeAllowed ? readCopy.derivativeAllowed : undefined,
+      model.risk.shortSellingAllowed ? readCopy.shortSellingAllowed : undefined,
+      model.maxDrawdown.display,
+      readCopy.noFutureReturn
+    ]),
+    limitationTitle: copy.models[0]?.limitationTitle ?? 'MVP forbidden actions',
+    limitationItems: compactDetailItems([
+      model.forbiddenScope,
+      model.mandate.forbiddenAssets,
+      model.mandate.userOverrideAllowed
+        ? undefined
+        : readCopy.userOverrideBlocked,
+      readCopy.noRealOrder
+    ]),
+    disclosureTitle: copy.models[0]?.disclosureTitle ?? 'Disclosure',
+    disclosureDescription,
+    actionLabel: copy.models[0]?.actionLabel ?? 'Review before selection',
+    dataContext: 'db_read_model'
+  };
+}
+
+function compactDetailItems(items: Array<string | undefined>) {
+  const compacted = items.filter((item): item is string => Boolean(item));
+
+  return compacted.length > 0
+    ? compacted
+    : ['DB read model context is available, but this section has no populated rows yet.'];
+}
+
+function toDetailRiskTone(
+  tone: ModelDetailDto['risk']['tone']
+): MockInvestmentModelDetail['riskTone'] {
+  if (tone === 'low' || tone === 'medium') {
+    return tone;
+  }
+
+  return 'high';
+}
+
+function toDetailStatusTone(
+  tone: ReturnType<typeof getInvestmentModelStatusDisplay>['tone']
+): MockInvestmentModelDetail['statusTone'] {
+  if (tone === 'low' || tone === 'medium' || tone === 'high') {
+    return tone;
+  }
+
+  return tone === 'blocked' ? 'blocked' : 'low';
 }
 
 function DetailPanel({
