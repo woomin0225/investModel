@@ -4,7 +4,8 @@ import {
   MobileShell,
   RiskBadge,
   SectionHeader,
-  SoftBanner
+  SoftBanner,
+  investMotionClass
 } from '@/components/invest-model';
 import {
   investModelCopy,
@@ -22,9 +23,6 @@ const badgeToneByScore = {
   medium: 'medium',
   high: 'high'
 } as const;
-
-const signalCardInteractionClass =
-  'transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-invest-primary/30 hover:shadow-invest-nav active:translate-y-0 active:scale-[0.99] focus-within:border-invest-primary/40 motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100';
 
 type InvestModelSignalsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -98,7 +96,7 @@ export default async function InvestModelSignalsPage({
                 <button
                   key={filter}
                   type="button"
-                  className="min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card transition-[background-color,border-color,transform] duration-200 ease-out hover:border-invest-primary/30 hover:bg-invest-primary-soft active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg motion-reduce:transition-none motion-reduce:active:scale-100"
+                  className={`min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card ${investMotionClass.interactiveControl}`}
                 >
                   {filter}
                 </button>
@@ -110,7 +108,7 @@ export default async function InvestModelSignalsPage({
             {signals.map((signal) => (
               <article
                 key={signal.id}
-                className={`rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card ${signalCardInteractionClass}`}
+                className={`rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card ${investMotionClass.interactiveCard} focus-within:border-invest-primary/40`}
               >
                 <div className="flex items-start gap-3">
                   <div

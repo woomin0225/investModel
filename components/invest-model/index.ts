@@ -15,5 +15,6 @@ export {
   PerformanceMetricGroup,
   RiskBadge,
   SectionHeader,
-  SoftBanner
+  SoftBanner,
+  investMotionClass
 } from './ui';
