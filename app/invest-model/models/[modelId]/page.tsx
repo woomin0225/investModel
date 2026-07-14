@@ -298,10 +298,11 @@ export default async function InvestModelDetailPage({
             type="button"
             disabled
             aria-describedby="model-selection-review-status"
-            className="mt-3 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control border border-invest-text/10 bg-invest-text/75 px-4 text-sm font-bold text-invest-surface shadow-invest-card-strong transition-[box-shadow,transform] duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-90 motion-reduce:transition-none"
+            className="relative mt-3 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 overflow-hidden rounded-invest-control border border-invest-text/10 bg-invest-text/75 px-4 text-sm font-bold text-invest-surface shadow-invest-card-strong transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-90 disabled:hover:border-invest-text/15 disabled:hover:bg-invest-text/80 disabled:active:scale-100 motion-reduce:transition-none"
           >
-            <SquareCheckBig aria-hidden className="size-4" />
+            <SquareCheckBig aria-hidden className="size-4 shrink-0" />
             {copy.selectionDisabledLabel}
+            <span className="absolute inset-x-4 bottom-1.5 h-0.5 rounded-full bg-invest-surface/70" />
           </button>
           <p
             id="model-selection-review-status"
