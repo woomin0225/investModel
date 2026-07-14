@@ -182,6 +182,24 @@ function signalScoreSnapshotVisibleBoundaries(locale: SignalLocale) {
       ];
 }
 
+function signalEvidenceVisibleBoundaries(locale: SignalLocale) {
+  return locale === 'ko'
+    ? [
+        'DB source rows',
+        '관찰 시점 표시',
+        'mock/seed 근거',
+        '추천 근거 아님',
+        '주문 근거 아님'
+      ]
+    : [
+        'DB source rows',
+        'captured timestamp',
+        'mock/seed evidence',
+        'not advice evidence',
+        'not order evidence'
+      ];
+}
+
 export default async function InvestModelSignalDetailPage({
   params,
   searchParams
@@ -348,6 +366,13 @@ export default async function InvestModelSignalDetailPage({
           </div>
 
           <div className="mt-5 grid gap-2">
+            <div className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+              {signalEvidenceVisibleBoundaries(locale).map((boundary) => (
+                <RiskBadge key={boundary} tone="neutral">
+                  {boundary}
+                </RiskBadge>
+              ))}
+            </div>
             {sourceRows.map((row) => (
               <div
                 key={row.label}
