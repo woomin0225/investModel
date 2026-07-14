@@ -165,13 +165,16 @@ export default async function InvestModelSignalsPage({
                 role="listitem"
                 aria-label={`${signal.title} ${signal.scoreLabel}`}
                 className={cn(
-                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
+                  'group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
                   investMotionClass.interactiveCard
                 )}
               >
                 <div className="flex items-start gap-3">
                   <div
-                    className={`grid size-11 shrink-0 place-items-center rounded-invest-control text-[15px] font-bold ${signalToneClass[signal.scoreTone]}`}
+                    className={cn(
+                      'grid size-11 shrink-0 place-items-center rounded-invest-control text-[15px] font-bold transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
+                      signalToneClass[signal.scoreTone]
+                    )}
                   >
                     {signal.rank}
                   </div>
@@ -199,7 +202,7 @@ export default async function InvestModelSignalsPage({
                     <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
                       <div
                         className={cn(
-                          'h-full rounded-full',
+                          'h-full origin-left rounded-full transition-transform duration-200 ease-out group-hover:scale-y-110 group-active:scale-y-95 motion-reduce:transition-none motion-reduce:group-hover:scale-y-100 motion-reduce:group-active:scale-y-100',
                           signalStrengthClass[signal.scoreTone]
                         )}
                         style={{
