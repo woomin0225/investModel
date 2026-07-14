@@ -3,10 +3,13 @@ import {
   Eye,
   MessageCircle,
   MessageSquareText,
-  ShieldCheck
+  ShieldCheck,
+  Trophy
 } from 'lucide-react';
+import { NextRequest } from 'next/server';
 import Link from 'next/link';
 
+import { GET as readFeedRankings } from '@/app/api/feed/rankings/route';
 import {
   investMotionClass,
   MetricCard,
@@ -20,6 +23,7 @@ import { readFeedPostDtos } from '@/lib/db/feed-read-model';
 import {
   parseFeedPostType,
   type FeedPostDto,
+  type FeedPostRankingDto,
   type FeedPostType
 } from '@/lib/domain/feed/feed-post';
 import {
@@ -70,6 +74,15 @@ type FeedCard = {
   excerpt: string;
   linkedModelName: string;
   tags: string[];
+};
+
+type RankingCard = {
+  postPublicId: string;
+  rank: number;
+  title: string;
+  linkedModelName: string;
+  likeCountLabel: string;
+  windowLabel: string;
 };
 
 const feedPostToneByType = {
@@ -170,6 +183,46 @@ function copyPostToFeedCard(post: CopyFeedPost): FeedCard {
   };
 }
 
+function toRankingCard(
+  ranking: FeedPostRankingDto,
+  locale: FeedLocale
+): RankingCard {
+  return {
+    postPublicId: ranking.postPublicId,
+    rank: ranking.rank,
+    title: ranking.title,
+    linkedModelName:
+      ranking.linkedModelName ??
+      (locale === 'ko' ? 'No linked model' : 'No linked model'),
+    likeCountLabel:
+      locale === 'ko'
+        ? `${ranking.likeCount} tracked likes`
+        : `${ranking.likeCount} tracked likes`,
+    windowLabel: ranking.windowLabel
+  };
+}
+
+async function readInvestModelFeedRankings(
+  locale: FeedLocale
+): Promise<RankingCard[]> {
+  const response = await readFeedRankings(
+    new NextRequest('http://localhost/api/feed/rankings?limit=3', {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+
+  if (!response.ok) {
+    return [];
+  }
+
+  const payload = (await response.json()) as { data?: FeedPostRankingDto[] };
+
+  return (payload.data ?? []).map((ranking) => toRankingCard(ranking, locale));
+}
+
 export default async function InvestModelFeedPage({
   searchParams
 }: InvestModelFeedPageProps) {
@@ -195,6 +248,7 @@ export default async function InvestModelFeedPage({
     filterOptions[0];
   let feedReadState: 'db' | 'empty' | 'fallback' = 'db';
   let dbPosts: FeedPostDto[] = [];
+  let rankingCards: RankingCard[] = [];
 
   try {
     dbPosts = await readFeedPostDtos({ postType: selectedPostType, limit: 20 });
@@ -204,6 +258,12 @@ export default async function InvestModelFeedPage({
     }
   } catch {
     feedReadState = 'fallback';
+  }
+
+  try {
+    rankingCards = await readInvestModelFeedRankings(locale);
+  } catch {
+    rankingCards = [];
   }
 
   const posts: FeedCard[] =
@@ -474,6 +534,68 @@ export default async function InvestModelFeedPage({
                   : 'There are no DB feed rows for this filter yet.'}
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="space-y-invest-card-gap">
+          <SectionHeader
+            title={locale === 'ko' ? 'Like ranking' : 'Like ranking'}
+            description={
+              locale === 'ko'
+                ? 'DB-backed popularity context only, not model quality or expected return.'
+                : 'DB-backed popularity context only, not model quality or expected return.'
+            }
+          />
+
+          <div className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
+            <div className="grid gap-2.5">
+              {rankingCards.length > 0 ? (
+                rankingCards.map((ranking) => (
+                  <Link
+                    key={ranking.postPublicId}
+                    href={feedDetailHref(locale, ranking.postPublicId)}
+                    className={cn(
+                      'group grid gap-3 rounded-invest-control bg-invest-bg-soft p-3 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface min-[360px]:grid-cols-[auto_minmax(0,1fr)_auto]',
+                      investMotionClass.interactiveCard
+                    )}
+                  >
+                    <div className="grid size-10 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+                      <Trophy aria-hidden className="size-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap gap-1.5">
+                        <RiskBadge tone="neutral">
+                          #{ranking.rank}
+                        </RiskBadge>
+                        <RiskBadge tone="medium">
+                          {ranking.windowLabel}
+                        </RiskBadge>
+                      </div>
+                      <h3 className="mt-2 line-clamp-2 text-[15px] font-bold leading-5 text-invest-text">
+                        {ranking.title}
+                      </h3>
+                      <p className="mt-1 truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
+                        {ranking.linkedModelName}
+                      </p>
+                    </div>
+                    <div className="min-[360px]:text-right">
+                      <p className="rounded-invest-badge bg-invest-surface px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary">
+                        {ranking.likeCountLabel}
+                      </p>
+                      <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                        No advice
+                      </p>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="rounded-invest-control border border-dashed border-invest-border bg-invest-bg-soft p-4 text-sm font-semibold leading-6 text-invest-text-muted">
+                  {locale === 'ko'
+                    ? 'No tracked like ranking rows yet.'
+                    : 'No tracked like ranking rows yet.'}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
