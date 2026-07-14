@@ -13,12 +13,10 @@ import { GET as readFeedPosts } from '@/app/api/feed/route';
 import { GET as readFeedRankings } from '@/app/api/feed/rankings/route';
 import {
   investMotionClass,
-  MetricCard,
   MobileShell,
   RiskBadge,
   SectionHeader,
-  SearchAndNotificationActions,
-  SoftBanner
+  SearchAndNotificationActions
 } from '@/components/invest-model';
 import {
   parseFeedPostType,
@@ -322,7 +320,7 @@ export default async function InvestModelFeedPage({
   const copy = investModelCopy[locale];
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const feedCopy = copy.feed;
-  const { summary, filters, posts: fallbackPosts } = feedCopy;
+  const { filters, posts: fallbackPosts } = feedCopy;
   const filterOptions = [
     { label: filters[0], postType: null },
     { label: filters[1], postType: 'model_note' },
@@ -396,36 +394,6 @@ export default async function InvestModelFeedPage({
       }
     >
       <section className="space-y-invest-section-gap">
-        <SoftBanner
-          eyebrow={feedCopy.bannerEyebrow}
-          title={summary.title}
-          description={summary.description}
-          icon={MessageSquareText}
-        />
-
-        <div className="grid grid-cols-2 gap-invest-card-gap">
-          <MetricCard
-            label={feedCopy.metrics.posts}
-            value={visiblePostCountLabel}
-            description={dataStateLabel}
-            trend={feedCopy.metrics.mock}
-          />
-          <MetricCard
-            label={feedCopy.metrics.sources}
-            value={summary.sourceCountLabel}
-            description={feedCopy.metrics.approvedModelContext}
-            trend={feedCopy.metrics.sample}
-          />
-        </div>
-
-        <MetricCard
-          label={feedCopy.metrics.disclosureState}
-          value={summary.reviewLabel}
-          description={feedCopy.metrics.legalCopy}
-          trend={feedCopy.metrics.review}
-          tone="risk"
-        />
-
         <div className="space-y-invest-card-gap">
           <SectionHeader
             title={feedCopy.sectionTitle}
