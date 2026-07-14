@@ -5,7 +5,7 @@
 
 import { NextRequest } from 'next/server';
 import { and, eq } from 'drizzle-orm';
-import { POST } from '../../app/api/model-selections/route';
+import { GET, POST } from '../../app/api/model-selections/route';
 import { db, client } from '../../lib/db/drizzle';
 import {
   investmentModels,
@@ -167,6 +167,20 @@ async function callModelSelectionApi() {
   );
 }
 
+async function readModelSelectionApi() {
+  return GET(
+    new NextRequest(
+      `http://localhost/api/model-selections?userPublicId=${smokeUserPublicId}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'user'
+        }
+      }
+    )
+  );
+}
+
 async function main() {
   await cleanupSmokeRows();
   const smokeRows = await createSmokeRows();
@@ -175,6 +189,8 @@ async function main() {
   const firstJson = await firstResponse.json();
   const secondResponse = await callModelSelectionApi();
   const secondJson = await secondResponse.json();
+  const readResponse = await readModelSelectionApi();
+  const readJson = await readResponse.json();
 
   const persistedRows = await db
     .select({
@@ -214,6 +230,24 @@ async function main() {
       firstJson.meta?.brokerageConnection === false,
     'selection API must not enable financial operations'
   );
+  assertCondition(readResponse.status === 200, 'GET selection should respond');
+  assertCondition(
+    readJson.meta?.activeSelectionFound === true &&
+      readJson.data?.publicId === persistedRows[0]?.publicId,
+    'GET selection should read the same active DB selection'
+  );
+  assertCondition(
+    readJson.data?.modelPublicId === smokeModelPublicId &&
+      readJson.data?.modelVersionPublicId === smokeModelVersionPublicId,
+    'GET selection should include model and version public ids'
+  );
+  assertCondition(
+    readJson.meta?.financialOperationsEnabled === false &&
+      readJson.meta?.realDeposit === false &&
+      readJson.meta?.realOrder === false &&
+      readJson.meta?.brokerageConnection === false,
+    'GET selection read model must stay mock-safe'
+  );
 
   console.log(
     JSON.stringify(
@@ -223,9 +257,12 @@ async function main() {
         checked: {
           firstStatus: firstResponse.status,
           secondStatus: secondResponse.status,
+          readStatus: readResponse.status,
           activeSelectionCount: persistedRows.length,
           persistence: firstJson.meta?.persistence,
           duplicateActiveSelection: secondJson.meta?.duplicateActiveSelection,
+          readActiveSelectionFound: readJson.meta?.activeSelectionFound,
+          readSelectionPublicId: readJson.data?.publicId,
           financialOperationsEnabled:
             firstJson.meta?.financialOperationsEnabled,
           realDeposit: firstJson.meta?.realDeposit,

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import crypto from 'crypto';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import {
   investmentModels,
@@ -82,6 +82,108 @@ function toSelectionDto(
     'persisted',
     row.publicId
   );
+}
+
+function selectionMeta(extra?: Record<string, boolean | string>) {
+  return {
+    routeStatus: 'db_backed',
+    persistence: 'persisted',
+    recordsModelVersion: true,
+    requiresRiskAcknowledgement: true,
+    financialOperationsEnabled: false,
+    realDeposit: false,
+    realOrder: false,
+    brokerageConnection: false,
+    ...extra
+  };
+}
+
+export async function GET(request: NextRequest) {
+  const role = readRole(request);
+
+  if (!canCreateModelSelection(role)) {
+    return errorResponse(
+      403,
+      'forbidden',
+      'Only user or admin roles can read mock-safe model selection records.'
+    );
+  }
+
+  const userPublicId = request.nextUrl.searchParams
+    .get('userPublicId')
+    ?.trim();
+
+  if (!userPublicId) {
+    return errorResponse(
+      422,
+      'validation_error',
+      'userPublicId query parameter is required to read a mock-safe model selection.'
+    );
+  }
+
+  try {
+    const [row] = await db
+      .select({
+        selection: userModelSelections,
+        userPublicId: users.publicId,
+        modelPublicId: investmentModels.publicId,
+        modelVersionPublicId: modelVersions.publicId
+      })
+      .from(userModelSelections)
+      .innerJoin(users, eq(userModelSelections.userId, users.id))
+      .innerJoin(
+        investmentModels,
+        eq(userModelSelections.modelId, investmentModels.id)
+      )
+      .innerJoin(
+        modelVersions,
+        eq(userModelSelections.modelVersionId, modelVersions.id)
+      )
+      .where(
+        and(
+          eq(users.publicId, userPublicId),
+          eq(userModelSelections.status, 'active')
+        )
+      )
+      .orderBy(desc(userModelSelections.selectedAt))
+      .limit(1);
+
+    if (!row) {
+      return Response.json(
+        {
+          data: null,
+          meta: selectionMeta({
+            activeSelectionFound: false,
+            emptyState: 'no_active_model_selection'
+          })
+        },
+        { status: 200 }
+      );
+    }
+
+    return Response.json({
+      data: toSelectionDto(
+        {
+          userPublicId: row.userPublicId,
+          modelPublicId: row.modelPublicId,
+          modelVersionPublicId: row.modelVersionPublicId,
+          riskAcknowledgedAt:
+            row.selection.riskAcknowledgedAt?.toISOString() ??
+            row.selection.selectedAt.toISOString()
+        },
+        row.selection
+      ),
+      meta: selectionMeta({
+        activeSelectionFound: true
+      })
+    });
+  } catch {
+    return errorResponse(
+      500,
+      'server_error',
+      'Model selection could not be read. No funds, orders, or brokerage actions were attempted.'
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -191,17 +293,9 @@ export async function POST(request: NextRequest) {
       return Response.json(
         {
           data: toSelectionDto(validation.data, existingSelection),
-          meta: {
-            routeStatus: 'db_backed',
-            persistence: 'persisted',
+          meta: selectionMeta({
             duplicateActiveSelection: true,
-            recordsModelVersion: true,
-            requiresRiskAcknowledgement: true,
-            financialOperationsEnabled: false,
-            realDeposit: false,
-            realOrder: false,
-            brokerageConnection: false
-          }
+          })
         },
         { status: 200 }
       );
@@ -242,17 +336,9 @@ export async function POST(request: NextRequest) {
     return Response.json(
       {
         data: toSelectionDto(validation.data, createdSelection),
-        meta: {
-          routeStatus: 'db_backed',
-          persistence: 'persisted',
+        meta: selectionMeta({
           duplicateActiveSelection: false,
-          recordsModelVersion: true,
-          requiresRiskAcknowledgement: true,
-          financialOperationsEnabled: false,
-          realDeposit: false,
-          realOrder: false,
-          brokerageConnection: false
-        }
+        })
       },
       { status: 201 }
     );
