@@ -117,14 +117,15 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
+| Status | DB-backed action API implemented in `app/api/feed/[postId]/comments/route.ts`. |
 | Purpose | Create a top-level informational comment for a visible feed post. |
-| Request | Path parameter `postId`; JSON body `{ body: string, clientRequestId?: string }`. |
-| Response DTO | `FeedCommentDto` and optionally refreshed `FeedReactionStateDto` when counts change. |
-| Permission | Signed-in user; only visible posts can receive comments. |
+| Request | Path parameter `postId`; JSON body `{ userPublicId: string, body: string, clientRequestId?: string }`. `body` is trimmed and capped at 600 characters. |
+| Response DTO | Refreshed `FeedPostDetailDto` including the new top-level `FeedCommentDto` and updated `FeedReactionStateDto.commentCount`. |
+| Permission | Signed-in user/admin role; only visible posts can receive comments. |
 | Screens | Feed Detail |
-| Source tables | Future `feed_post_comments` from `BK-293`, `feed_posts`, `users` |
-| Mock source | Future feed interaction seed/sample files from `BK-293`. |
-| Safety notes | Validate length/content, rate-limit later, store moderation-ready status, and treat comments as informational discussion only. No personalized advice, order, or trade instruction fields are allowed. |
+| Source tables | `feed_post_comments`, `feed_posts`, `users`, plus reaction/save/read tables for refreshed state. |
+| Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` and DB-backed read model. |
+| Safety notes | Validate length/content, rate-limit later, store moderation-ready status, and treat comments as informational discussion only. No personalized advice, order, trade instruction, or compliance approval fields are allowed. |
 
 ### `POST /api/feed/:postId/comments/:commentId/replies`
 

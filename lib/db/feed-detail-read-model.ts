@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { and, asc, count, eq, isNull } from 'drizzle-orm';
 
 import { db } from '@/lib/db/drizzle';
@@ -36,6 +37,11 @@ type FeedSaveActionResult =
 
 type FeedReadActionResult =
   | { status: 'ok'; data: FeedReactionStateDto }
+  | { status: 'post_not_found' }
+  | { status: 'user_not_found' };
+
+type FeedCommentActionResult =
+  | { status: 'ok'; data: FeedPostDetailDto }
   | { status: 'post_not_found' }
   | { status: 'user_not_found' };
 
@@ -524,5 +530,65 @@ export async function setFeedPostReadState({
   return {
     status: 'ok',
     data: detail.data.userState
+  };
+}
+
+export async function createFeedPostComment({
+  postPublicId,
+  userPublicId,
+  body
+}: {
+  postPublicId: string;
+  userPublicId: string;
+  body: string;
+}): Promise<FeedCommentActionResult> {
+  const [user] = await db
+    .select({
+      id: users.id,
+      publicId: users.publicId
+    })
+    .from(users)
+    .where(and(eq(users.publicId, userPublicId), isNull(users.deletedAt)))
+    .limit(1);
+
+  if (!user) {
+    return { status: 'user_not_found' };
+  }
+
+  const [post] = await db
+    .select({
+      id: feedPosts.id
+    })
+    .from(feedPosts)
+    .where(
+      and(eq(feedPosts.publicId, postPublicId), eq(feedPosts.visibility, 'public'))
+    )
+    .limit(1);
+
+  if (!post) {
+    return { status: 'post_not_found' };
+  }
+
+  const now = new Date();
+
+  await db.insert(feedPostComments).values({
+    publicId: `feed_comment_${randomUUID()}`,
+    postId: post.id,
+    authorUserId: user.id,
+    body,
+    status: 'visible',
+    createdAt: now,
+    updatedAt: now
+  });
+
+  const detail = await readFeedPostDetailDto({ postPublicId, userPublicId });
+
+  if (detail.status !== 'ok') {
+    return detail;
+  }
+
+  return {
+    status: 'ok',
+    data: detail.data
   };
 }

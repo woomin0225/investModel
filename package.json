@@ -13,6 +13,7 @@
     "test:creator-draft-validation": "npx tsx scripts/smoke/creator-draft-validation-smoke.ts",
     "test:admin-force-stop": "npx tsx scripts/smoke/admin-force-stop-smoke.ts",
     "test:feed-api": "npx tsx scripts/smoke/feed-api-smoke.ts",
+    "test:feed-comment-api": "npx tsx scripts/smoke/feed-comment-api-smoke.ts",
     "test:feed-detail-api": "npx tsx scripts/smoke/feed-detail-api-smoke.ts",
     "test:feed-like-api": "npx tsx scripts/smoke/feed-like-api-smoke.ts",
     "test:feed-read-api": "npx tsx scripts/smoke/feed-read-api-smoke.ts",
