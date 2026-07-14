@@ -222,22 +222,30 @@ export default async function InvestModelSignalsPage({
                     <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                       {signal.description}
                     </p>
-                    <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                    <div
+                      className={cn(
+                        'mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/35 group-active:scale-[0.995] group-focus-within:bg-invest-primary-soft/45 min-[360px]:grid-cols-[minmax(0,1fr)_auto]',
+                        'motion-reduce:transition-none motion-reduce:group-active:scale-100'
+                      )}
+                    >
                       <RiskBadge
                         tone="neutral"
-                        className="justify-center text-center"
+                        className="justify-center text-center transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
                       >
                         {signal.linkedModelName}
                       </RiskBadge>
-                      <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
+                      <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted transition-[color,transform] duration-200 ease-out group-hover:scale-[1.01] group-hover:text-invest-text group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
                         {signal.freshnessLabel}
                       </span>
                     </div>
-                    <div className="mt-2.5 flex items-start gap-2.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2.5">
-                      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-invest-surface text-invest-primary shadow-invest-card">
-                        <Activity aria-hidden className="size-4" />
+                    <div className="mt-2.5 flex items-start gap-2.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2.5 transition-[background-color,border-color,transform] duration-200 ease-out group-hover:border-invest-primary/25 group-hover:bg-invest-surface group-active:scale-[0.995] group-focus-within:border-invest-primary/35 motion-reduce:transition-none motion-reduce:group-active:scale-100">
+                      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-invest-surface text-invest-primary shadow-invest-card transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
+                        <Activity
+                          aria-hidden
+                          className="size-4 transition-transform duration-200 ease-out group-hover:rotate-6 motion-reduce:transition-none motion-reduce:group-hover:rotate-0"
+                        />
                       </span>
-                      <p className="pt-0.5 text-sm font-semibold leading-5 text-invest-text-muted">
+                      <p className="pt-0.5 text-sm font-semibold leading-5 text-invest-text-muted transition-colors duration-200 ease-out group-hover:text-invest-text motion-reduce:transition-none">
                         {signal.statusLabel}
                       </p>
                     </div>
