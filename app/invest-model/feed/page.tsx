@@ -203,6 +203,46 @@ function toRankingCard(
   };
 }
 
+function feedFilterAccessibleLabel(
+  locale: FeedLocale,
+  label: string,
+  isActive: boolean,
+  visiblePostCountLabel: string
+) {
+  return locale === 'ko'
+    ? `${label} FeedPost 필터. ${isActive ? '현재 선택됨' : '선택 가능'}. ${visiblePostCountLabel}. DB-backed FeedPost read model만 필터링하며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.`
+    : `${label} FeedPost filter. ${isActive ? 'Currently selected' : 'Available'}. ${visiblePostCountLabel}. Filters only the DB-backed FeedPost read model, not recommendations, orders, brokerage actions, or realtime external data.`;
+}
+
+function feedPostAccessibleLabel(locale: FeedLocale, post: FeedCard) {
+  return locale === 'ko'
+    ? `FeedPost: ${post.title}. ${post.typeLabel}. ${post.linkedModelName}. ${post.sourceLabel}, ${post.timeLabel}. 정보성 DB read model 글이며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.`
+    : `FeedPost: ${post.title}. ${post.typeLabel}. ${post.linkedModelName}. ${post.sourceLabel}, ${post.timeLabel}. Informational DB read model post, not a recommendation, order, brokerage action, or realtime external data.`;
+}
+
+function feedActionAccessibleLabel(
+  locale: FeedLocale,
+  post: FeedCard,
+  action: string,
+  isPrimaryAction: boolean
+) {
+  return locale === 'ko'
+    ? `${post.title} ${action}. ${isPrimaryAction ? 'FeedPost 상세를 엽니다.' : '목록 화면의 시뮬레이션 상태 버튼입니다.'} 정보성 FeedPost 상호작용이며 추천, 주문, 브로커 동작이 아닙니다.`
+    : `${post.title} ${action}. ${isPrimaryAction ? 'Opens FeedPost detail.' : 'Simulated list action state.'} Informational FeedPost interaction, not a recommendation, order, or brokerage action.`;
+}
+
+function feedRankingAccessibleLabel(locale: FeedLocale, ranking: RankingCard) {
+  return locale === 'ko'
+    ? `FeedPost like ranking #${ranking.rank}: ${ranking.title}. ${ranking.likeCountLabel}, ${ranking.windowLabel}. DB-backed tracked like ranking이며 모델 품질, 기대 수익, 추천, 주문 근거가 아닙니다.`
+    : `FeedPost like ranking #${ranking.rank}: ${ranking.title}. ${ranking.likeCountLabel}, ${ranking.windowLabel}. DB-backed tracked like ranking, not model quality, expected return, recommendation, or order evidence.`;
+}
+
+function feedSafetyAccessibleLabel(locale: FeedLocale) {
+  return locale === 'ko'
+    ? 'Feed 안전 경계. FeedPost와 like ranking은 정보성 DB read model이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터 또는 실계좌 데이터가 아닙니다.'
+    : 'Feed safety boundary. FeedPosts and like rankings are informational DB read models, not recommendations, orders, return claims, brokerage actions, realtime external data, or real account data.';
+}
+
 async function readInvestModelFeedRankings(
   locale: FeedLocale
 ): Promise<RankingCard[]> {
@@ -317,6 +357,7 @@ export default async function InvestModelFeedPage({
         : locale === 'ko'
           ? '샘플 표시'
           : 'Sample fallback';
+  const safetyAccessibleLabel = feedSafetyAccessibleLabel(locale);
 
   return (
     <MobileShell
@@ -374,12 +415,21 @@ export default async function InvestModelFeedPage({
             <div className="flex w-max gap-2 pr-invest-screen-x">
               {filterOptions.map((filter) => {
                 const isActive = filter.postType === selectedFilter.postType;
+                const filterAccessibleLabel = feedFilterAccessibleLabel(
+                  locale,
+                  filter.label,
+                  isActive,
+                  visiblePostCountLabel
+                );
 
                 return (
                   <Link
                     key={filter.label}
                     href={filterHref(locale, filter.postType)}
+                    aria-label={filterAccessibleLabel}
                     aria-pressed={isActive}
+                    aria-current={isActive ? 'true' : undefined}
+                    title={filterAccessibleLabel}
                     className={cn(
                       'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
                       isActive
@@ -418,7 +468,8 @@ export default async function InvestModelFeedPage({
                 <article
                   key={post.id}
                   role="listitem"
-                  aria-label={`${post.title} ${post.typeLabel}`}
+                  aria-label={feedPostAccessibleLabel(locale, post)}
+                  title={feedPostAccessibleLabel(locale, post)}
                   className={cn(
                     'group relative rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
                     investMotionClass.interactiveCard
@@ -426,7 +477,18 @@ export default async function InvestModelFeedPage({
                 >
                   <Link
                     href={feedDetailHref(locale, post.id)}
-                    aria-label={`${post.title} ${feedActions[0]}`}
+                    aria-label={feedActionAccessibleLabel(
+                      locale,
+                      post,
+                      feedActions[0],
+                      true
+                    )}
+                    title={feedActionAccessibleLabel(
+                      locale,
+                      post,
+                      feedActions[0],
+                      true
+                    )}
                     className="absolute inset-0 z-10 rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface"
                   >
                     <span className="sr-only">{post.title}</span>
@@ -513,14 +575,22 @@ export default async function InvestModelFeedPage({
                         {feedActions.map((action, index) => {
                           const Icon = feedActionIcons[index];
                           const isPrimaryAction = index === 0;
+                          const actionAccessibleLabel =
+                            feedActionAccessibleLabel(
+                              locale,
+                              post,
+                              action,
+                              isPrimaryAction
+                            );
 
                         return (
                             isPrimaryAction ? (
                               <Link
                                 key={`${post.id}-${action}`}
                                 href={feedDetailHref(locale, post.id)}
-                                aria-label={`${post.title} ${action}`}
+                                aria-label={actionAccessibleLabel}
                                 aria-pressed="true"
+                                title={actionAccessibleLabel}
                                 className={cn(
                                   'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border border-invest-primary/20 bg-invest-primary-soft px-2 text-[12px] font-semibold leading-4 text-invest-primary',
                                   investMotionClass.interactiveControl
@@ -536,8 +606,9 @@ export default async function InvestModelFeedPage({
                               <button
                                 key={`${post.id}-${action}`}
                                 type="button"
-                                aria-label={`${post.title} ${action}`}
+                                aria-label={actionAccessibleLabel}
                                 aria-pressed="false"
+                                title={actionAccessibleLabel}
                                 className={cn(
                                   'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border border-transparent bg-invest-bg-soft px-2 text-[12px] font-semibold leading-4 text-invest-text-muted hover:text-invest-primary',
                                   investMotionClass.interactiveControl
@@ -584,6 +655,8 @@ export default async function InvestModelFeedPage({
                   <Link
                     key={ranking.postPublicId}
                     href={feedDetailHref(locale, ranking.postPublicId)}
+                    aria-label={feedRankingAccessibleLabel(locale, ranking)}
+                    title={feedRankingAccessibleLabel(locale, ranking)}
                     className={cn(
                       'group grid gap-3 rounded-invest-control bg-invest-bg-soft p-3 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface min-[360px]:grid-cols-[auto_minmax(0,1fr)_auto]',
                       investMotionClass.interactiveCard
@@ -629,7 +702,11 @@ export default async function InvestModelFeedPage({
           </div>
         </div>
 
-        <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
+        <div
+          aria-label={safetyAccessibleLabel}
+          title={safetyAccessibleLabel}
+          className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding"
+        >
           <div className="flex items-start gap-3">
             <ShieldCheck
               aria-hidden
