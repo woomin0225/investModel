@@ -1,0 +1,81 @@
+-- investModel domain seed skeleton.
+--
+-- Apply this file only as a complete tracked seed file. Do not copy individual
+-- statements into a MySQL console for one-off edits.
+--
+-- This skeleton is intentionally comment-only until BK-286 fills safe sample
+-- data and the dependent schema work is complete.
+
+-- 1. Identity and creator scope
+-- Planned tables:
+-- - users
+-- - teams
+-- - model_creators
+--
+-- Required sample boundary:
+-- - user 1 is a local sample app user.
+-- - creator rows represent mock model publishers.
+
+-- 2. Model catalog scope
+-- Planned tables:
+-- - investment_models
+-- - model_versions
+-- - portfolio_mandates
+-- - model_risk_profiles
+-- - model_disclosures
+-- - compliance_reviews
+-- - model_performance_snapshots
+--
+-- Required sample boundary:
+-- - performance values are backtest or placeholder context only.
+-- - disclosures must not imply legal approval or future returns.
+
+-- 3. Signals scope
+-- Planned tables:
+-- - signal_events
+-- - signal_score_snapshots
+-- - signal_score_inputs
+-- - model_signal_links
+--
+-- Required sample boundary:
+-- - score inputs are seeded/mock observations.
+-- - news traffic, search traffic, AI attention, and model inclusion inputs are
+--   simulated until IS-004 is resolved.
+-- - SignalEvent rows are not buy, sell, hold, or rebalance recommendations.
+
+-- 4. Feed scope
+-- Planned tables:
+-- - feed_posts
+-- - feed_post_comments
+-- - feed_post_reactions
+-- - feed_post_saves
+-- - feed_post_reads
+--
+-- Required sample boundary:
+-- - FeedPost rows are informational commentary.
+-- - comments and reactions are local sample user activity.
+
+-- 5. Portfolio simulation scope
+-- Planned tables:
+-- - mock_deposits
+-- - portfolios
+-- - portfolio_positions
+-- - allocation_decisions
+-- - trade_intents
+--
+-- Required sample boundary:
+-- - mock_deposits are simulated funds only.
+-- - trade_intents are pre-order simulation only and must not include execution
+--   or brokerage fields.
+
+-- 6. Notification and My Page scope
+-- Planned tables:
+-- - user_notifications
+-- - user_model_selections
+-- - user_activity_events
+--
+-- Required sample boundary:
+-- - notifications are in-app sample events only.
+-- - no push, email, SMS, broker, bank, or legal delivery provider is implied.
+
+-- Verification queries should be added with BK-286 when inserts are added.
