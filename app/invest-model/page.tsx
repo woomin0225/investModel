@@ -25,6 +25,27 @@ const activityAccentClass = [
   'bg-invest-positive'
 ] as const;
 
+const homeMetricSummaryCopy = {
+  ko: {
+    balanceLabel: '기준',
+    balanceValue: '모의잔고',
+    balanceNote: '실계좌 아님',
+    moveLabel: '변동',
+    moveNote: '백테스트',
+    policyLabel: '상태',
+    policyNote: '실주문 없음'
+  },
+  en: {
+    balanceLabel: 'Base',
+    balanceValue: 'Sim funds',
+    balanceNote: 'No account',
+    moveLabel: 'Move',
+    moveNote: 'Backtest',
+    policyLabel: 'Status',
+    policyNote: 'No orders'
+  }
+} as const;
+
 export default async function InvestModelPreviewPage({
   searchParams
 }: InvestModelPageProps) {
@@ -32,6 +53,33 @@ export default async function InvestModelPreviewPage({
   const copy = investModelCopy[locale];
   const homeCopy = copy.home;
   const { account } = investModelHomeMock;
+  const metricSummaryCopy = homeMetricSummaryCopy[locale];
+  const metricSummaryItems = [
+    {
+      icon: Database,
+      iconClassName: 'bg-invest-surface text-invest-primary',
+      label: metricSummaryCopy.balanceLabel,
+      value: metricSummaryCopy.balanceValue,
+      note: metricSummaryCopy.balanceNote,
+      valueClassName: 'text-invest-text'
+    },
+    {
+      icon: Radio,
+      iconClassName: 'bg-invest-positive-soft text-invest-positive',
+      label: metricSummaryCopy.moveLabel,
+      value: account.backtestReturnLabel,
+      note: metricSummaryCopy.moveNote,
+      valueClassName: 'text-invest-positive'
+    },
+    {
+      icon: ShieldCheck,
+      iconClassName: 'bg-invest-risk-soft text-invest-risk',
+      label: metricSummaryCopy.policyLabel,
+      value: homeCopy.metrics.blocked,
+      note: metricSummaryCopy.policyNote,
+      valueClassName: 'text-invest-risk'
+    }
+  ];
 
   return (
     <MobileShell
@@ -86,46 +134,42 @@ export default async function InvestModelPreviewPage({
           />
         </div>
 
-        <div className="grid gap-2 rounded-invest-card border border-invest-border bg-invest-surface-muted p-3 min-[360px]:grid-cols-3">
-          <div className="flex items-center gap-2">
-            <div className="grid size-8 shrink-0 place-items-center rounded-invest-control bg-invest-surface text-invest-primary">
-              <Database aria-hidden className="size-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
-                {homeCopy.metrics.mockBalance}
-              </p>
-              <p className="truncate text-[13px] font-bold leading-5 text-invest-text">
-                {homeCopy.metrics.mock}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="grid size-8 shrink-0 place-items-center rounded-invest-control bg-invest-positive-soft text-invest-positive">
-              <Radio aria-hidden className="size-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
-                {homeCopy.metrics.backtestMove}
-              </p>
-              <p className="truncate text-[13px] font-bold leading-5 text-invest-positive">
-                {account.backtestReturnLabel}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="grid size-8 shrink-0 place-items-center rounded-invest-control bg-invest-risk-soft text-invest-risk">
-              <ShieldCheck aria-hidden className="size-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
-                {homeCopy.metrics.policyStatus}
-              </p>
-              <p className="truncate text-[13px] font-bold leading-5 text-invest-risk">
-                {homeCopy.metrics.blocked}
-              </p>
-            </div>
-          </div>
+        <div className="grid gap-2 rounded-invest-card border border-invest-border bg-invest-surface-muted p-2.5 min-[360px]:grid-cols-3">
+          {metricSummaryItems.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <div
+                key={item.label}
+                className="flex min-w-0 items-center gap-2 rounded-invest-control bg-invest-surface px-2 py-2"
+              >
+                <div
+                  className={cn(
+                    'grid size-8 shrink-0 place-items-center rounded-invest-control',
+                    item.iconClassName
+                  )}
+                >
+                  <Icon aria-hidden className="size-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
+                    {item.label}
+                  </p>
+                  <p
+                    className={cn(
+                      'truncate text-[13px] font-bold leading-5',
+                      item.valueClassName
+                    )}
+                  >
+                    {item.value}
+                  </p>
+                  <p className="truncate text-[10px] font-semibold leading-4 text-invest-text-subtle">
+                    {item.note}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <div className="grid gap-invest-card-gap">
