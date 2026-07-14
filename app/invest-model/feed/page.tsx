@@ -237,6 +237,26 @@ function feedRankingAccessibleLabel(locale: FeedLocale, ranking: RankingCard) {
     : `FeedPost like ranking #${ranking.rank}: ${ranking.title}. ${ranking.likeCountLabel}, ${ranking.windowLabel}. DB-backed tracked like ranking, not model quality, expected return, recommendation, or order evidence.`;
 }
 
+function feedRankingVisibleBoundaries(locale: FeedLocale) {
+  return locale === 'ko'
+    ? [
+        'DB engagement ranking',
+        '정보성 관심도',
+        '모델 품질 아님',
+        '추천 아님',
+        '주문 아님',
+        '브로커 미연결'
+      ]
+    : [
+        'DB engagement ranking',
+        'informational attention',
+        'not model quality',
+        'not advice',
+        'not an order',
+        'no brokerage'
+      ];
+}
+
 function feedSafetyAccessibleLabel(locale: FeedLocale) {
   return locale === 'ko'
     ? 'Feed 안전 경계. FeedPost와 like ranking은 정보성 DB read model이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터 또는 실계좌 데이터가 아닙니다.'
@@ -680,6 +700,15 @@ export default async function InvestModelFeedPage({
                       <p className="mt-1 truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
                         {ranking.linkedModelName}
                       </p>
+                      <div className="mt-2 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface px-2 py-2">
+                        {feedRankingVisibleBoundaries(locale).map(
+                          (boundary) => (
+                            <RiskBadge key={boundary} tone="neutral">
+                              {boundary}
+                            </RiskBadge>
+                          )
+                        )}
+                      </div>
                     </div>
                     <div className="min-[360px]:text-right">
                       <p className="rounded-invest-badge bg-invest-surface px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary">
