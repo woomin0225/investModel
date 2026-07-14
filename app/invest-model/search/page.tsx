@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Database, Search, ShieldCheck } from 'lucide-react';
+import { Activity, ArrowRight, Database, Search, ShieldCheck } from 'lucide-react';
 
 import {
   investMotionClass,
@@ -9,7 +9,9 @@ import {
   SectionHeader
 } from '@/components/invest-model';
 import { readFeedPostDtos } from '@/lib/db/feed-read-model';
+import { readSignalEventDtos } from '@/lib/db/signal-read-model';
 import type { FeedPostDto } from '@/lib/domain/feed/feed-post';
+import type { SignalEventDto } from '@/lib/domain/signals/signal-event';
 import {
   investModelCopy,
   resolveInvestModelLocale,
@@ -51,8 +53,34 @@ function matchesFeedPostSearch(post: FeedPostDto, query: string) {
   return searchableText.includes(normalizedQuery);
 }
 
+function matchesSignalEventSearch(signal: SignalEventDto, query: string) {
+  const normalizedQuery = normalizeSearchText(query);
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  const searchableText = [
+    signal.title,
+    signal.summary,
+    signal.linkedModelName,
+    signal.signalType,
+    signal.sourceLabel,
+    signal.scoreDisplay
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLocaleLowerCase();
+
+  return searchableText.includes(normalizedQuery);
+}
+
 function buildFeedDetailHref(postPublicId: string, locale: 'ko' | 'en') {
   return withInvestModelLocale(`/invest-model/feed/${postPublicId}`, locale);
+}
+
+function buildSignalDetailHref(signalPublicId: string, locale: 'ko' | 'en') {
+  return withInvestModelLocale(`/invest-model/signals/${signalPublicId}`, locale);
 }
 
 export default async function InvestModelSearchPage({
@@ -63,14 +91,20 @@ export default async function InvestModelSearchPage({
   const copy = investModelCopy[locale];
   const rawQuery = firstSearchParam(resolvedSearchParams.q) ?? '';
   const query = rawQuery.trim();
-  const feedPosts = await readFeedPostDtos({ limit: 30 });
+  const [feedPosts, signals] = await Promise.all([
+    readFeedPostDtos({ limit: 30 }),
+    readSignalEventDtos({ limit: 20 })
+  ]);
   const filteredFeedPosts = feedPosts.filter((post) =>
     matchesFeedPostSearch(post, query)
   );
+  const filteredSignals = signals.filter((signal) =>
+    matchesSignalEventSearch(signal, query)
+  );
   const resultLabel =
     query.length > 0
-      ? `${filteredFeedPosts.length} DB-backed FeedPost results`
-      : `${filteredFeedPosts.length} recent DB-backed FeedPosts`;
+      ? `${filteredFeedPosts.length} FeedPosts · ${filteredSignals.length} SignalEvents`
+      : `${filteredFeedPosts.length} recent FeedPosts · ${filteredSignals.length} recent SignalEvents`;
 
   return (
     <MobileShell
@@ -126,8 +160,8 @@ export default async function InvestModelSearchPage({
           </div>
           <p className="mt-3 text-[12px] font-semibold leading-5 text-invest-text-muted">
             {locale === 'ko'
-              ? 'This first search slice reads DB-backed FeedPosts only. It does not search broker accounts, orders, or real balances.'
-              : 'This first search slice reads DB-backed FeedPosts only. It does not search broker accounts, orders, or real balances.'}
+              ? 'Search reads DB-backed FeedPosts and SignalEvents only. It does not search broker accounts, orders, realtime external feeds, or real balances.'
+              : 'Search reads DB-backed FeedPosts and SignalEvents only. It does not search broker accounts, orders, realtime external feeds, or real balances.'}
           </p>
         </form>
 
@@ -189,6 +223,69 @@ export default async function InvestModelSearchPage({
           </div>
         </div>
 
+        <div className="space-y-invest-card-gap">
+          <SectionHeader
+            title={locale === 'ko' ? 'SignalEvents' : 'SignalEvents'}
+            description={
+              query.length > 0
+                ? `${filteredSignals.length} DB-backed SignalEvent results`
+                : `${filteredSignals.length} recent DB-backed SignalEvents`
+            }
+          />
+          <div
+            role="list"
+            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+          >
+            {filteredSignals.length > 0 ? (
+              filteredSignals.map((signal) => (
+                <Link
+                  key={signal.signalPublicId}
+                  href={buildSignalDetailHref(signal.signalPublicId, locale)}
+                  role="listitem"
+                  className={cn(
+                    'group block rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
+                    investMotionClass.interactiveCard
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+                      <Activity aria-hidden className="size-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap gap-2">
+                        <RiskBadge tone="neutral">
+                          {signal.signalType}
+                        </RiskBadge>
+                        <RiskBadge tone="medium">DB SignalEvent</RiskBadge>
+                      </div>
+                      <h2 className="mt-2 line-clamp-2 text-[16px] font-bold leading-6 text-invest-text">
+                        {signal.title}
+                      </h2>
+                      <p className="mt-1 line-clamp-2 text-sm leading-6 text-invest-text-muted">
+                        {signal.summary}
+                      </p>
+                      <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-bg-soft px-3 py-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                        <span className="min-w-0 truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
+                          {signal.linkedModelName}
+                        </span>
+                        <span className="text-[12px] font-bold leading-4 text-invest-primary">
+                          {signal.scoreDisplay}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted">
+                {locale === 'ko'
+                  ? 'No DB-backed SignalEvent matched this search.'
+                  : 'No DB-backed SignalEvent matched this search.'}
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
           <div className="flex items-start gap-3">
             <ShieldCheck
@@ -206,8 +303,8 @@ export default async function InvestModelSearchPage({
               </div>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {locale === 'ko'
-                  ? 'Search results are informational FeedPost records from the local DB-backed read model. They are not recommendations, return claims, broker actions, or account data.'
-                  : 'Search results are informational FeedPost records from the local DB-backed read model. They are not recommendations, return claims, broker actions, or account data.'}
+                  ? 'Search results are informational FeedPost records and observed SignalEvent rows from the local DB-backed read model. They are not recommendations, return claims, broker actions, realtime external data, or account data.'
+                  : 'Search results are informational FeedPost records and observed SignalEvent rows from the local DB-backed read model. They are not recommendations, return claims, broker actions, realtime external data, or account data.'}
               </p>
             </div>
           </div>
