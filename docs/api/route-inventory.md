@@ -19,7 +19,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | --- | --- | --- | --- | --- |
 | `GET` | `/api/models` | List discoverable approved/live mock investment models. | public or signed-in | mock-backed allowed |
 | `GET` | `/api/models/:id` | Read model detail, mandate, risk, disclosures, and performance context. | public or signed-in | mock-backed allowed |
-| `GET` | `/api/signals` | List observed mock model signal events. | signed-in | mock-backed allowed |
+| `GET` | `/api/signals` | List observed model signal events. | signed-in | DB-backed; seed/mock ingestion allowed while IS-004 is open |
 | `GET` | `/api/signals/:signalId` | Read one observed signal detail by public id. | signed-in | detail contract defined; implementation pending |
 | `GET` | `/api/feed` | List model notes, market context, risk notes, and review notes. | signed-in | mock-backed allowed |
 | `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | DB-backed read implemented |
@@ -66,12 +66,12 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Field | Value |
 | --- | --- |
 | Purpose | Provide Realtime Signals with observed news, traffic, macro, price, or risk inputs. |
-| Request | Optional query parameters later: `modelId`, `signalType`, `cursor`, `since`. |
+| Request | Optional query parameters now: `signalType`, `limit`. Future query parameters: `modelId`, `cursor`, `since`. |
 | Response DTO | `SignalEventDto[]` |
 | Permission | Signed-in user. Public access should be a later product decision. |
 | Screens | Realtime Signals, Home signal preview |
-| Source tables | `model_signal_events`, `market_instruments`, `news_articles`, `news_traffic_snapshots`, `market_price_snapshots` |
-| Mock source | `lib/mock/invest-model-signals.ts` |
+| Source tables | `model_signal_events`, `model_versions`, `investment_models`, `market_instruments` |
+| Seed source | `docs/database/seeds/003_signal_event_seed.sql`; external realtime sources remain blocked by IS-004. |
 | Safety notes | Signals are observed inputs, not recommendations. They must not create live `TradeIntent` or order execution. |
 
 ### `GET /api/signals/:signalId`
