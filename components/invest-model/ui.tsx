@@ -288,7 +288,12 @@ export function MetricCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-medium text-invest-text-muted">{label}</p>
-          <p className={cn('mt-2 text-[24px] font-bold leading-8', toneClass)}>
+          <p
+            className={cn(
+              'mt-2 text-[24px] font-bold leading-8 tabular-nums',
+              toneClass
+            )}
+          >
             {value}
           </p>
         </div>
@@ -390,6 +395,8 @@ export function ModelCard({
   isSelectionDisabled = false,
   className
 }: ModelCardProps) {
+  const hasNumericPerformance = /[\d$%]/.test(performanceLabel);
+
   return (
     <article
       className={cn(
@@ -403,14 +410,31 @@ export function ModelCard({
           <TrendingUp aria-hidden className="size-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-invest-text">
-              {name}
-            </h3>
-            {statusLabel ? (
-              <RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>
-            ) : null}
-            <RiskBadge tone={riskTone}>{riskLabel}</RiskBadge>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="truncate text-[17px] font-semibold leading-6 text-invest-text">
+                {name}
+              </h3>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {statusLabel ? (
+                  <RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>
+                ) : null}
+                <RiskBadge tone={riskTone}>{riskLabel}</RiskBadge>
+              </div>
+            </div>
+            <div className="shrink-0 text-right">
+              <p
+                className={cn(
+                  'text-[17px] font-bold leading-6 tabular-nums',
+                  hasNumericPerformance ? 'text-invest-positive' : 'text-invest-text'
+                )}
+              >
+                {performanceLabel}
+              </p>
+              <p className="mt-0.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                {mandateLabel}
+              </p>
+            </div>
           </div>
           <p className="mt-2 text-sm leading-6 text-invest-text-muted">
             {summary}
@@ -421,7 +445,6 @@ export function ModelCard({
             assetClassLabel={mandateLabel}
             riskLabel={riskLabel}
             riskTone={riskTone}
-            performanceLabel={performanceLabel}
             constraintLabels={constraintLabels}
           />
         </div>
