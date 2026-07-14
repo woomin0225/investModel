@@ -70,6 +70,24 @@ function formatPublishedAt(value: string | undefined, locale: FeedLocale) {
   }).format(new Date(value));
 }
 
+function feedActionVisibleBoundaries(locale: FeedLocale) {
+  return locale === 'ko'
+    ? ['DB 사용자 상태', '정보성 반응', '추천 아님', '실주문 없음', '브로커 미연결']
+    : [
+        'DB user state',
+        'informational interaction',
+        'not advice',
+        'no orders',
+        'no brokerage'
+      ];
+}
+
+function feedActionBoundaryLabel(locale: FeedLocale) {
+  return locale === 'ko'
+    ? 'Feed 상세 액션은 DB 사용자 범위의 읽음, 댓글, 좋아요, 저장 상태만 변경하며 추천, 실주문, 브로커 연결, 투자 조언이 아닙니다.'
+    : 'Feed detail actions only change DB user-scoped read, comment, like, and save state; they are not advice, orders, brokerage, or investment recommendations.';
+}
+
 function CommentItem({
   comment,
   locale,
@@ -292,6 +310,18 @@ export default async function InvestModelFeedDetailPage({
             initialState={post.userState}
             locale={locale}
           />
+        </div>
+
+        <div
+          className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2"
+          aria-label={feedActionBoundaryLabel(locale)}
+          title={feedActionBoundaryLabel(locale)}
+        >
+          {feedActionVisibleBoundaries(locale).map((boundary) => (
+            <RiskBadge key={boundary} tone="neutral">
+              {boundary}
+            </RiskBadge>
+          ))}
         </div>
 
         {post.recentLikeRanking ? (
