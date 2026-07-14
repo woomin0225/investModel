@@ -214,13 +214,18 @@ export default async function InvestModelPortfolioPage({
             title={copy.positionTitle}
             description={copy.positionDescription}
           />
-          <div className="space-y-3">
+          <div
+            role="list"
+            aria-label={copy.positionTitle}
+            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+          >
             {portfolio.positions.map((position, index) => (
               <article
                 key={position.symbol}
+                role="listitem"
                 aria-label={`${position.symbol} ${position.weightLabel} ${position.valueLabel}`}
                 className={cn(
-                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
+                  'rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
                   investMotionClass.interactiveCard
                 )}
               >
