@@ -108,18 +108,26 @@ export default async function InvestModelSignalsPage({
 
           <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
             <div className="flex w-max gap-2 pr-invest-screen-x">
-              {filters.map((filter) => (
-                <button
-                  key={filter}
-                  type="button"
-                  className={cn(
-                    'min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card',
-                    investMotionClass.interactiveControl
-                  )}
-                >
-                  {filter}
-                </button>
-              ))}
+              {filters.map((filter, index) => {
+                const isSelected = index === 0;
+
+                return (
+                  <button
+                    key={filter}
+                    type="button"
+                    aria-pressed={isSelected}
+                    className={cn(
+                      'min-h-invest-touch-target rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
+                      isSelected
+                        ? 'border-invest-primary bg-invest-primary text-white'
+                        : 'border-invest-border bg-invest-surface text-invest-text',
+                      investMotionClass.interactiveControl
+                    )}
+                  >
+                    {filter}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
