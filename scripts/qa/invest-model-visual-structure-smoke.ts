@@ -320,6 +320,7 @@ function collectScreenTextValues() {
     ...investModelPortfolioMock.positions.flatMap((position) => [
       position.symbol,
       position.name,
+      position.quantityLabel,
       position.valueLabel,
       position.stateLabel,
       position.sourceLabel
@@ -420,7 +421,8 @@ assertCondition(
     portfolioPageSource.includes('portfolio.allocationDecision.statusLabel') &&
     portfolioPageSource.includes('portfolio.tradeIntent.statusLabel') &&
     portfolioPageSource.includes('Portfolio time dashboard read-model trace') &&
-    portfolioPageSource.includes('portfolio.timeSnapshots.length'),
+    portfolioPageSource.includes('portfolio.timeSnapshots.length') &&
+    portfolioPageSource.includes('position.quantityLabel'),
   'Portfolio must start with the DB-backed time dashboard summary instead of top simulation banner/metric cards'
 );
 

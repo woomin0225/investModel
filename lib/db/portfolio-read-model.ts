@@ -68,6 +68,18 @@ function formatWeight(value: string | number | null | undefined, total: number) 
   return `${Math.round((amount / total) * 100)}% target`;
 }
 
+function formatQuantity(value: string | number | null | undefined) {
+  const quantity = Number(value ?? 0);
+
+  if (!Number.isFinite(quantity)) {
+    return '0 simulated units';
+  }
+
+  return `${new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 8
+  }).format(quantity)} simulated units`;
+}
+
 function toBlockedActions(rows: Array<{ status: string; blockedReason: string | null }>) {
   if (rows.length === 0) {
     return fallbackPortfolio.tradeIntent.blockedActions;
@@ -158,6 +170,7 @@ export async function readInvestModelPortfolioSummary(
       .select({
         symbol: marketInstruments.symbol,
         name: marketInstruments.name,
+        quantity: portfolioPositions.quantity,
         marketValue: portfolioPositions.marketValue,
         asOf: portfolioPositions.asOf
       })
@@ -242,6 +255,7 @@ export async function readInvestModelPortfolioSummary(
           ? positionRows.map((position) => ({
               symbol: position.symbol,
               name: `${position.name} simulated holding`,
+              quantityLabel: formatQuantity(position.quantity),
               weightLabel: formatWeight(position.marketValue, totalMarketValue),
               valueLabel: `${formatMoney(position.marketValue, currency)} simulated`,
               stateLabel: 'simulated position',

@@ -89,6 +89,22 @@ async function main() {
     'portfolio summary exposes complete mock-safe 1D/1W/1M time snapshots'
   );
   assertCondition(
+    Array.isArray(summaryJson.data?.positions) &&
+      summaryJson.data.positions.length > 0 &&
+      summaryJson.data.positions.every(
+        (position: {
+          quantityLabel?: string;
+          valueLabel?: string;
+          sourceLabel?: string;
+        }) =>
+          position.quantityLabel?.toLowerCase().includes('simulated units') &&
+          position.valueLabel?.toLowerCase().includes('simulated') &&
+          (position.sourceLabel === 'DB mock position' ||
+            position.sourceLabel?.toLowerCase().includes('mock'))
+      ),
+    'portfolio positions expose mock-safe simulated quantity and value labels'
+  );
+  assertCondition(
     summaryJson.meta?.routeStatus === 'db_backed' &&
       summaryJson.meta?.mockOnly === true &&
       summaryJson.meta?.realDeposit === false &&

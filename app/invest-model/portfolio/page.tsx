@@ -106,10 +106,10 @@ function portfolioPositionAccessibleLabel(
   position: InvestModelPortfolioSummary['positions'][number]
 ) {
   if (locale === 'ko') {
-    return `${position.symbol} 포지션. ${position.name}. ${position.weightLabel}, ${position.valueLabel}. ${position.stateLabel}. ${position.sourceLabel}. 시뮬레이션 allocation mix이며 실제 보유 종목, 실잔고, 주문 지시, 투자 조언이 아닙니다.`;
+    return `${position.symbol} 포지션. ${position.name}. ${position.quantityLabel}, ${position.weightLabel}, ${position.valueLabel}. ${position.stateLabel}. ${position.sourceLabel}. 시뮬레이션 allocation mix이며 실제 보유 종목, 실잔고, 주문 지시, 투자 조언이 아닙니다.`;
   }
 
-  return `${position.symbol} position. ${position.name}. ${position.weightLabel}, ${position.valueLabel}. ${position.stateLabel}. ${position.sourceLabel}. Simulated allocation mix; not a real holding, real balance, order instruction, or investment advice.`;
+  return `${position.symbol} position. ${position.name}. ${position.quantityLabel}, ${position.weightLabel}, ${position.valueLabel}. ${position.stateLabel}. ${position.sourceLabel}. Simulated allocation mix; not a real holding, real balance, order instruction, or investment advice.`;
 }
 
 function portfolioDecisionAccessibleLabel(
@@ -513,6 +513,9 @@ export default async function InvestModelPortfolioPage({
                       </p>
                       <p className="mt-1 text-xs leading-4 text-invest-text-muted">
                         {position.valueLabel}
+                      </p>
+                      <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-primary">
+                        {position.quantityLabel}
                       </p>
                     </div>
                   </div>

@@ -58,6 +58,7 @@ export const investModelPortfolioMock = {
     {
       symbol: 'NVDA',
       name: 'NVIDIA sample equity',
+      quantityLabel: '42.00000000 simulated units',
       weightLabel: '42% target',
       valueLabel: '$10,416 simulated',
       stateLabel: 'simulated position',
@@ -66,6 +67,7 @@ export const investModelPortfolioMock = {
     {
       symbol: 'QQQ',
       name: 'NASDAQ 100 sample ETF',
+      quantityLabel: '38.00000000 simulated units',
       weightLabel: '38% target',
       valueLabel: '$9,424 simulated',
       stateLabel: 'simulated position',
@@ -74,6 +76,7 @@ export const investModelPortfolioMock = {
     {
       symbol: 'SHV',
       name: 'Treasury bill sample ETF',
+      quantityLabel: '20.00000000 simulated units',
       weightLabel: '20% guardrail',
       valueLabel: '$4,960 simulated',
       stateLabel: 'simulated position',

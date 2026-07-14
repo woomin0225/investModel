@@ -35,6 +35,7 @@ export type InvestModelPortfolioSummary = {
   positions: Array<{
     symbol: string;
     name: string;
+    quantityLabel: string;
     weightLabel: string;
     valueLabel: string;
     stateLabel: string;
