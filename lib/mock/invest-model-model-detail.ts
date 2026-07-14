@@ -7,6 +7,8 @@ import type { InvestModelLocale } from '@/lib/i18n/invest-model';
 
 export type MockInvestmentModelDetail = {
   id: string;
+  modelPublicId: string;
+  modelVersionPublicId: string;
   name: string;
   summary: string;
   marketLabel: string;
@@ -61,6 +63,8 @@ export const investModelDetailCopy = {
     models: [
       {
         id: 'quant-us-leverage-alpha',
+        modelPublicId: 'model_quant_us_alpha',
+        modelVersionPublicId: 'model_version_quant_us_v0_9',
         name: 'Quant US 레버리지 알파',
         summary:
           '미국 대형주 모멘텀과 레버리지 ETF를 모델이 미리 정의한 공격적 운용 원칙 안에서만 다루는 mock 모델입니다.',
@@ -117,6 +121,8 @@ export const investModelDetailCopy = {
       },
       {
         id: 'macro-etf-balance',
+        modelPublicId: 'model_macro_etf_balance',
+        modelVersionPublicId: 'model_version_macro_etf_v1_0',
         name: 'Macro ETF 밸런스',
         summary:
           '거시 추세, 뉴스 트래픽, 손실 제한 규칙을 바탕으로 주식 ETF와 채권 ETF를 모델 원칙대로 배분하는 mock 모델입니다.',
@@ -173,6 +179,8 @@ export const investModelDetailCopy = {
       },
       {
         id: 'defensive-income-rotation',
+        modelPublicId: 'model_defensive_income_rotation',
+        modelVersionPublicId: 'model_version_defensive_income_v1_0',
         name: 'Defensive Income 로테이션',
         summary:
           '위험 회피 신호가 커지면 배당주, 단기 채권 ETF, 현금성 노출로 회전하는 방어형 mock 모델입니다.',
@@ -254,6 +262,8 @@ export const investModelDetailCopy = {
     models: [
       {
         id: 'quant-us-leverage-alpha',
+        modelPublicId: 'model_quant_us_alpha',
+        modelVersionPublicId: 'model_version_quant_us_v0_9',
         name: 'Quant US Leverage Alpha',
         summary:
           'A mock model that trades US large-cap momentum and leveraged ETFs only within its predefined aggressive mandate.',
@@ -311,6 +321,8 @@ export const investModelDetailCopy = {
       },
       {
         id: 'macro-etf-balance',
+        modelPublicId: 'model_macro_etf_balance',
+        modelVersionPublicId: 'model_version_macro_etf_v1_0',
         name: 'Macro ETF Balance',
         summary:
           'A mock model that allocates stock and bond ETFs by model-defined macro trend, news traffic, and drawdown rules.',
@@ -368,6 +380,8 @@ export const investModelDetailCopy = {
       },
       {
         id: 'defensive-income-rotation',
+        modelPublicId: 'model_defensive_income_rotation',
+        modelVersionPublicId: 'model_version_defensive_income_v1_0',
         name: 'Defensive Income Rotation',
         summary:
           'A defensive mock model that rotates dividend equities, short-duration bond ETFs, and cash-like exposure during risk-off signals.',

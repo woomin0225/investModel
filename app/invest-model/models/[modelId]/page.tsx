@@ -3,6 +3,7 @@ import { ArrowLeft, FileText, ShieldAlert, SquareCheckBig } from 'lucide-react';
 import {
   investMotionClass,
   MobileShell,
+  ModelSelectionCta,
   ModelRiskBadgeGroup,
   PerformanceMetricGroup,
   RiskBadge,
@@ -38,6 +39,42 @@ export default async function InvestModelDetailPage({
   const copy = investModelDetailCopy[locale];
   const model = findMockInvestmentModelDetail(locale, modelId);
   const currentPath = `/invest-model/models/${modelId}`;
+  const selectionCtaCopy =
+    locale === 'ko'
+      ? {
+          description:
+            '모델이 정한 운용 범위, 손실 가능성, 금지된 동작을 확인한 뒤 선택 기록을 저장합니다. 이 기록은 실제 입금, 주문, 브로커 연결이 아닙니다.',
+          confirmLabel: '위험과 금지된 동작을 확인했습니다',
+          confirmDescription:
+            '선택 기록은 ModelVersion 저장용이며 사용자 투자성향 변경이나 실거래 동의가 아닙니다.',
+          submitLabel: '선택 기록 저장',
+          submittingLabel: '저장 중',
+          successTitle: '선택 기록을 저장했습니다',
+          duplicateTitle: '이미 저장된 선택 기록입니다',
+          errorTitle: '선택 기록을 저장하지 못했습니다',
+          signedOutMessage:
+            '로그인된 사용자 public id를 찾지 못했습니다. 샘플 사용자 seed 또는 로그인이 필요합니다.',
+          safetyLabel: '실입금/실주문 아님',
+          persistedLabel: 'DB 저장됨',
+          noLiveTradingLabel: copy.noLiveTradingLabel
+        }
+      : {
+          description:
+            'Save a selection record after reviewing this model mandate, loss possibility, and forbidden actions. This record is not a deposit, order, or brokerage connection.',
+          confirmLabel: 'I reviewed the risks and forbidden actions',
+          confirmDescription:
+            'This saves a selected ModelVersion only. It is not user preference editing or real trading consent.',
+          submitLabel: 'Save selection record',
+          submittingLabel: 'Saving',
+          successTitle: 'Selection record saved',
+          duplicateTitle: 'Selection record already exists',
+          errorTitle: 'Could not save the selection record',
+          signedOutMessage:
+            'A signed-in user public id was not found. A sample user seed or login is required.',
+          safetyLabel: 'No real deposit/order',
+          persistedLabel: 'DB persisted',
+          noLiveTradingLabel: copy.noLiveTradingLabel
+        };
   const detailSectionLinks = model
     ? [
         ['#model-mandate', model.mandateTitle],
@@ -215,7 +252,7 @@ export default async function InvestModelDetailPage({
         >
           <SectionHeader
             title={copy.selectionReviewTitle}
-            description={copy.selectionReviewDescription}
+            description={selectionCtaCopy.description}
           />
           <div className="mt-4 grid gap-2">
             {[
@@ -294,22 +331,11 @@ export default async function InvestModelDetailPage({
               {copy.noLiveTradingLabel}
             </RiskBadge>
           </div>
-          <button
-            type="button"
-            disabled
-            aria-describedby="model-selection-review-status"
-            className="relative mt-3 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 overflow-hidden rounded-invest-control border border-invest-text/10 bg-invest-text/75 px-4 text-sm font-bold text-invest-surface shadow-invest-card-strong transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-90 disabled:hover:border-invest-text/15 disabled:hover:bg-invest-text/80 disabled:active:scale-100 motion-reduce:transition-none"
-          >
-            <SquareCheckBig aria-hidden className="size-4 shrink-0" />
-            {copy.selectionDisabledLabel}
-            <span className="absolute inset-x-4 bottom-1.5 h-0.5 rounded-full bg-invest-surface/70" />
-          </button>
-          <p
-            id="model-selection-review-status"
-            className="mt-2 text-center text-[12px] font-semibold leading-5 text-invest-text-muted"
-          >
-            {copy.noLiveTradingLabel}
-          </p>
+          <ModelSelectionCta
+            modelPublicId={model.modelPublicId}
+            modelVersionPublicId={model.modelVersionPublicId}
+            copy={selectionCtaCopy}
+          />
         </section>
       </section>
     </MobileShell>

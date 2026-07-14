@@ -1,4 +1,5 @@
 export { CreatorModelDraftForm } from './creator-model-draft-form';
+export { ModelSelectionCta } from './model-selection-cta';
 export {
   BottomNav,
   MobileShell,
