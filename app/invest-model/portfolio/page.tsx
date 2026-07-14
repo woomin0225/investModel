@@ -232,7 +232,7 @@ export default async function InvestModelPortfolioPage({
                 role="listitem"
                 aria-label={`${position.symbol} ${position.weightLabel} ${position.valueLabel}`}
                 className={cn(
-                  'rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
+                  'group rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
                   investMotionClass.interactiveCard
                 )}
               >
@@ -267,7 +267,7 @@ export default async function InvestModelPortfolioPage({
                 </div>
                 <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
                   <div
-                    className="h-full rounded-full bg-invest-primary"
+                    className="h-full origin-left rounded-full bg-invest-primary transition-[transform,width] duration-200 ease-out group-hover:scale-y-110 group-active:scale-y-95 motion-reduce:transition-none motion-reduce:group-active:scale-y-100 motion-reduce:group-hover:scale-y-100"
                     style={{
                       width: `${parseWeightPercent(position.weightLabel)}%`
                     }}
