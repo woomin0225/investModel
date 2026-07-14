@@ -22,7 +22,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `GET` | `/api/signals` | List observed mock model signal events. | signed-in | mock-backed allowed |
 | `GET` | `/api/signals/:signalId` | Read one observed signal detail by public id. | signed-in | detail contract defined; implementation pending |
 | `GET` | `/api/feed` | List model notes, market context, risk notes, and review notes. | signed-in | mock-backed allowed |
-| `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | detail contract defined; implementation pending |
+| `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | DB-backed read implemented |
 | `POST` | `/api/feed/:postId/comments` | Create a top-level informational comment. | signed-in | action contract defined; implementation pending |
 | `POST` | `/api/feed/:postId/comments/:commentId/replies` | Create an informational reply comment. | signed-in | action contract defined; implementation pending |
 | `POST` | `/api/feed/:postId/likes` | Toggle or set the signed-in user's like state. | signed-in | action contract defined; implementation pending |
@@ -109,8 +109,8 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Response DTO | `FeedPostDetailDto` |
 | Permission | Signed-in user for MVP. Public feed detail is a later product decision. |
 | Screens | Feed Detail |
-| Source tables | `feed_posts`, `investment_models`, `users`, `model_disclosures`, future `feed_post_comments`, `feed_post_reactions`, `feed_post_saves`, and `feed_post_reads` from `BK-293` |
-| Mock source | `lib/mock/invest-model-feed.ts` until detail fixtures exist. |
+| Source tables | `feed_posts`, `investment_models`, `users`, `feed_post_comments`, `feed_post_reactions`, `feed_post_saves`, and `feed_post_reads` |
+| Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` for local sample detail/comment/action state. |
 | Safety notes | Missing, hidden, unpublished, admin-only, or inaccessible posts return not-found/unavailable behavior. The route must not expose private record existence and must not guarantee returns, encourage securities trading, or present legal/financial advice as final. Like rankings are popularity context only, not model quality or expected return. |
 
 ### `POST /api/feed/:postId/comments`

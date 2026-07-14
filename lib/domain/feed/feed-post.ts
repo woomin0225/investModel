@@ -27,6 +27,53 @@ export interface FeedPostDto {
   notices: PolicyNoticeDto[];
 }
 
+export interface FeedCommentDto {
+  commentPublicId: DomainPublicId;
+  postPublicId: DomainPublicId;
+  parentCommentPublicId?: DomainPublicId;
+  authorDisplayName: string;
+  body: string;
+  status: 'visible' | 'hidden' | 'deleted';
+  createdAt: string;
+  updatedAt?: string;
+  replyCount: number;
+  replies?: FeedCommentDto[];
+  dataContext: 'mock' | 'informational_placeholder';
+  notices: PolicyNoticeDto[];
+}
+
+export interface FeedReactionStateDto {
+  userPublicId: DomainPublicId;
+  postPublicId: DomainPublicId;
+  liked: boolean;
+  saved: boolean;
+  read: boolean;
+  likeCount: number;
+  commentCount: number;
+  savedAt?: string;
+  readAt?: string;
+  updatedAt: string;
+  dataContext: 'mock' | 'informational_placeholder';
+}
+
+export interface FeedPostDetailDto extends FeedPostDto {
+  relatedSignalPublicIds: DomainPublicId[];
+  sourceAttribution: {
+    sourceLabel: string;
+    sourceUrl?: string;
+    reviewedBy?: string;
+    reviewState: 'mock_reviewed' | 'review_placeholder' | 'requires_review';
+  };
+  userState: FeedReactionStateDto;
+  comments: FeedCommentDto[];
+  recentLikeRanking?: {
+    rank: number;
+    windowLabel: string;
+    likeCount: number;
+    context: 'mock' | 'informational_placeholder';
+  };
+}
+
 export const feedPostTypes = [
   'model_note',
   'market_context',
@@ -75,6 +122,23 @@ function tagsForPostType(postType: FeedPostType) {
   }
 }
 
+export function feedPolicyNotices(): PolicyNoticeDto[] {
+  return [
+    {
+      code: 'informational_feed_post',
+      severity: 'info',
+      message:
+        'FeedPost content is informational context, not investment advice.'
+    },
+    {
+      code: 'no_real_order',
+      severity: 'warning',
+      message:
+        'This API does not create orders, broker actions, or portfolio allocations.'
+    }
+  ];
+}
+
 export function buildFeedPostDto(input: {
   postPublicId: string;
   modelPublicId?: string | null;
@@ -104,19 +168,6 @@ export function buildFeedPostDto(input: {
     tags: tagsForPostType(postType),
     publishedAt,
     dataContext: 'mock',
-    notices: [
-      {
-        code: 'informational_feed_post',
-        severity: 'info',
-        message:
-          'FeedPost content is informational context, not investment advice.'
-      },
-      {
-        code: 'no_real_order',
-        severity: 'warning',
-        message:
-          'This API does not create orders, broker actions, or portfolio allocations.'
-      }
-    ]
+    notices: feedPolicyNotices()
   };
 }

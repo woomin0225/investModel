@@ -1,0 +1,117 @@
+/**
+ * This smoke test verifies GET /api/feed/[postId] against tracked seed data.
+ * It reads informational FeedPost detail, comment tree, and user-scoped UI state.
+ * It never mutates comments, funds, broker connections, orders, or allocations.
+ */
+
+import fs from 'fs';
+import path from 'path';
+import mysql from 'mysql2/promise';
+import { NextRequest } from 'next/server';
+import { GET } from '../../app/api/feed/[postId]/route';
+import { client } from '../../lib/db/drizzle';
+
+function assertCondition(condition: unknown, message: string): asserts condition {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+async function applyTrackedFeedSeed() {
+  const seedPath = path.resolve(
+    'docs/database/seeds/002_feed_interaction_seed.sql'
+  );
+  const sql = fs.readFileSync(seedPath, 'utf8');
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+
+  await connection.query(sql);
+  await connection.end();
+}
+
+function detailRequest(
+  postId: string,
+  search = '?userPublicId=user_demo_001',
+  role = 'user'
+) {
+  return GET(
+    new NextRequest(`http://localhost/api/feed/${postId}${search}`, {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': role
+      }
+    }),
+    {
+      params: Promise.resolve({ postId })
+    }
+  );
+}
+
+async function main() {
+  await applyTrackedFeedSeed();
+
+  const forbiddenResponse = await GET(
+    new NextRequest(
+      'http://localhost/api/feed/feed_mock_001?userPublicId=user_demo_001',
+      { method: 'GET' }
+    ),
+    {
+      params: Promise.resolve({ postId: 'feed_mock_001' })
+    }
+  );
+  const missingUserResponse = await detailRequest('feed_mock_001', '');
+  const notFoundResponse = await detailRequest('feed_mock_missing');
+  const detailResponse = await detailRequest('feed_mock_001');
+  const detailJson = await detailResponse.json();
+
+  assertCondition(
+    forbiddenResponse.status === 403,
+    'public role is forbidden'
+  );
+  assertCondition(
+    missingUserResponse.status === 422,
+    'userPublicId is required'
+  );
+  assertCondition(notFoundResponse.status === 404, 'missing post is 404');
+  assertCondition(detailResponse.status === 200, 'feed detail responds');
+  assertCondition(
+    detailJson.data?.postPublicId === 'feed_mock_001' &&
+      detailJson.data?.id === undefined,
+    'feed detail exposes public post id only'
+  );
+  assertCondition(
+    Array.isArray(detailJson.data?.comments) &&
+      detailJson.data.comments.length === 1 &&
+      detailJson.data.comments[0].commentPublicId === 'feed_comment_mock_001' &&
+      detailJson.data.comments[0].id === undefined &&
+      detailJson.data.comments[0].replies?.[0]?.parentCommentPublicId ===
+        'feed_comment_mock_001',
+    'feed detail returns public comment tree'
+  );
+  assertCondition(
+    detailJson.data?.userState?.userPublicId === 'user_demo_001' &&
+      detailJson.data.userState.liked === true &&
+      detailJson.data.userState.saved === false &&
+      detailJson.data.userState.read === true &&
+      detailJson.data.userState.likeCount === 1 &&
+      detailJson.data.userState.commentCount === 2,
+    'feed detail returns user-scoped state and aggregate counts'
+  );
+  assertCondition(
+    detailJson.meta?.routeStatus === 'db_backed' &&
+      detailJson.meta?.realOrder === false &&
+      detailJson.meta?.brokerageConnection === false &&
+      detailJson.meta?.financialAdvice === false,
+    'feed detail keeps mock-safe API meta'
+  );
+
+  await client.end();
+}
+
+main().catch(async (error) => {
+  console.error(error);
+  await client.end();
+  process.exit(1);
+});
