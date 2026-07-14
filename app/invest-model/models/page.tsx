@@ -276,6 +276,18 @@ export default async function InvestModelDiscoveryPage({
                     { label: model.reviewLabel },
                     { label: model.simulatedAumLabel, tone: 'low' }
                   ]}
+                  actionLabel={
+                    statusDisplay.isSelectionDisabled
+                      ? locale === 'ko'
+                        ? '검토 대기'
+                        : 'Review pending'
+                      : locale === 'ko'
+                        ? '상세 보기'
+                        : 'View detail'
+                  }
+                  actionTone={
+                    statusDisplay.isSelectionDisabled ? 'disabled' : 'active'
+                  }
                   isSelectionDisabled={statusDisplay.isSelectionDisabled}
                 />
               );

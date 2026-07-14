@@ -100,6 +100,8 @@ type ModelCardProps = {
     label: string;
     tone?: RiskBadgeTone;
   }[];
+  actionLabel?: string;
+  actionTone?: 'active' | 'disabled';
   isSelectionDisabled?: boolean;
   className?: string;
 };
@@ -407,15 +409,18 @@ export function ModelCard({
   mandateLabel,
   constraintLabels,
   footerBadges = [],
+  actionLabel,
+  actionTone = 'active',
   isSelectionDisabled = false,
   className
 }: ModelCardProps) {
   const hasNumericPerformance = /[\d$%]/.test(performanceLabel);
+  const hasFooter = footerBadges.length > 0 || actionLabel;
 
   return (
     <article
       className={cn(
-        'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        'group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
         investMotionClass.interactiveCard,
         isSelectionDisabled && 'border-invest-border bg-invest-surface-muted opacity-80',
         className
@@ -463,17 +468,40 @@ export function ModelCard({
             riskTone={riskTone}
             constraintLabels={constraintLabels}
           />
-          {footerBadges.length > 0 ? (
-            <div className="mt-4 grid gap-2 border-t border-invest-border pt-3 min-[360px]:grid-cols-2">
-              {footerBadges.map((badge) => (
-                <RiskBadge
-                  key={badge.label}
-                  tone={badge.tone ?? 'neutral'}
-                  className="justify-center text-center"
+          {hasFooter ? (
+            <div className="mt-4 space-y-2.5 border-t border-invest-border pt-3">
+              {footerBadges.length > 0 ? (
+                <div className="grid gap-2 min-[360px]:grid-cols-2">
+                  {footerBadges.map((badge) => (
+                    <RiskBadge
+                      key={badge.label}
+                      tone={badge.tone ?? 'neutral'}
+                      className="justify-center text-center"
+                    >
+                      {badge.label}
+                    </RiskBadge>
+                  ))}
+                </div>
+              ) : null}
+              {actionLabel ? (
+                <div
+                  className={cn(
+                    'flex min-h-9 items-center justify-between gap-3 rounded-invest-control px-3 text-xs font-bold leading-4 transition-[background-color,color,transform] duration-200 ease-out motion-reduce:transition-none',
+                    actionTone === 'disabled'
+                      ? 'bg-invest-surface text-invest-text-muted'
+                      : 'bg-invest-primary-soft text-invest-primary group-hover:bg-invest-primary group-hover:text-white'
+                  )}
                 >
-                  {badge.label}
-                </RiskBadge>
-              ))}
+                  <span className="truncate">{actionLabel}</span>
+                  <ArrowRight
+                    aria-hidden
+                    className={cn(
+                      'size-4 shrink-0 transition-transform duration-200 ease-out motion-reduce:transition-none',
+                      actionTone === 'active' && 'group-hover:translate-x-0.5'
+                    )}
+                  />
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>
