@@ -12,6 +12,8 @@ import { POST } from '../../app/api/feed/[postId]/comments/[commentId]/replies/r
 import { client } from '../../lib/db/drizzle';
 
 const smokeReplyBody = 'BK-325 smoke informational reply';
+const hiddenParentCommentBody = 'BK-275 smoke hidden parent comment';
+const hiddenParentCommentPublicId = 'feed_comment_smoke_hidden_parent';
 const parentCommentPublicId = 'feed_comment_mock_001';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
@@ -43,9 +45,35 @@ async function applyTrackedFeedSeed() {
 
   await withMysqlConnection(async (connection) => {
     await connection.query(sql);
-    await connection.query('DELETE FROM feed_post_comments WHERE body = ?', [
-      smokeReplyBody
+    await connection.query('DELETE FROM feed_post_comments WHERE body IN (?, ?)', [
+      smokeReplyBody,
+      hiddenParentCommentBody
     ]);
+    await connection.query(
+      `
+        INSERT INTO feed_post_comments (
+          public_id,
+          post_id,
+          parent_comment_id,
+          author_user_id,
+          body,
+          status,
+          created_at
+        )
+        SELECT
+          ?,
+          fp.id,
+          NULL,
+          u.id,
+          ?,
+          'hidden',
+          '2026-07-14 10:22:00'
+        FROM feed_posts fp
+        JOIN users u ON u.public_id = 'user_demo_001'
+        WHERE fp.public_id = 'feed_mock_001'
+      `,
+      [hiddenParentCommentPublicId, hiddenParentCommentBody]
+    );
   });
 }
 
@@ -135,6 +163,14 @@ async function main() {
       body: smokeReplyBody
     }
   );
+  const hiddenParentResponse = await replyRequest(
+    'feed_mock_001',
+    hiddenParentCommentPublicId,
+    {
+      userPublicId: 'user_demo_001',
+      body: smokeReplyBody
+    }
+  );
   const userNotFoundResponse = await replyRequest(
     'feed_mock_001',
     parentCommentPublicId,
@@ -172,6 +208,10 @@ async function main() {
     parentNotFoundResponse.status === 404,
     'missing parent comment is 404'
   );
+  assertCondition(
+    hiddenParentResponse.status === 404,
+    'hidden parent comment is not replyable'
+  );
   assertCondition(userNotFoundResponse.status === 404, 'missing user is 404');
   assertCondition(createResponse.status === 201, 'reply creation responds');
   assertCondition(
@@ -197,8 +237,9 @@ async function main() {
   );
 
   await withMysqlConnection(async (connection) => {
-    await connection.query('DELETE FROM feed_post_comments WHERE body = ?', [
-      smokeReplyBody
+    await connection.query('DELETE FROM feed_post_comments WHERE body IN (?, ?)', [
+      smokeReplyBody,
+      hiddenParentCommentBody
     ]);
   });
   await client.end();

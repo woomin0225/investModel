@@ -11,6 +11,9 @@ import { NextRequest } from 'next/server';
 import { GET } from '../../app/api/feed/[postId]/route';
 import { client } from '../../lib/db/drizzle';
 
+const hiddenCommentBody = 'BK-275 smoke hidden moderation comment';
+const deletedCommentBody = 'BK-275 smoke deleted moderation comment';
+
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
@@ -31,6 +34,60 @@ async function applyTrackedFeedSeed() {
   });
 
   await connection.query(sql);
+  await connection.query('DELETE FROM feed_post_comments WHERE body IN (?, ?)', [
+    hiddenCommentBody,
+    deletedCommentBody
+  ]);
+  await connection.query(
+    `
+      INSERT INTO feed_post_comments (
+        public_id,
+        post_id,
+        parent_comment_id,
+        author_user_id,
+        body,
+        status,
+        created_at
+      )
+      SELECT
+        'feed_comment_smoke_hidden_detail',
+        fp.id,
+        NULL,
+        u.id,
+        ?,
+        'hidden',
+        '2026-07-14 10:20:00'
+      FROM feed_posts fp
+      JOIN users u ON u.public_id = 'user_demo_001'
+      WHERE fp.public_id = 'feed_mock_001'
+    `,
+    [hiddenCommentBody]
+  );
+  await connection.query(
+    `
+      INSERT INTO feed_post_comments (
+        public_id,
+        post_id,
+        parent_comment_id,
+        author_user_id,
+        body,
+        status,
+        created_at
+      )
+      SELECT
+        'feed_comment_smoke_deleted_detail',
+        fp.id,
+        NULL,
+        u.id,
+        ?,
+        'deleted',
+        '2026-07-14 10:21:00'
+      FROM feed_posts fp
+      JOIN users u ON u.public_id = 'user_demo_001'
+      WHERE fp.public_id = 'feed_mock_001'
+    `,
+    [deletedCommentBody]
+  );
   await connection.end();
 }
 
@@ -92,6 +149,18 @@ async function main() {
       detailJson.data.comments[0].replies?.[0]?.parentCommentPublicId ===
         'feed_comment_mock_001',
     'feed detail returns public comment tree'
+  );
+  assertCondition(
+    !detailJson.data.comments.some(
+      (comment: { body?: string; replies?: Array<{ body?: string }> }) =>
+        comment.body === hiddenCommentBody ||
+        comment.body === deletedCommentBody ||
+        comment.replies?.some(
+          (reply) =>
+            reply.body === hiddenCommentBody || reply.body === deletedCommentBody
+        )
+    ),
+    'feed detail hides moderated hidden/deleted comments'
   );
   assertCondition(
     detailJson.data?.userState?.userPublicId === 'user_demo_001' &&
