@@ -63,6 +63,8 @@ const screens: ScreenCheck[] = [
     activeTab: 'home',
     requiredCopy: [
       'Search',
+      'InvestmentModels',
+      'Mock discovery model',
       'SignalEvents',
       'DB SignalEvent',
       'No advice'
