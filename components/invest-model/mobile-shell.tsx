@@ -155,13 +155,26 @@ export function BottomNav({
               href={withInvestModelLocale(item.href, locale)}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex min-h-invest-touch-target flex-col items-center justify-center gap-1 rounded-invest-control px-1 text-[11px] font-semibold leading-none transition-colors focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface',
+                'group relative flex min-h-invest-touch-target flex-col items-center justify-center gap-1 rounded-invest-control px-1 text-[11px] font-semibold leading-none transition-[background-color,color,transform] duration-200 ease-out active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface motion-reduce:transition-none motion-reduce:active:scale-100',
                 isActive
-                  ? 'text-invest-primary'
-                  : 'text-invest-text-muted hover:text-invest-text'
+                  ? 'bg-invest-primary-soft text-invest-primary'
+                  : 'text-invest-text-muted hover:bg-invest-surface-muted hover:text-invest-text'
               )}
             >
-              <Icon aria-hidden className="size-5 shrink-0" />
+              <span
+                aria-hidden
+                className={cn(
+                  'absolute top-1 h-1 w-5 rounded-full bg-invest-primary transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none',
+                  isActive ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
+                )}
+              />
+              <Icon
+                aria-hidden
+                className={cn(
+                  'size-5 shrink-0 transition-transform duration-200 ease-out group-active:scale-95 motion-reduce:transition-none motion-reduce:group-active:scale-100',
+                  isActive && '-translate-y-0.5'
+                )}
+              />
               <span className="max-w-full truncate">{labels[item.key]}</span>
             </Link>
           );
