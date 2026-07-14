@@ -175,7 +175,7 @@ export default async function InvestModelFeedPage({
                 role="listitem"
                 aria-label={`${post.title} ${post.typeLabel}`}
                 className={cn(
-                  'rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
+                  'group rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
                   investMotionClass.interactiveCard
                 )}
               >
@@ -188,7 +188,7 @@ export default async function InvestModelFeedPage({
                 <div className="flex items-start gap-3">
                   <div
                     className={cn(
-                      'grid size-11 shrink-0 place-items-center rounded-invest-control',
+                      'grid size-11 shrink-0 place-items-center rounded-invest-control transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
                       postToneIcon[post.tone]
                     )}
                   >
@@ -208,7 +208,7 @@ export default async function InvestModelFeedPage({
                             (meta) => (
                               <span
                                 key={`${post.id}-${meta}`}
-                                className="min-w-0 truncate rounded-invest-badge bg-invest-surface px-2 py-1 text-center text-[10px] font-bold leading-4 text-invest-text-muted"
+                                className="min-w-0 truncate rounded-invest-badge bg-invest-surface px-2 py-1 text-center text-[10px] font-bold leading-4 text-invest-text-muted transition-[background-color,color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/55 group-hover:text-invest-primary group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-active:scale-100"
                               >
                                 {meta}
                               </span>
