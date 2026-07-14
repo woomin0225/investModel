@@ -51,6 +51,8 @@ export default async function InvestModelSignalsPage({
   const selectedFilter = filters[0];
   const visibleSignalCountLabel =
     locale === 'ko' ? `${signals.length}개 표시` : `${signals.length} shown`;
+  const signalListLabel =
+    locale === 'ko' ? '표시 중인 신호 목록' : 'Shown signal list';
 
   return (
     <MobileShell
@@ -147,10 +149,15 @@ export default async function InvestModelSignalsPage({
             <span className="shrink-0">{visibleSignalCountLabel}</span>
           </div>
 
-          <div className="space-y-invest-card-gap">
+          <div
+            role="list"
+            aria-label={signalListLabel}
+            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+          >
             {signals.map((signal) => (
               <article
                 key={signal.id}
+                role="listitem"
                 aria-label={`${signal.title} ${signal.scoreLabel}`}
                 className={cn(
                   'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
