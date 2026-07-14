@@ -83,6 +83,8 @@ export default async function InvestModelDetailPage({
         ['#model-disclosure', model.disclosureTitle]
       ]
     : [];
+  const detailVisibleBoundaries = modelDetailVisibleBoundaries();
+  const selectionVisibleBoundaries = modelDetailSelectionVisibleBoundaries();
 
   if (!model) {
     return (
@@ -157,6 +159,17 @@ export default async function InvestModelDetailPage({
           riskTone={model.riskTone}
           statusTone={model.statusTone}
         />
+
+        <div
+          aria-label="Model detail visible safety boundaries"
+          className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-bg-soft p-2"
+        >
+          {detailVisibleBoundaries.map((boundary) => (
+            <RiskBadge key={boundary} tone="neutral">
+              {boundary}
+            </RiskBadge>
+          ))}
+        </div>
 
         <PerformanceMetricGroup
           title={copy.performanceGroupTitle}
@@ -331,6 +344,16 @@ export default async function InvestModelDetailPage({
               {copy.noLiveTradingLabel}
             </RiskBadge>
           </div>
+          <div
+            aria-label="Model selection visible safety boundaries"
+            className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-bg-soft p-2"
+          >
+            {selectionVisibleBoundaries.map((boundary) => (
+              <RiskBadge key={boundary} tone="neutral">
+                {boundary}
+              </RiskBadge>
+            ))}
+          </div>
           <ModelSelectionCta
             modelPublicId={model.modelPublicId}
             modelVersionPublicId={model.modelVersionPublicId}
@@ -340,6 +363,24 @@ export default async function InvestModelDetailPage({
       </section>
     </MobileShell>
   );
+}
+
+function modelDetailVisibleBoundaries() {
+  return [
+    'Approved/public model',
+    'ModelVersion context',
+    'PortfolioMandate context',
+    'RiskProfile context'
+  ];
+}
+
+function modelDetailSelectionVisibleBoundaries() {
+  return [
+    'No recommendation',
+    'No live order',
+    'No brokerage',
+    'No advice'
+  ];
 }
 
 function DetailPanel({

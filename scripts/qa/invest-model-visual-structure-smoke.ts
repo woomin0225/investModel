@@ -131,7 +131,11 @@ const screens: ScreenCheck[] = [
       investModelDetailCopy.en.selectionReviewTitle,
       investModelDetailCopy.en.highRiskNotice,
       investModelDetailCopy.en.highRiskConfirmLabel,
-      investModelDetailCopy.en.noLiveTradingLabel
+      investModelDetailCopy.en.noLiveTradingLabel,
+      'Approved/public model',
+      'No recommendation',
+      'No live order',
+      'No brokerage'
     ]
   },
   {
