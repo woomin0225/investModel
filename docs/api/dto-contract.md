@@ -357,6 +357,28 @@ Safety requirements:
 - Missing, hidden, unpublished, admin-only, or inaccessible posts use not-found/unavailable behavior and do not reveal private record existence.
 - Do not include fields named `recommendation`, `tradeAction`, `order`, `execution`, `fill`, `brokerAction`, `rebalanceInstruction`, or `TradeIntent`.
 
+## `FeedPostRankingDto`
+
+Used by `GET /api/feed/rankings` and future Feed popularity modules.
+
+```ts
+interface FeedPostRankingDto extends FeedPostDto {
+  rank: number;
+  likeCount: number;
+  windowLabel: string;
+  rankingContext: 'mock_popularity' | 'informational_placeholder';
+}
+```
+
+Source tables: `feed_posts`, `feed_post_reactions`, `investment_models`, `users`.
+
+Safety requirements:
+
+- `rank` is sorted by active like count in the selected tracked window.
+- `likeCount` is aggregate engagement context only; it must not expose private users or hidden reactions.
+- Ranking rows must not imply recommendation strength, model quality, expected return, suitability, allocation intent, or order intent.
+- The API must not include fields named `recommendation`, `qualityScore`, `expectedReturn`, `tradeAction`, `order`, `execution`, `fill`, `brokerAction`, or `TradeIntent`.
+
 ## `ModelSelectionDto`
 
 Used by `POST /api/model-selections`, Model Detail selection flow, and Home selected model state.

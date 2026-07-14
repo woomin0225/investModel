@@ -74,6 +74,13 @@ export interface FeedPostDetailDto extends FeedPostDto {
   };
 }
 
+export interface FeedPostRankingDto extends FeedPostDto {
+  rank: number;
+  likeCount: number;
+  windowLabel: string;
+  rankingContext: 'mock_popularity' | 'informational_placeholder';
+}
+
 export const feedPostTypes = [
   'model_note',
   'market_context',

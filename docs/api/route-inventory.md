@@ -22,6 +22,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `GET` | `/api/signals` | List observed model signal events. | signed-in | DB-backed; seed/mock ingestion allowed while IS-004 is open |
 | `GET` | `/api/signals/:signalId` | Read one observed signal detail by public id. | signed-in | DB-backed read implemented |
 | `GET` | `/api/feed` | List model notes, market context, risk notes, and review notes. | signed-in | mock-backed allowed |
+| `GET` | `/api/feed/rankings` | Read FeedPost popularity rankings from tracked likes. | signed-in | DB-backed read implemented |
 | `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | DB-backed read implemented |
 | `POST` | `/api/feed/:postId/comments` | Create a top-level informational comment. | signed-in | action contract defined; implementation pending |
 | `POST` | `/api/feed/:postId/comments/:commentId/replies` | Create an informational reply comment. | signed-in | action contract defined; implementation pending |
@@ -113,6 +114,20 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Source tables | `feed_posts`, `investment_models`, `users`, `feed_post_comments`, `feed_post_reactions`, `feed_post_saves`, and `feed_post_reads` |
 | Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` for local sample detail/comment/action state. |
 | Safety notes | Missing, hidden, unpublished, admin-only, or inaccessible posts return not-found/unavailable behavior. The route must not expose private record existence and must not guarantee returns, encourage securities trading, or present legal/financial advice as final. Like rankings are popularity context only, not model quality or expected return. |
+
+### `GET /api/feed/rankings`
+
+| Field | Value |
+| --- | --- |
+| Status | DB-backed read API implemented in `app/api/feed/rankings/route.ts`. |
+| Purpose | Provide Feed Insights and future ranking modules with informational FeedPost popularity context. |
+| Request | Optional query parameters: `window` (`tracked_seed` or `all_time`, default `tracked_seed`) and `limit` (1-20, default 5). |
+| Response DTO | `FeedPostRankingDto[]` |
+| Permission | Signed-in user/admin role. Public, creator, and system roles are blocked for MVP. |
+| Screens | Feed Insights, Feed Detail adjacent popularity context |
+| Source tables | `feed_posts`, `feed_post_reactions`, `investment_models`, `users` |
+| Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` for local sample reaction state. |
+| Safety notes | Rankings are active-like-count popularity context only. They must not imply recommendation strength, suitability, model quality, expected return, allocation intent, or order intent. |
 
 ### `POST /api/feed/:postId/comments`
 
