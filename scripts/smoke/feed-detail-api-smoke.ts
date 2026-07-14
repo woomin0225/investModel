@@ -18,10 +18,13 @@ function assertCondition(condition: unknown, message: string): asserts condition
 }
 
 async function applyTrackedFeedSeed() {
-  const seedPath = path.resolve(
-    'docs/database/seeds/002_feed_interaction_seed.sql'
-  );
-  const sql = fs.readFileSync(seedPath, 'utf8');
+  const seedPaths = [
+    path.resolve('docs/database/seeds/003_signal_event_seed.sql'),
+    path.resolve('docs/database/seeds/002_feed_interaction_seed.sql')
+  ];
+  const sql = seedPaths
+    .map((seedPath) => fs.readFileSync(seedPath, 'utf8'))
+    .join('\n\n');
   const connection = await mysql.createConnection({
     uri: process.env.MYSQL_URL,
     multipleStatements: true
@@ -100,7 +103,16 @@ async function main() {
     'feed detail returns user-scoped state and aggregate counts'
   );
   assertCondition(
+    Array.isArray(detailJson.data?.relatedSignalPublicIds) &&
+      detailJson.data.relatedSignalPublicIds.length > 0 &&
+      detailJson.data.relatedSignalPublicIds.every(
+        (signalPublicId: unknown) => typeof signalPublicId === 'string'
+      ),
+    'feed detail returns DB-backed related SignalEvent public ids'
+  );
+  assertCondition(
     detailJson.meta?.routeStatus === 'db_backed' &&
+      detailJson.meta?.sourceTables?.includes('model_signal_events') &&
       detailJson.meta?.realOrder === false &&
       detailJson.meta?.brokerageConnection === false &&
       detailJson.meta?.financialAdvice === false,

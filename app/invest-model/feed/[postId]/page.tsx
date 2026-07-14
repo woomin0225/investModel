@@ -2,6 +2,7 @@ import {
   ArrowLeft,
   MessageCircle,
   MessageSquareText,
+  RadioTower,
   ShieldCheck,
   Trophy
 } from 'lucide-react';
@@ -198,6 +199,7 @@ export default async function InvestModelFeedDetailPage({
     notFound();
   }
 
+  const currentPath = `/invest-model/feed/${resolvedParams.postId}`;
   const backHref = `/invest-model/feed?lang=${locale}`;
   const stateItems = [
     {
@@ -213,7 +215,7 @@ export default async function InvestModelFeedDetailPage({
       eyebrow={locale === 'ko' ? 'Feed Detail' : 'Feed Detail'}
       title={locale === 'ko' ? '피드 상세' : 'Feed Detail'}
       locale={locale}
-      currentPath={`/invest-model/feed/${resolvedParams.postId}`}
+      currentPath={currentPath}
       trailing={
         <NotificationAction
           locale={locale}
@@ -268,6 +270,39 @@ export default async function InvestModelFeedDetailPage({
               {post.linkedModelName ??
                 (locale === 'ko' ? '연결 모델 없음' : 'No linked model')}
             </p>
+          </div>
+
+          <div className="mt-3 rounded-invest-card bg-invest-bg-soft p-3">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[12px] font-bold leading-4 text-invest-text">
+                Related SignalEvents
+              </p>
+              <RadioTower
+                aria-hidden
+                className="size-4 shrink-0 text-invest-primary"
+              />
+            </div>
+            {post.relatedSignalPublicIds.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {post.relatedSignalPublicIds.map((signalPublicId) => (
+                  <Link
+                    key={signalPublicId}
+                    href={`/invest-model/signals/${signalPublicId}?lang=${locale}`}
+                    className={cn(
+                      'inline-flex min-h-9 items-center rounded-invest-control border border-invest-border bg-invest-surface px-3 text-[12px] font-bold text-invest-text-muted',
+                      investMotionClass.interactiveControl
+                    )}
+                    aria-label={`Open related DB-backed SignalEvent ${signalPublicId}. Informational context only, not advice or an order.`}
+                  >
+                    {signalPublicId}
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-1 text-sm font-semibold leading-6 text-invest-text-muted">
+                No DB-backed SignalEvent links yet.
+              </p>
+            )}
           </div>
         </article>
 

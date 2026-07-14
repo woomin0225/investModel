@@ -174,6 +174,18 @@ const screens: ScreenCheck[] = [
     ]
   },
   {
+    name: 'Feed Detail',
+    route: '/invest-model/feed/feed_mock_001',
+    pageFile: 'app/invest-model/feed/[postId]/page.tsx',
+    activeTab: 'feed',
+    requiredCopy: [
+      'Feed Detail',
+      'Related SignalEvents',
+      'No advice',
+      'Read-only'
+    ]
+  },
+  {
     name: 'Mock Portfolio',
     route: '/invest-model/portfolio',
     pageFile: 'app/invest-model/portfolio/page.tsx',

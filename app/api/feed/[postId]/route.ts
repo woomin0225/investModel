@@ -116,6 +116,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           'feed_post_reactions',
           'feed_post_saves',
           'feed_post_reads',
+          'model_signal_events',
+          'model_versions',
           'investment_models',
           'users'
         ],

@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { and, asc, count, eq, isNull } from 'drizzle-orm';
+import { and, asc, count, desc, eq, isNull } from 'drizzle-orm';
 
 import { db } from '@/lib/db/drizzle';
 import {
@@ -9,6 +9,8 @@ import {
   feedPosts,
   feedPostSaves,
   investmentModels,
+  modelSignalEvents,
+  modelVersions,
   users
 } from '@/lib/db/schema';
 import {
@@ -145,6 +147,7 @@ export async function readFeedPostDetailDto({
     .select({
       postId: feedPosts.id,
       postPublicId: feedPosts.publicId,
+      modelId: feedPosts.modelId,
       modelPublicId: investmentModels.publicId,
       linkedModelName: investmentModels.name,
       authorDisplayName: users.name,
@@ -168,6 +171,34 @@ export async function readFeedPostDetailDto({
   if (!postRow) {
     return { status: 'post_not_found' };
   }
+
+  const modelSignalRows = postRow.modelId
+    ? await db
+        .select({ signalPublicId: modelSignalEvents.publicId })
+        .from(modelSignalEvents)
+        .innerJoin(
+          modelVersions,
+          eq(modelSignalEvents.modelVersionId, modelVersions.id)
+        )
+        .where(eq(modelVersions.modelId, postRow.modelId))
+        .orderBy(desc(modelSignalEvents.score), desc(modelSignalEvents.createdAt))
+        .limit(3)
+    : [];
+  const fallbackSignalRows =
+    modelSignalRows.length > 0
+      ? []
+      : await db
+          .select({ signalPublicId: modelSignalEvents.publicId })
+          .from(modelSignalEvents)
+          .orderBy(
+            desc(modelSignalEvents.score),
+            desc(modelSignalEvents.createdAt)
+          )
+          .limit(3);
+  const relatedSignalPublicIds = [
+    ...modelSignalRows,
+    ...fallbackSignalRows
+  ].map((row) => row.signalPublicId as DomainPublicId);
 
   const commentRows = await db
     .select({
@@ -260,7 +291,7 @@ export async function readFeedPostDetailDto({
     status: 'ok',
     data: {
       ...basePost,
-      relatedSignalPublicIds: [],
+      relatedSignalPublicIds,
       sourceAttribution: {
         sourceLabel: 'tracked seed feed_posts',
         reviewedBy: 'investModel mock operator',
