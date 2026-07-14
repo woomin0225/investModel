@@ -38,6 +38,14 @@ export default async function InvestModelDetailPage({
   const copy = investModelDetailCopy[locale];
   const model = findMockInvestmentModelDetail(locale, modelId);
   const currentPath = `/invest-model/models/${modelId}`;
+  const detailSectionLinks = model
+    ? [
+        ['#model-mandate', model.mandateTitle],
+        ['#model-risk', model.riskTitle],
+        ['#model-limitations', model.limitationTitle],
+        ['#model-disclosure', model.disclosureTitle]
+      ]
+    : [];
 
   if (!model) {
     return (
@@ -118,27 +126,39 @@ export default async function InvestModelDetailPage({
         />
 
         <nav
-          aria-label="Model detail sections"
+          aria-label={
+            locale === 'ko' ? '모델 상세 섹션 이동' : 'Model detail sections'
+          }
           className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]"
         >
           <div className="flex w-max gap-2 pr-invest-screen-x">
-            {[
-              ['#model-mandate', model.mandateTitle],
-              ['#model-risk', model.riskTitle],
-              ['#model-limitations', model.limitationTitle],
-              ['#model-disclosure', model.disclosureTitle]
-            ].map(([href, label]) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'inline-flex min-h-invest-touch-target items-center rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-bold text-invest-text shadow-invest-card',
-                  investMotionClass.interactiveControl
-                )}
-              >
-                {label}
-              </Link>
-            ))}
+            {detailSectionLinks.map(([href, label], index) => {
+              const isPrimarySection = index === 0;
+
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={isPrimarySection ? 'true' : undefined}
+                  className={cn(
+                    'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border px-3 text-sm font-bold shadow-invest-card',
+                    investMotionClass.interactiveControl,
+                    isPrimarySection
+                      ? 'border-invest-primary bg-invest-primary text-white shadow-invest-card-strong'
+                      : 'border-invest-border bg-invest-surface text-invest-text hover:text-invest-primary'
+                  )}
+                >
+                  <span
+                    aria-hidden
+                    className={cn(
+                      'size-1.5 rounded-full',
+                      isPrimarySection ? 'bg-white' : 'bg-invest-border'
+                    )}
+                  />
+                  {label}
+                </Link>
+              );
+            })}
           </div>
         </nav>
 
