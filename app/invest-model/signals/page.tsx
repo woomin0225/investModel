@@ -23,6 +23,9 @@ const badgeToneByScore = {
   high: 'high'
 } as const;
 
+const signalCardInteractionClass =
+  'transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-invest-primary/30 hover:shadow-invest-nav active:translate-y-0 active:scale-[0.99] focus-within:border-invest-primary/40 motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100';
+
 type InvestModelSignalsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -95,7 +98,7 @@ export default async function InvestModelSignalsPage({
                 <button
                   key={filter}
                   type="button"
-                  className="min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card"
+                  className="min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card transition-[background-color,border-color,transform] duration-200 ease-out hover:border-invest-primary/30 hover:bg-invest-primary-soft active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg motion-reduce:transition-none motion-reduce:active:scale-100"
                 >
                   {filter}
                 </button>
@@ -107,7 +110,7 @@ export default async function InvestModelSignalsPage({
             {signals.map((signal) => (
               <article
                 key={signal.id}
-                className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+                className={`rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card ${signalCardInteractionClass}`}
               >
                 <div className="flex items-start gap-3">
                   <div
@@ -116,24 +119,30 @@ export default async function InvestModelSignalsPage({
                     {signal.rank}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-invest-text">
-                        {signal.title}
-                      </h3>
-                      <RiskBadge tone={badgeToneByScore[signal.scoreTone]}>
-                        {signal.scoreLabel}
-                      </RiskBadge>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-invest-text">
+                          {signal.title}
+                        </h3>
+                        <div className="mt-1 flex flex-wrap gap-1.5">
+                          <RiskBadge>{signal.sourceLabel}</RiskBadge>
+                          <RiskBadge>{signal.marketLabel}</RiskBadge>
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <RiskBadge tone={badgeToneByScore[signal.scoreTone]}>
+                          {signal.scoreLabel}
+                        </RiskBadge>
+                        <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                          {signal.freshnessLabel}
+                        </p>
+                      </div>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                       {signal.description}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <RiskBadge>{signal.sourceLabel}</RiskBadge>
-                      <RiskBadge>{signal.marketLabel}</RiskBadge>
-                      <RiskBadge tone="medium">{signal.freshnessLabel}</RiskBadge>
-                      <RiskBadge tone="neutral">
-                        {signal.linkedModelName}
-                      </RiskBadge>
+                    <div className="mt-3 flex flex-wrap gap-2 border-t border-invest-border pt-3">
+                      <RiskBadge tone="neutral">{signal.linkedModelName}</RiskBadge>
                     </div>
                     <div className="mt-3 flex items-start gap-2 rounded-invest-control bg-invest-surface-muted p-3">
                       <Activity
