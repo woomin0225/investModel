@@ -205,15 +205,18 @@ export default async function InvestModelSignalsPage({
                     <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                       {signal.description}
                     </p>
-                    <div className="mt-3 grid gap-2 border-t border-invest-border pt-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
-                      <RiskBadge tone="neutral" className="justify-center text-center">
+                    <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                      <RiskBadge
+                        tone="neutral"
+                        className="justify-center text-center"
+                      >
                         {signal.linkedModelName}
                       </RiskBadge>
-                      <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface-muted px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
+                      <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
                         {signal.freshnessLabel}
                       </span>
                     </div>
-                    <div className="mt-3 flex items-start gap-2.5 rounded-invest-control border border-invest-border/70 bg-invest-surface-muted p-3">
+                    <div className="mt-2.5 flex items-start gap-2.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2.5">
                       <span className="grid size-7 shrink-0 place-items-center rounded-full bg-invest-surface text-invest-primary shadow-invest-card">
                         <Activity aria-hidden className="size-4" />
                       </span>
