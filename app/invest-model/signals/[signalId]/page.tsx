@@ -112,12 +112,12 @@ function relatedFeedSearchHref(locale: SignalLocale, signal: SignalEventDto) {
 function signalSafetyDescription(locale: SignalLocale, signal: SignalEventDto) {
   if (signal.signalType === 'risk') {
     return locale === 'ko'
-      ? '이 화면은 위험 관찰 입력값을 보여줍니다. 매수·매도·보유·주문 신호가 아닙니다.'
+      ? '이 화면은 위험 관찰 입력값을 보여줍니다. 매수, 매도, 보유, 주문 신호가 아닙니다.'
       : 'This screen shows a risk observation input. It is not a buy, sell, hold, or order signal.';
   }
 
   return locale === 'ko'
-    ? '이 화면은 모델이 참고한 관찰 입력값을 보여줍니다. 투자 조언이나 주문 생성이 아닙니다.'
+    ? '이 화면은 모델 참고용 관찰 입력값을 보여줍니다. 투자 조언이나 주문 생성이 아닙니다.'
     : 'This screen shows an observed input for model context. It is not investment advice or order creation.';
 }
 
@@ -183,7 +183,7 @@ export default async function InvestModelSignalDetailPage({
           )}
         >
           <ArrowLeft aria-hidden className="size-4" />
-          {locale === 'ko' ? '신호로 돌아가기' : 'Back to signals'}
+          {locale === 'ko' ? '신호 목록으로 돌아가기' : 'Back to signals'}
         </Link>
 
         <SoftBanner
@@ -197,14 +197,20 @@ export default async function InvestModelSignalDetailPage({
           <MetricCard
             label={locale === 'ko' ? '관찰 점수' : 'Observation score'}
             value={signal.scoreDisplay}
-            description={locale === 'ko' ? 'DB seed/mock 기반' : 'DB seed/mock based'}
+            description={
+              locale === 'ko' ? 'DB seed/mock 기반' : 'DB seed/mock based'
+            }
             trend={locale === 'ko' ? '관찰값' : 'Observed'}
             tone={scoreTone === 'high' ? 'risk' : undefined}
           />
           <MetricCard
             label={locale === 'ko' ? '외부 실시간' : 'Realtime external'}
             value={locale === 'ko' ? '미연결' : 'Not connected'}
-            description={locale === 'ko' ? 'IS-004 해결 전까지 seed/mock만 사용' : 'Seed/mock only until IS-004 is resolved'}
+            description={
+              locale === 'ko'
+                ? 'IS-004 해결 전까지 seed/mock만 사용'
+                : 'Seed/mock only until IS-004 is resolved'
+            }
             trend={locale === 'ko' ? '안전 경계' : 'Safety boundary'}
           />
         </div>
@@ -302,17 +308,17 @@ export default async function InvestModelSignalDetailPage({
               <div className="flex flex-wrap gap-2">
                 <RiskBadge tone="neutral">DB FeedPost</RiskBadge>
                 <RiskBadge tone="medium">
-                  {locale === 'ko' ? 'Reference only' : 'Reference only'}
+                  {locale === 'ko' ? '참고용' : 'Reference only'}
                 </RiskBadge>
               </div>
               <h2 className="mt-2 text-[16px] font-bold leading-6 text-invest-text">
                 {locale === 'ko'
-                  ? 'Related Feed search'
+                  ? '관련 Feed 검색'
                   : 'Related Feed search'}
               </h2>
               <p className="mt-1 text-sm leading-6 text-invest-text-muted">
                 {locale === 'ko'
-                  ? `Search DB-backed FeedPosts for ${signal.linkedModelName}. This is supporting reading, not evidence for an order or recommendation.`
+                  ? `${signal.linkedModelName} 관련 DB 기반 FeedPost를 검색합니다. 주문이나 추천의 근거가 아니라 참고용 읽기 자료입니다.`
                   : `Search DB-backed FeedPosts for ${signal.linkedModelName}. This is supporting reading, not evidence for an order or recommendation.`}
               </p>
             </div>
@@ -326,7 +332,7 @@ export default async function InvestModelSignalDetailPage({
             </span>
             <p className="text-sm font-semibold leading-6 text-invest-text-muted">
               {locale === 'ko'
-                ? '이 상세 화면은 DB에 저장된 SignalEvent public id를 읽어 표시합니다. 실시간 검색량·브라우저 트래픽·외부 유료 데이터는 아직 연결하지 않았습니다.'
+                ? '이 상세 화면은 DB에 저장된 SignalEvent public id를 읽어 표시합니다. 실시간 검색량, 브라우저 트래픽, 유료 외부 데이터는 아직 연결하지 않았습니다.'
                 : 'This detail screen reads a stored SignalEvent public id from the DB. Realtime search volume, browser traffic, and paid external sources are not connected yet.'}
             </p>
           </div>
