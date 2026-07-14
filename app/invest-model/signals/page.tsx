@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Activity, Radio, ShieldAlert } from 'lucide-react';
 import {
   MetricCard,
@@ -42,16 +43,75 @@ type InvestModelSignalsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
+type SignalFilterId = 'all' | 'news_traffic' | 'price_trend' | 'risk_alert';
+
+const signalFilterIds = [
+  'all',
+  'news_traffic',
+  'price_trend',
+  'risk_alert'
+] as const satisfies readonly SignalFilterId[];
+
+function firstSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function resolveSignalFilterId(
+  rawFilter: string | string[] | undefined
+): SignalFilterId {
+  const filter = firstSearchParam(rawFilter);
+
+  return signalFilterIds.includes(filter as SignalFilterId)
+    ? (filter as SignalFilterId)
+    : 'all';
+}
+
+function signalFilterHref(locale: 'ko' | 'en', filterId: SignalFilterId) {
+  const params = new URLSearchParams({ lang: locale });
+
+  if (filterId !== 'all') {
+    params.set('signalType', filterId);
+  }
+
+  return `/invest-model/signals?${params.toString()}`;
+}
+
 export default async function InvestModelSignalsPage({
   searchParams
 }: InvestModelSignalsPageProps) {
-  const locale = resolveInvestModelLocale(await searchParams);
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const locale = resolveInvestModelLocale(resolvedSearchParams);
+  const selectedFilterId = resolveSignalFilterId(
+    resolvedSearchParams.signalType
+  );
   const copy = investModelCopy[locale];
   const signalsCopy = copy.signals;
   const { summary, filters, signals } = signalsCopy;
-  const selectedFilter = filters[0];
+  const filterOptions = signalFilterIds.map((filterId, index) => ({
+    id: filterId,
+    label: filters[index]
+  }));
+  const selectedFilter =
+    filterOptions.find((filter) => filter.id === selectedFilterId) ??
+    filterOptions[0];
+  const visibleSignals =
+    selectedFilterId === 'all'
+      ? signals
+      : signals.filter((signal) => {
+          if (selectedFilterId === 'news_traffic') {
+            return signal.sourceLabel === filters[1];
+          }
+
+          if (selectedFilterId === 'price_trend') {
+            return signal.sourceLabel === filters[2];
+          }
+
+          return signal.sourceLabel === filters[3];
+        });
   const visibleSignalCountLabel =
-    locale === 'ko' ? `${signals.length}개 표시` : `${signals.length} shown`;
+    locale === 'ko'
+      ? `${visibleSignals.length}개 표시`
+      : `${visibleSignals.length} shown`;
   const signalListLabel =
     locale === 'ko' ? '표시 중인 신호 목록' : 'Shown signal list';
 
@@ -105,13 +165,13 @@ export default async function InvestModelSignalsPage({
 
           <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
             <div className="flex w-max gap-2 pr-invest-screen-x">
-              {filters.map((filter, index) => {
-                const isSelected = index === 0;
+              {filterOptions.map((filter) => {
+                const isSelected = filter.id === selectedFilterId;
 
                 return (
-                  <button
-                    key={filter}
-                    type="button"
+                  <Link
+                    key={filter.id}
+                    href={signalFilterHref(locale, filter.id)}
                     aria-pressed={isSelected}
                     className={cn(
                       'group relative inline-flex min-h-invest-touch-target items-center gap-2 overflow-hidden rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
@@ -127,7 +187,7 @@ export default async function InvestModelSignalsPage({
                         className="size-1.5 rounded-full bg-white transition-transform duration-200 ease-out group-active:scale-75 motion-reduce:transition-none motion-reduce:group-active:scale-100"
                       />
                     ) : null}
-                    <span className="relative z-10">{filter}</span>
+                    <span className="relative z-10">{filter.label}</span>
                     <span
                       aria-hidden
                       className={cn(
@@ -135,9 +195,9 @@ export default async function InvestModelSignalsPage({
                         isSelected
                           ? 'bg-white/80 opacity-90'
                           : 'bg-invest-primary opacity-0 group-hover:opacity-45'
-                      )}
+                        )}
                     />
-                  </button>
+                  </Link>
                 );
               })}
             </div>
@@ -145,7 +205,7 @@ export default async function InvestModelSignalsPage({
 
           <div className="flex items-center justify-between gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-4 text-invest-text-muted">
             <span className="min-w-0 truncate text-invest-text">
-              {selectedFilter}
+              {selectedFilter.label}
             </span>
             <span className="shrink-0">{visibleSignalCountLabel}</span>
           </div>
@@ -155,7 +215,7 @@ export default async function InvestModelSignalsPage({
             aria-label={signalListLabel}
             className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
-            {signals.map((signal) => (
+            {visibleSignals.map((signal) => (
               <article
                 key={signal.id}
                 role="listitem"
