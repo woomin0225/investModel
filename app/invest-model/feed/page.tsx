@@ -1,5 +1,6 @@
 import { Bell, MessageSquareText, ShieldCheck } from 'lucide-react';
 import {
+  investMotionClass,
   MetricCard,
   MobileShell,
   RiskBadge,
@@ -10,6 +11,7 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { cn } from '@/lib/utils';
 
 const postToneBadge = {
   neutral: 'neutral',
@@ -41,7 +43,10 @@ export default async function InvestModelFeedPage({
         <button
           type="button"
           aria-label={copy.actions.feedNotifications}
-          className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
+          className={cn(
+            'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+            investMotionClass.interactiveControl
+          )}
         >
           <Bell aria-hidden className="size-5" />
         </button>
@@ -90,7 +95,10 @@ export default async function InvestModelFeedPage({
                 <button
                   key={filter}
                   type="button"
-                  className="min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card"
+                  className={cn(
+                    'min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card',
+                    investMotionClass.interactiveControl
+                  )}
                 >
                   {filter}
                 </button>
@@ -102,34 +110,61 @@ export default async function InvestModelFeedPage({
             {posts.map((post) => (
               <article
                 key={post.id}
-                className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+                className={cn(
+                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+                  investMotionClass.interactiveCard
+                )}
               >
                 <div className="flex items-start gap-3">
                   <div className="grid size-11 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-invest-primary">
                     <MessageSquareText aria-hidden className="size-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-invest-text">
-                        {post.title}
-                      </h3>
-                      <RiskBadge tone={postToneBadge[post.tone]}>
-                        {post.typeLabel}
-                      </RiskBadge>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
+                          {post.authorLabel} / {post.sourceLabel}
+                        </p>
+                        <h3 className="mt-1 text-[17px] font-semibold leading-6 text-invest-text">
+                          {post.title}
+                        </h3>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-[12px] font-semibold leading-4 text-invest-text-muted">
+                          {post.timeLabel}
+                        </p>
+                        <RiskBadge
+                          tone={postToneBadge[post.tone]}
+                          className="mt-2"
+                        >
+                          {post.typeLabel}
+                        </RiskBadge>
+                      </div>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                       {post.excerpt}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <RiskBadge>{post.authorLabel}</RiskBadge>
-                      <RiskBadge>{post.sourceLabel}</RiskBadge>
-                      <RiskBadge tone="medium">{post.timeLabel}</RiskBadge>
-                      <RiskBadge tone="neutral">
+                    <div className="mt-3 flex items-center justify-between gap-3 border-t border-invest-border pt-3">
+                      <p className="min-w-0 truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
                         {post.linkedModelName}
-                      </RiskBadge>
+                      </p>
+                      <div className="flex shrink-0 gap-1.5">
+                        {post.tags.slice(0, 2).map((tag) => (
+                          <RiskBadge key={`${post.id}-${tag}`} tone="neutral">
+                            {tag}
+                          </RiskBadge>
+                        ))}
+                      </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {post.tags.map((tag) => (
+                    <div className="mt-2 flex flex-wrap gap-2 sm:hidden">
+                      {post.tags.slice(2).map((tag) => (
+                        <RiskBadge key={`${post.id}-${tag}`} tone="neutral">
+                          {tag}
+                        </RiskBadge>
+                      ))}
+                    </div>
+                    <div className="mt-2 hidden flex-wrap gap-2 sm:flex">
+                      {post.tags.slice(2).map((tag) => (
                         <RiskBadge key={`${post.id}-${tag}`} tone="neutral">
                           {tag}
                         </RiskBadge>

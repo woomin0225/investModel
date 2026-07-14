@@ -446,14 +446,14 @@ export const investModelCopy = {
       filters: ['전체 글', '모델 노트', '시장 맥락', '위험 노트'],
       metrics: {
         posts: '게시글',
-        prototypeContent: '검토 중 콘텐츠',
+        prototypeContent: '최근 업데이트',
         sources: '출처',
-        approvedModelContext: '승인 모델 맥락',
+        approvedModelContext: '모델별 맥락',
         disclosureState: '고지 상태',
         legalCopy:
           '최종 법률/금융 고지 문구는 자격 있는 검토자가 제공해야 합니다.',
-        mock: '관찰',
-        sample: '참고',
+        mock: '활성',
+        sample: '연결',
         review: '검토'
       },
       sectionTitle: '최신 인사이트',
@@ -509,7 +509,7 @@ export const investModelCopy = {
           timeLabel: '38분 전',
           typeLabel: '검토 노트',
           tone: 'neutral',
-          tags: ['Placeholder', '검토 필요']
+          tags: ['고지', '검토 필요']
         },
         {
           id: 'feed-consumer-traffic-fade',
@@ -796,14 +796,14 @@ export const investModelCopy = {
       filters: ['All posts', 'Model notes', 'Market context', 'Risk notes'],
       metrics: {
         posts: 'Posts',
-        prototypeContent: 'In review content',
+        prototypeContent: 'Recent updates',
         sources: 'Sources',
-        approvedModelContext: 'Approved model context',
+        approvedModelContext: 'Model context',
         disclosureState: 'Disclosure state',
         legalCopy:
           'Final legal and financial disclosure copy must be supplied by a qualified reviewer.',
-        mock: 'observed',
-        sample: 'reference',
+        mock: 'active',
+        sample: 'linked',
         review: 'review'
       },
       sectionTitle: 'Latest insights',
@@ -859,7 +859,7 @@ export const investModelCopy = {
           timeLabel: '38m ago',
           typeLabel: 'Review note',
           tone: 'neutral',
-          tags: ['Placeholder', 'Review required']
+          tags: ['Disclosure', 'Review required']
         },
         {
           id: 'feed-consumer-traffic-fade',
