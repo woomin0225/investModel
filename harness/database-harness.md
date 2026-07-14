@@ -18,6 +18,27 @@ DB 관련 작업 전 아래 파일을 먼저 확인합니다.
 
 DB 구조의 기준은 `docs/database/invest-model.dbml`입니다. SQL, ORM schema, migration은 DBML과 불일치하지 않게 작성합니다.
 
+## Required DB Change Workflow
+
+DB 테이블 생성/수정, migration, sample row, dummy row, seed data 작업은 항상 아래 흐름을 따릅니다.
+
+1. DB 파일이나 로컬/라이브 DB를 건드리기 전에 이 `database-harness.md`를 먼저 확인합니다.
+2. 실제 적용 전에 canonical planning 산출물을 먼저 갱신합니다.
+   - `docs/database/invest-model.dbml`
+   - `docs/database/invest-model.mysql.sql`
+   - 변경 범위를 설명하는 focused script 또는 문서가 필요하면 `docs/database/` 아래에 추가합니다.
+3. sample/dummy/seed 데이터는 터미널에 임시 SQL로 직접 입력하지 않고 추적 가능한 별도 파일에 작성합니다.
+   - SQL 샘플 후보: `docs/database/samples/*.sql`
+   - SQL seed 후보: `docs/database/seeds/*.sql`
+   - TypeScript seed 후보: `lib/db/seeds/*.ts`
+4. 스크립트나 seed 파일을 전체 완성한 뒤 파일 단위로 검토하고, 그 완성본 전체를 DB에 적용해 테스트합니다.
+5. 같은 작업이 추적 가능한 스크립트 파일에 먼저 기록되지 않았다면 MySQL 콘솔에서 one-off table 변경, sample insert, data fix를 직접 실행하지 않습니다.
+6. 적용 후에는 반복 가능한 명령 또는 쿼리로 검증합니다. 예: `pnpm db:migrate`, `pnpm db:seed`, table existence check, row-count check, representative read-model query.
+7. 스크립트를 안전하게 재실행할 수 없다면 파일 상단에 이유를 기록하고, 자동화 전에 더 안전한 후속 작업을 Backlog에 추가합니다.
+8. DB planning 파일, schema/migration 변경, seed/sample 파일은 함께 커밋해 다른 agent도 같은 DB 상태를 재현할 수 있게 합니다.
+
+이 규칙의 목적은 화면이 숨겨진 로컬 DB 수작업에 의존하지 않게 하는 것입니다. UI에 보이는 값은 추적된 schema, migration, seed/sample 파일만으로 재현 가능해야 합니다.
+
 ## Database Decision
 
 - investModel의 목표 DB는 MySQL입니다.
