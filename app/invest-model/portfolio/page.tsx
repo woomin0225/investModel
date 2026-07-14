@@ -192,38 +192,46 @@ export default async function InvestModelPortfolioPage({
             aria-label="Mock time dashboard"
             className="grid grid-cols-3 gap-2 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
-            {portfolio.timeSnapshots.map((snapshot) => (
-              <article
-                key={snapshot.rangeLabel}
-                role="listitem"
-                className={cn(
-                  'group min-w-0 rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card',
-                  investMotionClass.interactiveCard
-                )}
-              >
-                <div className="mb-2 flex items-center justify-between gap-1.5">
-                  <span className="rounded-full bg-invest-primary-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary">
-                    {snapshot.rangeLabel}
-                  </span>
-                  <Clock3
-                    aria-hidden
-                    className="size-4 shrink-0 text-invest-text-muted transition-transform duration-200 ease-out group-hover:rotate-12 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:rotate-0 motion-reduce:group-active:scale-100"
-                  />
-                </div>
-                <p className="text-[15px] font-bold leading-5 text-invest-text">
-                  {snapshot.valueLabel}
-                </p>
-                <p className="mt-1 text-[12px] leading-4 text-invest-text-muted">
-                  {snapshot.checkpointLabel}
-                </p>
-                <p className="mt-2 text-[12px] font-semibold leading-4 text-invest-primary">
-                  {snapshot.signalLabel}
-                </p>
-                <div className="mt-2">
-                  <RiskBadge tone="blocked">{snapshot.safetyLabel}</RiskBadge>
-                </div>
-              </article>
-            ))}
+            {portfolio.timeSnapshots.map((snapshot) => {
+              const snapshotStateLabel = `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. Mock-only checkpoint; not a real return, real balance, order, or brokerage data.`;
+
+              return (
+                <article
+                  key={snapshot.rangeLabel}
+                  role="listitem"
+                  aria-label={snapshotStateLabel}
+                  title={snapshotStateLabel}
+                  className={cn(
+                    'group min-w-0 rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card',
+                    investMotionClass.interactiveCard
+                  )}
+                >
+                  <div className="mb-2 flex items-center justify-between gap-1.5">
+                    <span className="rounded-full bg-invest-primary-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary">
+                      {snapshot.rangeLabel}
+                    </span>
+                    <Clock3
+                      aria-hidden
+                      className="size-4 shrink-0 text-invest-text-muted transition-transform duration-200 ease-out group-hover:rotate-12 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:rotate-0 motion-reduce:group-active:scale-100"
+                    />
+                  </div>
+                  <p className="text-[15px] font-bold leading-5 text-invest-text">
+                    {snapshot.valueLabel}
+                  </p>
+                  <p className="mt-1 text-[12px] leading-4 text-invest-text-muted">
+                    {snapshot.checkpointLabel}
+                  </p>
+                  <p className="mt-2 text-[12px] font-semibold leading-4 text-invest-primary">
+                    {snapshot.signalLabel}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <RiskBadge tone="neutral">DB snapshot</RiskBadge>
+                    <RiskBadge>mock-only checkpoint</RiskBadge>
+                    <RiskBadge tone="blocked">{snapshot.safetyLabel}</RiskBadge>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
 
