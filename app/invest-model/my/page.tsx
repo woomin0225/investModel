@@ -24,7 +24,7 @@ import {
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
 import { GET as readMyActivity } from '@/app/api/my/activity/route';
-import type { MyPageFeedActivitySummary } from '@/lib/db/my-page-read-model';
+import type { MyPageFeedActivitySummary } from '@/lib/domain/my-page/feed-activity';
 import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
 
