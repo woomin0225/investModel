@@ -20,7 +20,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `GET` | `/api/models` | List discoverable approved/live mock investment models. | public or signed-in | mock-backed allowed |
 | `GET` | `/api/models/:id` | Read model detail, mandate, risk, disclosures, and performance context. | public or signed-in | mock-backed allowed |
 | `GET` | `/api/signals` | List observed model signal events. | signed-in | DB-backed; seed/mock ingestion allowed while IS-004 is open |
-| `GET` | `/api/signals/:signalId` | Read one observed signal detail by public id. | signed-in | detail contract defined; implementation pending |
+| `GET` | `/api/signals/:signalId` | Read one observed signal detail by public id. | signed-in | DB-backed read implemented |
 | `GET` | `/api/feed` | List model notes, market context, risk notes, and review notes. | signed-in | mock-backed allowed |
 | `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | DB-backed read implemented |
 | `POST` | `/api/feed/:postId/comments` | Create a top-level informational comment. | signed-in | action contract defined; implementation pending |
@@ -78,13 +78,14 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
+| Status | DB-backed read implemented in `app/api/signals/[signalId]/route.ts`. |
 | Purpose | Provide the future Signal Detail screen with one observed signal, related evidence, and score context. |
 | Request | Path parameter `signalId` must resolve by `SignalEventDto.signalPublicId` or a stable URL-safe alias. Internal numeric database ids are not allowed in route params. |
-| Response DTO | `SignalDetailDto`; list pages link by `SignalEventDto.signalPublicId`. |
+| Response DTO | `SignalEventDto`; future detail evidence may expand this into `SignalDetailDto`. List pages link by `SignalEventDto.signalPublicId`. |
 | Permission | Signed-in user. Public access should be a later product decision. |
 | Screens | Signal Detail |
-| Source tables | `model_signal_events`, `market_instruments`, `news_articles`, `news_traffic_snapshots`, `market_price_snapshots`, future score snapshot/input tables from `BK-266` |
-| Mock source | `lib/mock/invest-model-signals.ts` until detail fixtures exist. |
+| Source tables | `model_signal_events`, `model_versions`, `investment_models`, `market_instruments`; future evidence can add `news_articles`, `news_traffic_snapshots`, `market_price_snapshots`, and score snapshot/input tables from `BK-266` |
+| Seed source | `docs/database/seeds/003_signal_event_seed.sql`; external realtime sources remain blocked by IS-004. |
 | Safety notes | Missing, hidden, or inaccessible signals return not-found/unavailable behavior. The route must not expose private record existence and must not create or imply `TradeIntent`, broker action, buy/sell/hold advice, or order execution. |
 
 ### `GET /api/feed`
