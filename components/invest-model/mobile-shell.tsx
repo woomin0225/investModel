@@ -118,7 +118,7 @@ export function MobileShell({
           <LanguageToggle locale={locale} currentPath={currentPath} />
         </header>
 
-        <div className="flex-1 px-invest-screen-x pb-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom)+24px)] pt-invest-section-gap">
+        <div className="invest-view-enter flex-1 px-invest-screen-x pb-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom)+24px)] pt-invest-section-gap">
           {children}
         </div>
 

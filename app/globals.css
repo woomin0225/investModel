@@ -341,3 +341,25 @@
   --spacing-invest-bottom-nav: var(--invest-bottom-nav-height);
   --spacing-invest-touch-target: var(--invest-touch-target);
 }
+
+@keyframes invest-view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.invest-view-enter {
+  animation: invest-view-enter 180ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invest-view-enter {
+    animation: none;
+  }
+}
