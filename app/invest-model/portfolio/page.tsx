@@ -160,12 +160,12 @@ export default async function InvestModelPortfolioPage({
           />
           <article
             className={cn(
-              'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+              'group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
               investMotionClass.interactiveCard
             )}
           >
             <div className="flex items-start gap-3">
-              <div className="grid size-11 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-invest-primary">
+              <div className="grid size-11 shrink-0 place-items-center rounded-invest-control bg-invest-bg-soft text-invest-primary transition-[background-color,transform] duration-200 ease-out group-hover:scale-[1.03] group-hover:bg-invest-primary-soft group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
                 <BriefcaseBusiness aria-hidden className="size-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -181,21 +181,21 @@ export default async function InvestModelPortfolioPage({
                   {portfolio.selectedModel.mandateLabel}
                 </p>
                 <dl className="mt-3 grid gap-2 text-xs leading-5 text-invest-text-muted">
-                  <div className="grid gap-1">
+                  <div className="grid gap-1 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                     <dt className="font-semibold text-invest-text">
                       ModelVersion
                     </dt>
                     <dd>{portfolio.selectedModel.versionLabel}</dd>
                     <dd>{portfolio.selectedModel.modelVersionPublicId}</dd>
                   </div>
-                  <div className="grid gap-1">
+                  <div className="grid gap-1 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                     <dt className="font-semibold text-invest-text">
                       Selected model state
                     </dt>
                     <dd>{portfolio.selectedModel.statusLabel}</dd>
                     <dd>{portfolio.selectedModel.statusDescription}</dd>
                   </div>
-                  <div className="grid gap-1">
+                  <div className="grid gap-1 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                     <dt className="font-semibold text-invest-text">
                       Selection reference
                     </dt>
