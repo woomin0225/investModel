@@ -127,20 +127,29 @@ export default async function InvestModelSignalsPage({
                     type="button"
                     aria-pressed={isSelected}
                     className={cn(
-                      'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
+                      'group relative inline-flex min-h-invest-touch-target items-center gap-2 overflow-hidden rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
                       isSelected
                         ? 'border-invest-primary bg-invest-primary text-white'
-                        : 'border-invest-border bg-invest-surface text-invest-text',
+                        : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft/50',
                       investMotionClass.interactiveControl
                     )}
                   >
                     {isSelected ? (
                       <span
                         aria-hidden
-                        className="size-1.5 rounded-full bg-white"
+                        className="size-1.5 rounded-full bg-white transition-transform duration-200 ease-out group-active:scale-75 motion-reduce:transition-none motion-reduce:group-active:scale-100"
                       />
                     ) : null}
-                    {filter}
+                    <span className="relative z-10">{filter}</span>
+                    <span
+                      aria-hidden
+                      className={cn(
+                        'absolute inset-x-3 bottom-1 h-0.5 rounded-full transition-[opacity,transform] duration-200 ease-out group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-active:scale-x-100',
+                        isSelected
+                          ? 'bg-white/80 opacity-90'
+                          : 'bg-invest-primary opacity-0 group-hover:opacity-45'
+                      )}
+                    />
                   </button>
                 );
               })}
