@@ -191,19 +191,28 @@ export default async function InvestModelFeedPage({
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
-                          {post.authorLabel} / {post.sourceLabel}
+                          {post.authorLabel}
                         </p>
                         <h3 className="mt-1 text-[17px] font-semibold leading-6 text-invest-text">
                           {post.title}
                         </h3>
+                        <div className="mt-2 grid grid-cols-3 gap-1.5 rounded-invest-control bg-invest-bg-soft p-1.5">
+                          {[post.sourceLabel, post.timeLabel, post.typeLabel].map(
+                            (meta) => (
+                              <span
+                                key={`${post.id}-${meta}`}
+                                className="min-w-0 truncate rounded-invest-badge bg-invest-surface px-2 py-1 text-center text-[10px] font-bold leading-4 text-invest-text-muted"
+                              >
+                                {meta}
+                              </span>
+                            )
+                          )}
+                        </div>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="text-[12px] font-semibold leading-4 text-invest-text-muted">
-                          {post.timeLabel}
-                        </p>
                         <RiskBadge
                           tone={postToneBadge[post.tone]}
-                          className="mt-2"
+                          className="justify-center"
                         >
                           {post.typeLabel}
                         </RiskBadge>
