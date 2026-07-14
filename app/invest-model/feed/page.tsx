@@ -157,13 +157,18 @@ export default async function InvestModelFeedPage({
             <span className="shrink-0">{visiblePostCountLabel}</span>
           </div>
 
-          <div className="space-y-invest-card-gap">
+          <div
+            role="list"
+            aria-label={feedCopy.sectionTitle}
+            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+          >
             {posts.map((post) => (
               <article
                 key={post.id}
+                role="listitem"
                 aria-label={`${post.title} ${post.typeLabel}`}
                 className={cn(
-                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
+                  'rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
                   investMotionClass.interactiveCard
                 )}
               >
