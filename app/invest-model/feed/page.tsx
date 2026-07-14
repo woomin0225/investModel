@@ -250,18 +250,29 @@ export default async function InvestModelFeedPage({
                     <div className="mt-3 grid grid-cols-3 gap-2 border-t border-invest-border pt-3">
                       {feedActions.map((action, index) => {
                         const Icon = feedActionIcons[index];
+                        const isPrimaryAction = index === 0;
 
                         return (
                           <button
                             key={`${post.id}-${action}`}
                             type="button"
                             aria-label={`${post.title} ${action}`}
+                            aria-pressed={isPrimaryAction}
                             className={cn(
-                              'inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control bg-invest-bg-soft px-2 text-[12px] font-semibold leading-4 text-invest-text-muted',
+                              'inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border px-2 text-[12px] font-semibold leading-4',
+                              isPrimaryAction
+                                ? 'border-invest-primary/20 bg-invest-primary-soft text-invest-primary'
+                                : 'border-transparent bg-invest-bg-soft text-invest-text-muted hover:text-invest-primary',
                               investMotionClass.interactiveControl
                             )}
                           >
-                            <Icon aria-hidden className="size-3.5" />
+                            <Icon
+                              aria-hidden
+                              className={cn(
+                                'size-3.5',
+                                isPrimaryAction && 'fill-invest-primary/10'
+                              )}
+                            />
                             <span className="truncate">{action}</span>
                           </button>
                         );
