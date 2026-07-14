@@ -15,15 +15,15 @@ type InvestModelPortfolioPageProps = {
 
 const portfolioCopy = {
   ko: {
-    eyebrow: 'Mock 포트폴리오',
+    eyebrow: '내 포트폴리오',
     title: '내 포트폴리오',
     alertLabel: '포트폴리오 알림',
     bannerEyebrow: '시뮬레이션 전용',
-    bannerTitle: 'MockDeposit 기반 포트폴리오',
+    bannerTitle: '선택 모델 운용 현황',
     bannerDescription:
-      '이 화면은 사용자가 선택한 InvestmentModel, MockDeposit, simulated positions, TradeIntent 상태를 모바일 UI 검증용으로만 보여줍니다.',
-    mockBalance: 'MockDeposit',
-    mockSafety: '실제 입금/현금 잔고가 아닙니다',
+      '선택한 InvestmentModel의 운용 범위 안에서 구성된 포트폴리오 상태를 보여줍니다.',
+    mockBalance: '시뮬레이션 운용금액',
+    mockSafety: '실제 계좌와 분리된 금액입니다',
     allocationState: 'AllocationDecision',
     preOrderOnly: '주문 전 시뮬레이션 단계입니다',
     policyState: 'TradeIntent',
@@ -33,24 +33,24 @@ const portfolioCopy = {
       '사용자 성향 설정이 아니라 모델이 가진 PortfolioMandate 기준입니다.',
     positionTitle: 'Simulated positions',
     positionDescription:
-      '모든 금액과 비중은 mock quote와 정책 검증 결과로 만든 UI 샘플입니다.',
+      '모든 금액과 비중은 관찰 데이터와 정책 검증 결과로 계산된 시뮬레이션입니다.',
     decisionTitle: '결정 파이프라인',
     decisionDescription:
       'AllocationDecision과 TradeIntent는 실제 주문, 체결, 운용 지시가 아닙니다.',
     blockedActionsTitle: '비활성화된 실제 기능',
     footer:
-      '포트폴리오 값, 포지션, TradeIntent는 MVP 화면 개발용 mock 상태입니다. 실제 자산, 투자 조언, 주문, 계좌 연결을 의미하지 않습니다.'
+      '포트폴리오 값, 포지션, TradeIntent는 실제 자산, 투자 조언, 주문, 계좌 연결을 의미하지 않습니다.'
   },
   en: {
-    eyebrow: 'Mock portfolio',
+    eyebrow: 'My portfolio',
     title: 'My Portfolio',
     alertLabel: 'Portfolio alerts',
     bannerEyebrow: 'Simulation only',
-    bannerTitle: 'Portfolio from MockDeposit',
+    bannerTitle: 'Selected model portfolio',
     bannerDescription:
-      'This screen shows the selected InvestmentModel, MockDeposit, simulated positions, and TradeIntent state for mobile UI validation only.',
-    mockBalance: 'MockDeposit',
-    mockSafety: 'Not a real deposit or cash balance',
+      'Portfolio state is shown within the mandate of the selected InvestmentModel.',
+    mockBalance: 'Simulated operating amount',
+    mockSafety: 'Separated from real accounts',
     allocationState: 'AllocationDecision',
     preOrderOnly: 'Pre-order simulation stage only',
     policyState: 'TradeIntent',
@@ -60,13 +60,13 @@ const portfolioCopy = {
       'This is the model-owned PortfolioMandate, not a user preference control.',
     positionTitle: 'Simulated positions',
     positionDescription:
-      'All values and weights are UI samples from mock quotes and policy checks.',
+      'All values and weights are simulated from observed data and policy checks.',
     decisionTitle: 'Decision pipeline',
     decisionDescription:
       'AllocationDecision and TradeIntent are not real orders, fills, or operating instructions.',
     blockedActionsTitle: 'Disabled real-world actions',
     footer:
-      'Portfolio values, positions, and TradeIntent are mock states for MVP screen development. They are not real assets, advice, orders, or account connections.'
+      'Portfolio values, positions, and TradeIntent are not real assets, advice, orders, or account connections.'
   }
 } as const;
 
@@ -113,7 +113,7 @@ export default async function InvestModelPortfolioPage({
             label={copy.allocationState}
             value={portfolio.allocationDecision.statusLabel}
             description={copy.preOrderOnly}
-            trend="mock"
+            trend={locale === 'ko' ? '시뮬레이션' : 'simulation'}
             tone="positive"
           />
         </div>
@@ -218,7 +218,9 @@ export default async function InvestModelPortfolioPage({
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <RiskBadge>{position.sourceLabel}</RiskBadge>
-                  <RiskBadge tone="medium">mock quote</RiskBadge>
+                  <RiskBadge tone="medium">
+                    {locale === 'ko' ? '관찰 데이터' : 'observed data'}
+                  </RiskBadge>
                 </div>
               </article>
             ))}
