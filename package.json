@@ -12,6 +12,7 @@
     "db:studio": "drizzle-kit studio",
     "test:creator-draft-validation": "npx tsx scripts/smoke/creator-draft-validation-smoke.ts",
     "test:admin-force-stop": "npx tsx scripts/smoke/admin-force-stop-smoke.ts",
+    "test:feed-api": "npx tsx scripts/smoke/feed-api-smoke.ts",
     "test:market-data": "npx tsx scripts/smoke/market-data-provider-smoke.ts",
     "test:model-status-notification": "npx tsx scripts/smoke/model-status-notification-smoke.ts",
     "test:model-selection": "npx tsx scripts/smoke/model-selection-api-smoke.ts",

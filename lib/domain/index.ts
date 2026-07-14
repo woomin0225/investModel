@@ -8,6 +8,7 @@ export * from './analytics/model-selection-event';
 export * from './analytics/model-view-event';
 export * from './compliance/model-report';
 export * from './decision/mock-decision-engine';
+export * from './feed/feed-post';
 export * from './models/model-creator';
 export * from './models/model-artifact-metadata';
 export * from './models/model-description';
