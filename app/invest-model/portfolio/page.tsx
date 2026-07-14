@@ -165,6 +165,30 @@ function portfolioBlockedVisibleBoundaries(locale: 'ko' | 'en') {
   ];
 }
 
+function portfolioTimeDashboardVisibleBoundaries(locale: 'ko' | 'en') {
+  if (locale === 'ko') {
+    return [
+      'DB mock summary',
+      'time-window snapshot',
+      'sample/backtest 지표',
+      '실잔고 아님',
+      '실주문 없음',
+      '브로커 미연결',
+      '투자 조언 아님'
+    ];
+  }
+
+  return [
+    'DB mock summary',
+    'time-window snapshot',
+    'sample/backtest metrics',
+    'not real balance',
+    'no real order',
+    'no brokerage',
+    'no advice'
+  ];
+}
+
 async function readPortfolioSummaryRoute(): Promise<InvestModelPortfolioSummary> {
   const response = await readPortfolioMockSummary(
     new NextRequest('http://localhost/api/portfolio/mock-summary', {
@@ -216,6 +240,8 @@ export default async function InvestModelPortfolioPage({
     portfolio
   );
   const blockedVisibleBoundaries = portfolioBlockedVisibleBoundaries(locale);
+  const timeDashboardVisibleBoundaries =
+    portfolioTimeDashboardVisibleBoundaries(locale);
 
   return (
     <MobileShell
@@ -275,6 +301,13 @@ export default async function InvestModelPortfolioPage({
                 : '1D, 1W, and 1M states are simulated checkpoints, not real returns or account performance.'
             }
           />
+          <div className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-3 py-2">
+            {timeDashboardVisibleBoundaries.map((boundary) => (
+              <RiskBadge key={boundary} tone="neutral">
+                {boundary}
+              </RiskBadge>
+            ))}
+          </div>
           <div
             role="list"
             aria-label="Mock time dashboard"
