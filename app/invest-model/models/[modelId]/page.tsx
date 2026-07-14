@@ -147,6 +147,25 @@ export default async function InvestModelDetailPage({
             title={copy.selectionReviewTitle}
             description={copy.selectionReviewDescription}
           />
+          <div className="mt-4 grid gap-2">
+            {[
+              model.mandateTitle,
+              model.riskTitle,
+              copy.noLiveTradingLabel
+            ].map((label, index) => (
+              <div
+                key={label}
+                className="flex min-h-invest-touch-target items-center gap-3 rounded-invest-control bg-invest-surface-muted px-3 py-2"
+              >
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-invest-surface text-xs font-bold tabular-nums text-invest-primary">
+                  {index + 1}
+                </span>
+                <span className="min-w-0 text-sm font-semibold leading-5 text-invest-text">
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <RiskBadge tone={model.riskTone}>{model.riskLabel}</RiskBadge>
             <RiskBadge>{model.mandateLabel}</RiskBadge>
@@ -171,15 +190,14 @@ export default async function InvestModelDetailPage({
               </div>
             </div>
           ) : null}
+          <button
+            type="button"
+            disabled
+            className="mt-4 min-h-invest-touch-target w-full rounded-invest-control bg-invest-text/70 px-4 text-sm font-bold text-invest-surface shadow-invest-card"
+          >
+            {copy.selectionDisabledLabel}
+          </button>
         </section>
-
-        <button
-          type="button"
-          disabled
-          className="min-h-invest-touch-target w-full rounded-invest-control bg-invest-text/70 px-4 text-sm font-bold text-invest-surface shadow-invest-card"
-        >
-          {copy.selectionDisabledLabel}
-        </button>
       </section>
     </MobileShell>
   );
