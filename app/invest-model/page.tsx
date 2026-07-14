@@ -19,6 +19,12 @@ type InvestModelPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
+const activityAccentClass = [
+  'bg-invest-primary',
+  'bg-invest-warning',
+  'bg-invest-positive'
+] as const;
+
 export default async function InvestModelPreviewPage({
   searchParams
 }: InvestModelPageProps) {
@@ -118,17 +124,21 @@ export default async function InvestModelPreviewPage({
           <div className="space-y-3">
             {homeCopy.timeline.map((item, index) => {
               const metadata = investModelHomeMock.timeline[index];
+              const accentClass =
+                activityAccentClass[index % activityAccentClass.length];
 
               return (
                 <article
                   key={`${item.time}-${item.title}`}
+                  aria-label={`${item.title} ${item.time}`}
                   className={cn(
                     'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
                     investMotionClass.interactiveCard
                   )}
                 >
+                  <div className={cn('mb-3 h-1.5 rounded-full', accentClass)} />
                   <div className="flex items-start gap-3">
-                    <div className="grid size-9 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+                    <div className="grid size-9 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary shadow-invest-card">
                       <Clock3 aria-hidden className="size-4" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -157,11 +167,14 @@ export default async function InvestModelPreviewPage({
                         {item.description}
                       </p>
                       {metadata ? (
-                        <div className="mt-3 border-t border-invest-border pt-3">
-                          <RiskBadge>
+                        <div className="mt-3 grid gap-2 border-t border-invest-border pt-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                          <RiskBadge className="justify-center text-center">
                             <Database aria-hidden className="mr-1 inline size-3" />
                             {metadata.sourceLabel}
                           </RiskBadge>
+                          <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface-muted px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
+                            {metadata.statusLabel}
+                          </span>
                         </div>
                       ) : null}
                     </div>
