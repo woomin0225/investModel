@@ -1,7 +1,9 @@
 import { ArrowLeft, Activity, Radio, Search, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { NextRequest } from 'next/server';
 
+import { GET as readSignalDetail } from '@/app/api/signals/[signalId]/route';
 import {
   MetricCard,
   MobileShell,
@@ -10,7 +12,6 @@ import {
   SoftBanner,
   investMotionClass
 } from '@/components/invest-model';
-import { readSignalEventDtoByPublicId } from '@/lib/db/signal-read-model';
 import type {
   SignalEventDto,
   SignalEventType
@@ -200,6 +201,42 @@ function signalEvidenceVisibleBoundaries(locale: SignalLocale) {
       ];
 }
 
+async function readSignalDetailRoute(
+  signalPublicId: string
+): Promise<SignalEventDto | null> {
+  const response = await readSignalDetail(
+    new NextRequest(`http://localhost/api/signals/${signalPublicId}`, {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    }),
+    {
+      params: Promise.resolve({
+        signalId: signalPublicId
+      })
+    }
+  );
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error('SignalEvent detail route read failed.');
+  }
+
+  const payload = (await response.json()) as {
+    data?: SignalEventDto;
+  };
+
+  if (!payload.data) {
+    throw new Error('SignalEvent detail route returned no data.');
+  }
+
+  return payload.data;
+}
+
 export default async function InvestModelSignalDetailPage({
   params,
   searchParams
@@ -209,7 +246,7 @@ export default async function InvestModelSignalDetailPage({
   const locale = resolveInvestModelLocale(resolvedSearchParams);
   const copy = investModelCopy[locale];
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
-  const signal = await readSignalEventDtoByPublicId(resolvedParams.signalId);
+  const signal = await readSignalDetailRoute(resolvedParams.signalId);
 
   if (!signal) {
     notFound();
