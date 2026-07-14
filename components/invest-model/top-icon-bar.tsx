@@ -18,6 +18,12 @@ type TopIconAction = {
   rotateOnHover?: boolean;
 };
 
+type NotificationAccessibilityCopy = {
+  unread: string;
+  unreadDot: string;
+  none: string;
+};
+
 type TopIconBarProps = {
   actions: TopIconAction[];
   locale: InvestModelLocale;
@@ -122,6 +128,7 @@ function TopIconButton({
 }) {
   const Icon = action.icon;
   const isPrimary = action.tone === 'primary';
+  const accessibleLabel = getTopIconAccessibleLabel(action, locale);
   const className = cn(
     'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border shadow-invest-card focus-visible:ring-2',
     isPrimary
@@ -176,7 +183,8 @@ function TopIconButton({
     return (
       <Link
         href={withInvestModelLocale(action.href, locale)}
-        aria-label={action.label}
+        aria-label={accessibleLabel}
+        title={accessibleLabel}
         className={className}
       >
         {content}
@@ -185,8 +193,50 @@ function TopIconButton({
   }
 
   return (
-    <button type="button" aria-label={action.label} className={className}>
+    <button
+      type="button"
+      aria-label={accessibleLabel}
+      title={accessibleLabel}
+      className={className}
+    >
       {content}
     </button>
   );
 }
+
+function getTopIconAccessibleLabel(
+  action: TopIconAction,
+  locale: InvestModelLocale
+) {
+  if (action.key !== 'notifications') {
+    return action.label;
+  }
+
+  const copy = notificationAccessibilityCopy[locale];
+
+  if (action.badgeLabel) {
+    return `${action.label}: ${action.badgeLabel} ${copy.unread}`;
+  }
+
+  if (action.dot) {
+    return `${action.label}: ${copy.unreadDot}`;
+  }
+
+  return `${action.label}: ${copy.none}`;
+}
+
+const notificationAccessibilityCopy: Record<
+  InvestModelLocale,
+  NotificationAccessibilityCopy
+> = {
+  ko: {
+    unread: 'unread DB-backed notifications',
+    unreadDot: 'unread DB-backed notifications',
+    none: 'no new DB-backed notifications'
+  },
+  en: {
+    unread: 'unread DB-backed notifications',
+    unreadDot: 'unread DB-backed notifications',
+    none: 'no new DB-backed notifications'
+  }
+};
