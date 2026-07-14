@@ -2,22 +2,19 @@ import {
   BriefcaseBusiness,
   Clock3,
   Database,
-  ShieldAlert,
-  WalletCards
+  ShieldAlert
 } from 'lucide-react';
 import { NextRequest } from 'next/server';
 
 import { GET as readPortfolioMockSummary } from '@/app/api/portfolio/mock-summary/route';
 import {
   investMotionClass,
-  MetricCard,
   MobileShell,
   ModelSelectionReadStatus,
   modelSelectionReadStatusCopy,
   RiskBadge,
   SectionHeader,
-  SearchAndNotificationActions,
-  SoftBanner
+  SearchAndNotificationActions
 } from '@/components/invest-model';
 import {
   investModelCopy,
@@ -263,37 +260,6 @@ export default async function InvestModelPortfolioPage({
       }
     >
       <section className="space-y-invest-section-gap">
-        <SoftBanner
-          eyebrow={copy.bannerEyebrow}
-          title={copy.bannerTitle}
-          description={copy.bannerDescription}
-          icon={WalletCards}
-        />
-
-        <div className="grid grid-cols-2 gap-invest-card-gap">
-          <MetricCard
-            label={copy.mockBalance}
-            value={portfolio.mockDeposit.amountLabel}
-            description={copy.mockSafety}
-            trend={portfolio.mockDeposit.statusLabel}
-          />
-          <MetricCard
-            label={copy.allocationState}
-            value={portfolio.allocationDecision.statusLabel}
-            description={copy.preOrderOnly}
-            trend={locale === 'ko' ? '시뮬레이션' : 'simulation'}
-            tone="positive"
-          />
-        </div>
-
-        <MetricCard
-          label={copy.policyState}
-          value={portfolio.tradeIntent.statusLabel}
-          description={copy.noBrokerage}
-          trend={portfolio.tradeIntent.boundaryLabel}
-          tone="risk"
-        />
-
         <div className="space-y-invest-card-gap">
           <SectionHeader
             title={
@@ -305,6 +271,50 @@ export default async function InvestModelPortfolioPage({
                 : '1D, 1W, and 1M states are simulated checkpoints, not real returns or account performance.'
             }
           />
+          <div className="grid gap-2 rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card">
+            <div className="grid gap-2 min-[360px]:grid-cols-3">
+              <div className="rounded-invest-control bg-invest-bg-soft p-2.5">
+                <p className="text-[11px] font-bold leading-4 text-invest-text-muted">
+                  {copy.mockBalance}
+                </p>
+                <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
+                  {portfolio.mockDeposit.amountLabel}
+                </p>
+                <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                  {portfolio.mockDeposit.statusLabel}
+                </p>
+              </div>
+              <div className="rounded-invest-control bg-invest-bg-soft p-2.5">
+                <p className="text-[11px] font-bold leading-4 text-invest-text-muted">
+                  {copy.allocationState}
+                </p>
+                <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
+                  {portfolio.allocationDecision.statusLabel}
+                </p>
+                <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                  {portfolio.allocationDecision.sourceLabel}
+                </p>
+              </div>
+              <div className="rounded-invest-control bg-invest-risk-soft/55 p-2.5">
+                <p className="text-[11px] font-bold leading-4 text-invest-text-muted">
+                  {copy.policyState}
+                </p>
+                <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
+                  {portfolio.tradeIntent.statusLabel}
+                </p>
+                <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-risk">
+                  {portfolio.tradeIntent.boundaryLabel}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <RiskBadge tone="neutral">
+                {portfolio.mockDeposit.safetyLabel}
+              </RiskBadge>
+              <RiskBadge tone="medium">{copy.preOrderOnly}</RiskBadge>
+              <RiskBadge tone="blocked">{copy.noBrokerage}</RiskBadge>
+            </div>
+          </div>
           <div className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-3 py-2">
             {timeDashboardVisibleBoundaries.map((boundary) => (
               <RiskBadge key={boundary} tone="neutral">

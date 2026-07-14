@@ -332,6 +332,9 @@ const mobileShellSource = readProjectFile(
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
 const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
+const portfolioPageSource = readProjectFile(
+  'app/invest-model/portfolio/page.tsx'
+);
 const feedDetailPageSource = readProjectFile(
   'app/invest-model/feed/[postId]/page.tsx'
 );
@@ -407,6 +410,14 @@ assertCondition(
 assertCondition(
   !feedPageSource.includes('Simulated list action state'),
   'Feed card actions must not describe DB-backed interactions as simulated list state'
+);
+assertCondition(
+  !portfolioPageSource.includes('<SoftBanner') &&
+    !portfolioPageSource.includes('<MetricCard') &&
+    portfolioPageSource.includes('portfolio.mockDeposit.amountLabel') &&
+    portfolioPageSource.includes('portfolio.allocationDecision.statusLabel') &&
+    portfolioPageSource.includes('portfolio.tradeIntent.statusLabel'),
+  'Portfolio must start with the DB-backed time dashboard summary instead of top simulation banner/metric cards'
 );
 
 const screenResults = screens.map((screen) => {
