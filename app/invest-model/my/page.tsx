@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { NextRequest } from 'next/server';
 import {
   ArrowRight,
   Bell,
@@ -21,7 +22,8 @@ import {
   resolveInvestModelLocale,
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
-import { readMyPageFeedActivitySummary } from '@/lib/db/my-page-read-model';
+import { GET as readMyActivity } from '@/app/api/my/activity/route';
+import type { MyPageFeedActivitySummary } from '@/lib/db/my-page-read-model';
 import { cn } from '@/lib/utils';
 
 type InvestModelMyPageProps = {
@@ -35,6 +37,31 @@ function getActivitySortTime(activityAt?: string) {
 
   const time = Date.parse(activityAt);
   return Number.isNaN(time) ? 0 : time;
+}
+
+async function readMyPageActivityRoute(): Promise<MyPageFeedActivitySummary> {
+  const response = await readMyActivity(
+    new NextRequest('http://localhost/api/my/activity', {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+
+  if (!response.ok) {
+    throw new Error('My Page activity route read failed.');
+  }
+
+  const payload = (await response.json()) as {
+    data?: MyPageFeedActivitySummary;
+  };
+
+  if (!payload.data) {
+    throw new Error('My Page activity route returned no data.');
+  }
+
+  return payload.data;
 }
 
 const myPageCopy = {
@@ -147,7 +174,7 @@ export default async function InvestModelMyPage({
 }: InvestModelMyPageProps) {
   const locale = resolveInvestModelLocale(await searchParams);
   const copy = myPageCopy[locale];
-  const activitySummary = await readMyPageFeedActivitySummary('user_demo_001');
+  const activitySummary = await readMyPageActivityRoute();
   const savedValue =
     locale === 'ko'
       ? `${activitySummary.savedCount}개`
