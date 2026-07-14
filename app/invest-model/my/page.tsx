@@ -98,6 +98,23 @@ function myPageSafetyAccessibleLabel(locale: 'ko' | 'en') {
     : 'My Page safety boundary. Values are user 1 in-app DB read models or mock-safe state, not real account balances, bank links, brokerage orders, push/email/SMS delivery, legal judgments, or investment advice.';
 }
 
+function myPageActivityVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? ['사용자 범위 DB 상태', '실계좌 없음', '실주문 없음', '추천 아님']
+    : ['user-scoped DB state', 'no real account', 'no orders', 'not advice'];
+}
+
+function myPageRecentActivityVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? ['DB FeedPost activity', '저장/댓글 읽기', '브로커 미연결', '푸시 전송 없음']
+    : [
+        'DB FeedPost activity',
+        'saved/comment read model',
+        'no brokerage',
+        'no push delivery'
+      ];
+}
+
 const myPageCopy = {
   ko: {
     eyebrow: '내 정보',
@@ -361,6 +378,15 @@ export default async function InvestModelMyPage({
                       <p className="mt-1 text-sm leading-6 text-invest-text-muted">
                         {item.description}
                       </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {myPageActivityVisibleBoundaries(locale).map(
+                          (boundary) => (
+                            <RiskBadge key={boundary} tone="neutral">
+                              {boundary}
+                            </RiskBadge>
+                          )
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -392,6 +418,15 @@ export default async function InvestModelMyPage({
                   ? 'DB read model'
                   : 'mock-safe'}
               </RiskBadge>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {myPageRecentActivityVisibleBoundaries(locale).map(
+                (boundary) => (
+                  <RiskBadge key={boundary} tone="neutral">
+                    {boundary}
+                  </RiskBadge>
+                )
+              )}
             </div>
 
             {recentActivityRows.length > 0 ? (
