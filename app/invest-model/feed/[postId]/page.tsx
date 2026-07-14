@@ -8,14 +8,14 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import {
+  FeedCommentAction,
   FeedLikeAction,
   FeedReadAction,
   FeedSaveAction,
   investMotionClass,
   MobileShell,
   NotificationAction,
-  RiskBadge,
-  SectionHeader
+  RiskBadge
 } from '@/components/invest-model';
 import { readFeedPostDetailDto } from '@/lib/db/feed-detail-read-model';
 import type { FeedCommentDto } from '@/lib/domain/feed/feed-post';
@@ -239,33 +239,13 @@ export default async function InvestModelFeedDetailPage({
           />
         </div>
 
-        <div className="space-y-invest-card-gap">
-          <SectionHeader
-            title={locale === 'ko' ? '댓글' : 'Comments'}
-            description={
-              locale === 'ko'
-                ? '현재는 DB seed 기반 읽기 전용 댓글입니다.'
-                : 'Read-only comments from the tracked DB seed.'
-            }
-          />
-          <div className="space-y-2.5">
-            {post.comments.length > 0 ? (
-              post.comments.map((comment) => (
-                <CommentItem
-                  key={comment.commentPublicId}
-                  comment={comment}
-                  locale={locale}
-                />
-              ))
-            ) : (
-              <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted">
-                {locale === 'ko'
-                  ? '아직 표시할 댓글이 없습니다.'
-                  : 'There are no comments yet.'}
-              </div>
-            )}
-          </div>
-        </div>
+        <FeedCommentAction
+          postPublicId={post.postPublicId}
+          userPublicId={userPublicId}
+          initialComments={post.comments}
+          initialState={post.userState}
+          locale={locale}
+        />
 
         <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
           <div className="flex items-start gap-3">

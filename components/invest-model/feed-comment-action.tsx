@@ -1,0 +1,319 @@
+'use client';
+
+import { FormEvent, useMemo, useState } from 'react';
+import { AlertCircle, Loader2, MessageCircle, Send } from 'lucide-react';
+
+import {
+  investMotionClass,
+  RiskBadge,
+  SectionHeader
+} from '@/components/invest-model/ui';
+import type {
+  FeedCommentDto,
+  FeedPostDetailDto,
+  FeedReactionStateDto
+} from '@/lib/domain/feed/feed-post';
+import { cn } from '@/lib/utils';
+
+type FeedCommentActionProps = {
+  postPublicId: string;
+  userPublicId: string;
+  initialComments: FeedCommentDto[];
+  initialState: FeedReactionStateDto;
+  locale: 'ko' | 'en';
+};
+
+type FeedCommentResponse = {
+  data?: FeedPostDetailDto;
+  meta?: {
+    informationalOnly?: boolean;
+    discussionOnly?: boolean;
+    recommendationSignal?: boolean;
+    orderIntentSignal?: boolean;
+    realOrder?: boolean;
+    brokerageConnection?: boolean;
+    financialAdvice?: boolean;
+    complianceApproval?: boolean;
+  };
+  error?: {
+    message?: string;
+  };
+};
+
+const maxCommentLength = 600;
+
+function formatPublishedAt(value: string | undefined, locale: 'ko' | 'en') {
+  if (!value) {
+    return locale === 'ko' ? 'Time pending' : 'Time pending';
+  }
+
+  return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value));
+}
+
+function CommentItem({
+  comment,
+  locale,
+  depth = 0
+}: {
+  comment: FeedCommentDto;
+  locale: 'ko' | 'en';
+  depth?: number;
+}) {
+  return (
+    <div
+      className={cn(
+        'rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card',
+        depth > 0 && 'ml-5 border-invest-primary/15 bg-invest-primary-soft/25'
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-bold leading-5 text-invest-text">
+            {comment.authorDisplayName}
+          </p>
+          <p className="text-[11px] font-semibold leading-4 text-invest-text-muted">
+            {formatPublishedAt(comment.createdAt, locale)}
+          </p>
+        </div>
+        {comment.replyCount > 0 ? (
+          <RiskBadge tone="neutral">
+            {locale === 'ko'
+              ? `Replies ${comment.replyCount}`
+              : `${comment.replyCount} replies`}
+          </RiskBadge>
+        ) : null}
+      </div>
+      <p className="mt-2 text-sm leading-6 text-invest-text-muted">
+        {comment.body}
+      </p>
+      {comment.replies?.length ? (
+        <div className="mt-3 space-y-2">
+          {comment.replies.map((reply) => (
+            <CommentItem
+              key={reply.commentPublicId}
+              comment={reply}
+              locale={locale}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * FeedCommentAction creates informational FeedPost comments only.
+ * It does not create recommendations, orders, broker actions, or approvals.
+ */
+export function FeedCommentAction({
+  postPublicId,
+  userPublicId,
+  initialComments,
+  initialState,
+  locale
+}: FeedCommentActionProps) {
+  const [comments, setComments] = useState(initialComments);
+  const [reactionState, setReactionState] = useState(initialState);
+  const [draft, setDraft] = useState('');
+  const [isPending, setIsPending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const isKorean = locale === 'ko';
+  const remainingCount = maxCommentLength - draft.length;
+  const canSubmit =
+    draft.trim().length > 0 && draft.trim().length <= maxCommentLength;
+
+  const helperText = useMemo(() => {
+    if (remainingCount < 0) {
+      return isKorean
+        ? 'Comment is over the 600 character limit.'
+        : 'Comment is over the 600 character limit.';
+    }
+
+    return isKorean
+      ? 'Informational discussion only. No advice, order, or approval is created.'
+      : 'Informational discussion only. No advice, order, or approval is created.';
+  }, [isKorean, remainingCount]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const trimmedDraft = draft.trim();
+
+    if (isPending || trimmedDraft.length === 0) {
+      return;
+    }
+
+    if (trimmedDraft.length > maxCommentLength) {
+      setErrorMessage(
+        isKorean
+          ? 'Comment must be 600 characters or fewer.'
+          : 'Comment must be 600 characters or fewer.'
+      );
+      return;
+    }
+
+    setIsPending(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await fetch(
+        `/api/feed/${encodeURIComponent(postPublicId)}/comments`,
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-invest-model-role': 'user'
+          },
+          body: JSON.stringify({
+            userPublicId,
+            body: trimmedDraft
+          })
+        }
+      );
+      const body = (await response.json()) as FeedCommentResponse;
+
+      if (!response.ok || !body.data) {
+        setErrorMessage(
+          body.error?.message ??
+            (isKorean
+              ? 'Could not add this informational comment.'
+              : 'Could not add this informational comment.')
+        );
+        return;
+      }
+
+      setComments(body.data.comments);
+      setReactionState(body.data.userState);
+      setDraft('');
+      setSuccessMessage(
+        isKorean
+          ? 'Comment added to the discussion.'
+          : 'Comment added to the discussion.'
+      );
+    } catch {
+      setErrorMessage(
+        isKorean
+          ? 'Could not add this informational comment.'
+          : 'Could not add this informational comment.'
+      );
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  return (
+    <div className="space-y-invest-card-gap">
+      <SectionHeader
+        title={isKorean ? 'Comments' : 'Comments'}
+        description={
+          isKorean
+            ? `${reactionState.commentCount} DB-backed discussion comments.`
+            : `${reactionState.commentCount} DB-backed discussion comments.`
+        }
+      />
+
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card"
+      >
+        <label
+          htmlFor="feed-comment-body"
+          className="flex items-center gap-2 text-[12px] font-bold leading-4 text-invest-text"
+        >
+          <MessageCircle aria-hidden className="size-4 text-invest-primary" />
+          {isKorean ? 'Add comment' : 'Add comment'}
+        </label>
+        <textarea
+          id="feed-comment-body"
+          value={draft}
+          onChange={(event) => {
+            setDraft(event.target.value);
+            setErrorMessage(null);
+            setSuccessMessage(null);
+          }}
+          disabled={isPending}
+          rows={4}
+          maxLength={maxCommentLength + 20}
+          placeholder={
+            isKorean
+              ? 'Share an informational market or model note.'
+              : 'Share an informational market or model note.'
+          }
+          className={cn(
+            'mt-3 min-h-28 w-full resize-none rounded-invest-control border border-invest-border bg-invest-bg-soft px-3 py-2 text-sm font-semibold leading-6 text-invest-text outline-none placeholder:text-invest-text-muted/70 focus:border-invest-primary focus:bg-invest-surface disabled:cursor-wait disabled:opacity-75',
+            investMotionClass.interactiveControl
+          )}
+        />
+        <div className="mt-2 flex items-start justify-between gap-3">
+          <p
+            className={cn(
+              'text-[11px] font-semibold leading-4',
+              remainingCount < 0 ? 'text-invest-risk' : 'text-invest-text-muted'
+            )}
+          >
+            {helperText}
+          </p>
+          <span
+            className={cn(
+              'shrink-0 text-[11px] font-bold leading-4 tabular-nums',
+              remainingCount < 0 ? 'text-invest-risk' : 'text-invest-text-muted'
+            )}
+          >
+            {remainingCount}
+          </span>
+        </div>
+        <button
+          type="submit"
+          disabled={!canSubmit || isPending}
+          className={cn(
+            'mt-3 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-white shadow-invest-card disabled:cursor-not-allowed disabled:bg-invest-text-muted/40',
+            investMotionClass.interactiveControl
+          )}
+        >
+          {isPending ? (
+            <Loader2 aria-hidden className="size-4 animate-spin" />
+          ) : (
+            <Send aria-hidden className="size-4" />
+          )}
+          {isKorean ? 'Post comment' : 'Post comment'}
+        </button>
+
+        {errorMessage ? (
+          <p className="mt-3 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk">
+            <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+            <span>{errorMessage}</span>
+          </p>
+        ) : null}
+        {successMessage ? (
+          <p className="mt-3 text-[11px] font-semibold leading-4 text-invest-primary">
+            {successMessage}
+          </p>
+        ) : null}
+      </form>
+
+      <div className="space-y-2.5" aria-live="polite">
+        {comments.length > 0 ? (
+          comments.map((comment) => (
+            <CommentItem
+              key={comment.commentPublicId}
+              comment={comment}
+              locale={locale}
+            />
+          ))
+        ) : (
+          <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted">
+            {isKorean ? 'No comments yet.' : 'There are no comments yet.'}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
