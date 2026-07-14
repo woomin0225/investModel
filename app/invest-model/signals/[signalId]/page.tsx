@@ -146,6 +146,24 @@ function signalSafetyDescription(locale: SignalLocale, signal: SignalEventDto) {
     : 'This screen shows an observed input for model context. It is not investment advice or order creation.';
 }
 
+function signalDetailVisibleBoundaries(locale: SignalLocale) {
+  return locale === 'ko'
+    ? ['DB 관찰 입력', '정보성 신호', '추천 아님', 'TradeIntent 없음', '외부 실시간 미연결']
+    : [
+        'DB observed input',
+        'informational signal',
+        'not advice',
+        'no TradeIntent',
+        'no realtime external data'
+      ];
+}
+
+function signalRelatedVisibleBoundaries(locale: SignalLocale) {
+  return locale === 'ko'
+    ? ['DB FeedPost', '참고 읽기', '주문 근거 아님']
+    : ['DB FeedPost', 'reference reading', 'not order evidence'];
+}
+
 export default async function InvestModelSignalDetailPage({
   params,
   searchParams
@@ -281,6 +299,13 @@ export default async function InvestModelSignalDetailPage({
                     : signal.dataContext}
                 </RiskBadge>
               </div>
+              <div className="mt-2 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+                {signalDetailVisibleBoundaries(locale).map((boundary) => (
+                  <RiskBadge key={boundary} tone="neutral">
+                    {boundary}
+                  </RiskBadge>
+                ))}
+              </div>
               <h2 className="mt-3 text-[22px] font-bold leading-7 text-invest-text">
                 {signal.title}
               </h2>
@@ -359,6 +384,13 @@ export default async function InvestModelSignalDetailPage({
                 <RiskBadge tone="medium">
                   {locale === 'ko' ? '참고용' : 'Reference only'}
                 </RiskBadge>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+                {signalRelatedVisibleBoundaries(locale).map((boundary) => (
+                  <RiskBadge key={boundary} tone="neutral">
+                    {boundary}
+                  </RiskBadge>
+                ))}
               </div>
               <h2 className="mt-2 text-[16px] font-bold leading-6 text-invest-text">
                 {locale === 'ko'
