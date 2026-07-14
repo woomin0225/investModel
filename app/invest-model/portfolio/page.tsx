@@ -14,12 +14,15 @@ import {
   MobileShell,
   ModelSelectionReadStatus,
   modelSelectionReadStatusCopy,
-  NotificationAction,
   RiskBadge,
   SectionHeader,
+  SearchAndNotificationActions,
   SoftBanner
 } from '@/components/invest-model';
-import { resolveInvestModelLocale } from '@/lib/i18n/invest-model';
+import {
+  investModelCopy,
+  resolveInvestModelLocale
+} from '@/lib/i18n/invest-model';
 import type { InvestModelPortfolioSummary } from '@/lib/domain/portfolio/portfolio-summary';
 import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
@@ -251,9 +254,10 @@ export default async function InvestModelPortfolioPage({
       locale={locale}
       currentPath="/invest-model/portfolio"
       trailing={
-        <NotificationAction
+        <SearchAndNotificationActions
           locale={locale}
-          label={copy.alertLabel}
+          searchLabel={investModelCopy[locale].actions.searchModels}
+          notificationLabel={copy.alertLabel}
           unreadLabel={unreadLabel}
         />
       }

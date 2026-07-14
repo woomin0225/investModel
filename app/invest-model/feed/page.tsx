@@ -15,9 +15,9 @@ import {
   investMotionClass,
   MetricCard,
   MobileShell,
-  NotificationAction,
   RiskBadge,
   SectionHeader,
+  SearchAndNotificationActions,
   SoftBanner
 } from '@/components/invest-model';
 import {
@@ -387,9 +387,10 @@ export default async function InvestModelFeedPage({
       locale={locale}
       currentPath="/invest-model/feed"
       trailing={
-        <NotificationAction
+        <SearchAndNotificationActions
           locale={locale}
-          label={copy.actions.feedNotifications}
+          searchLabel={copy.actions.searchModels}
+          notificationLabel={copy.actions.feedNotifications}
           unreadLabel={unreadLabel}
         />
       }

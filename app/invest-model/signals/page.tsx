@@ -5,9 +5,9 @@ import { GET as readSignals } from '@/app/api/signals/route';
 import {
   MetricCard,
   MobileShell,
-  NotificationAction,
   RiskBadge,
   SectionHeader,
+  SearchAndNotificationActions,
   SoftBanner,
   investMotionClass
 } from '@/components/invest-model';
@@ -327,9 +327,10 @@ export default async function InvestModelSignalsPage({
       locale={locale}
       currentPath="/invest-model/signals"
       trailing={
-        <NotificationAction
+        <SearchAndNotificationActions
           locale={locale}
-          label={copy.actions.signalAlerts}
+          searchLabel={copy.actions.searchModels}
+          notificationLabel={copy.actions.signalAlerts}
           unreadLabel={unreadLabel}
         />
       }
