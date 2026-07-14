@@ -52,13 +52,6 @@ export default async function InvestModelPreviewPage({
       }
     >
       <section className="space-y-invest-section-gap">
-        <SoftBanner
-          eyebrow={homeCopy.bannerEyebrow}
-          title={homeCopy.signal.title}
-          description={homeCopy.signal.description}
-          icon={Radio}
-        />
-
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard
             label={homeCopy.metrics.mockBalance}
@@ -75,13 +68,15 @@ export default async function InvestModelPreviewPage({
           />
         </div>
 
-        <MetricCard
-          label={homeCopy.metrics.policyStatus}
-          value={homeCopy.metrics.review}
-          description={homeCopy.metrics.noLiveTrading}
-          trend={homeCopy.metrics.blocked}
-          tone="risk"
-        />
+        <div className="grid gap-invest-card-gap">
+          <MetricCard
+            label={homeCopy.metrics.policyStatus}
+            value={homeCopy.metrics.review}
+            description={homeCopy.metrics.noLiveTrading}
+            trend={homeCopy.metrics.blocked}
+            tone="risk"
+          />
+        </div>
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
@@ -99,6 +94,13 @@ export default async function InvestModelPreviewPage({
             mandateLabel={homeCopy.activeModel.mandateLabel}
           />
         </div>
+
+        <SoftBanner
+          eyebrow={homeCopy.bannerEyebrow}
+          title={homeCopy.signal.title}
+          description={homeCopy.signal.description}
+          icon={Radio}
+        />
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
