@@ -17,7 +17,7 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
-import type { InvestModelPortfolioSummary } from '@/lib/db/portfolio-read-model';
+import type { InvestModelPortfolioSummary } from '@/lib/domain/portfolio/portfolio-summary';
 import { investModelHomeMock } from '@/lib/mock/invest-model-home';
 import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
