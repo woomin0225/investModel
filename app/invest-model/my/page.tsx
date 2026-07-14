@@ -28,6 +28,15 @@ type InvestModelMyPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
+function getActivitySortTime(activityAt?: string) {
+  if (!activityAt) {
+    return 0;
+  }
+
+  const time = Date.parse(activityAt);
+  return Number.isNaN(time) ? 0 : time;
+}
+
 const myPageCopy = {
   ko: {
     eyebrow: '내 정보',
@@ -164,13 +173,19 @@ export default async function InvestModelMyPage({
   const recentActivityRows = [
     ...activitySummary.recentSavedPosts.map((item) => ({
       ...item,
-      label: 'Saved'
+      label: locale === 'ko' ? '저장' : 'Saved'
     })),
     ...activitySummary.recentCommentPosts.map((item) => ({
       ...item,
-      label: 'Comment'
+      label: locale === 'ko' ? '댓글' : 'Comment'
     }))
-  ].slice(0, 4);
+  ]
+    .sort(
+      (left, right) =>
+        getActivitySortTime(right.activityAt) -
+        getActivitySortTime(left.activityAt)
+    )
+    .slice(0, 4);
 
   return (
     <MobileShell
@@ -301,10 +316,14 @@ export default async function InvestModelMyPage({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h2 className="text-sm font-bold leading-5 text-invest-text">
-                  Recent FeedPost activity
+                  {locale === 'ko'
+                    ? '최근 FeedPost 활동'
+                    : 'Recent FeedPost activity'}
                 </h2>
                 <p className="mt-1 text-[12px] leading-5 text-invest-text-muted">
-                  DB-backed saved and comment shortcuts for user 1.
+                  {locale === 'ko'
+                    ? 'user 1의 저장/댓글 shortcut을 DB read model에서 최신순으로 표시합니다.'
+                    : 'DB-backed saved and comment shortcuts for user 1, sorted by latest activity.'}
                 </p>
               </div>
               <RiskBadge
@@ -361,13 +380,16 @@ export default async function InvestModelMyPage({
               </div>
             ) : (
               <p className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-sm leading-5 text-invest-text-muted">
-                No DB FeedPost activity to show yet.
+                {locale === 'ko'
+                  ? '표시할 DB FeedPost 활동이 아직 없습니다.'
+                  : 'No DB FeedPost activity to show yet.'}
               </p>
             )}
 
             <p className="mt-3 text-[12px] leading-5 text-invest-text-muted">
-              Saved/comment activity is an informational reading shortcut only,
-              not advice, orders, real accounts, or notification delivery.
+              {locale === 'ko'
+                ? '저장/댓글 활동은 정보성 읽기 shortcut이며 추천, 주문, 실계좌, 실제 알림 전송과 연결되지 않습니다.'
+                : 'Saved/comment activity is an informational reading shortcut only, not advice, orders, real accounts, or notification delivery.'}
             </p>
           </div>
         </div>
