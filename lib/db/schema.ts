@@ -5,6 +5,7 @@ import {
   decimal,
   json,
   index,
+  foreignKey,
   uniqueIndex,
   varchar,
   text,
@@ -390,6 +391,48 @@ export const marketInstruments = mysqlTable(
       table.assetType,
       table.market
     ),
+  ]
+);
+
+/**
+ * modelSignalEvents store observed model inputs from mock/seeded market, news, and traffic context.
+ * They are not buy, sell, hold, allocation, or TradeIntent instructions.
+ */
+export const modelSignalEvents = mysqlTable(
+  'model_signal_events',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    publicId: varchar('public_id', { length: 120 }).notNull(),
+    modelVersionId: int('model_version_id').notNull(),
+    signalType: varchar('signal_type', { length: 40 }).notNull(),
+    title: varchar('title', { length: 220 }).notNull(),
+    summary: text('summary'),
+    score: decimal('score', { precision: 8, scale: 4 }),
+    sourceArticleId: int('source_article_id'),
+    sourceInstrumentId: int('source_instrument_id'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_model_signal_events_public_id').on(table.publicId),
+    index('idx_model_signal_version_time').on(
+      table.modelVersionId,
+      table.createdAt
+    ),
+    index('idx_model_signal_type_score').on(table.signalType, table.score),
+    index('idx_model_signal_source_article_id').on(table.sourceArticleId),
+    index('idx_model_signal_source_instrument_id').on(
+      table.sourceInstrumentId
+    ),
+    foreignKey({
+      name: 'fk_signal_model_version',
+      columns: [table.modelVersionId],
+      foreignColumns: [modelVersions.id],
+    }),
+    foreignKey({
+      name: 'fk_signal_source_instrument',
+      columns: [table.sourceInstrumentId],
+      foreignColumns: [marketInstruments.id],
+    }),
   ]
 );
 
@@ -856,6 +899,7 @@ export const modelVersionsRelations = relations(
     complianceReviews: many(complianceReviews),
     userModelSelections: many(userModelSelections),
     allocationDecisions: many(allocationDecisions),
+    modelSignalEvents: many(modelSignalEvents),
   })
 );
 
@@ -926,6 +970,21 @@ export const marketInstrumentsRelations = relations(
   ({ many }) => ({
     portfolioPositions: many(portfolioPositions),
     tradeIntents: many(tradeIntents),
+    modelSignalEvents: many(modelSignalEvents),
+  })
+);
+
+export const modelSignalEventsRelations = relations(
+  modelSignalEvents,
+  ({ one }) => ({
+    modelVersion: one(modelVersions, {
+      fields: [modelSignalEvents.modelVersionId],
+      references: [modelVersions.id],
+    }),
+    sourceInstrument: one(marketInstruments, {
+      fields: [modelSignalEvents.sourceInstrumentId],
+      references: [marketInstruments.id],
+    }),
   })
 );
 
@@ -1153,6 +1212,11 @@ export type NewModelPerformanceSnapshot =
  */
 export type MarketInstrument = typeof marketInstruments.$inferSelect;
 export type NewMarketInstrument = typeof marketInstruments.$inferInsert;
+/**
+ * SignalEvent is an observed input for model analysis, not a recommendation or order.
+ */
+export type SignalEvent = typeof modelSignalEvents.$inferSelect;
+export type NewSignalEvent = typeof modelSignalEvents.$inferInsert;
 /**
  * FeedPost is informational commentary for feed list/detail read models.
  */

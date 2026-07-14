@@ -351,6 +351,7 @@ CREATE TABLE news_traffic_snapshots (
 
 CREATE TABLE model_signal_events (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  public_id VARCHAR(120) NOT NULL,
   model_version_id BIGINT UNSIGNED NOT NULL,
   signal_type ENUM('news_traffic', 'price_trend', 'macro', 'risk') NOT NULL,
   title VARCHAR(220) NOT NULL,
@@ -360,6 +361,7 @@ CREATE TABLE model_signal_events (
   source_instrument_id BIGINT UNSIGNED NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
+  UNIQUE KEY uq_model_signal_events_public_id (public_id),
   KEY idx_model_signal_version_time (model_version_id, created_at),
   KEY idx_model_signal_type_score (signal_type, score),
   KEY idx_model_signal_source_article_id (source_article_id),

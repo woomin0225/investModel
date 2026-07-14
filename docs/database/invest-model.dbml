@@ -350,6 +350,7 @@ Table news_traffic_snapshots {
 
 Table model_signal_events {
   id bigint [pk, increment]
+  public_id varchar(120) [not null, unique]
   model_version_id bigint [not null]
   signal_type varchar(40) [not null, note: "news_traffic, price_trend, macro, risk"]
   title varchar(220) [not null]
@@ -360,6 +361,7 @@ Table model_signal_events {
   created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
 
   indexes {
+    public_id [unique]
     (model_version_id, created_at)
     (signal_type, score)
   }
