@@ -1,5 +1,12 @@
 import Link from 'next/link';
-import { Bell, Bookmark, MessageCircle, ShieldCheck, UserRound } from 'lucide-react';
+import {
+  ArrowRight,
+  Bell,
+  Bookmark,
+  MessageCircle,
+  ShieldCheck,
+  UserRound
+} from 'lucide-react';
 import {
   investMotionClass,
   MetricCard,
@@ -49,18 +56,21 @@ const myPageCopy = {
     activityItems: [
       {
         icon: Bookmark,
+        href: '/invest-model/feed',
         title: '저장 글',
         description: 'FeedPost 저장 토글이 연결되면 최근 저장한 글을 표시합니다.',
         badge: '준비 중'
       },
       {
         icon: MessageCircle,
+        href: '/invest-model/feed',
         title: '댓글',
         description: '댓글/대댓글 API가 연결되면 최근 작성한 댓글을 표시합니다.',
         badge: '준비 중'
       },
       {
         icon: Bell,
+        href: '/invest-model/notifications',
         title: '알림',
         description: '모델 선택, 신호 변화, 피드 반응 알림을 mock-safe 상태로 표시합니다.',
         badge: '실제 발송 없음'
@@ -97,18 +107,21 @@ const myPageCopy = {
     activityItems: [
       {
         icon: Bookmark,
+        href: '/invest-model/feed',
         title: 'Saved posts',
         description: 'Recent saved FeedPosts will appear after the save toggle is connected.',
         badge: 'Pending'
       },
       {
         icon: MessageCircle,
+        href: '/invest-model/feed',
         title: 'Comments',
         description: 'Recent comments will appear after comment and reply APIs are connected.',
         badge: 'Pending'
       },
       {
         icon: Bell,
+        href: '/invest-model/notifications',
         title: 'Notifications',
         description: 'Model, signal, and feed reaction notices will appear as mock-safe state.',
         badge: 'No delivery'
@@ -211,11 +224,12 @@ export default async function InvestModelMyPage({
               const Icon = item.icon;
 
               return (
-                <article
+                <Link
                   key={item.title}
+                  href={withInvestModelLocale(item.href, locale)}
                   role="listitem"
                   className={cn(
-                    'group rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card',
+                    'group block rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
                     investMotionClass.interactiveCard
                   )}
                 >
@@ -228,14 +242,20 @@ export default async function InvestModelMyPage({
                         <h2 className="text-[16px] font-bold leading-6 text-invest-text">
                           {item.title}
                         </h2>
-                        <RiskBadge tone="medium">{item.badge}</RiskBadge>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <RiskBadge tone="medium">{item.badge}</RiskBadge>
+                          <ArrowRight
+                            aria-hidden
+                            className="size-4 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-active:scale-100"
+                          />
+                        </div>
                       </div>
                       <p className="mt-1 text-sm leading-6 text-invest-text-muted">
                         {item.description}
                       </p>
                     </div>
                   </div>
-                </article>
+                </Link>
               );
             })}
           </div>

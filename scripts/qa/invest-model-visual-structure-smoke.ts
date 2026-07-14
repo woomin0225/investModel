@@ -66,6 +66,7 @@ const screens: ScreenCheck[] = [
       'No real account',
       'No real orders',
       'DB read model',
+      '/invest-model/feed',
       '/invest-model/notifications'
     ]
   },
