@@ -79,6 +79,18 @@ const screens: ScreenCheck[] = [
     ]
   },
   {
+    name: 'Signal Detail',
+    route: '/invest-model/signals/sig_mock_news_traffic_001',
+    pageFile: 'app/invest-model/signals/[signalId]/page.tsx',
+    activeTab: 'signals',
+    requiredCopy: [
+      'Signal Detail',
+      'No recommendation',
+      'No order',
+      'Realtime search volume'
+    ]
+  },
+  {
     name: 'Model Detail',
     route: '/invest-model/models/quant-us-leverage-alpha',
     pageFile: 'app/invest-model/models/[modelId]/page.tsx',

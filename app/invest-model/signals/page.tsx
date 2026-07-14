@@ -84,6 +84,12 @@ function signalFilterHref(locale: 'ko' | 'en', filterId: SignalFilterId) {
   return `/invest-model/signals?${params.toString()}`;
 }
 
+function signalDetailHref(locale: 'ko' | 'en', signalPublicId: string) {
+  const params = new URLSearchParams({ lang: locale });
+
+  return `/invest-model/signals/${signalPublicId}?${params.toString()}`;
+}
+
 function signalTypeFromFilter(
   filterId: SignalFilterId
 ): SignalEventType | null {
@@ -166,7 +172,8 @@ function toDbSignalCard(
     description: signal.summary,
     linkedModelName: signal.linkedModelName,
     freshnessLabel: formatCapturedAt(signal.capturedAt, locale),
-    statusLabel: signalStatusLabel(locale, signal)
+    statusLabel: signalStatusLabel(locale, signal),
+    detailHref: signalDetailHref(locale, signal.signalPublicId)
   };
 }
 
@@ -345,12 +352,16 @@ export default async function InvestModelSignalsPage({
           >
             {visibleSignals.length > 0 ? (
               visibleSignals.map((signal) => (
-                <article
+                <Link
                   key={signal.id}
+                  href={'detailHref' in signal ? signal.detailHref : '#'}
                   role="listitem"
                   aria-label={`${signal.title} ${signal.scoreLabel}`}
+                  aria-disabled={!('detailHref' in signal)}
+                  tabIndex={'detailHref' in signal ? undefined : -1}
                   className={cn(
-                    'group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
+                    'group block rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
+                    !('detailHref' in signal) && 'pointer-events-none',
                     investMotionClass.interactiveCard
                   )}
                 >
@@ -427,7 +438,7 @@ export default async function InvestModelSignalsPage({
                       </div>
                     </div>
                   </div>
-                </article>
+                </Link>
               ))
             ) : (
               <div
