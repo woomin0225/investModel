@@ -84,6 +84,24 @@ function CommentItem({
   const canSubmitReply =
     replyDraft.trim().length > 0 &&
     replyDraft.trim().length <= maxCommentLength;
+  const replyHelperId = `feed-reply-helper-${comment.commentPublicId}`;
+  const replyErrorId = `feed-reply-error-${comment.commentPublicId}`;
+  const replySuccessId = `feed-reply-success-${comment.commentPublicId}`;
+  const replyDescriptionIds = [
+    replyHelperId,
+    replyErrorMessage ? replyErrorId : null,
+    replySuccessMessage ? replySuccessId : null
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const replyToggleTitle = isReplyOpen
+    ? 'Close informational reply form. No advice, order, or approval is created.'
+    : 'Open informational reply form. Replies are discussion-only and do not create advice, orders, or approvals.';
+  const replySubmitLabel = isReplyPending
+    ? 'Posting informational reply. No order, brokerage action, advice, or approval is created.'
+    : canSubmitReply
+      ? 'Post informational reply. No order, brokerage action, advice, or approval is created.'
+      : 'Enter an informational reply within 600 characters before posting.';
 
   async function handleReplySubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -196,12 +214,17 @@ function CommentItem({
             investMotionClass.interactiveControl
           )}
           aria-expanded={isReplyOpen}
+          title={replyToggleTitle}
         >
           <Reply aria-hidden className="size-3.5" />
           {isKorean ? 'Reply' : 'Reply'}
         </button>
         {replySuccessMessage ? (
-          <span className="text-[11px] font-semibold leading-4 text-invest-primary">
+          <span
+            id={replySuccessId}
+            role="status"
+            className="text-[11px] font-semibold leading-4 text-invest-primary"
+          >
             {replySuccessMessage}
           </span>
         ) : null}
@@ -234,9 +257,12 @@ function CommentItem({
             aria-label={
               isKorean ? 'Informational reply body' : 'Informational reply body'
             }
+            aria-describedby={replyDescriptionIds}
+            title="Informational reply only. This does not create advice, orders, brokerage actions, or approvals."
           />
           <div className="mt-2 flex items-start justify-between gap-3">
             <p
+              id={replyHelperId}
               className={cn(
                 'text-[11px] font-semibold leading-4',
                 replyRemainingCount < 0
@@ -270,6 +296,8 @@ function CommentItem({
               'mt-2 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-white shadow-invest-card disabled:cursor-not-allowed disabled:bg-invest-text-muted/40',
               investMotionClass.interactiveControl
             )}
+            aria-label={replySubmitLabel}
+            title={replySubmitLabel}
           >
             {isReplyPending ? (
               <Loader2 aria-hidden className="size-4 animate-spin" />
@@ -279,7 +307,11 @@ function CommentItem({
             {isKorean ? 'Post reply' : 'Post reply'}
           </button>
           {replyErrorMessage ? (
-            <p className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk">
+            <p
+              id={replyErrorId}
+              role="alert"
+              className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk"
+            >
               <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />
               <span>{replyErrorMessage}</span>
             </p>
@@ -327,6 +359,21 @@ export function FeedCommentAction({
   const remainingCount = maxCommentLength - draft.length;
   const canSubmit =
     draft.trim().length > 0 && draft.trim().length <= maxCommentLength;
+  const commentHelperId = 'feed-comment-helper';
+  const commentErrorId = 'feed-comment-error';
+  const commentSuccessId = 'feed-comment-success';
+  const commentDescriptionIds = [
+    commentHelperId,
+    errorMessage ? commentErrorId : null,
+    successMessage ? commentSuccessId : null
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const commentSubmitLabel = isPending
+    ? 'Posting informational comment. No order, brokerage action, advice, or approval is created.'
+    : canSubmit
+      ? 'Post informational comment. No order, brokerage action, advice, or approval is created.'
+      : 'Enter an informational comment within 600 characters before posting.';
 
   const helperText = useMemo(() => {
     if (remainingCount < 0) {
@@ -455,9 +502,12 @@ export function FeedCommentAction({
             'mt-3 min-h-28 w-full resize-none rounded-invest-control border border-invest-border bg-invest-bg-soft px-3 py-2 text-sm font-semibold leading-6 text-invest-text outline-none placeholder:text-invest-text-muted/70 focus:border-invest-primary focus:bg-invest-surface disabled:cursor-wait disabled:opacity-75',
             investMotionClass.interactiveControl
           )}
+          aria-describedby={commentDescriptionIds}
+          title="Informational discussion only. This does not create advice, orders, brokerage actions, or approvals."
         />
         <div className="mt-2 flex items-start justify-between gap-3">
           <p
+            id={commentHelperId}
             className={cn(
               'text-[11px] font-semibold leading-4',
               remainingCount < 0 ? 'text-invest-risk' : 'text-invest-text-muted'
@@ -481,6 +531,8 @@ export function FeedCommentAction({
             'mt-3 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-white shadow-invest-card disabled:cursor-not-allowed disabled:bg-invest-text-muted/40',
             investMotionClass.interactiveControl
           )}
+          aria-label={commentSubmitLabel}
+          title={commentSubmitLabel}
         >
           {isPending ? (
             <Loader2 aria-hidden className="size-4 animate-spin" />
@@ -491,13 +543,21 @@ export function FeedCommentAction({
         </button>
 
         {errorMessage ? (
-          <p className="mt-3 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk">
+          <p
+            id={commentErrorId}
+            role="alert"
+            className="mt-3 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk"
+          >
             <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />
             <span>{errorMessage}</span>
           </p>
         ) : null}
         {successMessage ? (
-          <p className="mt-3 text-[11px] font-semibold leading-4 text-invest-primary">
+          <p
+            id={commentSuccessId}
+            role="status"
+            className="mt-3 text-[11px] font-semibold leading-4 text-invest-primary"
+          >
             {successMessage}
           </p>
         ) : null}
