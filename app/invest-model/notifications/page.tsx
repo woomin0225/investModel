@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { Bell, CheckCircle2, Database, ShieldCheck } from 'lucide-react';
 
+import { POST as markAllNotificationsRead } from '@/app/api/notifications/mark-all-read/route';
 import { GET as readNotifications } from '@/app/api/notifications/route';
 import {
   investMotionClass,
@@ -52,6 +54,10 @@ const notificationCopy = {
     noAdvice: 'No advice',
     noOrders: 'No orders',
     noPush: 'No real push',
+    markAllRead: 'Mark all read',
+    allRead: 'All read',
+    actionHint:
+      'Updates only local DB read state. No push, email, SMS, orders, brokerage, or advice is sent.',
     footer:
       'Notifications here are prototype UI records from local DB read models. They do not recommend securities, guarantee returns, connect accounts, or execute orders.'
   },
@@ -71,6 +77,10 @@ const notificationCopy = {
     noAdvice: 'No advice',
     noOrders: 'No orders',
     noPush: 'No real push',
+    markAllRead: 'Mark all read',
+    allRead: 'All read',
+    actionHint:
+      'Updates only local DB read state. No push, email, SMS, orders, brokerage, or advice is sent.',
     footer:
       'Notifications here are prototype UI records from local DB read models. They do not recommend securities, guarantee returns, connect accounts, or execute orders.'
   }
@@ -96,6 +106,32 @@ async function readInvestModelNotifications() {
   return (await response.json()) as InvestModelNotificationsResponse;
 }
 
+async function markAllNotificationsReadAction() {
+  'use server';
+
+  const response = await markAllNotificationsRead(
+    new NextRequest('http://localhost/api/notifications/mark-all-read', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-invest-model-role': 'user'
+      },
+      body: JSON.stringify({
+        userPublicId: 'user_demo_001',
+        limit: 30
+      })
+    })
+  );
+
+  if (!response.ok) {
+    throw new Error('InvestModel notification read-state update failed.');
+  }
+
+  revalidatePath('/invest-model');
+  revalidatePath('/invest-model/notifications');
+  revalidatePath('/invest-model/my');
+}
+
 export default async function InvestModelNotificationsPage({
   searchParams
 }: InvestModelNotificationsPageProps) {
@@ -104,6 +140,7 @@ export default async function InvestModelNotificationsPage({
   const copy = notificationCopy[locale];
   const actionsCopy = investModelCopy[locale].actions;
   const { data: notificationCenter } = await readInvestModelNotifications();
+  const hasUnreadNotifications = notificationCenter.unreadCount > 0;
 
   return (
     <MobileShell
@@ -160,6 +197,28 @@ export default async function InvestModelNotificationsPage({
                   </p>
                 </div>
               </div>
+              <form
+                action={markAllNotificationsReadAction}
+                className="mt-4 space-y-2"
+              >
+                <button
+                  type="submit"
+                  disabled={!hasUnreadNotifications}
+                  className={cn(
+                    'inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control px-4 py-3 text-sm font-bold leading-5 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
+                    hasUnreadNotifications
+                      ? 'bg-invest-primary text-white active:translate-y-px'
+                      : 'cursor-not-allowed bg-invest-bg-soft text-invest-text-muted shadow-none',
+                    investMotionClass.interactiveControl
+                  )}
+                >
+                  <CheckCircle2 aria-hidden className="size-4" />
+                  {hasUnreadNotifications ? copy.markAllRead : copy.allRead}
+                </button>
+                <p className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+                  {copy.actionHint}
+                </p>
+              </form>
             </div>
           </div>
         </section>
