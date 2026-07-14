@@ -73,4 +73,4 @@ Before public launch or paid functionality:
 ## Issue Status
 
 - `IS-001` remains open. This document records the operating boundary and follow-up options only.
-- `IS-003` remains open separately for physical phone-device verification.
+- `IS-003` is resolved as of 2026-07-14 for the current mobile shell; rerun phone-device verification after major mobile shell changes.

@@ -39,5 +39,5 @@ The smoke check now covers these accessibility basics:
 
 ## Remaining Risk
 
-- `IS-003` remains open because real phone and assistive-technology verification require user/device access.
+- `IS-003` is resolved as of 2026-07-14 for real phone verification of the current mobile shell; assistive-technology verification remains outside this pass.
 - This pass does not replace a full WCAG color contrast measurement or screen reader session.

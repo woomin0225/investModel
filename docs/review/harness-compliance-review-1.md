@@ -48,7 +48,7 @@ No new harness violation was found in the investModel domain, mobile PWA screens
 
 The only material residual risk is the original SaaS starter Stripe/payment surface. It can make production build and `/pricing` prerender depend on real Stripe configuration, but it is already recorded as `IS-001`. This review does not create a duplicate issue.
 
-`IS-003` remains open because actual phone-device verification cannot be completed by automation. Local 390px checks and core flow smoke tests have already been recorded separately.
+At the time of this review, `IS-003` remained open because actual phone-device verification could not be completed by automation. It was later resolved on 2026-07-14 for the current mobile shell.
 
 ## Evidence
 
@@ -71,4 +71,4 @@ Interpreted results:
 - `BK-080`: 제품 방향성 리뷰 should specifically re-check that later UI additions still avoid user-controlled investment preferences.
 - `BK-079`: 보안 1차 리뷰 should run after RBAC and input validation tests are added.
 - `IS-001`: Stripe starter surface should be removed, isolated, or configured before production build is considered clean.
-- `IS-003`: Phone-device validation still needs user-side confirmation.
+- `IS-003`: Phone-device validation was later confirmed by the user and resolved on 2026-07-14.

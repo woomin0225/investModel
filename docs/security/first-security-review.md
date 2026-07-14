@@ -34,7 +34,7 @@ This review records the first security pass after the RBAC and creator draft val
 ## Required Follow-ups
 
 - Keep `IS-001` open until Stripe pricing/build behavior is either configured with a real test key or isolated from investModel MVP routes.
-- Keep `IS-003` open until the user verifies the mobile PWA on a real phone.
+- `IS-003` was resolved on 2026-07-14 after the user verified the mobile PWA on a real phone.
 - Add persisted audit storage only after the storage contract is reviewed; do not treat returned mock audit payloads as durable records.
 
 ## Verification

@@ -16,7 +16,7 @@ This review is a BK-100 snapshot for investModel's current mobile-first MVP. It 
 | Prototype | Allowed to continue | Mobile PWA mock flows, model discovery, model detail, signals, feed, creator/admin mock review, and docs are aligned with the MVP boundary. |
 | Internal Alpha | Not ready yet | Auth/RBAC, DB-backed state, persisted audit logs, staging environment, and monitoring decisions need implementation or confirmation before broader internal use. |
 | Closed Beta | Blocked | External users require stronger legal copy review, real device verification, incident handling, data retention rules, and beta access control. |
-| Public Launch | Blocked | IS-001, IS-003, legal copy review, production monitoring, production secret handling, and public launch checks are not complete. |
+| Public Launch | Blocked | IS-001, legal copy review, production monitoring, production secret handling, and public launch checks are not complete. IS-003 is resolved for the current mobile shell. |
 | Financial-operation launch | Blocked | Real deposits, real orders, brokerage account connection, withdrawals, fills, settlement, and account linking remain outside the approved scope. |
 
 ## Release-Allowed Items
@@ -25,7 +25,7 @@ These items can continue in small implementation or documentation tasks under th
 
 | Area | Allowed now | Guardrail |
 | --- | --- | --- |
-| Mobile PWA | Continue 390px-first route, bottom tab, safe area, and language toggle work | Keep real phone verification tracked by IS-003 |
+| Mobile PWA | Continue 390px-first route, bottom tab, safe area, and language toggle work | IS-003 resolved on 2026-07-14; rerun physical-device spot checks after major mobile shell changes |
 | Mock model marketplace | Continue approved/live mock `InvestmentModel` browsing and detail UI | Keep pending or unreviewed mock models out of public discovery |
 | Signals and feed | Continue observed `SignalEvent` and informational `FeedPost` surfaces | No buy, sell, hold, rebalance, recommendation, or guaranteed-return wording |
 | Mock portfolio | Continue `MockDeposit`, simulated portfolio, and pre-order simulation UI | Never label mock money as cash, balance, deposit, custody, or brokerage holding |
@@ -46,14 +46,14 @@ These items must not ship or be implemented without separate approval and record
 | Guaranteed return, principal protection, no-loss, risk-free, or approved-advice wording | Legal/compliance review and likely scope change |
 | Uploaded AI model file execution | Sandbox/security design and explicit approval |
 | Paid external market/news/pricing APIs or production secrets | Secret-management and provider review |
-| Public launch with unresolved IS-001 or IS-003 | Issue resolution or explicit launch waiver |
+| Public launch with unresolved IS-001 or new phone-device regression | Issue resolution or explicit launch waiver |
 
 ## Open Risks
 
 | Issue | Status | Release impact |
 | --- | --- | --- |
 | IS-001 | Open | Blocks production build/key validation and any payment/pricing production-readiness claim. |
-| IS-003 | Open | Blocks real-phone UX confidence and public/mobile launch readiness. |
+| IS-003 | Resolved | Resolved on 2026-07-14 for the current mobile shell; future major mobile shell changes may require a fresh spot check. |
 | Legal copy | Review-bound | BK-099 defines placeholders only; final terms and public risk disclosures are not approved. |
 | Audit persistence | Follow-up | Existing review notes mention returned audit payloads, but durable audit storage remains separate work. |
 | Monitoring | Follow-up | Candidate review exists, but production monitoring is not enabled and no DSN/API key is connected. |
@@ -69,7 +69,7 @@ These items must not ship or be implemented without separate approval and record
 
 ## Required Before Closed Beta Or Public Launch
 
-- Resolve IS-003 with actual phone verification.
+- Keep IS-003 resolved by rerunning actual phone verification after major mobile shell changes.
 - Resolve IS-001 or isolate the unrelated production pricing build blocker from investModel launch claims.
 - Complete legal/compliance review for public terms, risk disclosures, performance methodology notes, and high-risk acknowledgements.
 - Confirm production secret handling and monitoring without committing secret values.

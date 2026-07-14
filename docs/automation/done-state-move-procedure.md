@@ -62,5 +62,5 @@ Each completion run must verify:
 - Source row is `done`.
 - `Done` row exists with the same task ID and commit hash.
 - `Runs` row exists with the selected task ID.
-- Open external issues, such as `IS-001` and `IS-003`, remain open unless directly resolved.
+- Open external issues, such as `IS-001`, remain open unless directly resolved. `IS-003` is resolved as of 2026-07-14 and should not be re-opened unless a new phone-device verification risk is found.
 - Dirty git files unrelated to the current task are not staged or reverted.

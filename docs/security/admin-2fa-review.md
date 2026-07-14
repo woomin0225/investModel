@@ -62,4 +62,4 @@ Create a dedicated implementation task before adding 2FA code. That task should 
 - `BK-090`: admin 2FA review
 - `BK-141`: RBAC middleware/API guard design
 - `IS-001`: external secret/build issue remains separate
-- `IS-003`: real mobile-device verification remains open
+- `IS-003`: real mobile-device verification was resolved on 2026-07-14 for the current mobile shell

@@ -30,7 +30,7 @@ This document defines how investModel should separate local, CI, staging, and pr
 
 | Variable | Secret | Scope | Rule |
 | --- | --- | --- | --- |
-| `DATABASE_URL` | Yes | Local, CI, staging, production | Never expose with `NEXT_PUBLIC_`. Use separate databases per environment. |
+| `MYSQL_URL` | Yes | Local, CI, staging, production | Current Drizzle/MySQL runtime database URL. Never expose with `NEXT_PUBLIC_`. Use separate databases per environment. |
 | `BASE_URL` | No | Local, CI, staging, production | Use the canonical server URL for callbacks and internal links. |
 | `NEXT_PUBLIC_APP_URL` | No | Browser, PWA, staging, production | Public app URL only. Do not embed tokens or credentials. |
 | `AUTH_SECRET` | Yes | Local, CI, staging, production | Required for signed auth/session behavior. Generate independently per environment. |
@@ -70,9 +70,9 @@ Before staging or production setup:
 - Confirm CI stays green when optional secrets are absent.
 - Confirm build or smoke tests do not require live payment, broker, or bank credentials.
 - Confirm `IS-001` is either resolved or explicitly accepted as an external blocker.
-- Confirm `IS-003` remains tracked for real phone-device verification.
+- Confirm `IS-003` remains resolved or rerun phone-device checks if the mobile shell materially changes.
 
 ## Issue Status
 
 - `IS-001` remains open. This document defines the strategy but does not provide or configure a real Stripe key.
-- `IS-003` remains open. This document does not replace physical mobile-device verification.
+- `IS-003` is resolved as of 2026-07-14 based on the recorded phone-device confirmation. Future mobile shell changes should still include 390px smoke checks and, when needed, a fresh physical-device spot check.

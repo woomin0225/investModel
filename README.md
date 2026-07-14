@@ -96,7 +96,7 @@ To test the starter Stripe payment surface after `IS-001` is resolved, use Strip
 
 ## Going to Production
 
-Do not treat the current repository as production-ready while `IS-001` and `IS-003` remain open. Public launch, real payments, real deposits, broker account connections, real orders, and final legal/disclosure copy all require separate review.
+Do not treat the current repository as production-ready while `IS-001` remains open. `IS-003` was resolved on 2026-07-14 for the current mobile shell, but public launch, real payments, real deposits, broker account connections, real orders, and final legal/disclosure copy all still require separate review.
 
 When the project owner is ready to deploy the starter payment surface, follow these steps:
 

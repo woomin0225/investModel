@@ -74,5 +74,5 @@ Never send these fields to any monitoring vendor:
 ## Follow-Up
 
 - `IS-001` remains open because production build validation needs a real Stripe test key and Docker setup.
-- `IS-003` remains open because phone verification requires user/device access.
+- `IS-003` is resolved as of 2026-07-14 for the current mobile shell; future major mobile shell changes should trigger a fresh device check.
 - Before any SDK install, create a small Backlog item for an internal `InvestModelErrorEvent` wrapper and source redaction test.

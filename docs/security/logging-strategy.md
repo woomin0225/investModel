@@ -71,5 +71,5 @@ type InvestModelLogEvent = {
 ## Open Follow-Up
 
 - `IS-001` remains open for real Stripe test key and Docker setup validation.
-- `IS-003` remains open for real phone verification.
+- `IS-003` is resolved as of 2026-07-14 for real phone verification of the current mobile shell.
 - `BK-097` should evaluate monitoring candidates against this redaction and stream separation baseline.

@@ -2,7 +2,7 @@
 
 <!--
 This record closes BK-094 by documenting mobile structural checks for model discovery, model detail, and admin review screens.
-It does not replace physical device verification, which remains tracked by IS-003.
+It did not replace physical device verification; IS-003 was later resolved on 2026-07-14 for the current mobile shell.
 -->
 
 ## Scope
@@ -37,5 +37,5 @@ The smoke test now includes:
 
 ## Remaining Risk
 
-- `IS-003` remains open because real phone verification requires user/device access.
+- `IS-003` is resolved as of 2026-07-14 for the current mobile shell; rerun a physical-device spot check after major mobile shell changes.
 - The automated check is code-structure and copy-invariant based; it is not a pixel screenshot test.

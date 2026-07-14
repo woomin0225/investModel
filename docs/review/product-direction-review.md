@@ -42,7 +42,7 @@ The current app structure supports the marketplace direction: a user selects a r
 No new issue was opened from this review. Existing open issues remain:
 
 - `IS-001`: production build pricing route requires a real Stripe test key and Docker is unavailable.
-- `IS-003`: actual phone-device verification is still pending user-side confirmation.
+- `IS-003`: actual phone-device verification was later confirmed by the user and resolved on 2026-07-14.
 
 ## Verification
 

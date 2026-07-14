@@ -8,7 +8,7 @@ BK-157 keeps the real-phone verification path for IS-003 in one place. Automatio
 - Preferred phone test URL from the latest pre-check: `http://192.168.45.66:3000/invest-model`
 - Local machine URL: `http://127.0.0.1:3000/invest-model`
 - Required device condition: phone and development machine on the same Wi-Fi network
-- Related open issue: IS-003
+- Related issue: IS-003, resolved on 2026-07-14 for the current mobile shell
 
 ## Before Opening On Phone
 
@@ -78,4 +78,4 @@ When the phone check is complete, record:
 - Any screenshots of overlap, clipping, or blocked taps
 - Whether Korean default and English `?lang=en` both worked
 
-IS-003 should remain open until this user-side phone check is completed and recorded.
+IS-003 was resolved on 2026-07-14 after the user-side phone check was completed and recorded. Reuse this guide for any future major mobile shell change that needs a fresh physical-device spot check.

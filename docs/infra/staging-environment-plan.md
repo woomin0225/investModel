@@ -7,7 +7,7 @@ BK-098 defines the minimum environment separation rules before investModel enabl
 - Keep local, staging, and production data separate by default.
 - Require explicit review gates before a staging build can be promoted to production.
 - Preserve current domain boundaries: `MockDeposit` stays simulated funding, and `TradeIntent` stays a pre-order or model intent record until a separate approved financial-operation task changes that contract.
-- Keep IS-001 and IS-003 open because they require external production key/device verification.
+- Keep IS-001 open because it requires an owner-provided production/test payment key path. IS-003 was resolved on 2026-07-14, but major mobile shell changes should still trigger a fresh physical-device spot check.
 
 ## Environment Tiers
 
@@ -19,7 +19,7 @@ BK-098 defines the minimum environment separation rules before investModel enabl
 
 ## Data Separation Rules
 
-- Use distinct `DATABASE_URL` values for local, staging, and production.
+- Use distinct `MYSQL_URL` values for local, staging, and production. `DATABASE_URL` may appear only in legacy starter notes or third-party examples, not as the current investModel runtime database variable.
 - Use separate object storage buckets, log streams, analytics projects, and monitoring projects per tier.
 - Do not copy production personal, portfolio, financial, or audit data into local or staging.
 - Seed data must be synthetic and visibly marked as mock, simulated, placeholder, fixture, or backtest data.
@@ -33,7 +33,7 @@ Configuration names may be documented, but values must not be committed.
 
 | Config | Local | Staging | Production |
 | --- | --- | --- | --- |
-| `DATABASE_URL` | Local database or local test DB | Staging database only | Production database only |
+| `MYSQL_URL` | Local MySQL database or local test DB | Staging MySQL database only | Production MySQL database only |
 | `STRIPE_SECRET_KEY` | Empty or test placeholder | Empty or sandbox key only after approval | Blocked by IS-001 until real test key validation is complete |
 | `SENTRY_DSN` | Optional local disabled value | Staging monitoring project | Production monitoring project after approval |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Optional local disabled value | Staging telemetry endpoint | Production telemetry endpoint after approval |
@@ -48,7 +48,7 @@ A staging version can be considered for production only when all applicable gate
 | Type safety | TypeScript or equivalent project type checks pass | CI or local verification |
 | Route smoke | Mobile-first routes render without blank screens | Visual structure smoke |
 | Mobile viewport | 390px viewport layout has no major overlap and keeps bottom tabs usable | Frontend QA |
-| Real phone check | Physical phone verification is complete | IS-003 |
+| Real phone check | Physical phone verification remains valid for the current mobile shell | IS-003 resolved; rerun after major mobile shell changes |
 | Secret hygiene | No secret values in repo, logs, screenshots, fixtures, or Google Sheets | Security review |
 | Logging redaction | BK-096 logging strategy is followed for sensitive fields | Security review |
 | Error monitoring | BK-097 candidate decision is made before production monitoring is enabled | Security review |
@@ -74,7 +74,7 @@ A staging version can be considered for production only when all applicable gate
 | Visible staging/mock labels in user-facing finance screens | Yes |
 | Secret manager configured outside git | Yes |
 | IS-001 resolved for production build key validation | Yes |
-| IS-003 resolved for physical phone verification | Yes |
+| IS-003 remains resolved or is rechecked after major mobile shell changes | Yes |
 | Real deposits/orders/account links remain disabled | Yes |
 
 ## Next Follow-Up Candidates
