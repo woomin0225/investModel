@@ -21,6 +21,7 @@ import {
   resolveInvestModelLocale,
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { readMyPageFeedActivitySummary } from '@/lib/db/my-page-read-model';
 import { cn } from '@/lib/utils';
 
 type InvestModelMyPageProps = {
@@ -137,6 +138,29 @@ export default async function InvestModelMyPage({
 }: InvestModelMyPageProps) {
   const locale = resolveInvestModelLocale(await searchParams);
   const copy = myPageCopy[locale];
+  const activitySummary = await readMyPageFeedActivitySummary('user_demo_001');
+  const savedValue =
+    locale === 'ko'
+      ? `${activitySummary.savedCount}개`
+      : String(activitySummary.savedCount);
+  const commentsValue =
+    locale === 'ko'
+      ? `${activitySummary.commentCount}개`
+      : String(activitySummary.commentCount);
+  const savedDescription =
+    activitySummary.latestSavedPostTitle ??
+    (locale === 'ko'
+      ? 'DB 저장 활동 없음'
+      : 'No saved FeedPost activity');
+  const commentsDescription =
+    activitySummary.latestCommentPostTitle ??
+    (locale === 'ko' ? 'DB 댓글 활동 없음' : 'No comment activity');
+  const sourceTrend =
+    activitySummary.sourceLabel === 'db_read_model'
+      ? 'DB read model'
+      : locale === 'ko'
+        ? '대기'
+        : 'pending';
 
   return (
     <MobileShell
@@ -180,16 +204,16 @@ export default async function InvestModelMyPage({
         <div className="grid grid-cols-3 gap-2">
           <MetricCard
             label={copy.summary.saved}
-            value={copy.summary.savedValue}
-            description={copy.summary.savedDescription}
-            trend={locale === 'ko' ? '대기' : 'pending'}
+            value={savedValue}
+            description={savedDescription}
+            trend={sourceTrend}
             className="p-3"
           />
           <MetricCard
             label={copy.summary.comments}
-            value={copy.summary.commentsValue}
-            description={copy.summary.commentsDescription}
-            trend={locale === 'ko' ? '대기' : 'pending'}
+            value={commentsValue}
+            description={commentsDescription}
+            trend={sourceTrend}
             className="p-3"
           />
           <MetricCard
@@ -220,8 +244,12 @@ export default async function InvestModelMyPage({
             aria-label={copy.activityTitle}
             className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
-            {copy.activityItems.map((item) => {
+            {copy.activityItems.map((item, index) => {
               const Icon = item.icon;
+              const badge =
+                index < 2 && activitySummary.sourceLabel === 'db_read_model'
+                  ? 'DB read model'
+                  : item.badge;
 
               return (
                 <Link
@@ -243,7 +271,7 @@ export default async function InvestModelMyPage({
                           {item.title}
                         </h2>
                         <div className="flex shrink-0 items-center gap-2">
-                          <RiskBadge tone="medium">{item.badge}</RiskBadge>
+                          <RiskBadge tone="medium">{badge}</RiskBadge>
                           <ArrowRight
                             aria-hidden
                             className="size-4 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-active:scale-100"
