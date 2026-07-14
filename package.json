@@ -20,6 +20,7 @@
     "test:feed-reply-api": "npx tsx scripts/smoke/feed-reply-api-smoke.ts",
     "test:feed-save-api": "npx tsx scripts/smoke/feed-save-api-smoke.ts",
     "test:market-data": "npx tsx scripts/smoke/market-data-provider-smoke.ts",
+    "test:model-api": "npx tsx scripts/smoke/model-api-smoke.ts",
     "test:model-status-notification": "npx tsx scripts/smoke/model-status-notification-smoke.ts",
     "test:model-selection": "npx tsx scripts/smoke/model-selection-api-smoke.ts",
     "test:mock-decision": "npx tsx scripts/smoke/mock-decision-engine-smoke.ts",
