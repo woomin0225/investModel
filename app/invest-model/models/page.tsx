@@ -100,6 +100,8 @@ export default async function InvestModelDiscoveryPage({
   const selectedFilterLabel =
     modelsCopy.filters[selectedFilterIndex] ?? modelsCopy.filters[0];
   const summaryCopy = discoverySummaryCopy[locale];
+  const modelListLabel =
+    locale === 'ko' ? '표시 중인 투자 모델 목록' : 'Shown investment models';
   const discoverySummaryItems = [
     {
       label: summaryCopy.shownLabel,
@@ -248,7 +250,11 @@ export default async function InvestModelDiscoveryPage({
             </div>
           </div>
 
-          <div className="space-y-invest-card-gap">
+          <div
+            role="list"
+            aria-label={modelListLabel}
+            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+          >
             {filteredInvestmentModels.map((model) => {
               const statusDisplay = getInvestmentModelStatusDisplay(
                 model.status,
@@ -275,7 +281,7 @@ export default async function InvestModelDiscoveryPage({
               );
 
               return (
-                <div key={model.id}>
+                <div key={model.id} role="listitem" className="min-w-0">
                   {statusDisplay.isSelectionDisabled ? (
                     modelCard
                   ) : (
@@ -284,6 +290,7 @@ export default async function InvestModelDiscoveryPage({
                         `/invest-model/models/${model.id}`,
                         locale
                       )}
+                      aria-label={`${model.name} ${model.performanceLabel} ${model.riskLabel}`}
                       className="block rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
                     >
                       {modelCard}
