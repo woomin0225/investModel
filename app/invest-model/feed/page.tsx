@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { GET as readFeedPosts } from '@/app/api/feed/route';
 import { GET as readFeedRankings } from '@/app/api/feed/rankings/route';
 import {
+  FeedCardSaveAction,
   investMotionClass,
   MobileShell,
   RiskBadge,
@@ -53,6 +54,7 @@ const postToneIcon = {
 } as const;
 
 const feedActionIcons = [Eye, Bookmark, MessageCircle] as const;
+const sampleUserPublicId = 'user_demo_001';
 
 type InvestModelFeedPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -141,6 +143,14 @@ function feedDetailHref(locale: FeedLocale, postId: string) {
   return `/invest-model/feed/${postId}?${params.toString()}`;
 }
 
+function feedDetailSectionHref(
+  locale: FeedLocale,
+  postId: string,
+  sectionId: string
+) {
+  return `${feedDetailHref(locale, postId)}#${sectionId}`;
+}
+
 function formatPublishedAt(value: string | undefined, locale: FeedLocale) {
   if (!value) {
     return locale === 'ko' ? '시각 미정' : 'Time pending';
@@ -225,8 +235,8 @@ function feedActionAccessibleLabel(
   isPrimaryAction: boolean
 ) {
   return locale === 'ko'
-    ? `${post.title} ${action}. ${isPrimaryAction ? 'FeedPost 상세를 엽니다.' : '목록 화면의 시뮬레이션 상태 버튼입니다.'} 정보성 FeedPost 상호작용이며 추천, 주문, 브로커 동작이 아닙니다.`
-    : `${post.title} ${action}. ${isPrimaryAction ? 'Opens FeedPost detail.' : 'Simulated list action state.'} Informational FeedPost interaction, not a recommendation, order, or brokerage action.`;
+    ? `${post.title} ${action}. ${isPrimaryAction ? 'FeedPost 상세를 열고 읽음 상태를 기록합니다.' : '목록 또는 상세 댓글 영역의 DB 기반 FeedPost 동작을 실행합니다.'} 정보성 FeedPost 상호작용이며 추천, 주문, 브로커 동작이 아닙니다.`
+    : `${post.title} ${action}. ${isPrimaryAction ? 'Opens FeedPost detail and records read state.' : 'Runs a DB-backed FeedPost interaction from the list or detail section.'} Informational FeedPost interaction, not a recommendation, order, or brokerage action.`;
 }
 
 function feedRankingAccessibleLabel(locale: FeedLocale, ranking: RankingCard) {
@@ -564,6 +574,8 @@ export default async function InvestModelFeedPage({
                         {feedActions.map((action, index) => {
                           const Icon = feedActionIcons[index];
                           const isPrimaryAction = index === 0;
+                          const isSaveAction = index === 1;
+                          const isCommentAction = index === 2;
                           const actionAccessibleLabel =
                             feedActionAccessibleLabel(
                               locale,
@@ -588,6 +600,35 @@ export default async function InvestModelFeedPage({
                                 <Icon
                                   aria-hidden
                                   className="size-3.5 fill-invest-primary/10 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
+                                />
+                                <span className="truncate">{action}</span>
+                              </Link>
+                            ) : isSaveAction ? (
+                              <FeedCardSaveAction
+                                key={`${post.id}-${action}`}
+                                postPublicId={post.id}
+                                userPublicId={sampleUserPublicId}
+                                label={action}
+                                ariaLabel={actionAccessibleLabel}
+                              />
+                            ) : isCommentAction ? (
+                              <Link
+                                key={`${post.id}-${action}`}
+                                href={feedDetailSectionHref(
+                                  locale,
+                                  post.id,
+                                  'comments'
+                                )}
+                                aria-label={actionAccessibleLabel}
+                                title={actionAccessibleLabel}
+                                className={cn(
+                                  'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border border-transparent bg-invest-bg-soft px-2 text-[12px] font-semibold leading-4 text-invest-text-muted hover:text-invest-primary',
+                                  investMotionClass.interactiveControl
+                                )}
+                              >
+                                <Icon
+                                  aria-hidden
+                                  className="size-3.5 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
                                 />
                                 <span className="truncate">{action}</span>
                               </Link>

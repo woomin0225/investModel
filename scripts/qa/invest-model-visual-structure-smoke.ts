@@ -326,6 +326,10 @@ const mobileShellSource = readProjectFile(
 );
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
+const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
+const feedDetailPageSource = readProjectFile(
+  'app/invest-model/feed/[postId]/page.tsx'
+);
 
 assertCondition(
   mobileShellSource.includes('max-w-[var(--invest-mobile-frame-width)]'),
@@ -378,6 +382,21 @@ assertCondition(
   signalsPageSource.includes('investMotionClass.interactiveCard') &&
     signalsPageSource.includes('investMotionClass.interactiveControl'),
   'Realtime Signals must reuse shared motion classes for cards and filter controls'
+);
+assertCondition(
+  feedPageSource.includes('<FeedCardSaveAction') &&
+    feedPageSource.includes('feedDetailSectionHref') &&
+    feedPageSource.includes("'comments'"),
+  'Feed cards must wire Save and Comment actions to DB-backed save state and the comment section'
+);
+assertCondition(
+  feedDetailPageSource.includes('id="comments"') &&
+    feedDetailPageSource.includes('<FeedCommentAction'),
+  'Feed detail must expose a comments anchor for Feed card comment actions'
+);
+assertCondition(
+  !feedPageSource.includes('Simulated list action state'),
+  'Feed card actions must not describe DB-backed interactions as simulated list state'
 );
 
 const screenResults = screens.map((screen) => {

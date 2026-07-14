@@ -407,13 +407,15 @@ export default async function InvestModelFeedDetailPage({
           </section>
         ) : null}
 
-        <FeedCommentAction
-          postPublicId={post.postPublicId}
-          userPublicId={userPublicId}
-          initialComments={post.comments}
-          initialState={post.userState}
-          locale={locale}
-        />
+        <section id="comments" className="scroll-mt-4">
+          <FeedCommentAction
+            postPublicId={post.postPublicId}
+            userPublicId={userPublicId}
+            initialComments={post.comments}
+            initialState={post.userState}
+            locale={locale}
+          />
+        </section>
 
         <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
           <div className="flex items-start gap-3">

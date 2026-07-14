@@ -1,4 +1,5 @@
 export { CreatorModelDraftForm } from './creator-model-draft-form';
+export { FeedCardSaveAction } from './feed-card-save-action';
 export { FeedCommentAction } from './feed-comment-action';
 export { FeedLikeAction } from './feed-like-action';
 export { FeedReadAction } from './feed-read-action';
