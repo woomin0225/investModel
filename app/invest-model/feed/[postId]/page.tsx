@@ -1,6 +1,5 @@
 import {
   ArrowLeft,
-  Bookmark,
   Eye,
   MessageCircle,
   MessageSquareText,
@@ -11,6 +10,7 @@ import { notFound } from 'next/navigation';
 
 import {
   FeedLikeAction,
+  FeedSaveAction,
   investMotionClass,
   MobileShell,
   NotificationAction,
@@ -134,11 +134,6 @@ export default async function InvestModelFeedDetailPage({
       icon: Eye
     },
     {
-      label: locale === 'ko' ? '저장' : 'Saved',
-      value: post.userState.saved ? (locale === 'ko' ? '저장됨' : 'Saved') : '-',
-      icon: Bookmark
-    },
-    {
       label: locale === 'ko' ? '댓글' : 'Comments',
       value: String(post.userState.commentCount),
       icon: MessageCircle
@@ -230,6 +225,12 @@ export default async function InvestModelFeedDetailPage({
             );
           })}
           <FeedLikeAction
+            postPublicId={post.postPublicId}
+            userPublicId={userPublicId}
+            initialState={post.userState}
+            locale={locale}
+          />
+          <FeedSaveAction
             postPublicId={post.postPublicId}
             userPublicId={userPublicId}
             initialState={post.userState}

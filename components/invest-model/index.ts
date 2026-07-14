@@ -1,5 +1,6 @@
 export { CreatorModelDraftForm } from './creator-model-draft-form';
 export { FeedLikeAction } from './feed-like-action';
+export { FeedSaveAction } from './feed-save-action';
 export { ModelSelectionCta } from './model-selection-cta';
 export { modelSelectionReadStatusCopy } from './model-selection-read-status-copy';
 export { ModelSelectionReadStatus } from './model-selection-read-status';
