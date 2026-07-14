@@ -167,6 +167,28 @@ const comparisonModels: Record<InvestModelLocale, ComparisonModel[]> = {
   ]
 };
 
+function modelCompareVisibleBoundaries(locale: InvestModelLocale) {
+  return locale === 'ko'
+    ? [
+        'approved mock comparison',
+        'ModelVersion 맥락',
+        'ModelRiskProfile',
+        'backtest placeholder',
+        '추천 아님',
+        '주문 아님',
+        '브로커 미연결'
+      ]
+    : [
+        'approved mock comparison',
+        'ModelVersion context',
+        'ModelRiskProfile',
+        'backtest placeholder',
+        'not advice',
+        'not an order',
+        'no brokerage'
+      ];
+}
+
 type ModelComparePageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -178,6 +200,7 @@ export default async function ModelComparePage({
   const locale = resolveInvestModelLocale(resolvedSearchParams);
   const copy = comparisonCopy[locale];
   const models = comparisonModels[locale];
+  const visibleBoundaries = modelCompareVisibleBoundaries(locale);
 
   return (
     <MobileShell
@@ -243,6 +266,14 @@ export default async function ModelComparePage({
                   <RiskBadge tone="low">
                     {copy.labels.review}: {model.reviewState}
                   </RiskBadge>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-3 py-2">
+                  {visibleBoundaries.map((boundary) => (
+                    <RiskBadge key={boundary} tone="neutral">
+                      {boundary}
+                    </RiskBadge>
+                  ))}
                 </div>
               </article>
             ))}
