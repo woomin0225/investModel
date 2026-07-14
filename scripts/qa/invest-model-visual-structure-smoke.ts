@@ -87,6 +87,7 @@ const screens: ScreenCheck[] = [
       'Signal Detail',
       'No recommendation',
       'No order',
+      'Related Feed search',
       'Realtime search volume'
     ]
   },

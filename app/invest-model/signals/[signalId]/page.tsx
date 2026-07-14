@@ -1,4 +1,4 @@
-import { ArrowLeft, Activity, Radio, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Activity, Radio, Search, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -99,6 +99,15 @@ function scoreWidth(score: number) {
   return `${Math.min(Math.max(Math.round(score), 0), 100)}%`;
 }
 
+function relatedFeedSearchHref(locale: SignalLocale, signal: SignalEventDto) {
+  const params = new URLSearchParams({
+    lang: locale,
+    q: signal.linkedModelName || signal.title
+  });
+
+  return `/invest-model/search?${params.toString()}`;
+}
+
 function signalSafetyDescription(locale: SignalLocale, signal: SignalEventDto) {
   if (signal.signalType === 'risk') {
     return locale === 'ko'
@@ -128,6 +137,7 @@ export default async function InvestModelSignalDetailPage({
   const scoreTone = scoreToneFromScore(signal.score);
   const currentPath = `/invest-model/signals/${resolvedParams.signalId}`;
   const backHref = `/invest-model/signals?lang=${locale}`;
+  const relatedSearchHref = relatedFeedSearchHref(locale, signal);
   const sourceRows = [
     {
       label: locale === 'ko' ? '관찰 유형' : 'Observation type',
@@ -270,6 +280,38 @@ export default async function InvestModelSignalDetailPage({
             </div>
           </div>
         </div>
+
+        <Link
+          href={relatedSearchHref}
+          className={cn(
+            'group block rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
+            investMotionClass.interactiveCard
+          )}
+        >
+          <div className="flex items-start gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+              <Search aria-hidden className="size-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap gap-2">
+                <RiskBadge tone="neutral">DB FeedPost</RiskBadge>
+                <RiskBadge tone="medium">
+                  {locale === 'ko' ? 'Reference only' : 'Reference only'}
+                </RiskBadge>
+              </div>
+              <h2 className="mt-2 text-[16px] font-bold leading-6 text-invest-text">
+                {locale === 'ko'
+                  ? 'Related Feed search'
+                  : 'Related Feed search'}
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-invest-text-muted">
+                {locale === 'ko'
+                  ? `Search DB-backed FeedPosts for ${signal.linkedModelName}. This is supporting reading, not evidence for an order or recommendation.`
+                  : `Search DB-backed FeedPosts for ${signal.linkedModelName}. This is supporting reading, not evidence for an order or recommendation.`}
+              </p>
+            </div>
+          </div>
+        </Link>
 
         <div className="rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card">
           <div className="flex items-start gap-2.5">
