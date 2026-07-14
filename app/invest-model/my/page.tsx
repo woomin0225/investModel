@@ -115,6 +115,28 @@ function myPageRecentActivityVisibleBoundaries(locale: 'ko' | 'en') {
       ];
 }
 
+function myPageSummaryVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? [
+        'DB 사용자 read model',
+        'local profile summary',
+        '실계좌 없음',
+        '브로커 미연결',
+        '실주문 없음',
+        '투자 조언 아님',
+        '푸시 전송 없음'
+      ]
+    : [
+        'DB user read model',
+        'local profile summary',
+        'no real account',
+        'no brokerage',
+        'no orders',
+        'not advice',
+        'no push delivery'
+      ];
+}
+
 const myPageCopy = {
   ko: {
     eyebrow: '내 정보',
@@ -250,6 +272,7 @@ export default async function InvestModelMyPage({
         ? '대기'
         : 'pending';
   const safetyAccessibleLabel = myPageSafetyAccessibleLabel(locale);
+  const summaryVisibleBoundaries = myPageSummaryVisibleBoundaries(locale);
   const recentActivityRows = [
     ...activitySummary.recentSavedPosts.map((item) => ({
       ...item,
@@ -313,6 +336,13 @@ export default async function InvestModelMyPage({
             tone="risk"
             className="p-3"
           />
+        </div>
+        <div className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-3 py-2">
+          {summaryVisibleBoundaries.map((boundary) => (
+            <RiskBadge key={boundary} tone="neutral">
+              {boundary}
+            </RiskBadge>
+          ))}
         </div>
 
         <div className="space-y-invest-card-gap">
