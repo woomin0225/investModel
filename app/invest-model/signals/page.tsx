@@ -346,7 +346,7 @@ export default async function InvestModelSignalsPage({
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard
             label={signalsCopy.metrics.activeFeed}
-            value={summary.activeCountLabel}
+            value={visibleSignalCountLabel}
             description={signalDataStateLabel}
             trend={signalsCopy.metrics.sample}
           />
