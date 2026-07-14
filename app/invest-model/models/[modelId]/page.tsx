@@ -129,9 +129,9 @@ export default async function InvestModelDetailPage({
           aria-label={
             locale === 'ko' ? '모델 상세 섹션 이동' : 'Model detail sections'
           }
-          className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]"
+          className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-2"
         >
-          <div className="flex w-max gap-2 pr-invest-screen-x">
+          <div className="grid grid-cols-2 gap-2">
             {detailSectionLinks.map(([href, label], index) => {
               const isPrimarySection = index === 0;
 
@@ -141,7 +141,7 @@ export default async function InvestModelDetailPage({
                   href={href}
                   aria-current={isPrimarySection ? 'true' : undefined}
                   className={cn(
-                    'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border px-3 text-sm font-bold shadow-invest-card',
+                    'inline-flex min-h-invest-touch-target min-w-0 items-center justify-center gap-2 rounded-invest-control border px-2 text-center text-[13px] font-bold leading-5 shadow-invest-card',
                     investMotionClass.interactiveControl,
                     isPrimarySection
                       ? 'border-invest-primary bg-invest-primary text-white shadow-invest-card-strong'
@@ -155,7 +155,7 @@ export default async function InvestModelDetailPage({
                       isPrimarySection ? 'bg-white' : 'bg-invest-border'
                     )}
                   />
-                  {label}
+                  <span className="truncate">{label}</span>
                 </Link>
               );
             })}
