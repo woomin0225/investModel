@@ -46,7 +46,7 @@ export default async function InvestModelPreviewPage({
             type="button"
             aria-label={copy.actions.searchModels}
             className={cn(
-              'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+              'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/25',
               investMotionClass.interactiveControl
             )}
           >
@@ -56,11 +56,15 @@ export default async function InvestModelPreviewPage({
             type="button"
             aria-label={copy.actions.notifications}
             className={cn(
-              'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+              'relative grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-primary/20 bg-invest-primary-soft text-invest-primary shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
               investMotionClass.interactiveControl
             )}
           >
             <Bell aria-hidden className="size-5" />
+            <span
+              aria-hidden
+              className="absolute right-2 top-2 size-2 rounded-full bg-invest-risk ring-2 ring-invest-primary-soft"
+            />
           </button>
         </div>
       }
