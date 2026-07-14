@@ -464,9 +464,13 @@ export function ModelCard({
             constraintLabels={constraintLabels}
           />
           {footerBadges.length > 0 ? (
-            <div className="mt-4 flex flex-wrap gap-2 border-t border-invest-border pt-3">
+            <div className="mt-4 grid gap-2 border-t border-invest-border pt-3 min-[360px]:grid-cols-2">
               {footerBadges.map((badge) => (
-                <RiskBadge key={badge.label} tone={badge.tone ?? 'neutral'}>
+                <RiskBadge
+                  key={badge.label}
+                  tone={badge.tone ?? 'neutral'}
+                  className="justify-center text-center"
+                >
                   {badge.label}
                 </RiskBadge>
               ))}
