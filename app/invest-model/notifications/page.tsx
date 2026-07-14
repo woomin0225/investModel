@@ -1,13 +1,15 @@
 import Link from 'next/link';
+import { NextRequest } from 'next/server';
 import { Bell, CheckCircle2, Database, ShieldCheck } from 'lucide-react';
 
+import { GET as readNotifications } from '@/app/api/notifications/route';
 import {
   investMotionClass,
   MobileShell,
   RiskBadge,
   SectionHeader
 } from '@/components/invest-model';
-import { readNotificationCenter } from '@/lib/db/notification-read-model';
+import type { NotificationCenterDto } from '@/lib/db/notification-read-model';
 import {
   investModelCopy,
   resolveInvestModelLocale,
@@ -17,6 +19,20 @@ import { cn } from '@/lib/utils';
 
 type InvestModelNotificationsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+type InvestModelNotificationsResponse = {
+  data: NotificationCenterDto;
+  meta: {
+    routeStatus: string;
+    readOnly: boolean;
+    sendsRealPush: boolean;
+    sendsRealEmail: boolean;
+    sendsRealSms: boolean;
+    realOrder: boolean;
+    brokerageConnection: boolean;
+    financialAdvice: boolean;
+  };
 };
 
 const notificationCopy = {
@@ -60,6 +76,26 @@ const notificationCopy = {
   }
 } as const;
 
+async function readInvestModelNotifications() {
+  const response = await readNotifications(
+    new NextRequest(
+      'http://localhost/api/notifications?userPublicId=user_demo_001',
+      {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'user'
+        }
+      }
+    )
+  );
+
+  if (!response.ok) {
+    throw new Error('InvestModel notifications API contract returned an error.');
+  }
+
+  return (await response.json()) as InvestModelNotificationsResponse;
+}
+
 export default async function InvestModelNotificationsPage({
   searchParams
 }: InvestModelNotificationsPageProps) {
@@ -67,10 +103,7 @@ export default async function InvestModelNotificationsPage({
   const locale = resolveInvestModelLocale(resolvedSearchParams);
   const copy = notificationCopy[locale];
   const actionsCopy = investModelCopy[locale].actions;
-  const notificationCenter = await readNotificationCenter({
-    userPublicId: 'user_demo_001',
-    limit: 12
-  });
+  const { data: notificationCenter } = await readInvestModelNotifications();
 
   return (
     <MobileShell
