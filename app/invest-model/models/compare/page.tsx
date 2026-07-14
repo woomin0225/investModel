@@ -214,7 +214,7 @@ export default async function ModelComparePage({
             {models.map((model) => (
               <article
                 key={model.id}
-                className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+                className="group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-invest-primary/30 hover:shadow-invest-nav active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
@@ -281,7 +281,7 @@ function Metric({
         : 'text-invest-text';
 
   return (
-    <div className="min-h-24 rounded-invest-control bg-invest-surface-muted p-3">
+    <div className="min-h-24 rounded-invest-control bg-invest-surface-muted p-3 transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/60 group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-active:scale-100">
       <p className="text-[11px] font-semibold leading-4 text-invest-text-muted">
         {label}
       </p>
