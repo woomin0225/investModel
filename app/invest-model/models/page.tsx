@@ -63,6 +63,28 @@ const discoverySummaryCopy = {
   }
 } as const;
 
+function modelDiscoveryVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? [
+        'approved/public model',
+        'ModelVersion 맥락',
+        'ModelRiskProfile',
+        'backtest placeholder',
+        '추천 아님',
+        '주문 아님',
+        '브로커 미연결'
+      ]
+    : [
+        'approved/public model',
+        'ModelVersion context',
+        'ModelRiskProfile',
+        'backtest placeholder',
+        'not advice',
+        'not an order',
+        'no brokerage'
+      ];
+}
+
 function getDiscoveryFilterHref(
   filterId: string,
   locale: 'ko' | 'en'
@@ -263,6 +285,7 @@ export default async function InvestModelDiscoveryPage({
                 model.status,
                 locale
               );
+              const visibleBoundaries = modelDiscoveryVisibleBoundaries(locale);
               const modelCard = (
                 <ModelCard
                   name={model.name}
@@ -298,7 +321,16 @@ export default async function InvestModelDiscoveryPage({
               return (
                 <div key={model.id} role="listitem" className="min-w-0">
                   {statusDisplay.isSelectionDisabled ? (
-                    modelCard
+                    <div className="space-y-2">
+                      {modelCard}
+                      <div className="flex flex-wrap gap-1.5 rounded-invest-card border border-invest-border bg-invest-surface px-3 py-2 shadow-invest-card">
+                        {visibleBoundaries.map((boundary) => (
+                          <RiskBadge key={boundary} tone="neutral">
+                            {boundary}
+                          </RiskBadge>
+                        ))}
+                      </div>
+                    </div>
                   ) : (
                     <Link
                       href={withInvestModelLocale(
@@ -306,9 +338,16 @@ export default async function InvestModelDiscoveryPage({
                         locale
                       )}
                       aria-label={`${model.name} ${model.performanceLabel} ${model.riskLabel}`}
-                      className="block rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
+                      className="block space-y-2 rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
                     >
                       {modelCard}
+                      <div className="flex flex-wrap gap-1.5 rounded-invest-card border border-invest-border bg-invest-surface px-3 py-2 shadow-invest-card">
+                        {visibleBoundaries.map((boundary) => (
+                          <RiskBadge key={boundary} tone="neutral">
+                            {boundary}
+                          </RiskBadge>
+                        ))}
+                      </div>
                     </Link>
                   )}
                 </div>
