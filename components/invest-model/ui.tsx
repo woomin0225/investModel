@@ -371,7 +371,7 @@ export function PerformanceMetricGroup({
           <div
             key={`${metric.label}-${metric.value}`}
             role="listitem"
-            className="flex min-h-[76px] items-center justify-between gap-3 rounded-invest-control bg-invest-surface px-3 py-2.5 shadow-invest-card"
+            className="group flex min-h-[76px] items-center justify-between gap-3 rounded-invest-control bg-invest-surface px-3 py-2.5 shadow-invest-card transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/70 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             <div className="min-w-0">
               <p className="text-[12px] font-bold leading-4 text-invest-text">
@@ -384,7 +384,7 @@ export function PerformanceMetricGroup({
             <div className="shrink-0 text-right">
               <p
                 className={cn(
-                  'text-[21px] font-bold leading-7 tabular-nums',
+                  'text-[21px] font-bold leading-7 tabular-nums transition-transform duration-200 ease-out group-hover:scale-[1.02] group-active:scale-100 motion-reduce:transition-none motion-reduce:group-hover:scale-100',
                   metric.tone === 'positive'
                     ? 'text-invest-positive'
                     : metric.tone === 'risk'
