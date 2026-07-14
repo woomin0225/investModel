@@ -11,6 +11,7 @@ import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { cn } from '@/lib/utils';
 
 const signalToneClass = {
   low: 'bg-invest-positive-soft text-invest-positive',
@@ -47,7 +48,10 @@ export default async function InvestModelSignalsPage({
         <button
           type="button"
           aria-label={copy.actions.signalAlerts}
-          className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
+          className={cn(
+            'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+            investMotionClass.interactiveControl
+          )}
         >
           <Bell aria-hidden className="size-5" />
         </button>
@@ -96,7 +100,10 @@ export default async function InvestModelSignalsPage({
                 <button
                   key={filter}
                   type="button"
-                  className={`min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card ${investMotionClass.interactiveControl}`}
+                  className={cn(
+                    'min-h-invest-touch-target rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-semibold text-invest-text shadow-invest-card',
+                    investMotionClass.interactiveControl
+                  )}
                 >
                   {filter}
                 </button>
@@ -108,7 +115,10 @@ export default async function InvestModelSignalsPage({
             {signals.map((signal) => (
               <article
                 key={signal.id}
-                className={`rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card ${investMotionClass.interactiveCard} focus-within:border-invest-primary/40`}
+                className={cn(
+                  'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card focus-within:border-invest-primary/40',
+                  investMotionClass.interactiveCard
+                )}
               >
                 <div className="flex items-start gap-3">
                   <div
@@ -122,27 +132,33 @@ export default async function InvestModelSignalsPage({
                         <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-invest-text">
                           {signal.title}
                         </h3>
-                        <div className="mt-1 flex flex-wrap gap-1.5">
-                          <RiskBadge>{signal.sourceLabel}</RiskBadge>
-                          <RiskBadge>{signal.marketLabel}</RiskBadge>
+                        <div className="mt-2 grid gap-1.5 min-[360px]:grid-cols-2">
+                          <RiskBadge className="justify-center text-center">
+                            {signal.sourceLabel}
+                          </RiskBadge>
+                          <RiskBadge className="justify-center text-center">
+                            {signal.marketLabel}
+                          </RiskBadge>
                         </div>
                       </div>
                       <div className="shrink-0 text-right">
                         <RiskBadge tone={badgeToneByScore[signal.scoreTone]}>
                           {signal.scoreLabel}
                         </RiskBadge>
-                        <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-text-muted">
-                          {signal.freshnessLabel}
-                        </p>
                       </div>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                       {signal.description}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-2 border-t border-invest-border pt-3">
-                      <RiskBadge tone="neutral">{signal.linkedModelName}</RiskBadge>
+                    <div className="mt-3 grid gap-2 border-t border-invest-border pt-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
+                      <RiskBadge tone="neutral" className="justify-center text-center">
+                        {signal.linkedModelName}
+                      </RiskBadge>
+                      <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface-muted px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
+                        {signal.freshnessLabel}
+                      </span>
                     </div>
-                    <div className="mt-3 flex items-start gap-2 rounded-invest-control bg-invest-surface-muted p-3">
+                    <div className="mt-3 flex items-start gap-2 rounded-invest-control border border-invest-border/70 bg-invest-surface-muted p-3">
                       <Activity
                         aria-hidden
                         className="mt-0.5 size-4 shrink-0 text-invest-primary"
