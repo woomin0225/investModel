@@ -1,14 +1,12 @@
 import { NextRequest } from 'next/server';
 
 import { readFeedPostDtos } from '@/lib/db/feed-read-model';
+import { readModelCardDtos } from '@/lib/db/model-read-model';
 import { readSignalEventDtos } from '@/lib/db/signal-read-model';
 import type { FeedPostDto } from '@/lib/domain/feed/feed-post';
+import type { ModelCardDto } from '@/lib/domain/models/model-read-model';
 import type { SignalEventDto } from '@/lib/domain/signals/signal-event';
 import type { AccessRole } from '@/lib/domain/types';
-import {
-  investModelCopy,
-  isPublicDiscoverableInvestmentModel
-} from '@/lib/i18n/invest-model';
 
 /**
  * This route groups read-only search results for model discovery, FeedPost, and SignalEvent surfaces.
@@ -16,8 +14,6 @@ import {
  */
 
 type ApiErrorCode = 'forbidden' | 'validation_error' | 'server_error';
-
-type SearchableInvestmentModel = (typeof investModelCopy.en.models.models)[number];
 
 function errorResponse(
   status: number,
@@ -114,21 +110,21 @@ function matchesSignalEventSearch(signal: SignalEventDto, query: string) {
 }
 
 function matchesInvestmentModelSearch(
-  model: SearchableInvestmentModel,
+  model: ModelCardDto,
   query: string
 ) {
   return searchableIncludes(
     [
       model.name,
-      model.summary,
-      model.market,
-      model.riskLabel,
-      model.performanceLabel,
-      model.mandateLabel,
+      model.shortDescription,
+      model.risk.label,
+      model.backtestReturn.display,
+      model.maxDrawdown.display,
       model.reviewLabel,
-      model.simulatedAumLabel,
+      model.reviewLabel,
       model.status,
-      ...model.tags
+      ...model.targetMarkets,
+      ...model.assetClassLabels
     ],
     query
   );
@@ -156,23 +152,29 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const [feedPosts, signals] = await Promise.all([
+    const [feedPosts, signals, modelCards] = await Promise.all([
       readFeedPostDtos({ limit: 30 }),
-      readSignalEventDtos({ limit: 20 })
+      readSignalEventDtos({ limit: 20 }),
+      readModelCardDtos(30)
     ]);
-    const investmentModels = investModelCopy.en.models.models
-      .filter(isPublicDiscoverableInvestmentModel)
+    const investmentModels = modelCards
       .filter((model) => matchesInvestmentModelSearch(model, query))
       .map((model) => ({
-        modelId: model.id,
+        modelId: model.slug,
+        modelPublicId: model.modelPublicId,
+        modelVersionPublicId: model.modelVersionPublicId,
         name: model.name,
-        summary: model.summary,
-        market: model.market,
-        riskLabel: model.riskLabel,
-        performanceLabel: model.performanceLabel,
+        summary: model.shortDescription ?? model.risk.summary ?? '',
+        market: model.targetMarkets.join(', ') || 'Marketplace model',
+        riskLabel: model.risk.label,
+        performanceLabel: `${model.backtestReturn.display} backtest`,
         status: model.status,
-        tags: model.tags,
-        href: `/invest-model/models/${model.id}`
+        tags: [
+          ...model.targetMarkets,
+          ...model.assetClassLabels,
+          model.reviewLabel
+        ],
+        href: `/invest-model/models/${model.slug}`
       }));
     const filteredFeedPosts = feedPosts
       .filter((post) => matchesFeedPostSearch(post, query))
@@ -195,10 +197,13 @@ export async function GET(request: NextRequest) {
       },
       meta: {
         routeStatus: 'db_backed',
-        persistence: 'persisted_and_mock_discovery',
+        persistence: 'persisted',
         sourceTables: [
           'feed_posts',
           'investment_models',
+          'model_creators',
+          'model_risk_profiles',
+          'model_performance_snapshots',
           'users',
           'model_signal_events',
           'model_versions',

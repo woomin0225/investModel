@@ -4,6 +4,9 @@
  * and never creates recommendations, model selections, orders, or brokerage actions.
  */
 
+import fs from 'fs';
+import path from 'path';
+import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 
 import { GET } from '../../app/api/search/route';
@@ -26,7 +29,26 @@ async function readSearch(search = '') {
   );
 }
 
+async function applyTrackedSearchSeeds() {
+  const seedPaths = [
+    'docs/database/seeds/003_signal_event_seed.sql',
+    'docs/database/seeds/002_feed_interaction_seed.sql'
+  ];
+  const sql = seedPaths
+    .map((seedPath) => fs.readFileSync(path.resolve(seedPath), 'utf8'))
+    .join('\n');
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+
+  await connection.query(sql);
+  await connection.end();
+}
+
 async function main() {
+  await applyTrackedSearchSeeds();
+
   const forbiddenResponse = await GET(
     new NextRequest('http://localhost/api/search', {
       method: 'GET'
@@ -60,15 +82,26 @@ async function main() {
   );
   assertCondition(
     emptyQueryJson.data.investmentModels.every(
-      (model: { modelId?: string; id?: number; href?: string }) =>
+      (model: {
+        modelId?: string;
+        modelPublicId?: string;
+        id?: number;
+        href?: string;
+      }) =>
         typeof model.modelId === 'string' &&
+        typeof model.modelPublicId === 'string' &&
         model.id === undefined &&
         typeof model.href === 'string'
     ),
-    'investment model search results expose public model ids only'
+    'investment model search results expose public model identifiers only'
+  );
+  assertCondition(
+    emptyQueryJson.data.investmentModels.length > 0,
+    'search returns seeded DB model discovery rows'
   );
   assertCondition(
     emptyQueryJson.meta?.routeStatus === 'db_backed' &&
+      emptyQueryJson.meta?.persistence === 'persisted' &&
       emptyQueryJson.meta?.readOnly === true &&
       emptyQueryJson.meta?.realtimeExternalData === false &&
       emptyQueryJson.meta?.financialAdvice === false &&

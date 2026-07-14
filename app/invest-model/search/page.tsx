@@ -28,6 +28,8 @@ type InvestModelSearchPageProps = {
 
 type SearchableInvestmentModel = {
   modelId: string;
+  modelPublicId?: string;
+  modelVersionPublicId?: string;
   name: string;
   summary: string;
   market: string;
@@ -54,10 +56,6 @@ function buildFeedDetailHref(postPublicId: string, locale: 'ko' | 'en') {
 
 function buildSignalDetailHref(signalPublicId: string, locale: 'ko' | 'en') {
   return withInvestModelLocale(`/invest-model/signals/${signalPublicId}`, locale);
-}
-
-function buildModelDetailHref(modelId: string, locale: 'ko' | 'en') {
-  return withInvestModelLocale(`/invest-model/models/${modelId}`, locale);
 }
 
 function searchFormAccessibleLabel(
@@ -275,8 +273,8 @@ export default async function InvestModelSearchPage({
             title={locale === 'ko' ? 'InvestmentModels' : 'InvestmentModels'}
             description={
               query.length > 0
-                ? `${filteredModels.length} mock discovery model results`
-                : `${filteredModels.length} discoverable mock discovery models`
+                ? `${filteredModels.length} DB read model results`
+                : `${filteredModels.length} DB-backed discoverable models`
             }
           />
           <div
@@ -293,7 +291,7 @@ export default async function InvestModelSearchPage({
                 return (
                   <Link
                     key={model.modelId}
-                    href={buildModelDetailHref(model.modelId, locale)}
+                    href={withInvestModelLocale(model.href, locale)}
                     role="listitem"
                     aria-label={searchResultAccessibleLabel(
                       locale,
@@ -342,7 +340,7 @@ export default async function InvestModelSearchPage({
                         </div>
                         <div className="mt-3 flex items-center justify-between gap-3 text-[12px] font-semibold leading-4 text-invest-text-muted">
                           <span className="min-w-0 truncate">
-                            Mock discovery model
+                            DB read model
                           </span>
                           <ArrowRight
                             aria-hidden
