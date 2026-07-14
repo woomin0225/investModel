@@ -229,12 +229,16 @@ export default async function InvestModelFeedPage({
                       {post.excerpt}
                     </p>
                     <div className="mt-3 grid gap-2 border-t border-invest-border pt-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
-                      <p className="min-w-0 truncate rounded-full bg-invest-surface-muted px-3 py-1.5 text-[12px] font-semibold leading-4 text-invest-text-muted">
+                      <p className="min-w-0 truncate rounded-full bg-invest-surface-muted px-3 py-1.5 text-[12px] font-semibold leading-4 text-invest-text-muted transition-[background-color,color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/60 group-hover:text-invest-primary group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-active:scale-100">
                         {post.linkedModelName}
                       </p>
                       <div className="flex min-w-0 flex-wrap justify-start gap-1.5 min-[360px]:justify-end">
                         {post.tags.slice(0, 2).map((tag) => (
-                          <RiskBadge key={`${post.id}-${tag}`} tone="neutral">
+                          <RiskBadge
+                            key={`${post.id}-${tag}`}
+                            tone="neutral"
+                            className="transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
+                          >
                             {tag}
                           </RiskBadge>
                         ))}
@@ -242,14 +246,22 @@ export default async function InvestModelFeedPage({
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2 sm:hidden">
                       {post.tags.slice(2).map((tag) => (
-                        <RiskBadge key={`${post.id}-${tag}`} tone="neutral">
+                        <RiskBadge
+                          key={`${post.id}-${tag}`}
+                          tone="neutral"
+                          className="transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
+                        >
                           {tag}
                         </RiskBadge>
                       ))}
                     </div>
                     <div className="mt-2 hidden flex-wrap gap-2 sm:flex">
                       {post.tags.slice(2).map((tag) => (
-                        <RiskBadge key={`${post.id}-${tag}`} tone="neutral">
+                        <RiskBadge
+                          key={`${post.id}-${tag}`}
+                          tone="neutral"
+                          className="transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
+                        >
                           {tag}
                         </RiskBadge>
                       ))}
