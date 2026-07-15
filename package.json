@@ -34,6 +34,7 @@
     "test:webhook-signature": "npx tsx scripts/smoke/webhook-signature-smoke.ts"
   },
   "dependencies": {
+    "@capacitor/core": "^8.4.1",
     "@tailwindcss/postcss": "4.1.7",
     "@types/node": "^22.15.18",
     "@types/react": "19.1.4",
@@ -61,5 +62,8 @@
     "tw-animate-css": "^1.3.0",
     "typescript": "^5.8.3",
     "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.4.1"
   }
 }
