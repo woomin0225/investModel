@@ -370,6 +370,7 @@ const topIconBarSource = readProjectFile(
 );
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const homePageSource = readProjectFile('app/invest-model/page.tsx');
+const myPageSource = readProjectFile('app/invest-model/my/page.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
 const signalRefreshActionSource = readProjectFile(
   'components/invest-model/signal-refresh-action.tsx'
@@ -529,6 +530,12 @@ assertCondition(
     homePageSource.includes('homeCopy.footerBadges.noLiveOrders') &&
     homePageSource.includes('financial advice'),
   'Home must not start with the top blue SoftBanner or hashtag safety chip group and must preserve mock/no-order safety context'
+);
+assertCondition(
+  myPageSource.includes('No real account / No real orders / DB read model') &&
+    !myPageSource.includes('<ShieldCheck') &&
+    !myPageSource.includes("{locale === 'ko' ? '실계좌 없음' : 'No real account'}\n            </RiskBadge>"),
+  'My Page footer safety boundary must use prose instead of hashtag safety chip groups'
 );
 assertCondition(
   !modelsPageSource.includes('<SoftBanner') &&

@@ -5,7 +5,6 @@ import {
   Bell,
   Bookmark,
   MessageCircle,
-  ShieldCheck,
   UserRound
 } from 'lucide-react';
 import {
@@ -610,18 +609,11 @@ export default async function InvestModelMyPage({
           title={safetyAccessibleLabel}
           className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding"
         >
-          <div className="flex flex-wrap gap-2">
-            <RiskBadge tone="blocked">
-              {locale === 'ko' ? '실계좌 없음' : 'No real account'}
-            </RiskBadge>
-            <RiskBadge tone="blocked">
-              {locale === 'ko' ? '실주문 없음' : 'No real orders'}
-            </RiskBadge>
-            <RiskBadge>
-              <ShieldCheck aria-hidden className="mr-1 inline size-3" />
-              {locale === 'ko' ? 'DB read model' : 'DB read model'}
-            </RiskBadge>
-          </div>
+          <p className="text-xs font-semibold leading-5 text-invest-text-muted">
+            {locale === 'ko'
+              ? '실계좌 없음 / 실주문 없음 / DB read model'
+              : 'No real account / No real orders / DB read model'}
+          </p>
           <p className="mt-3 text-sm leading-6 text-invest-text-muted">
             {copy.footer}
           </p>
