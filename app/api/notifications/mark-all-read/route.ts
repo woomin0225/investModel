@@ -15,7 +15,6 @@ import {
 type ApiErrorCode = 'forbidden' | 'validation_error' | 'not_found' | 'server_error';
 
 type MarkAllReadRequestBody = {
-  userPublicId?: unknown;
   limit?: unknown;
 };
 
@@ -49,14 +48,6 @@ async function readBody(request: NextRequest): Promise<MarkAllReadRequestBody> {
   }
 }
 
-function readClientUserPublicId(value: unknown) {
-  if (typeof value !== 'string' || value.trim() === '') {
-    return undefined;
-  }
-
-  return value.trim();
-}
-
 function parseLimit(value: unknown) {
   if (value === undefined || value === null || value === '') {
     return 30;
@@ -83,8 +74,6 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await readBody(request);
-  const clientUserPublicId = readClientUserPublicId(body.userPublicId);
-
   const limit = parseLimit(body.limit);
 
   if (!limit) {
@@ -97,7 +86,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const userScope = await resolveInvestModelUserScope(request, {
-      clientUserPublicId
+      ignoreClientUserPublicId: true
     });
     const result = await markNotificationCenterRead({
       userPublicId: userScope.userPublicId,
@@ -125,7 +114,6 @@ export async function POST(request: NextRequest) {
         sourceTables: ['users', 'feed_posts', 'feed_post_reads'],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        clientUserPublicIdIgnored: Boolean(userScope.ignoredClientUserPublicId),
         limit,
         readStateOnly: true,
         sendsRealPush: false,
