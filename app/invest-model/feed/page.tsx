@@ -54,7 +54,6 @@ const postToneIcon = {
 } as const;
 
 const feedActionIcons = [Eye, Bookmark, MessageCircle] as const;
-const sampleUserPublicId = 'user_demo_001';
 
 type InvestModelFeedPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -634,7 +633,6 @@ export default async function InvestModelFeedPage({
                               <FeedCardSaveAction
                                 key={`${post.id}-${action}`}
                                 postPublicId={post.id}
-                                userPublicId={sampleUserPublicId}
                                 label={action}
                                 ariaLabel={actionAccessibleLabel}
                               />

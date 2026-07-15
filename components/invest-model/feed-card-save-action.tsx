@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 
 type FeedCardSaveActionProps = {
   postPublicId: string;
-  userPublicId: string;
   label: string;
   ariaLabel: string;
 };
@@ -27,7 +26,6 @@ type FeedCardSaveResponse = {
  */
 export function FeedCardSaveAction({
   postPublicId,
-  userPublicId,
   label,
   ariaLabel
 }: FeedCardSaveActionProps) {
@@ -52,7 +50,7 @@ export function FeedCardSaveAction({
             'content-type': 'application/json',
             'x-invest-model-role': 'user'
           },
-          body: JSON.stringify({ userPublicId })
+          body: JSON.stringify({})
         }
       );
       const body = (await response.json()) as FeedCardSaveResponse;
