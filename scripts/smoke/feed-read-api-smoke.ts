@@ -162,22 +162,23 @@ async function main() {
   assertCondition(
     missingUserPublicIdResponse.status === 200 &&
       missingUserPublicIdJson.meta?.userScopeSource === 'demo_fallback' &&
-      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === false,
+      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === undefined,
     'missing userPublicId falls back to the mock-safe demo scope'
   );
   assertCondition(notFoundResponse.status === 404, 'missing post is 404');
   assertCondition(
     ignoredUserResponse.status === 200 &&
       ignoredUserJson.data?.userPublicId === 'user_demo_001' &&
-      ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
-    'client userPublicId is ignored for read state'
+      ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined,
+    'client userPublicId is not exposed as compatibility meta for read state'
   );
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.data?.read === true &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
-      sessionScopedJson.meta?.clientUserPublicIdIgnored === true,
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined,
     'session role and user scope win for read state'
   );
   assertCondition(markReadResponse.status === 200, 'mark read responds');

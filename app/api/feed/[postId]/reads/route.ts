@@ -25,10 +25,6 @@ type RouteContext = {
   }>;
 };
 
-type ReadRequestBody = {
-  userPublicId?: unknown;
-};
-
 function errorResponse(
   status: number,
   code: ApiErrorCode,
@@ -45,14 +41,6 @@ function errorResponse(
     },
     { status }
   );
-}
-
-async function readBody(request: NextRequest): Promise<ReadRequestBody> {
-  try {
-    return (await request.json()) as ReadRequestBody;
-  } catch {
-    return {};
-  }
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
@@ -72,11 +60,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   const { postId } = await context.params;
   const postPublicId = postId.trim();
-  const body = await readBody(request);
-  const clientUserPublicId =
-    typeof body.userPublicId === 'string' ? body.userPublicId.trim() : '';
   const userScope = await resolveInvestModelUserScope(request, {
-    clientUserPublicId
+    ignoreClientUserPublicId: true
   });
 
   if (!postPublicId) {
@@ -118,8 +103,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
         sourceTables: ['feed_posts', 'feed_post_reads', 'users'],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        clientUserPublicIdIgnored:
-          userScope.ignoredClientUserPublicId !== undefined,
         informationalOnly: true,
         privateReadingStateOnly: true,
         recommendationSignal: false,
