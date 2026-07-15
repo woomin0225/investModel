@@ -29,6 +29,7 @@
 | Feed Detail | `/invest-model/feed/[postId]` | `GET /api/feed/:postId`; feed action APIs | `FeedPostDetailDto`; `FeedCommentDto`; `FeedReactionStateDto` | `FeedPostDto` list item plus future detail mock | signed-in | route param uses public id only; informational content only; comments/actions are user-scoped contracts. |
 | Search | `/invest-model/search` | `GET /api/search?q=` | `SearchResultDto` | DB-backed grouped result arrays; empty arrays when no match | signed-in | read-only grouped search; no recommendation, model selection, TradeIntent, external paid search, order, or brokerage action. |
 | Notification Center | `/invest-model/notifications` | `GET /api/notifications`; `POST /api/notifications/mark-all-read` | `NotificationCenterDto` | DB-backed feed-derived notification rows and read state | user | read/unread center only; no push/email/SMS delivery, broker/account connection, order, or advice. |
+| My Page | `/invest-model/my` | `GET /api/my`; supporting `GET /api/my/activity` | `MyPageSummaryDto`; `MyPageFeedActivitySummaryDto` | DB-backed user read model with mock-safe fallback labels | user | profile, selected model, saved/comment activity, notification summary, and recent notification rows only. No real account, balance, deposit, order, broker, push/email/SMS delivery, or advice. |
 | Portfolio | `/invest-model/portfolio` | `GET /api/portfolio/mock-summary` | `PortfolioSummaryDto`; `PortfolioDashboardTimelineDto[]` | DB-backed mock-safe summary fallback | user | 1D/1W/1M time dashboard, simulated positions, AllocationDecision, and blocked TradeIntent state only. No real deposit, balance, order, broker, or advice. |
 
 ## Supporting Screens
@@ -86,6 +87,28 @@ Fallback:
 - The API uses `lib/mock/invest-model-portfolio.ts` only as a mock-safe fallback when DB state is unavailable.
 - The screen should keep its 1D/1W/1M cards visible when fallback data is used, but every value must retain mock/simulated/no real P/L/no return claim/no brokerage labels.
 - Empty or unavailable state must not invite deposit setup, account connection, real order entry, or suitability advice.
+
+### My Page
+
+Data needs:
+
+- `MyPageSummaryDto.profile` with public user id, display name, and role label
+- `MyPageSummaryDto.activeSelection` with the currently selected `InvestmentModel` and `ModelVersion` public ids when available
+- `MyPageSummaryDto.feedActivity` with saved/comment counts, recent saved posts, and recent commented posts
+- `MyPageSummaryDto.notificationSummary` with unread/total count and latest notification shortcut
+- `MyPageSummaryDto.recentNotifications` as feed-derived in-app notification rows
+- `PolicyNoticeDto[]` for DB read-model only, no real financial account, and no notification delivery boundaries
+
+API sequence:
+
+1. `GET /api/my?userPublicId=user_demo_001`
+2. `GET /api/my/activity?userPublicId=user_demo_001` only when a smaller activity-only refresh is needed
+
+Fallback:
+
+- The API may return `dataContext='mock_safe_fallback'` or `sourceLabel='mock_safe_fallback'` for unavailable prototype rows.
+- Empty activity/notification lists should render as private in-app empty states, not as account setup, funding, brokerage connection, or notification-delivery prompts.
+- The screen must not call or merge the starter `/api/user` route for investModel-specific selected model, saved FeedPost, comment, notification, portfolio, or financial state.
 
 ### Discover Models
 

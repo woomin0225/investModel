@@ -453,7 +453,7 @@ Safety requirements:
 
 ## `MyPageFeedActivitySummaryDto`
 
-Used by `GET /api/my/activity` and the My Page saved/comment activity panels.
+Used by `GET /api/my/activity` and embedded in `MyPageSummaryDto.feedActivity`.
 
 ```ts
 interface MyPageFeedActivitySummaryDto {
@@ -484,6 +484,54 @@ Safety requirements:
 - Activity rows are private reading shortcuts only.
 - Do not expose internal numeric ids.
 - Do not include fields that imply push delivery, real account connection, brokerage action, order intent, allocation intent, or financial advice.
+
+## `MyPageSummaryDto`
+
+Used by `GET /api/my` and the My Page screen.
+
+Implementation note: `/api/my` is the investModel screen-level read model endpoint. It is separate from the starter `/api/user` account route, which should not grow investment app profile, saved FeedPost, comment, notification, selected model, real balance, order, or brokerage responsibilities.
+
+```ts
+interface MyPageSummaryDto {
+  userPublicId: string;
+  profile: MyPageProfileDto;
+  activeSelection: UserModelSelectionDto | null;
+  feedActivity: MyPageFeedActivitySummaryDto;
+  notificationSummary: MyPageNotificationSummaryDto;
+  recentNotifications: NotificationCenterItemDto[];
+  dataContext: 'db_read_model' | 'mock_safe_fallback';
+  notices: PolicyNoticeDto[];
+}
+
+interface MyPageProfileDto {
+  userPublicId: string;
+  displayName: string;
+  roleLabel: 'member' | 'creator' | 'admin' | 'unknown';
+}
+
+interface MyPageNotificationSummaryDto {
+  unreadCount: number;
+  totalCount: number;
+  latestNotificationTitle?: string;
+  latestNotificationHref?: string;
+}
+```
+
+Source tables: `users`, `user_model_selections`, `investment_models`, `model_versions`, `feed_posts`, `feed_post_saves`, `feed_post_comments`, `feed_post_reads`.
+
+Empty/error state:
+
+- Unknown or unsupported `userPublicId` returns a validation error in the prototype.
+- DB read failures return a safe server error message and must not create account, order, brokerage, notification delivery, or advice side effects.
+- Missing activity or notification rows return zero counts and empty arrays inside the DTO rather than a real account setup prompt.
+
+Safety requirements:
+
+- `userPublicId` is the only user identifier exposed to the screen; internal numeric ids stay server-side.
+- `activeSelection` may identify a selected `InvestmentModel`/`ModelVersion`, but it must not imply suitability, allocation, funding, or order intent.
+- `feedActivity` and `recentNotifications` are private in-app read models only.
+- Route meta must keep real account connection, real deposit, real order, brokerage connection, push/email/SMS delivery, and financial advice flags false.
+- Do not include bank, broker, account number, real balance, deposit, withdrawal, execution, fill, personalized recommendation, legal judgment, or external paid API fields.
 
 ## `ModelSelectionDto`
 

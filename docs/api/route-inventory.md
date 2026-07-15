@@ -32,6 +32,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `GET` | `/api/search` | Read grouped model, feed, and signal search results. | signed-in | DB-backed read implemented |
 | `GET` | `/api/notifications` | Read user-scoped notification center rows. | user | DB-backed read implemented |
 | `POST` | `/api/notifications/mark-all-read` | Mark notification-center FeedPost read state as read. | user | DB-backed read-state action implemented |
+| `GET` | `/api/my` | Read the My Page screen summary for one prototype user. | user | DB-backed read implemented |
 | `GET` | `/api/my/activity` | Read user-scoped My Page saved/comment activity summary. | user | DB-backed read implemented |
 | `POST` | `/api/model-selections` | Simulate a user selecting a specific model version. | user | mock-backed allowed |
 | `GET` | `/api/portfolio/mock-summary` | Read selected model, mock deposit, simulated allocation, time dashboard snapshots, positions, and blocked TradeIntent state. | user | DB-backed read implemented with mock-safe fallback |
@@ -241,6 +242,20 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Source tables | `users`, `feed_posts`, `feed_post_reads` |
 | Mock source | Existing DB-backed feed rows and read state. |
 | Safety notes | This mutates only private read state. It does not deliver notifications, expose other users' state, create orders, connect brokers/accounts, or provide financial advice. |
+
+### `GET /api/my`
+
+| Field | Value |
+| --- | --- |
+| Status | DB-backed read API implemented in `app/api/my/route.ts`. |
+| Purpose | Provide the My Page screen with one typed summary containing user profile, active selected model, saved/comment FeedPost activity, notification summary, recent notifications, and mock-safe policy notices. |
+| Request | Optional query parameter `userPublicId`, limited to `user_demo_001` in the prototype. No request body. |
+| Response DTO | `MyPageSummaryDto` |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
+| Screens | My Page |
+| Source tables | `users`, `user_model_selections`, `investment_models`, `model_versions`, `feed_posts`, `feed_post_saves`, `feed_post_comments`, `feed_post_reads` |
+| Mock source | Existing DB-backed read models with mock-safe fallback labels when the prototype user or DB rows are unavailable. |
+| Safety notes | This is the investModel My Page read model, separate from the starter `/api/user` account endpoint. It must not expose internal numeric ids, real bank/broker accounts, real balances, deposits, withdrawals, orders, execution/fill data, notification delivery, legal judgment, or financial advice. |
 
 ### `GET /api/my/activity`
 
