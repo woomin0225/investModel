@@ -20,6 +20,7 @@ import { investModelDetailCopy } from '../../lib/mock/invest-model-model-detail'
 import { investModelFeedMock } from '../../lib/mock/invest-model-feed';
 import { investModelPortfolioMock } from '../../lib/mock/invest-model-portfolio';
 import { pendingAdminReviewModels } from '../../lib/mock/invest-model-admin-review';
+import { investModelCopy } from '../../lib/i18n/invest-model';
 
 type ScreenCheck = {
   name: string;
@@ -116,8 +117,9 @@ const screens: ScreenCheck[] = [
     pageFile: 'app/invest-model/models/page.tsx',
     activeTab: 'models',
     requiredCopy: [
-      investModelDiscoveryMock.notice.title,
-      investModelDiscoveryMock.notice.description,
+      investModelCopy.en.models.sectionTitle,
+      investModelCopy.en.models.footerBadges.noLiveTrading,
+      investModelCopy.en.models.footerBadges.backtestMock,
       discoverableInvestmentModels[0]?.name ?? ''
     ]
   },
@@ -273,7 +275,9 @@ function collectScreenTextValues() {
       item.statusLabel,
       item.description
     ]),
-    investModelDiscoveryMock.notice.description,
+    investModelCopy.en.models.footer,
+    investModelCopy.en.models.footerBadges.noLiveTrading,
+    investModelCopy.en.models.footerBadges.backtestMock,
     ...investModelDiscoveryMock.filters,
     ...investModelDiscoveryMock.models.flatMap((model) => [
       model.name,
@@ -492,6 +496,13 @@ assertCondition(
     homePageSource.includes('ModelSelectionReadStatus') &&
     homePageSource.includes('homeCopy.footerBadges.noLiveOrders'),
   'Home must not start with the top blue SoftBanner and must preserve mock/no-order safety context'
+);
+assertCondition(
+  !modelsPageSource.includes('<SoftBanner') &&
+    modelsPageSource.includes('modelDiscoveryVisibleBoundaries') &&
+    modelsPageSource.includes('modelsCopy.footerBadges.noLiveTrading') &&
+    modelsPageSource.includes('modelsCopy.footerBadges.backtestMock'),
+  'Discover Models must not start with the top blue SoftBanner and must preserve no-order/simulated safety context'
 );
 assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&

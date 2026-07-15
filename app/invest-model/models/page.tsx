@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { NextRequest } from 'next/server';
-import { ArrowRight, Filter, Scale, Search } from 'lucide-react';
+import { ArrowRight, Scale, Search } from 'lucide-react';
 import { GET as readModels } from '@/app/api/models/route';
 import {
   investMotionClass,
@@ -8,8 +8,7 @@ import {
   ModelCard,
   RiskBadge,
   SectionHeader,
-  TopIconBar,
-  SoftBanner
+  TopIconBar
 } from '@/components/invest-model';
 import {
   getInvestmentModelStatusDisplay,
@@ -319,13 +318,6 @@ export default async function InvestModelDiscoveryPage({
       }
     >
       <section className="space-y-invest-section-gap">
-        <SoftBanner
-          eyebrow={modelsCopy.bannerEyebrow}
-          title={modelsCopy.notice.title}
-          description={modelsCopy.notice.description}
-          icon={Filter}
-        />
-
         <div className="space-y-invest-card-gap">
           <SectionHeader
             title={modelsCopy.sectionTitle}
