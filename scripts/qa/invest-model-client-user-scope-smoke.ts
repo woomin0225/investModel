@@ -15,6 +15,7 @@ type Violation = {
 
 const projectRoot = process.cwd();
 const scanRoots = ['app/invest-model', 'components/invest-model'];
+const apiScanRoots = ['app/api'];
 const protectedApiPattern =
   /\/api\/(?:my|portfolio|notifications|model-selections|feed)\b/;
 
@@ -115,18 +116,41 @@ function findViolations(file: string): Violation[] {
   return violations;
 }
 
-const sourceFiles = scanRoots.flatMap(listSourceFiles);
-const violations = sourceFiles.flatMap(findViolations);
+function findApiMetaExposure(file: string): Violation[] {
+  const source = readFileSync(path.join(projectRoot, file), 'utf8');
+  const exposurePattern = /\bclientUserPublicIdIgnored\b/g;
+  const violations: Violation[] = [];
+  let match: RegExpExecArray | null;
 
-if (violations.length > 0) {
+  while ((match = exposurePattern.exec(source)) !== null) {
+    violations.push({
+      file,
+      line: lineForIndex(source, match.index),
+      snippet: source
+        .slice(Math.max(0, match.index - 80), match.index + 120)
+        .replace(/\s+/g, ' ')
+        .trim()
+    });
+  }
+
+  return violations;
+}
+
+const sourceFiles = scanRoots.flatMap(listSourceFiles);
+const apiSourceFiles = apiScanRoots.flatMap(listSourceFiles);
+const violations = sourceFiles.flatMap(findViolations);
+const apiMetaExposure = apiSourceFiles.flatMap(findApiMetaExposure);
+
+if (violations.length > 0 || apiMetaExposure.length > 0) {
   console.error(
     JSON.stringify(
       {
         status: 'fail',
         scope: 'investModel client user scope contract',
         message:
-          'Client screen code must not send userPublicId to protected user-scoped APIs.',
-        violations
+          'Client screen code must not send userPublicId to protected user-scoped APIs, and API routes must not expose client userPublicId compatibility meta.',
+        violations,
+        apiMetaExposure
       },
       null,
       2
@@ -142,6 +166,8 @@ console.log(
       scope: 'investModel client user scope contract',
       scannedRoots: scanRoots,
       scannedFiles: sourceFiles.length,
+      apiScannedRoots: apiScanRoots,
+      apiScannedFiles: apiSourceFiles.length,
       protectedApis: [
         '/api/my',
         '/api/portfolio',
@@ -149,7 +175,8 @@ console.log(
         '/api/model-selections',
         '/api/feed'
       ],
-      clientUserPublicIdForwarding: false
+      clientUserPublicIdForwarding: false,
+      clientUserPublicIdCompatibilityMetaExposed: false
     },
     null,
     2

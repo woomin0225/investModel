@@ -35,7 +35,6 @@ type InvestModelMyPageProps = {
 
 type MyPageSummaryRouteMeta = {
   userScopeSource?: 'session' | 'demo_fallback';
-  clientUserPublicIdIgnored?: boolean;
   readOnly?: boolean;
   realAccountConnection?: boolean;
   realOrder?: boolean;
