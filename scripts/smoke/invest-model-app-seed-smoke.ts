@@ -56,7 +56,7 @@ async function main() {
   );
   const notificationJson = await notificationResponse.json();
   const portfolioResponse = await readPortfolioSummary(
-    new NextRequest('http://localhost/api/portfolio/mock-summary?userPublicId=user_demo_001', {
+    new NextRequest('http://localhost/api/portfolio/mock-summary', {
       method: 'GET',
       headers: {
         'x-invest-model-role': 'user'

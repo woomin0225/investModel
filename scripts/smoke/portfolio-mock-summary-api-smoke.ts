@@ -46,9 +46,10 @@ async function main() {
     '?userPublicId=user_demo_001'
   );
   const explicitDemoJson = await explicitDemoResponse.json();
-  const invalidUserResponse = await readPortfolioSummary(
+  const ignoredClientUserResponse = await readPortfolioSummary(
     '?userPublicId=user_other_001'
   );
+  const ignoredClientUserJson = await ignoredClientUserResponse.json();
 
   assertCondition(
     forbiddenResponse.status === 403,
@@ -111,7 +112,9 @@ async function main() {
       summaryJson.meta?.realBalance === false &&
       summaryJson.meta?.realOrder === false &&
       summaryJson.meta?.brokerageConnection === false &&
-      summaryJson.meta?.financialAdvice === false,
+      summaryJson.meta?.financialAdvice === false &&
+      summaryJson.meta?.userScopeSource === 'demo_fallback' &&
+      summaryJson.meta?.clientUserPublicIdIgnored === false,
     'portfolio summary keeps mock-safe API meta'
   );
   assertCondition(
@@ -120,8 +123,10 @@ async function main() {
     'explicit demo userPublicId is accepted'
   );
   assertCondition(
-    invalidUserResponse.status === 422,
-    'non-demo userPublicId returns validation error'
+    ignoredClientUserResponse.status === 200 &&
+      ignoredClientUserJson.meta?.userPublicId === 'user_demo_001' &&
+      ignoredClientUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client userPublicId is ignored in favor of server-resolved user scope'
   );
 
   await client.end();
