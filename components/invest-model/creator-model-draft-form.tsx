@@ -1,14 +1,12 @@
 'use client';
 
 import {
-  useMemo,
   useState,
   type FormEvent,
   type InputHTMLAttributes,
   type TextareaHTMLAttributes
 } from 'react';
 import { AlertCircle, CheckCircle2, Send } from 'lucide-react';
-import { RiskBadge } from '@/components/invest-model/ui';
 
 /**
  * CreatorModelDraftForm captures the required InvestmentModel draft metadata.
@@ -94,11 +92,18 @@ export function CreatorModelDraftForm({ copy }: CreatorModelDraftFormProps) {
   const [submitState, setSubmitState] = useState<SubmitState>({
     status: 'idle'
   });
-
-  const helperBadges = useMemo(
-    () => [copy.helper.mockOnly, copy.helper.noFileUpload],
-    [copy.helper.mockOnly, copy.helper.noFileUpload]
+  const helperLine = [copy.helper.mockOnly, copy.helper.noFileUpload].join(
+    ' / '
   );
+  const successMetaLine =
+    submitState.status === 'success'
+      ? [
+          copy.result.draftStatus,
+          copy.result.privateVisibility,
+          copy.result.metadataOnly,
+          submitState.modelPublicId
+        ].join(' / ')
+      : '';
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -159,13 +164,9 @@ export function CreatorModelDraftForm({ copy }: CreatorModelDraftFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-invest-card-gap">
-      <div className="flex flex-wrap gap-2">
-        {helperBadges.map((badge) => (
-          <RiskBadge key={badge} tone="blocked">
-            {badge}
-          </RiskBadge>
-        ))}
-      </div>
+      <p className="rounded-invest-control bg-invest-bg-soft px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted">
+        {helperLine}
+      </p>
 
       <div className="space-y-4 rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
         <TextField
@@ -287,11 +288,8 @@ export function CreatorModelDraftForm({ copy }: CreatorModelDraftFormProps) {
                 {submitState.message}
               </p>
               {submitState.status === 'success' ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <RiskBadge>{copy.result.draftStatus}</RiskBadge>
-                  <RiskBadge>{copy.result.privateVisibility}</RiskBadge>
-                  <RiskBadge tone="medium">{copy.result.metadataOnly}</RiskBadge>
-                  <RiskBadge tone="low">{submitState.modelPublicId}</RiskBadge>
+                <div className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted">
+                  {successMetaLine}
                 </div>
               ) : null}
             </div>

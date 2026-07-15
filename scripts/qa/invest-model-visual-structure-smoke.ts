@@ -385,6 +385,9 @@ const modelSelectionReadStatusSource = readProjectFile(
 const modelSelectionCtaSource = readProjectFile(
   'components/invest-model/model-selection-cta.tsx'
 );
+const creatorModelDraftFormSource = readProjectFile(
+  'components/invest-model/creator-model-draft-form.tsx'
+);
 const signalDetailPageSource = readProjectFile(
   'app/invest-model/signals/[signalId]/page.tsx'
 );
@@ -568,6 +571,20 @@ assertCondition(
   feedCommentActionSource.includes("feedCommentVisibleBoundaries(locale).join(' / ')") &&
     !feedCommentActionSource.includes('feedCommentVisibleBoundaries(locale).map((boundary) => ('),
   'Feed comment action must present safety boundaries as prose instead of hashtag safety chip groups'
+);
+assertCondition(
+  creatorModelDraftFormSource.includes('const helperLine') &&
+    creatorModelDraftFormSource.includes('const successMetaLine') &&
+    creatorModelDraftFormSource.includes('copy.helper.mockOnly') &&
+    creatorModelDraftFormSource.includes('copy.helper.noFileUpload') &&
+    creatorModelDraftFormSource.includes('copy.result.draftStatus') &&
+    creatorModelDraftFormSource.includes('copy.result.privateVisibility') &&
+    creatorModelDraftFormSource.includes('copy.result.metadataOnly') &&
+    creatorModelDraftFormSource.includes('submitState.modelPublicId') &&
+    creatorModelDraftFormSource.includes(".join(' / ')") &&
+    !creatorModelDraftFormSource.includes('RiskBadge') &&
+    !creatorModelDraftFormSource.includes('<RiskBadge'),
+  'CreatorModelDraftForm must present helper and submit status boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
   searchPageSource.includes("searchResultVisibleBoundaries(locale, kind).join(' / ')") &&
