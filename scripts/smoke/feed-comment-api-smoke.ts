@@ -9,6 +9,7 @@ import path from 'path';
 import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 import { POST } from '../../app/api/feed/[postId]/comments/route';
+import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
 const smokeCommentBody = 'BK-323 smoke informational comment';
@@ -48,6 +49,29 @@ async function applyTrackedFeedSeed() {
   });
 }
 
+async function readSeedUserId() {
+  return withMysqlConnection(async (connection) => {
+    const [rows] = await connection.query<mysql.RowDataPacket[]>(
+      "SELECT id FROM users WHERE public_id = 'user_demo_001' LIMIT 1"
+    );
+    const userId = rows[0]?.id;
+    assertCondition(
+      typeof userId === 'number',
+      'seed user id exists for session scope smoke'
+    );
+    return userId;
+  });
+}
+
+async function createSessionCookie(userId: number) {
+  const encryptedSession = await signToken({
+    user: { id: userId },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  return `session=${encryptedSession}`;
+}
+
 function commentRequest(postId: string, body: unknown, role = 'user') {
   return POST(
     new NextRequest(`http://localhost/api/feed/${postId}/comments`, {
@@ -64,8 +88,30 @@ function commentRequest(postId: string, body: unknown, role = 'user') {
   );
 }
 
+function commentRequestWithSession(
+  postId: string,
+  body: unknown,
+  sessionCookie: string
+) {
+  return POST(
+    new NextRequest(`http://localhost/api/feed/${postId}/comments`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        cookie: sessionCookie
+      },
+      body: JSON.stringify(body)
+    }),
+    {
+      params: Promise.resolve({ postId })
+    }
+  );
+}
+
 async function main() {
   await applyTrackedFeedSeed();
+  const seedUserId = await readSeedUserId();
+  const sessionCookie = await createSessionCookie(seedUserId);
 
   const forbiddenResponse = await POST(
     new NextRequest('http://localhost/api/feed/feed_mock_001/comments', {
@@ -107,6 +153,15 @@ async function main() {
     body: smokeCommentBody
   });
   const createJson = await createResponse.json();
+  const sessionScopedResponse = await commentRequestWithSession(
+    'feed_mock_001',
+    {
+      userPublicId: 'user_missing',
+      body: smokeCommentBody
+    },
+    sessionCookie
+  );
+  const sessionScopedJson = await sessionScopedResponse.json();
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(
@@ -148,6 +203,13 @@ async function main() {
       createJson.meta?.financialAdvice === false &&
       createJson.meta?.complianceApproval === false,
     'comment API keeps mock-safe action meta'
+  );
+  assertCondition(
+    sessionScopedResponse.status === 201 &&
+      sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === true,
+    'session role and user scope win for comment creation'
   );
 
   await withMysqlConnection(async (connection) => {
