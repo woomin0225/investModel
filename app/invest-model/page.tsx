@@ -10,8 +10,7 @@ import {
   modelSelectionReadStatusCopy,
   RiskBadge,
   SectionHeader,
-  SearchAndNotificationActions,
-  SoftBanner
+  SearchAndNotificationActions
 } from '@/components/invest-model';
 import {
   investModelCopy,
@@ -247,13 +246,6 @@ export default async function InvestModelPreviewPage({
           </div>
           <ModelSelectionReadStatus copy={modelSelectionReadStatusCopy[locale]} />
         </div>
-
-        <SoftBanner
-          eyebrow={homeCopy.bannerEyebrow}
-          title={homeCopy.signal.title}
-          description={homeCopy.signal.description}
-          icon={Radio}
-        />
 
         <div className="space-y-invest-card-gap">
           <SectionHeader

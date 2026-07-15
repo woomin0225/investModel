@@ -360,6 +360,7 @@ const topIconBarSource = readProjectFile(
   'components/invest-model/top-icon-bar.tsx'
 );
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
+const homePageSource = readProjectFile('app/invest-model/page.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
 const signalRefreshActionSource = readProjectFile(
   'components/invest-model/signal-refresh-action.tsx'
@@ -484,6 +485,13 @@ assertCondition(
 assertCondition(
   !feedPageSource.includes('Simulated list action state'),
   'Feed card actions must not describe DB-backed interactions as simulated list state'
+);
+assertCondition(
+  !homePageSource.includes('<SoftBanner') &&
+    homePageSource.includes('homeVisibleBoundaries') &&
+    homePageSource.includes('ModelSelectionReadStatus') &&
+    homePageSource.includes('homeCopy.footerBadges.noLiveOrders'),
+  'Home must not start with the top blue SoftBanner and must preserve mock/no-order safety context'
 );
 assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&
