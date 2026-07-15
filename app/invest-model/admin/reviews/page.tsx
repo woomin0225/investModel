@@ -178,10 +178,9 @@ function AdminReviewModelCard({
         </ul>
       </section>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <RiskBadge tone="blocked">{copy.blocked}</RiskBadge>
-        <RiskBadge>{model.blockedActionLabel}</RiskBadge>
-      </div>
+      <p className="mt-4 text-xs font-medium leading-5 text-invest-danger">
+        {copy.blocked}: {model.blockedActionLabel}
+      </p>
 
       <Link
         href={withInvestModelLocale(
