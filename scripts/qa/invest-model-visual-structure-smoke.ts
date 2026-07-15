@@ -693,15 +693,35 @@ assertCondition(
 );
 assertCondition(
   myPageSource.includes('No real account / No real orders / DB read model') &&
+    myPageSource.includes('{myPageScopeBadgeLabel(locale, myPageMeta)}') &&
+    myPageSource.includes("activitySummary.sourceLabel === 'db_read_model'") &&
     myPageSource.includes("summaryVisibleBoundaries.join(' / ')") &&
     myPageSource.includes("myPageActivityVisibleBoundaries(locale).join(' / ')") &&
     myPageSource.includes("myPageRecentActivityVisibleBoundaries(locale).join(' / ')") &&
     !myPageSource.includes('<ShieldCheck') &&
+    !myPageSource.includes('<RiskBadge\n            tone={myPageMeta.userScopeSource') &&
+    !myPageSource.includes('<RiskBadge\n                tone={\n                  activitySummary.sourceLabel') &&
     !myPageSource.includes('summaryVisibleBoundaries.map((boundary) => (') &&
     !myPageSource.includes('myPageActivityVisibleBoundaries(locale).map(') &&
     !myPageSource.includes('myPageRecentActivityVisibleBoundaries(locale).map(') &&
     !myPageSource.includes("{locale === 'ko' ? '실계좌 없음' : 'No real account'}\n            </RiskBadge>"),
   'My Page safety boundaries must use prose instead of hashtag safety chip groups'
+);
+assertCondition(
+  /<p className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{myPageScopeBadgeLabel\(locale, myPageMeta\)\}\s*<\/p>/.test(myPageSource) &&
+    !/<RiskBadge[\s\S]{0,240}myPageScopeBadgeLabel\(locale, myPageMeta\)[\s\S]{0,80}<\/RiskBadge>/.test(myPageSource),
+  'My Page summary scope/source must render as prose, not a RiskBadge'
+);
+assertCondition(
+  /<p className="shrink-0 text-right text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{activitySummary\.sourceLabel === 'db_read_model'\s*\?\s*'DB read model'\s*:\s*'mock-safe'\}\s*<\/p>/.test(myPageSource) &&
+    !/<RiskBadge[\s\S]{0,240}activitySummary\.sourceLabel === 'db_read_model'[\s\S]{0,120}<\/RiskBadge>/.test(myPageSource),
+  'My Page Recent FeedPost source label must render as prose, not a RiskBadge'
+);
+assertCondition(
+  myPageSource.includes('<RiskBadge tone="medium">{badge}</RiskBadge>') &&
+    myPageSource.includes('const badge =') &&
+    myPageSource.includes("index < 2 && activitySummary.sourceLabel === 'db_read_model'"),
+  'My Page activity row badges must remain functional metadata'
 );
 assertCondition(
   !modelsPageSource.includes('<SoftBanner') &&

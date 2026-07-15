@@ -394,13 +394,10 @@ export default async function InvestModelMyPage({
           />
         </div>
         <div className="rounded-invest-control bg-invest-surface-muted px-3 py-2">
-          <RiskBadge
-            tone={myPageMeta.userScopeSource === 'session' ? 'low' : 'medium'}
-            className="max-w-full"
-          >
+          <p className="text-[12px] font-semibold leading-5 text-invest-text-muted">
             {myPageScopeBadgeLabel(locale, myPageMeta)}
-          </RiskBadge>
-          <p className="mt-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+          </p>
+          <p className="mt-1 text-[12px] font-semibold leading-5 text-invest-text-muted">
             {summaryVisibleBoundaries.join(' / ')}
           </p>
         </div>
@@ -503,17 +500,11 @@ export default async function InvestModelMyPage({
                     : 'DB-backed saved and comment shortcuts for the current member, sorted by latest activity.'}
                 </p>
               </div>
-              <RiskBadge
-                tone={
-                  activitySummary.sourceLabel === 'db_read_model'
-                    ? 'low'
-                    : 'medium'
-                }
-              >
+              <p className="shrink-0 text-right text-[12px] font-semibold leading-5 text-invest-text-muted">
                 {activitySummary.sourceLabel === 'db_read_model'
                   ? 'DB read model'
                   : 'mock-safe'}
-              </RiskBadge>
+              </p>
             </div>
             <p className="mt-3 text-[12px] font-semibold leading-5 text-invest-text-muted">
               {myPageRecentActivityVisibleBoundaries(locale).join(' / ')}
