@@ -136,13 +136,9 @@ function EmptySearchResultCard({
       className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted"
     >
       <p>{message}</p>
-      <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
-        {searchResultVisibleBoundaries(locale, kind).map((boundary) => (
-          <RiskBadge key={boundary} tone="neutral">
-            {boundary}
-          </RiskBadge>
-        ))}
-      </div>
+      <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted">
+        {searchResultVisibleBoundaries(locale, kind).join(' / ')}
+      </p>
     </div>
   );
 }
@@ -555,14 +551,9 @@ export default async function InvestModelSearchPage({
               className="mt-0.5 size-5 shrink-0 text-invest-primary"
             />
             <div className="min-w-0">
-              <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="blocked">
-                  {locale === 'ko' ? 'No advice' : 'No advice'}
-                </RiskBadge>
-                <RiskBadge tone="medium">
-                  {locale === 'ko' ? 'No orders' : 'No orders'}
-                </RiskBadge>
-              </div>
+              <p className="text-xs font-semibold leading-5 text-invest-text-muted">
+                No advice / No orders
+              </p>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {locale === 'ko'
                   ? 'Search results are model discovery records, informational FeedPost records, and observed SignalEvent rows from the local DB-backed read model. They are not recommendations, model selections, return claims, broker actions, realtime external data, or account data.'

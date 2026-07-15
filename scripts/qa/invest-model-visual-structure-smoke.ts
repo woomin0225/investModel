@@ -371,6 +371,7 @@ const topIconBarSource = readProjectFile(
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const homePageSource = readProjectFile('app/invest-model/page.tsx');
 const myPageSource = readProjectFile('app/invest-model/my/page.tsx');
+const searchPageSource = readProjectFile('app/invest-model/search/page.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
 const signalRefreshActionSource = readProjectFile(
   'components/invest-model/signal-refresh-action.tsx'
@@ -523,6 +524,13 @@ assertCondition(
     !feedDetailPageSource.includes('{feedCopy.footerBadges.noAdvice}\n                </RiskBadge>') &&
     feedDetailPageSource.includes("{feedCopy.footerBadges.noAdvice} /{' '}"),
   'Feed detail must present action/footer safety boundaries as prose instead of hashtag safety chip groups'
+);
+assertCondition(
+  searchPageSource.includes("searchResultVisibleBoundaries(locale, kind).join(' / ')") &&
+    !searchPageSource.includes('searchResultVisibleBoundaries(locale, kind).map((boundary) => (') &&
+    !searchPageSource.includes("{locale === 'ko' ? 'No advice' : 'No advice'}\n                </RiskBadge>") &&
+    searchPageSource.includes('No advice / No orders'),
+  'Search must present empty/footer safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
   !feedPageSource.includes('Simulated list action state'),
