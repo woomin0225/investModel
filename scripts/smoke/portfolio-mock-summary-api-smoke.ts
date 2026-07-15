@@ -42,14 +42,10 @@ async function main() {
   );
   const summaryResponse = await readPortfolioSummary();
   const summaryJson = await summaryResponse.json();
-  const explicitDemoResponse = await readPortfolioSummary(
-    '?userPublicId=user_demo_001'
-  );
-  const explicitDemoJson = await explicitDemoResponse.json();
-  const ignoredClientUserResponse = await readPortfolioSummary(
+  const clientScopedResponse = await readPortfolioSummary(
     '?userPublicId=user_other_001'
   );
-  const ignoredClientUserJson = await ignoredClientUserResponse.json();
+  const clientScopedJson = await clientScopedResponse.json();
 
   assertCondition(
     forbiddenResponse.status === 403,
@@ -114,19 +110,14 @@ async function main() {
       summaryJson.meta?.brokerageConnection === false &&
       summaryJson.meta?.financialAdvice === false &&
       summaryJson.meta?.userScopeSource === 'demo_fallback' &&
-      summaryJson.meta?.clientUserPublicIdIgnored === false,
+      summaryJson.meta?.clientUserPublicIdIgnored === undefined,
     'portfolio summary keeps mock-safe API meta'
   );
   assertCondition(
-    explicitDemoResponse.status === 200 &&
-      explicitDemoJson.meta?.userPublicId === 'user_demo_001',
-    'explicit demo userPublicId is accepted'
-  );
-  assertCondition(
-    ignoredClientUserResponse.status === 200 &&
-      ignoredClientUserJson.meta?.userPublicId === 'user_demo_001' &&
-      ignoredClientUserJson.meta?.clientUserPublicIdIgnored === true,
-    'client userPublicId is ignored in favor of server-resolved user scope'
+    clientScopedResponse.status === 200 &&
+      clientScopedJson.meta?.userPublicId === 'user_demo_001' &&
+      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined,
+    'client userPublicId compatibility metadata is not exposed for portfolio summary'
   );
 
   await client.end();

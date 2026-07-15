@@ -48,7 +48,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const userScope = await resolveInvestModelUserScope(request);
+    const userScope = await resolveInvestModelUserScope(request, {
+      ignoreClientUserPublicId: true
+    });
     const summary = await readInvestModelPortfolioSummary(userScope.userPublicId);
 
     return Response.json({
@@ -69,7 +71,6 @@ export async function GET(request: NextRequest) {
         ],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        clientUserPublicIdIgnored: Boolean(userScope.ignoredClientUserPublicId),
         mockOnly: true,
         realDeposit: false,
         realBalance: false,
