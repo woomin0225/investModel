@@ -21,6 +21,9 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
   verification, and mock-only/observed-only safety boundaries.
+- `../search-read-model-projection.md` defines the BK-307 grouped local search
+  projection for InvestmentModel, SignalEvent, and FeedPost seed/read-model
+  rows. It keeps search local and read-only while IS-004 is open.
 
 ## Planned Seed Order
 
