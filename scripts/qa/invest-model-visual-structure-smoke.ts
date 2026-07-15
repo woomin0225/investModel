@@ -1013,6 +1013,37 @@ assertCondition(
   'Discover Models Korean search form copy must not fall back to English'
 );
 assertCondition(
+  modelsPageSource.includes("dbLabel: 'DB 읽기 모델'") &&
+    modelsPageSource.includes("unavailableTitle: 'DB 읽기 모델 사용 불가'") &&
+    modelsPageSource.includes("emptyTitle: 'DB 기반 공개 InvestmentModel 없음'") &&
+    modelsPageSource.includes(
+      "'현재 필터에 표시할 공개 투자 모델 데이터가 없습니다. 실제 주문이나 모델 선택은 생성되지 않았습니다.'"
+    ) &&
+    modelsPageSource.includes("marketplaceFallback: '마켓플레이스 모델'") &&
+    modelsPageSource.includes("mandateFallback: '모델 운용 범위'") &&
+    modelsPageSource.includes("backtestSuffix: '백테스트'") &&
+    modelsPageSource.includes("'승인/공개 모델'") &&
+    modelsPageSource.includes("'백테스트 대체 지표'") &&
+    modelsPageSource.includes("? '레버리지 허용'") &&
+    modelsPageSource.includes("? '레버리지 없음'") &&
+    !modelsPageSource.includes("ko: {\n    dbLabel: 'DB read model'") &&
+    !modelsPageSource.includes(
+      "ko: {\n    dbLabel: 'DB read model',\n    unavailableTitle: 'DB read model unavailable'"
+    ) &&
+    !modelsPageSource.includes(
+      "emptyTitle: 'No DB-backed InvestmentModels',\n    emptyDescription:\n      '현재 필터"
+    ) &&
+    !modelsPageSource.includes(
+      "ko: {\n    dbLabel: 'DB read model',\n    unavailableTitle: 'DB read model unavailable',\n    unavailableDescription:"
+    ) &&
+    !modelsPageSource.includes(
+      "'현재 필터에 표시할 공개 InvestmentModel DTO가 없습니다."
+    ) &&
+    !modelsPageSource.includes("'백테스트 placeholder'") &&
+    !modelsPageSource.includes("card.leverageAllowed ? 'leverage allowed'"),
+  'Discover Models Korean read-model copy must not fall back to English'
+);
+assertCondition(
   modelComparePageSource.includes("visibleBoundaries.join(' / ')") &&
     !modelComparePageSource.includes('visibleBoundaries.map((boundary) => (') &&
     !modelComparePageSource.includes('<RiskBadge tone="blocked">No live orders</RiskBadge>') &&
@@ -1059,8 +1090,16 @@ assertCondition(
 );
 assertCondition(
   modelDetailPageSource.includes("dbDetailLabel: 'DB 조회 모델 상세'") &&
+    modelDetailPageSource.includes("mockFallbackLabel: '모의 상세 대체 데이터'") &&
+    modelDetailPageSource.includes("riskTitleFallback: '위험과 제한'") &&
+    modelDetailPageSource.includes("limitationTitleFallback: 'MVP 금지 동작'") &&
+    modelDetailPageSource.includes("disclosureTitleFallback: '공시'") &&
+    modelDetailPageSource.includes("actionLabelFallback: '선택 전 검토'") &&
     modelDetailPageSource.includes(
       "noRealOrder: '실제 주문, 입금, 브로커 연결은 생성되지 않습니다.'"
+    ) &&
+    modelDetailPageSource.includes(
+      "'백테스트와 대체 지표는 미래 성과를 의미하지 않습니다.'"
     ) &&
     modelDetailPageSource.includes("backtestLabel: '백테스트'") &&
     modelDetailPageSource.includes("maxDrawdownLabel: '최대 낙폭'") &&
@@ -1068,7 +1107,7 @@ assertCondition(
     modelDetailPageSource.includes("derivativeAllowed: '파생상품 허용'") &&
     modelDetailPageSource.includes("shortSellingAllowed: '공매도 허용'") &&
     modelDetailPageSource.includes(
-      "emptySectionFallback:\n      'DB read-model 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'"
+      "emptySectionFallback:\n      'DB 읽기 모델 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'"
     ) &&
     modelDetailPageSource.includes("'승인/공개 모델'") &&
     modelDetailPageSource.includes("'ModelVersion 맥락'") &&
@@ -1081,6 +1120,18 @@ assertCondition(
     modelDetailPageSource.includes("backtestLabel: 'Backtest'") &&
     modelDetailPageSource.includes('label: readCopy.backtestLabel') &&
     modelDetailPageSource.includes('label: readCopy.maxDrawdownLabel') &&
+    !modelDetailPageSource.includes("mockFallbackLabel: 'Mock 상세 대체 데이터'") &&
+    !modelDetailPageSource.includes('공시 행은 DB read-model 맥락일 뿐이며') &&
+    !modelDetailPageSource.includes(
+      "emptySectionFallback:\n      'DB read-model 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'"
+    ) &&
+    !modelDetailPageSource.includes('로그인된 사용자 public id를 찾지 못했습니다') &&
+    !modelDetailPageSource.includes('샘플 사용자 seed') &&
+    !modelDetailPageSource.includes("?? 'Model mandate'") &&
+    !modelDetailPageSource.includes("?? 'Risks and limits'") &&
+    !modelDetailPageSource.includes("?? 'MVP forbidden actions'") &&
+    !modelDetailPageSource.includes("?? 'Disclosure'") &&
+    !modelDetailPageSource.includes("?? 'Review before selection'") &&
     !modelDetailPageSource.includes("label: 'Backtest'") &&
     !modelDetailPageSource.includes("label: 'Max drawdown'") &&
     !/<RiskBadge\b[\s\S]{0,180}No recommendation[\s\S]{0,80}<\/RiskBadge>/.test(

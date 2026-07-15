@@ -32,7 +32,7 @@ type InvestmentModelDetailView = MockInvestmentModelDetail & {
 const detailReadModelCopy = {
   ko: {
     dbDetailLabel: 'DB 조회 모델 상세',
-    mockFallbackLabel: 'Mock 상세 대체 데이터',
+    mockFallbackLabel: '모의 상세 대체 데이터',
     leverageAllowed: '레버리지 허용',
     noLeverageFlag: '레버리지 없음',
     derivativeAllowed: '파생상품 허용',
@@ -40,16 +40,20 @@ const detailReadModelCopy = {
     userOverrideBlocked: '사용자 임의 변경 비활성',
     noRealOrder: '실제 주문, 입금, 브로커 연결은 생성되지 않습니다.',
     noFutureReturn:
-      '백테스트와 placeholder 지표는 미래 성과를 의미하지 않습니다.',
+      '백테스트와 대체 지표는 미래 성과를 의미하지 않습니다.',
     mandateFallback: '모델 운용 범위',
+    riskTitleFallback: '위험과 제한',
+    limitationTitleFallback: 'MVP 금지 동작',
+    disclosureTitleFallback: '공시',
+    actionLabelFallback: '선택 전 검토',
     disclosureFallback:
-      '공시 행은 DB read-model 맥락일 뿐이며 실제 운영 전 적격 검토가 필요합니다.',
+      '공시 행은 DB 읽기 모델 맥락일 뿐이며 실제 운영 전 적격 검토가 필요합니다.',
     updatedFallback: 'DB 스냅샷',
     volatilityLabel: '변동성',
     backtestLabel: '백테스트',
     maxDrawdownLabel: '최대 낙폭',
     emptySectionFallback:
-      'DB read-model 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'
+      'DB 읽기 모델 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'
   },
   en: {
     dbDetailLabel: 'DB read model detail',
@@ -63,6 +67,10 @@ const detailReadModelCopy = {
     noFutureReturn:
       'Backtest and placeholder metrics do not imply future performance.',
     mandateFallback: 'Model mandate',
+    riskTitleFallback: 'Risks and limits',
+    limitationTitleFallback: 'MVP forbidden actions',
+    disclosureTitleFallback: 'Disclosure',
+    actionLabelFallback: 'Review before selection',
     disclosureFallback:
       'Disclosure rows are DB read-model context only and still require qualified review before production use.',
     updatedFallback: 'DB snapshot',
@@ -107,7 +115,7 @@ export default async function InvestModelDetailPage({
           duplicateTitle: '이미 저장된 선택 기록입니다',
           errorTitle: '선택 기록을 저장하지 못했습니다',
           signedOutMessage:
-            '로그인된 사용자 public id를 찾지 못했습니다. 샘플 사용자 seed 또는 로그인이 필요합니다.',
+            '로그인된 사용자 공개 ID를 찾지 못했습니다. 샘플 사용자 데이터 또는 로그인이 필요합니다.',
           safetyLabel: '실입금/실주문 아님',
           persistedLabel: 'DB 저장됨',
           noLiveTradingLabel: copy.noLiveTradingLabel
@@ -556,7 +564,7 @@ function toInvestmentModelDetailView(
         description: model.risk.summary ?? readCopy.noFutureReturn
       }
     ],
-    mandateTitle: copy.models[0]?.mandateTitle ?? 'Model mandate',
+    mandateTitle: copy.models[0]?.mandateTitle ?? readCopy.mandateFallback,
     mandateItems: compactDetailItems([
       model.strategySummary,
       model.assetUniverseSummary,
@@ -565,7 +573,7 @@ function toInvestmentModelDetailView(
       model.mandate.leveragePolicy,
       model.mandate.rebalancePolicy
     ], readCopy.emptySectionFallback),
-    riskTitle: copy.models[0]?.riskTitle ?? 'Risks and limits',
+    riskTitle: copy.models[0]?.riskTitle ?? readCopy.riskTitleFallback,
     riskItems: compactDetailItems([
       model.risk.summary,
       model.risk.derivativeAllowed ? readCopy.derivativeAllowed : undefined,
@@ -573,7 +581,8 @@ function toInvestmentModelDetailView(
       model.maxDrawdown.display,
       readCopy.noFutureReturn
     ], readCopy.emptySectionFallback),
-    limitationTitle: copy.models[0]?.limitationTitle ?? 'MVP forbidden actions',
+    limitationTitle:
+      copy.models[0]?.limitationTitle ?? readCopy.limitationTitleFallback,
     limitationItems: compactDetailItems([
       model.forbiddenScope,
       model.mandate.forbiddenAssets,
@@ -582,9 +591,10 @@ function toInvestmentModelDetailView(
         : readCopy.userOverrideBlocked,
       readCopy.noRealOrder
     ], readCopy.emptySectionFallback),
-    disclosureTitle: copy.models[0]?.disclosureTitle ?? 'Disclosure',
+    disclosureTitle:
+      copy.models[0]?.disclosureTitle ?? readCopy.disclosureTitleFallback,
     disclosureDescription,
-    actionLabel: copy.models[0]?.actionLabel ?? 'Review before selection',
+    actionLabel: copy.models[0]?.actionLabel ?? readCopy.actionLabelFallback,
     dataContext: 'db_read_model'
   };
 }
