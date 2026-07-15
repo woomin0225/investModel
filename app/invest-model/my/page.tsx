@@ -33,6 +33,20 @@ type InvestModelMyPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
+type MyPageSummaryRouteMeta = {
+  userScopeSource?: 'session' | 'demo_fallback';
+  clientUserPublicIdIgnored?: boolean;
+  readOnly?: boolean;
+  realAccountConnection?: boolean;
+  realOrder?: boolean;
+  financialAdvice?: boolean;
+};
+
+type MyPageSummaryRouteResult = {
+  data: MyPageSummaryDto;
+  meta: MyPageSummaryRouteMeta;
+};
+
 function getActivitySortTime(activityAt?: string) {
   if (!activityAt) {
     return 0;
@@ -42,7 +56,7 @@ function getActivitySortTime(activityAt?: string) {
   return Number.isNaN(time) ? 0 : time;
 }
 
-async function readMyPageSummaryRoute(): Promise<MyPageSummaryDto> {
+async function readMyPageSummaryRoute(): Promise<MyPageSummaryRouteResult> {
   const response = await readMySummary(
     new NextRequest('http://localhost/api/my', {
       method: 'GET',
@@ -58,13 +72,17 @@ async function readMyPageSummaryRoute(): Promise<MyPageSummaryDto> {
 
   const payload = (await response.json()) as {
     data?: MyPageSummaryDto;
+    meta?: MyPageSummaryRouteMeta;
   };
 
   if (!payload.data) {
     throw new Error('My Page summary route returned no data.');
   }
 
-  return payload.data;
+  return {
+    data: payload.data,
+    meta: payload.meta ?? {}
+  };
 }
 
 function myPageActivityAccessibleLabel(
@@ -136,6 +154,30 @@ function myPageSummaryVisibleBoundaries(locale: 'ko' | 'en') {
         'not advice',
         'no push delivery'
       ];
+}
+
+function myPageScopeBadgeLabel(
+  locale: 'ko' | 'en',
+  meta: MyPageSummaryRouteMeta
+) {
+  if (meta.userScopeSource === 'session') {
+    return locale === 'ko' ? '세션 회원 범위' : 'Session member scope';
+  }
+
+  return locale === 'ko'
+    ? '프로토타입 demo fallback'
+    : 'Prototype demo fallback';
+}
+
+function myPageScopeAccessibleLabel(
+  locale: 'ko' | 'en',
+  meta: MyPageSummaryRouteMeta
+) {
+  const scopeLabel = myPageScopeBadgeLabel(locale, meta);
+
+  return locale === 'ko'
+    ? `${scopeLabel}. My Page는 API의 userScopeSource를 기준으로 현재 회원 DB read model 또는 프로토타입 fallback 상태를 구분합니다. 클라이언트가 보낸 userPublicId로 회원 범위를 바꾸지 않습니다.`
+    : `${scopeLabel}. My Page distinguishes current member DB read model state from prototype fallback through the API userScopeSource. Client-provided userPublicId does not change the member scope.`;
 }
 
 const myPageCopy = {
@@ -248,7 +290,9 @@ export default async function InvestModelMyPage({
 }: InvestModelMyPageProps) {
   const locale = resolveInvestModelLocale(await searchParams);
   const copy = myPageCopy[locale];
-  const myPageSummary = await readMyPageSummaryRoute();
+  const myPageRouteResult = await readMyPageSummaryRoute();
+  const myPageSummary = myPageRouteResult.data;
+  const myPageMeta = myPageRouteResult.meta;
   const activitySummary = myPageSummary.feedActivity;
   const notificationSummary = myPageSummary.notificationSummary;
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
@@ -276,6 +320,7 @@ export default async function InvestModelMyPage({
         ? '대기'
         : 'pending';
   const safetyAccessibleLabel = myPageSafetyAccessibleLabel(locale);
+  const scopeAccessibleLabel = myPageScopeAccessibleLabel(locale, myPageMeta);
   const summaryVisibleBoundaries = myPageSummaryVisibleBoundaries(locale);
   const recentActivityRows = [
     ...activitySummary.recentSavedPosts.map((item) => ({
@@ -349,12 +394,27 @@ export default async function InvestModelMyPage({
           />
         </div>
         <div className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-3 py-2">
+          <RiskBadge
+            tone={myPageMeta.userScopeSource === 'session' ? 'low' : 'medium'}
+            className="max-w-full"
+          >
+            {myPageScopeBadgeLabel(locale, myPageMeta)}
+          </RiskBadge>
           {summaryVisibleBoundaries.map((boundary) => (
             <RiskBadge key={boundary} tone="neutral">
               {boundary}
             </RiskBadge>
           ))}
         </div>
+        <p
+          aria-label={scopeAccessibleLabel}
+          title={scopeAccessibleLabel}
+          className="text-[12px] leading-5 text-invest-text-muted"
+        >
+          {locale === 'ko'
+            ? '회원 범위는 API userScopeSource로 확인하며, 화면 값은 현재 회원 DB read model 또는 프로토타입 fallback만 표시합니다.'
+            : 'Member scope is confirmed through the API userScopeSource, and this screen shows only current member DB read models or prototype fallback state.'}
+        </p>
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
