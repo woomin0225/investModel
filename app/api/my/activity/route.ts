@@ -70,6 +70,8 @@ export async function GET(request: NextRequest) {
           'feed_post_saves',
           'feed_post_comments'
         ],
+        feedActivityReadModelSource: 'feed_post_saves_and_comments',
+        dataContext: activitySummary.sourceLabel,
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
         readOnly: true,

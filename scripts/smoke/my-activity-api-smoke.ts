@@ -130,6 +130,7 @@ async function main() {
   assertCondition(activityResponse.status === 200, 'my activity responds');
   assertCondition(
     activityJson.data?.userPublicId === 'user_demo_001' &&
+      activityJson.data?.sourceLabel === 'db_read_model' &&
       typeof activityJson.data?.savedCount === 'number' &&
       typeof activityJson.data?.commentCount === 'number' &&
       Array.isArray(activityJson.data?.recentSavedPosts) &&
@@ -148,6 +149,11 @@ async function main() {
   assertCondition(
     activityJson.meta?.routeStatus === 'db_backed' &&
       activityJson.meta?.readOnly === true &&
+      activityJson.meta?.feedActivityReadModelSource ===
+        'feed_post_saves_and_comments' &&
+      activityJson.meta?.dataContext === 'db_read_model' &&
+      activityJson.meta?.sourceTables?.includes('feed_post_saves') &&
+      activityJson.meta?.sourceTables?.includes('feed_post_comments') &&
       activityJson.meta?.userScopeSource === 'demo_fallback' &&
       activityJson.meta?.clientUserPublicIdIgnored === undefined &&
       activityJson.meta?.sendsRealPush === false &&
