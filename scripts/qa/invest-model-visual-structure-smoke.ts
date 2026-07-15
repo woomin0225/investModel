@@ -646,9 +646,13 @@ assertCondition(
     portfolioPageSource.includes('portfolio.allocationDecision.statusLabel') &&
     portfolioPageSource.includes('portfolio.tradeIntent.statusLabel') &&
     portfolioPageSource.includes('Portfolio time dashboard read-model trace') &&
+    portfolioPageSource.includes("timeDashboardVisibleBoundaries.join(' / ')") &&
+    portfolioPageSource.includes("blockedVisibleBoundaries.join(' / ')") &&
+    !portfolioPageSource.includes('timeDashboardVisibleBoundaries.map((boundary) => (') &&
+    !portfolioPageSource.includes('blockedVisibleBoundaries.map((boundary) => (') &&
     portfolioPageSource.includes('portfolio.timeSnapshots.length') &&
     portfolioPageSource.includes('position.quantityLabel'),
-  'Portfolio must start with the DB-backed time dashboard summary instead of top simulation banner/metric cards'
+  'Portfolio must start with the DB-backed time dashboard summary and present safety boundaries as prose instead of top simulation banner/metric cards or hashtag safety chip groups'
 );
 
 const screenResults = screens.map((screen) => {

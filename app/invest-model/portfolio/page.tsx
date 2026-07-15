@@ -315,13 +315,9 @@ export default async function InvestModelPortfolioPage({
               <RiskBadge tone="blocked">{copy.noBrokerage}</RiskBadge>
             </div>
           </div>
-          <div className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-3 py-2">
-            {timeDashboardVisibleBoundaries.map((boundary) => (
-              <RiskBadge key={boundary} tone="neutral">
-                {boundary}
-              </RiskBadge>
-            ))}
-          </div>
+          <p className="rounded-invest-control bg-invest-surface-muted px-3 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+            {timeDashboardVisibleBoundaries.join(' / ')}
+          </p>
           <div
             aria-label="Portfolio time dashboard read-model trace"
             className="grid gap-2 rounded-invest-card border border-invest-primary/10 bg-invest-primary-soft/35 p-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto]"
@@ -646,21 +642,21 @@ export default async function InvestModelPortfolioPage({
                   </span>
                 ))}
               </div>
-              <div
-                role="list"
+              <p
                 aria-label={
                   locale === 'ko'
                     ? 'Portfolio mock summary 안전 경계'
                     : 'Portfolio mock summary safety boundaries'
                 }
-                className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control border border-invest-risk/10 bg-invest-surface px-2 py-2"
+                title={
+                  locale === 'ko'
+                    ? 'Portfolio mock summary 안전 경계'
+                    : 'Portfolio mock summary safety boundaries'
+                }
+                className="mt-3 rounded-invest-control border border-invest-risk/10 bg-invest-surface px-2 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted"
               >
-                {blockedVisibleBoundaries.map((boundary) => (
-                  <span key={boundary} role="listitem">
-                    <RiskBadge tone="neutral">{boundary}</RiskBadge>
-                  </span>
-                ))}
-              </div>
+                {blockedVisibleBoundaries.join(' / ')}
+              </p>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {copy.footer}
               </p>
