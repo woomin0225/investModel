@@ -82,6 +82,15 @@ const smokeCommands: SmokeCommand[] = [
     covers: ['recent like ranking']
   },
   {
+    name: 'client-user-scope-contract',
+    command: [
+      'npx',
+      'tsx',
+      'scripts/qa/invest-model-client-user-scope-smoke.ts'
+    ],
+    covers: ['client user scope contract', 'no userPublicId forwarding']
+  },
+  {
     name: 'portfolio-mock-summary-api',
     command: [
       'npx',
