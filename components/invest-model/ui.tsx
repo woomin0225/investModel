@@ -360,7 +360,9 @@ export function PerformanceMetricGroup({
             {description}
           </p>
         </div>
-        <RiskBadge tone="neutral">{sourceLabel}</RiskBadge>
+        <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+          {sourceLabel}
+        </span>
       </div>
 
       <div

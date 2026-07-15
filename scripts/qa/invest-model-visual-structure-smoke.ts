@@ -806,6 +806,30 @@ assertCondition(
     !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{portfolio\.mockDeposit\.sourceLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
       portfolioPageSource
     ) &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{position\.sourceLabel\}\s*<\/span>/.test(
+      portfolioPageSource
+    ) &&
+    !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{position\.sourceLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
+      portfolioPageSource
+    ) &&
+    /<RiskBadge\b[^>]*>[\s\S]{0,160}\{position\.stateLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
+      portfolioPageSource
+    ) &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{sourceLabel\}\s*<\/span>/.test(
+      investModelUiSource
+    ) &&
+    !/<RiskBadge\b[^>]*tone="neutral"[^>]*>\s*\{sourceLabel\}\s*<\/RiskBadge>/.test(
+      investModelUiSource
+    ) &&
+    investModelUiSource.includes(
+      "<RiskBadge tone={tone === 'risk' ? 'high' : 'low'}>{trend}</RiskBadge>"
+    ) &&
+    investModelUiSource.includes(
+      '<RiskBadge tone={riskTone}>{riskLabel}</RiskBadge>'
+    ) &&
+    investModelUiSource.includes(
+      '<RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>'
+    ) &&
     portfolioPageSource.includes('portfolio.tradeIntent.blockedActions.map((action) => (') &&
     portfolioPageSource.includes('role="listitem"') &&
     !/<RiskBadge\b[^>]*tone="blocked"[^>]*>[\s\S]{0,240}\{action\}[\s\S]{0,80}<\/RiskBadge>/.test(

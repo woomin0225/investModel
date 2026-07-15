@@ -537,7 +537,9 @@ export default async function InvestModelPortfolioPage({
                       {position.stateLabel}
                     </RiskBadge>
                     <div className="flex flex-wrap justify-end gap-2">
-                      <RiskBadge>{position.sourceLabel}</RiskBadge>
+                      <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+                        {position.sourceLabel}
+                      </span>
                       <RiskBadge tone="medium">
                         {locale === 'ko' ? '관찰 데이터' : 'observed data'}
                       </RiskBadge>
