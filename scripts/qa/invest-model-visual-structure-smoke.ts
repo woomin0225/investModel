@@ -625,6 +625,14 @@ assertCondition(
     !searchPageSource.includes("searchResultVisibleBoundaries(\n                            locale,\n                            'InvestmentModel'\n                          ).map((boundary) => (") &&
     !searchPageSource.includes("searchResultVisibleBoundaries(locale, 'FeedPost').map(") &&
     !searchPageSource.includes("searchResultVisibleBoundaries(\n                          locale,\n                          'SignalEvent'\n                        ).map((boundary) => (") &&
+    searchPageSource.includes('DB FeedPost') &&
+    searchPageSource.includes('DB SignalEvent') &&
+    /<RiskBadge\b[^>]*>\s*\{post\.postType\}\s*<\/RiskBadge>/.test(searchPageSource) &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*DB FeedPost\s*<\/span>/.test(searchPageSource) &&
+    !/<RiskBadge\b[^>]*>\s*DB FeedPost\s*<\/RiskBadge>/.test(searchPageSource) &&
+    /<RiskBadge\b[^>]*>\s*\{signal\.signalType\}\s*<\/RiskBadge>/.test(searchPageSource) &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*DB SignalEvent\s*<\/span>/.test(searchPageSource) &&
+    !/<RiskBadge\b[^>]*>\s*DB SignalEvent\s*<\/RiskBadge>/.test(searchPageSource) &&
     !searchPageSource.includes("{locale === 'ko' ? 'No advice' : 'No advice'}\n                </RiskBadge>") &&
     searchPageSource.includes('No advice / No orders'),
   'Search must present result/empty/footer safety boundaries as prose instead of hashtag safety chip groups'

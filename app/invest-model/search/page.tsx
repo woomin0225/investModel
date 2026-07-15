@@ -401,9 +401,11 @@ export default async function InvestModelSearchPage({
                       <Database aria-hidden className="size-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <RiskBadge tone="neutral">{post.postType}</RiskBadge>
-                        <RiskBadge tone="medium">DB FeedPost</RiskBadge>
+                        <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+                          DB FeedPost
+                        </span>
                       </div>
                       <h2 className="mt-2 line-clamp-2 text-[16px] font-bold leading-6 text-invest-text">
                         {post.title}
@@ -481,11 +483,13 @@ export default async function InvestModelSearchPage({
                       <Activity aria-hidden className="size-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <RiskBadge tone="neutral">
                           {signal.signalType}
                         </RiskBadge>
-                        <RiskBadge tone="medium">DB SignalEvent</RiskBadge>
+                        <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+                          DB SignalEvent
+                        </span>
                       </div>
                       <h2 className="mt-2 line-clamp-2 text-[16px] font-bold leading-6 text-invest-text">
                         {signal.title}
