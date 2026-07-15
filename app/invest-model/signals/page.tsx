@@ -306,6 +306,10 @@ export default async function InvestModelSignalsPage({
   const copy = investModelCopy[locale];
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const signalsCopy = copy.signals;
+  const signalsFooterSafetyLines = [
+    signalsCopy.footerBadges.noRecommendation,
+    signalsCopy.footerBadges.mockData
+  ];
   const { summary, filters, signals: fallbackSignals } = signalsCopy;
   const filterOptions = signalFilterIds.map((filterId, index) => ({
     id: filterId,
@@ -619,14 +623,9 @@ export default async function InvestModelSignalsPage({
               className="mt-0.5 size-5 shrink-0 text-invest-risk"
             />
             <div className="min-w-0">
-              <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="blocked">
-                  {signalsCopy.footerBadges.noRecommendation}
-                </RiskBadge>
-                <RiskBadge tone="medium">
-                  {signalsCopy.footerBadges.mockData}
-                </RiskBadge>
-              </div>
+              <p className="text-xs font-semibold uppercase leading-5 text-invest-text-muted">
+                {signalsFooterSafetyLines.join(' / ')}
+              </p>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {signalsCopy.footer}
               </p>
