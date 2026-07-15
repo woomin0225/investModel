@@ -11,6 +11,7 @@ import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 import { GET } from '../../app/api/signals/route';
 import { client } from '../../lib/db/drizzle';
+import { calculateMockSignalScoreSnapshots } from '../../lib/db/signal-scoring-service';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -45,6 +46,9 @@ async function readSignals(search = '') {
 
 async function main() {
   await applyTrackedSignalSeed();
+  await calculateMockSignalScoreSnapshots({
+    capturedAt: new Date('2026-01-01T00:00:00.000Z')
+  });
 
   const forbiddenResponse = await GET(
     new NextRequest('http://localhost/api/signals', {
@@ -79,6 +83,21 @@ async function main() {
       }
     ),
     'signal list exposes public ids and numeric scores only'
+  );
+  assertCondition(
+    listJson.data.every(
+      (signal: {
+        scoreSnapshot?: {
+          rankValue?: number | null;
+          rankDeltaDisplay?: string;
+          calculationContext?: string;
+        };
+      }) =>
+        typeof signal.scoreSnapshot?.rankValue === 'number' &&
+        typeof signal.scoreSnapshot?.rankDeltaDisplay === 'string' &&
+        signal.scoreSnapshot?.calculationContext === 'mock_seed'
+    ),
+    'signal list exposes latest mock-safe score snapshots'
   );
   assertCondition(
     listJson.meta?.routeStatus === 'db_backed' &&

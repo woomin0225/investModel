@@ -5,7 +5,8 @@ import {
   investmentModels,
   marketInstruments,
   modelSignalEvents,
-  modelVersions
+  modelVersions,
+  signalScoreSnapshots
 } from '@/lib/db/schema';
 import {
   buildSignalEventDto,
@@ -20,6 +21,7 @@ interface ReadSignalEventDtosInput {
 
 function signalEventSelectFields() {
   return {
+    signalEventId: modelSignalEvents.id,
     signalPublicId: modelSignalEvents.publicId,
     modelVersionPublicId: modelVersions.publicId,
     linkedModelName: investmentModels.name,
@@ -31,6 +33,40 @@ function signalEventSelectFields() {
     sourceInstrumentName: marketInstruments.name,
     capturedAt: modelSignalEvents.createdAt
   };
+}
+
+type SignalEventReadRow = Awaited<
+  ReturnType<ReturnType<typeof signalEventBaseQuery>['limit']>
+>[number];
+
+async function readLatestScoreSnapshot(signalEventId: number) {
+  const rows = await db
+    .select({
+      snapshotTotalScore: signalScoreSnapshots.totalScore,
+      snapshotRankValue: signalScoreSnapshots.rankValue,
+      snapshotRankDelta: signalScoreSnapshots.rankDelta,
+      snapshotCapturedAt: signalScoreSnapshots.capturedAt,
+      snapshotCalculationContext: signalScoreSnapshots.calculationContext
+    })
+    .from(signalScoreSnapshots)
+    .where(eq(signalScoreSnapshots.signalEventId, signalEventId))
+    .orderBy(desc(signalScoreSnapshots.capturedAt))
+    .limit(1);
+
+  return rows[0] ?? null;
+}
+
+async function attachLatestScoreSnapshots(rows: SignalEventReadRow[]) {
+  return Promise.all(
+    rows.map(async (row) => {
+      const snapshot = await readLatestScoreSnapshot(row.signalEventId);
+
+      return {
+        ...row,
+        ...snapshot
+      };
+    })
+  );
 }
 
 function signalEventBaseQuery() {
@@ -63,7 +99,9 @@ export async function readSignalEventDtos({
     .orderBy(desc(modelSignalEvents.score), desc(modelSignalEvents.createdAt))
     .limit(limit);
 
-  return rows.map(buildSignalEventDto);
+  const rowsWithSnapshots = await attachLatestScoreSnapshots(rows);
+
+  return rowsWithSnapshots.map(buildSignalEventDto);
 }
 
 export async function readSignalEventDtoByPublicId(
@@ -73,5 +111,7 @@ export async function readSignalEventDtoByPublicId(
     .where(eq(modelSignalEvents.publicId, signalPublicId))
     .limit(1);
 
-  return rows[0] ? buildSignalEventDto(rows[0]) : null;
+  const rowsWithSnapshots = await attachLatestScoreSnapshots(rows);
+
+  return rowsWithSnapshots[0] ? buildSignalEventDto(rowsWithSnapshots[0]) : null;
 }

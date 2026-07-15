@@ -183,6 +183,45 @@ function signalScoreSnapshotVisibleBoundaries(locale: SignalLocale) {
       ];
 }
 
+function signalScoreSnapshotRows(locale: SignalLocale, signal: SignalEventDto) {
+  const snapshot = signal.scoreSnapshot;
+
+  if (!snapshot) {
+    return [
+      {
+        label: locale === 'ko' ? 'Score snapshot rank' : 'Score snapshot rank',
+        value:
+          locale === 'ko'
+            ? 'No DB score snapshot is available yet.'
+            : 'No DB score snapshot is available yet.'
+      }
+    ];
+  }
+
+  return [
+    {
+      label: locale === 'ko' ? 'Snapshot rank' : 'Snapshot rank',
+      value: snapshot.rankLabel
+    },
+    {
+      label: locale === 'ko' ? 'Rank movement' : 'Rank movement',
+      value: snapshot.rankDeltaDisplay
+    },
+    {
+      label: locale === 'ko' ? 'Snapshot score' : 'Snapshot score',
+      value: snapshot.totalScoreDisplay
+    },
+    {
+      label: locale === 'ko' ? 'Calculated at' : 'Calculated at',
+      value: formatCapturedAt(snapshot.capturedAt, locale)
+    },
+    {
+      label: locale === 'ko' ? 'Calculation context' : 'Calculation context',
+      value: snapshot.calculationContext
+    }
+  ];
+}
+
 function signalEvidenceVisibleBoundaries(locale: SignalLocale) {
   return locale === 'ko'
     ? [
@@ -286,6 +325,7 @@ export default async function InvestModelSignalDetailPage({
       value: formatCapturedAt(signal.capturedAt, locale)
     }
   ];
+  const scoreSnapshotRows = signalScoreSnapshotRows(locale, signal);
   const evidenceRows = [
     {
       label: locale === 'ko' ? '관련 뉴스 맥락' : 'Related news context',
@@ -321,9 +361,9 @@ export default async function InvestModelSignalDetailPage({
     {
       label: locale === 'ko' ? '점수 변동 기록' : 'Score movement history',
       value:
-        locale === 'ko'
-          ? `${signal.scoreDisplay}. BK-266 점수 스냅샷 전까지 현재 DB SignalEvent 점수를 최신 관찰값으로 표시합니다.`
-          : `${signal.scoreDisplay}. Until BK-266 score snapshots are implemented, the current DB SignalEvent score is shown as the latest observation.`
+        signal.scoreSnapshot
+          ? `${signal.scoreSnapshot.rankLabel}, ${signal.scoreSnapshot.rankDeltaDisplay}, ${signal.scoreSnapshot.totalScoreDisplay}. DB score snapshot rank only, not advice or order.`
+          : `${signal.scoreDisplay}. No DB score snapshot is available yet.`
     }
   ];
 
@@ -439,6 +479,32 @@ export default async function InvestModelSignalDetailPage({
               <RiskBadge key={boundary} tone="neutral">
                 {boundary}
               </RiskBadge>
+            ))}
+          </div>
+
+          <div className="mt-3 grid gap-2 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="min-w-0 text-[15px] font-bold leading-6 text-invest-text">
+                {locale === 'ko'
+                  ? 'Score snapshot rank'
+                  : 'Score snapshot rank'}
+              </h3>
+              <RiskBadge tone="neutral">
+                {locale === 'ko' ? 'DB read model' : 'DB read model'}
+              </RiskBadge>
+            </div>
+            {scoreSnapshotRows.map((row) => (
+              <div
+                key={row.label}
+                className="grid gap-1 rounded-invest-control bg-invest-surface p-2 min-[360px]:grid-cols-[minmax(0,0.42fr)_minmax(0,1fr)]"
+              >
+                <p className="text-[12px] font-bold leading-4 text-invest-text-muted">
+                  {row.label}
+                </p>
+                <p className="min-w-0 text-sm font-semibold leading-5 text-invest-text">
+                  {row.value}
+                </p>
+              </div>
             ))}
           </div>
 

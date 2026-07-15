@@ -185,16 +185,36 @@ function signalStatusLabel(locale: SignalLocale, signal: SignalEventDto) {
     : 'Observed input for model context only. It is not advice or order creation.';
 }
 
+function signalRankSnapshotLabel(locale: SignalLocale, signal: SignalEventDto) {
+  const snapshot = signal.scoreSnapshot;
+
+  if (!snapshot) {
+    return null;
+  }
+
+  return {
+    rankLabel: snapshot.rankLabel,
+    scoreLabel: snapshot.totalScoreDisplay,
+    deltaLabel: snapshot.rankDeltaDisplay,
+    capturedAtLabel: formatCapturedAt(snapshot.capturedAt, locale),
+    contextLabel:
+      snapshot.calculationContext === 'mock_seed'
+        ? 'mock seed rank'
+        : snapshot.calculationContext
+  };
+}
+
 function toDbSignalCard(
   signal: SignalEventDto,
   index: number,
   locale: SignalLocale
 ) {
   const scoreTone = signalToneFromScore(signal.score);
+  const rankSnapshot = signalRankSnapshotLabel(locale, signal);
 
   return {
     id: signal.signalPublicId,
-    rank: `#${index + 1}`,
+    rank: rankSnapshot?.rankLabel ?? `#${index + 1}`,
     title: signal.title,
     sourceLabel: signalTypeLabel(locale, signal.signalType),
     marketLabel: signal.sourceLabel,
@@ -204,6 +224,7 @@ function toDbSignalCard(
     linkedModelName: signal.linkedModelName,
     freshnessLabel: formatCapturedAt(signal.capturedAt, locale),
     statusLabel: signalStatusLabel(locale, signal),
+    rankSnapshot,
     detailHref: signalDetailHref(locale, signal.signalPublicId)
   };
 }
@@ -505,6 +526,32 @@ export default async function InvestModelSignalsPage({
                           {signal.freshnessLabel}
                         </span>
                       </div>
+                      {'rankSnapshot' in signal && signal.rankSnapshot ? (
+                        <div className="mt-2.5 grid gap-1.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2 min-[360px]:grid-cols-3">
+                          <RiskBadge
+                            tone="neutral"
+                            className="justify-center text-center"
+                          >
+                            {signal.rankSnapshot.scoreLabel}
+                          </RiskBadge>
+                          <RiskBadge
+                            tone="neutral"
+                            className="justify-center text-center"
+                          >
+                            {signal.rankSnapshot.deltaLabel}
+                          </RiskBadge>
+                          <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
+                            {signal.rankSnapshot.contextLabel}
+                          </span>
+                          <span className="min-[360px]:col-span-3 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
+                            {locale === 'ko'
+                              ? 'DB score snapshot rank only, not advice or order'
+                              : 'DB score snapshot rank only, not advice or order'}
+                            {' · '}
+                            {signal.rankSnapshot.capturedAtLabel}
+                          </span>
+                        </div>
+                      ) : null}
                       <div className="mt-2.5 flex items-start gap-2.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2.5 transition-[background-color,border-color,transform] duration-200 ease-out group-hover:border-invest-primary/25 group-hover:bg-invest-surface group-active:scale-[0.995] group-focus-within:border-invest-primary/35 motion-reduce:transition-none motion-reduce:group-active:scale-100">
                         <span className="grid size-7 shrink-0 place-items-center rounded-full bg-invest-surface text-invest-primary shadow-invest-card transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
                           <Activity

@@ -10,6 +10,7 @@ import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 import { GET } from '../../app/api/signals/[signalId]/route';
 import { client } from '../../lib/db/drizzle';
+import { calculateMockSignalScoreSnapshots } from '../../lib/db/signal-scoring-service';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -47,6 +48,9 @@ function detailRequest(signalId: string, role = 'user') {
 
 async function main() {
   await applyTrackedSignalSeed();
+  await calculateMockSignalScoreSnapshots({
+    capturedAt: new Date('2026-01-01T00:00:00.000Z')
+  });
 
   const forbiddenResponse = await GET(
     new NextRequest(
@@ -71,8 +75,10 @@ async function main() {
     detailJson.data?.signalPublicId === 'sig_mock_news_traffic_001' &&
       detailJson.data?.id === undefined &&
       detailJson.data?.signalType === 'news_traffic' &&
-      typeof detailJson.data?.score === 'number',
-    'signal detail exposes public id and observed fields only'
+      typeof detailJson.data?.score === 'number' &&
+      typeof detailJson.data?.scoreSnapshot?.rankValue === 'number' &&
+      detailJson.data?.scoreSnapshot?.calculationContext === 'mock_seed',
+    'signal detail exposes public id, observed fields, and latest score snapshot only'
   );
   assertCondition(
     detailJson.meta?.routeStatus === 'db_backed' &&

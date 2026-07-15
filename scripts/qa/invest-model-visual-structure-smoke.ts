@@ -334,6 +334,9 @@ const mobileShellSource = readProjectFile(
 );
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
+const signalDetailPageSource = readProjectFile(
+  'app/invest-model/signals/[signalId]/page.tsx'
+);
 const modelsPageSource = readProjectFile('app/invest-model/models/page.tsx');
 const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
 const portfolioPageSource = readProjectFile(
@@ -399,6 +402,13 @@ assertCondition(
   signalsPageSource.includes('detailHref: signalDetailHref') &&
     signalsPageSource.includes("href={'detailHref' in signal ? signal.detailHref : '#'}"),
   'Realtime Signals list must link DB-backed SignalEvent rows to Signal Detail routes'
+);
+assertCondition(
+  signalsPageSource.includes('rankSnapshot') &&
+    signalsPageSource.includes('DB score snapshot rank only') &&
+    signalDetailPageSource.includes('scoreSnapshotRows') &&
+    signalDetailPageSource.includes('Rank movement'),
+  'Signals list/detail must surface DB-backed score snapshot rank movement without advice or order language'
 );
 assertCondition(
   modelsPageSource.includes('name="q"') &&

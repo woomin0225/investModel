@@ -25,7 +25,23 @@ export interface SignalEventDto {
   sourceUrl?: string;
   capturedAt: string;
   dataContext: 'mock' | 'observed_placeholder';
+  scoreSnapshot?: SignalScoreSnapshotDto;
   notices: PolicyNoticeDto[];
+}
+
+export interface SignalScoreSnapshotDto {
+  totalScore: number;
+  totalScoreDisplay: string;
+  rankValue: number | null;
+  rankLabel: string;
+  rankDelta: number | null;
+  rankDeltaDisplay: string;
+  capturedAt: string;
+  calculationContext:
+    | 'mock_seed'
+    | 'scheduled_mock'
+    | 'external_review_required'
+    | 'unknown';
 }
 
 export const signalEventTypes = [
@@ -97,6 +113,78 @@ function scoreToNumber(score: number | string | null | undefined) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function nullableRankToNumber(value: number | string | null | undefined) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const parsed =
+    typeof value === 'number' ? value : Number.parseInt(value, 10);
+
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function snapshotContextFor(
+  value: string | null | undefined
+): SignalScoreSnapshotDto['calculationContext'] {
+  if (
+    value === 'mock_seed' ||
+    value === 'scheduled_mock' ||
+    value === 'external_review_required'
+  ) {
+    return value;
+  }
+
+  return 'unknown';
+}
+
+function rankDeltaDisplay(rankDelta: number | null) {
+  if (rankDelta === null) {
+    return 'New rank snapshot';
+  }
+
+  if (rankDelta > 0) {
+    return `+${rankDelta} rank`;
+  }
+
+  return `${rankDelta} rank`;
+}
+
+function buildScoreSnapshotDto(input: {
+  snapshotTotalScore?: number | string | null;
+  snapshotRankValue?: number | string | null;
+  snapshotRankDelta?: number | string | null;
+  snapshotCapturedAt?: Date | string | null;
+  snapshotCalculationContext?: string | null;
+}): SignalScoreSnapshotDto | undefined {
+  if (
+    input.snapshotTotalScore === null ||
+    input.snapshotTotalScore === undefined ||
+    !input.snapshotCapturedAt
+  ) {
+    return undefined;
+  }
+
+  const totalScore = scoreToNumber(input.snapshotTotalScore);
+  const rankValue = nullableRankToNumber(input.snapshotRankValue);
+  const rankDelta = nullableRankToNumber(input.snapshotRankDelta);
+  const capturedAt =
+    input.snapshotCapturedAt instanceof Date
+      ? input.snapshotCapturedAt.toISOString()
+      : input.snapshotCapturedAt;
+
+  return {
+    totalScore,
+    totalScoreDisplay: `${Math.round(totalScore)} snapshot score`,
+    rankValue,
+    rankLabel: rankValue === null ? 'Unranked' : `#${rankValue}`,
+    rankDelta,
+    rankDeltaDisplay: rankDeltaDisplay(rankDelta),
+    capturedAt,
+    calculationContext: snapshotContextFor(input.snapshotCalculationContext)
+  };
+}
+
 function sourceLabelFor(input: {
   signalType: SignalEventType;
   sourceInstrumentSymbol?: string | null;
@@ -137,6 +225,11 @@ export function buildSignalEventDto(input: {
   sourceInstrumentSymbol?: string | null;
   sourceInstrumentName?: string | null;
   capturedAt?: Date | string | null;
+  snapshotTotalScore?: number | string | null;
+  snapshotRankValue?: number | string | null;
+  snapshotRankDelta?: number | string | null;
+  snapshotCapturedAt?: Date | string | null;
+  snapshotCalculationContext?: string | null;
 }): SignalEventDto {
   const signalType = parseSignalEventType(input.signalType) ?? 'macro';
   const score = scoreToNumber(input.score);
@@ -161,6 +254,7 @@ export function buildSignalEventDto(input: {
     }),
     capturedAt,
     dataContext: 'mock',
+    scoreSnapshot: buildScoreSnapshotDto(input),
     notices: signalPolicyNotices()
   };
 }
