@@ -96,6 +96,7 @@ export async function GET(request: NextRequest) {
         ],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
+        dataContext: notificationCenter.dataContext,
         limit,
         readOnly: true,
         sendsRealPush: false,

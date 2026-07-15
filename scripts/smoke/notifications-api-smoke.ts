@@ -145,6 +145,7 @@ async function main() {
       successJson.meta?.brokerageConnection === false &&
       successJson.meta?.financialAdvice === false &&
       successJson.meta?.userScopeSource === 'demo_fallback' &&
+      successJson.meta?.dataContext === successJson.data?.dataContext &&
       successJson.meta?.clientUserPublicIdIgnored === undefined,
     'notifications keep mock-safe API meta'
   );
@@ -155,6 +156,8 @@ async function main() {
   assertCondition(
     ignoredClientUserResponse.status === 200 &&
       ignoredClientUserJson.meta?.userPublicId === 'user_demo_001' &&
+      ignoredClientUserJson.meta?.dataContext ===
+        ignoredClientUserJson.data?.dataContext &&
       ignoredClientUserJson.meta?.clientUserPublicIdIgnored === undefined,
     'client userPublicId compatibility metadata is not exposed for notifications'
   );
@@ -163,6 +166,7 @@ async function main() {
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.dataContext === sessionScopedJson.data?.dataContext &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001',
     'session role and user scope win for notifications'
