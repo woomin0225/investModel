@@ -344,7 +344,9 @@ export default async function InvestModelDetailPage({
               <RiskBadge>{model.mandateLabel}</RiskBadge>
             </span>
             <span role="listitem">
-              <RiskBadge tone="blocked">{copy.noLiveTradingLabel}</RiskBadge>
+              <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+                {copy.noLiveTradingLabel}
+              </span>
             </span>
           </div>
           {model.riskTone === 'high' ? (
@@ -388,9 +390,9 @@ export default async function InvestModelDetailPage({
                 ? detailReadModelCopy[locale].dbDetailLabel
                 : copy.reviewPlaceholderLabel}
             </RiskBadge>
-            <RiskBadge tone="blocked" className="justify-center text-center">
+            <p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-[12px] font-semibold leading-5 text-invest-text-muted">
               {copy.noLiveTradingLabel}
-            </RiskBadge>
+            </p>
           </div>
           <div
             aria-label="Model selection visible safety boundaries"

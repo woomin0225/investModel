@@ -764,6 +764,9 @@ assertCondition(
     !modelDetailPageSource.includes('selectionVisibleBoundaries.map((boundary) => (') &&
     modelDetailPageSource.includes('Model detail visible safety boundaries') &&
     modelDetailPageSource.includes('Model selection visible safety boundaries') &&
+    !/<RiskBadge\b[^>]*tone="blocked"[^>]*>[\s\S]{0,160}\{copy\.noLiveTradingLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
+      modelDetailPageSource
+    ) &&
     modelSelectionCtaSource.includes('const successMetaLine') &&
     modelSelectionCtaSource.includes('copy.persistedLabel') &&
     modelSelectionCtaSource.includes('copy.safetyLabel') &&
