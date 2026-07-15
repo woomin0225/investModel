@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
 import Link from 'next/link';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, UserRound } from 'lucide-react';
 import { withInvestModelLocale, type InvestModelLocale } from '@/lib/i18n/invest-model';
 import { cn } from '@/lib/utils';
 import { investMotionClass } from './ui';
@@ -33,6 +33,7 @@ type TopIconBarProps = {
 type SearchAndNotificationActionsProps = {
   locale: InvestModelLocale;
   searchLabel: string;
+  myPageLabel?: string;
   notificationLabel: string;
   unreadLabel?: string;
   className?: string;
@@ -63,6 +64,7 @@ export function TopIconBar({ actions, locale, className }: TopIconBarProps) {
 export function SearchAndNotificationActions({
   locale,
   searchLabel,
+  myPageLabel,
   notificationLabel,
   unreadLabel,
   className
@@ -77,6 +79,12 @@ export function SearchAndNotificationActions({
           label: searchLabel,
           href: '/invest-model/search',
           icon: Search
+        },
+        {
+          key: 'my-page',
+          label: myPageLabel ?? myPageActionLabel[locale],
+          href: '/invest-model/my',
+          icon: UserRound
         },
         {
           key: 'notifications',
@@ -224,6 +232,11 @@ function getTopIconAccessibleLabel(
 
   return `${action.label}: ${copy.none}`;
 }
+
+const myPageActionLabel: Record<InvestModelLocale, string> = {
+  ko: 'My Page',
+  en: 'My Page'
+};
 
 const notificationAccessibilityCopy: Record<
   InvestModelLocale,

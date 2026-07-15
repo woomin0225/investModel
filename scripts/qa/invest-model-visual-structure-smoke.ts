@@ -332,6 +332,9 @@ function collectScreenTextValues() {
 const mobileShellSource = readProjectFile(
   'components/invest-model/mobile-shell.tsx'
 );
+const topIconBarSource = readProjectFile(
+  'components/invest-model/top-icon-bar.tsx'
+);
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
 const signalRefreshActionSource = readProjectFile(
@@ -373,6 +376,12 @@ assertCondition(
 assertCondition(
   investModelNavItems.length === 5,
   `BottomNav expected 5 tabs, found ${investModelNavItems.length}`
+);
+assertCondition(
+  topIconBarSource.includes("key: 'my-page'") &&
+    topIconBarSource.includes("href: '/invest-model/my'") &&
+    topIconBarSource.includes('UserRound'),
+  'My Page must remain reachable from a header profile action without adding a sixth bottom tab'
 );
 assertCondition(
   new Set(investModelNavItems.map((item) => item.key)).size === 5,
