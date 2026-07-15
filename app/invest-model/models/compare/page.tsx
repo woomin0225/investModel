@@ -268,24 +268,18 @@ export default async function ModelComparePage({
                   </RiskBadge>
                 </div>
 
-                <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-3 py-2">
-                  {visibleBoundaries.map((boundary) => (
-                    <RiskBadge key={boundary} tone="neutral">
-                      {boundary}
-                    </RiskBadge>
-                  ))}
-                </div>
+                <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted">
+                  {visibleBoundaries.join(' / ')}
+                </p>
               </article>
             ))}
           </div>
         </div>
 
         <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
-          <div className="flex flex-wrap gap-2">
-            <RiskBadge tone="blocked">No live orders</RiskBadge>
-            <RiskBadge>Approved mock only</RiskBadge>
-            <RiskBadge tone="medium">Backtest placeholder</RiskBadge>
-          </div>
+          <p className="text-xs font-semibold leading-5 text-invest-text-muted">
+            No live orders / Approved mock only / Backtest placeholder
+          </p>
           <p className="mt-3 text-sm leading-6 text-invest-text-muted">
             {copy.footer}
           </p>

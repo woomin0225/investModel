@@ -378,6 +378,9 @@ const signalDetailPageSource = readProjectFile(
   'app/invest-model/signals/[signalId]/page.tsx'
 );
 const modelsPageSource = readProjectFile('app/invest-model/models/page.tsx');
+const modelComparePageSource = readProjectFile(
+  'app/invest-model/models/compare/page.tsx'
+);
 const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
 const portfolioPageSource = readProjectFile(
   'app/invest-model/portfolio/page.tsx'
@@ -543,6 +546,15 @@ assertCondition(
     modelsPageSource.includes('performanceLabel={model.performanceLabel}') &&
     modelsPageSource.includes('footerBadges={['),
   'Discover Models must not start with the top blue SoftBanner or safety chip groups and must preserve no-order/simulated safety context'
+);
+assertCondition(
+  modelComparePageSource.includes("visibleBoundaries.join(' / ')") &&
+    !modelComparePageSource.includes('visibleBoundaries.map((boundary) => (') &&
+    !modelComparePageSource.includes('<RiskBadge tone="blocked">No live orders</RiskBadge>') &&
+    modelComparePageSource.includes(
+      'No live orders / Approved mock only / Backtest placeholder'
+    ),
+  'Model Compare must present safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&
