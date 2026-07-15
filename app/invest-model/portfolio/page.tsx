@@ -336,9 +336,9 @@ export default async function InvestModelPortfolioPage({
               <RiskBadge tone="medium">
                 {portfolio.allocationDecision.generatedAtLabel}
               </RiskBadge>
-              <RiskBadge tone="neutral">
+              <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
                 {portfolio.allocationDecision.sourceLabel}
-              </RiskBadge>
+              </span>
             </div>
           </div>
           <div
@@ -450,7 +450,9 @@ export default async function InvestModelPortfolioPage({
                   <RiskBadge tone="high">
                     {portfolio.selectedModel.riskLabel}
                   </RiskBadge>
-                  <RiskBadge>{portfolio.mockDeposit.sourceLabel}</RiskBadge>
+                  <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+                    {portfolio.mockDeposit.sourceLabel}
+                  </span>
                 </div>
                 <ModelSelectionReadStatus
                   copy={modelSelectionReadStatusCopy[locale]}
@@ -569,9 +571,9 @@ export default async function InvestModelPortfolioPage({
                   <RiskBadge tone="low">
                     {portfolio.allocationDecision.statusLabel}
                   </RiskBadge>
-                  <RiskBadge>
+                  <span className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-[12px] font-semibold leading-5 text-invest-text-muted">
                     {portfolio.allocationDecision.sourceLabel}
-                  </RiskBadge>
+                  </span>
                   <RiskBadge tone="medium">
                     {portfolio.allocationDecision.generatedAtLabel}
                   </RiskBadge>

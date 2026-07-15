@@ -794,6 +794,15 @@ assertCondition(
     !portfolioPageSource.includes('<RiskBadge tone="neutral">DB snapshot</RiskBadge>') &&
     !portfolioPageSource.includes('<RiskBadge>mock-only checkpoint</RiskBadge>') &&
     !portfolioPageSource.includes('<RiskBadge tone="blocked">{snapshot.safetyLabel}</RiskBadge>') &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{portfolio\.allocationDecision\.sourceLabel\}\s*<\/span>/.test(
+      portfolioPageSource
+    ) &&
+    !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{portfolio\.allocationDecision\.sourceLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
+      portfolioPageSource
+    ) &&
+    !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{portfolio\.mockDeposit\.sourceLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
+      portfolioPageSource
+    ) &&
     portfolioPageSource.includes('portfolio.tradeIntent.blockedActions.map((action) => (') &&
     portfolioPageSource.includes('role="listitem"') &&
     !/<RiskBadge\b[^>]*tone="blocked"[^>]*>[\s\S]{0,240}\{action\}[\s\S]{0,80}<\/RiskBadge>/.test(
