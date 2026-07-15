@@ -393,18 +393,16 @@ export default async function InvestModelMyPage({
             className="p-3"
           />
         </div>
-        <div className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-3 py-2">
+        <div className="rounded-invest-control bg-invest-surface-muted px-3 py-2">
           <RiskBadge
             tone={myPageMeta.userScopeSource === 'session' ? 'low' : 'medium'}
             className="max-w-full"
           >
             {myPageScopeBadgeLabel(locale, myPageMeta)}
           </RiskBadge>
-          {summaryVisibleBoundaries.map((boundary) => (
-            <RiskBadge key={boundary} tone="neutral">
-              {boundary}
-            </RiskBadge>
-          ))}
+          <p className="mt-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+            {summaryVisibleBoundaries.join(' / ')}
+          </p>
         </div>
         <p
           aria-label={scopeAccessibleLabel}
@@ -482,15 +480,9 @@ export default async function InvestModelMyPage({
                       <p className="mt-1 text-sm leading-6 text-invest-text-muted">
                         {item.description}
                       </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {myPageActivityVisibleBoundaries(locale).map(
-                          (boundary) => (
-                            <RiskBadge key={boundary} tone="neutral">
-                              {boundary}
-                            </RiskBadge>
-                          )
-                        )}
-                      </div>
+                      <p className="mt-3 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                        {myPageActivityVisibleBoundaries(locale).join(' / ')}
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -523,15 +515,9 @@ export default async function InvestModelMyPage({
                   : 'mock-safe'}
               </RiskBadge>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {myPageRecentActivityVisibleBoundaries(locale).map(
-                (boundary) => (
-                  <RiskBadge key={boundary} tone="neutral">
-                    {boundary}
-                  </RiskBadge>
-                )
-              )}
-            </div>
+            <p className="mt-3 text-[12px] font-semibold leading-5 text-invest-text-muted">
+              {myPageRecentActivityVisibleBoundaries(locale).join(' / ')}
+            </p>
 
             {recentActivityRows.length > 0 ? (
               <div

@@ -591,9 +591,15 @@ assertCondition(
 );
 assertCondition(
   myPageSource.includes('No real account / No real orders / DB read model') &&
+    myPageSource.includes("summaryVisibleBoundaries.join(' / ')") &&
+    myPageSource.includes("myPageActivityVisibleBoundaries(locale).join(' / ')") &&
+    myPageSource.includes("myPageRecentActivityVisibleBoundaries(locale).join(' / ')") &&
     !myPageSource.includes('<ShieldCheck') &&
+    !myPageSource.includes('summaryVisibleBoundaries.map((boundary) => (') &&
+    !myPageSource.includes('myPageActivityVisibleBoundaries(locale).map(') &&
+    !myPageSource.includes('myPageRecentActivityVisibleBoundaries(locale).map(') &&
     !myPageSource.includes("{locale === 'ko' ? '실계좌 없음' : 'No real account'}\n            </RiskBadge>"),
-  'My Page footer safety boundary must use prose instead of hashtag safety chip groups'
+  'My Page safety boundaries must use prose instead of hashtag safety chip groups'
 );
 assertCondition(
   !modelsPageSource.includes('<SoftBanner') &&
