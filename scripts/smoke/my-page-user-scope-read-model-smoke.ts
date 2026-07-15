@@ -13,6 +13,7 @@ import {
   readMyPageFeedActivitySummary,
   readMyPageSummary
 } from '../../lib/db/my-page-read-model';
+import type { MyPageFeedActivityItem } from '../../lib/domain/my-page/feed-activity';
 import { readNotificationCenter } from '../../lib/db/notification-read-model';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
@@ -95,9 +96,23 @@ async function main() {
       missingFeedActivity.recentCommentPosts.length === 0,
     'direct feed activity read model fallback is also member scoped'
   );
+  missingFeedActivity.recentSavedPosts.push({
+    postPublicId: 'feed_mock_mutated',
+    title: 'Mutated fallback should not persist',
+    activityAt: new Date().toISOString(),
+    activityLabel: 'saved'
+  } satisfies MyPageFeedActivityItem);
+  const repeatedMissingFeedActivity =
+    await readMyPageFeedActivitySummary(missingUserPublicId);
+  assertCondition(
+    repeatedMissingFeedActivity.userPublicId === missingUserPublicId &&
+      repeatedMissingFeedActivity.recentSavedPosts.length === 0 &&
+      repeatedMissingFeedActivity.recentCommentPosts.length === 0,
+    'fallback feed activity returns isolated arrays on repeated reads'
+  );
   assertCondition(
     !containsSeededMemberPublicId(missingSummary) &&
-      !containsSeededMemberPublicId(missingFeedActivity) &&
+      !containsSeededMemberPublicId(repeatedMissingFeedActivity) &&
       !containsSeededMemberPublicId(missingNotificationCenter),
     'prototype fallback read models do not contain seeded member scoped identifiers'
   );

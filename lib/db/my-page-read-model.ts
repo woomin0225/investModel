@@ -33,6 +33,17 @@ const fallbackSummary: MyPageFeedActivitySummary = {
   sourceLabel: 'mock_safe_fallback'
 };
 
+function buildFallbackFeedActivitySummary(
+  userPublicId: string
+): MyPageFeedActivitySummary {
+  return {
+    ...fallbackSummary,
+    userPublicId,
+    recentSavedPosts: [],
+    recentCommentPosts: []
+  };
+}
+
 function toIso(value: Date | string | null | undefined) {
   if (!value) {
     return undefined;
@@ -55,7 +66,7 @@ export async function readMyPageFeedActivitySummary(
       .limit(1);
 
     if (!user) {
-      return { ...fallbackSummary, userPublicId };
+      return buildFallbackFeedActivitySummary(userPublicId);
     }
 
     const [{ value: savedCount }] = await db
@@ -137,7 +148,7 @@ export async function readMyPageFeedActivitySummary(
       sourceLabel: 'db_read_model'
     };
   } catch {
-    return { ...fallbackSummary, userPublicId };
+    return buildFallbackFeedActivitySummary(userPublicId);
   }
 }
 
@@ -212,7 +223,7 @@ export async function readMyPageSummary(
         roleLabel: 'unknown'
       },
       activeSelection: null,
-      feedActivity: { ...fallbackSummary, userPublicId },
+      feedActivity: buildFallbackFeedActivitySummary(userPublicId),
       notificationSummary: {
         unreadCount: 0,
         totalCount: 0
