@@ -444,13 +444,9 @@ export default async function InvestModelSignalDetailPage({
                     : signal.dataContext}
                 </RiskBadge>
               </div>
-              <div className="mt-2 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
-                {signalDetailVisibleBoundaries(locale).map((boundary) => (
-                  <RiskBadge key={boundary} tone="neutral">
-                    {boundary}
-                  </RiskBadge>
-                ))}
-              </div>
+              <p className="mt-2 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                {signalDetailVisibleBoundaries(locale).join(' / ')}
+              </p>
               <h2 className="mt-3 text-[22px] font-bold leading-7 text-invest-text">
                 {signal.title}
               </h2>
@@ -466,13 +462,9 @@ export default async function InvestModelSignalDetailPage({
               style={{ width: scoreWidth(signal.score) }}
             />
           </div>
-          <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
-            {signalScoreSnapshotVisibleBoundaries(locale).map((boundary) => (
-              <RiskBadge key={boundary} tone="neutral">
-                {boundary}
-              </RiskBadge>
-            ))}
-          </div>
+          <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+            {signalScoreSnapshotVisibleBoundaries(locale).join(' / ')}
+          </p>
 
           <div className="mt-3 grid gap-2 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -501,13 +493,9 @@ export default async function InvestModelSignalDetailPage({
           </div>
 
           <div className="mt-5 grid gap-2">
-            <div className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
-              {signalEvidenceVisibleBoundaries(locale).map((boundary) => (
-                <RiskBadge key={boundary} tone="neutral">
-                  {boundary}
-                </RiskBadge>
-              ))}
-            </div>
+            <p className="rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+              {signalEvidenceVisibleBoundaries(locale).join(' / ')}
+            </p>
             {sourceRows.map((row) => (
               <div
                 key={row.label}
@@ -599,13 +587,9 @@ export default async function InvestModelSignalDetailPage({
                   {locale === 'ko' ? '참고용' : 'Reference only'}
                 </RiskBadge>
               </div>
-              <div className="mt-2 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
-                {signalRelatedVisibleBoundaries(locale).map((boundary) => (
-                  <RiskBadge key={boundary} tone="neutral">
-                    {boundary}
-                  </RiskBadge>
-                ))}
-              </div>
+              <p className="mt-2 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                {signalRelatedVisibleBoundaries(locale).join(' / ')}
+              </p>
               <h2 className="mt-2 text-[16px] font-bold leading-6 text-invest-text">
                 {locale === 'ko'
                   ? '관련 Feed 검색'

@@ -498,6 +498,17 @@ assertCondition(
   'Signals list/detail must not start with the top blue SoftBanner and must preserve observation/no-order safety context'
 );
 assertCondition(
+  signalDetailPageSource.includes("signalDetailVisibleBoundaries(locale).join(' / ')") &&
+    signalDetailPageSource.includes("signalScoreSnapshotVisibleBoundaries(locale).join(' / ')") &&
+    signalDetailPageSource.includes("signalEvidenceVisibleBoundaries(locale).join(' / ')") &&
+    signalDetailPageSource.includes("signalRelatedVisibleBoundaries(locale).join(' / ')") &&
+    !signalDetailPageSource.includes('signalDetailVisibleBoundaries(locale).map((boundary) => (') &&
+    !signalDetailPageSource.includes('signalScoreSnapshotVisibleBoundaries(locale).map((boundary) => (') &&
+    !signalDetailPageSource.includes('signalEvidenceVisibleBoundaries(locale).map((boundary) => (') &&
+    !signalDetailPageSource.includes('signalRelatedVisibleBoundaries(locale).map((boundary) => ('),
+  'Signal detail must present safety boundaries as prose instead of hashtag safety chip groups'
+);
+assertCondition(
   modelsPageSource.includes('name="q"') &&
     modelsPageSource.includes('searchQuery') &&
     modelsPageSource.includes("params.set('q', searchQuery)") &&
