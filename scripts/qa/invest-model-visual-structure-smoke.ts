@@ -76,6 +76,11 @@ const screens: ScreenCheck[] = [
       'API dataContext',
       'Recent FeedPost activity',
       'Saved/comment activity is an informational reading shortcut only',
+      'Personalized settings',
+      'Selected model',
+      'Saved feed',
+      'Visibility & privacy',
+      'Simulated portfolio',
       '/invest-model/feed',
       '/invest-model/notifications'
     ],
@@ -1151,6 +1156,27 @@ assertCondition(
     myPageSource.includes('const badge =') &&
     myPageSource.includes("index < 2 && activitySummary.sourceLabel === 'db_read_model'"),
   'My Page activity row badges must remain functional metadata'
+);
+assertCondition(
+  myPageSource.includes('personalizationRows') &&
+    myPageSource.includes('Personalized settings') &&
+    myPageSource.includes('Selected model') &&
+    myPageSource.includes('Saved feed') &&
+    myPageSource.includes('Notifications') &&
+    myPageSource.includes('Visibility & privacy') &&
+    myPageSource.includes('Simulated portfolio') &&
+    myPageSource.includes('Client-provided userPublicId does not change the member scope') &&
+    myPageSource.includes('Current member personalized settings row') &&
+    myPageSource.includes('min-h-invest-touch-target') &&
+    myPageSource.includes('grid-cols-[2.5rem_minmax(0,1fr)_auto]') &&
+    myPageSource.includes('/invest-model/portfolio') &&
+    !myPageSource.includes('Deposit now') &&
+    !myPageSource.includes('Connect brokerage') &&
+    !myPageSource.includes('Place order') &&
+    !myPageSource.includes('Withdraw') &&
+    !myPageSource.includes('Enable real push') &&
+    !myPageSource.includes('Set allocation'),
+  'My Page personalized settings rows must stay member-scoped, compact, and free of real financial action affordances'
 );
 assertCondition(
   !modelsPageSource.includes('<SoftBanner') &&

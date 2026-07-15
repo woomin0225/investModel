@@ -4,8 +4,10 @@ import {
   ArrowRight,
   Bell,
   Bookmark,
+  Eye,
   MessageCircle,
-  UserRound
+  UserRound,
+  WalletCards
 } from 'lucide-react';
 import {
   investMotionClass,
@@ -203,6 +205,38 @@ const myPageCopy = {
     selectedSectionTitle: '선택한 투자 모델',
     selectedSectionDescription:
       'DB에 저장된 활성 모델 선택 기록을 읽습니다. 투자 성향이나 주문 설정이 아닙니다.',
+    personalizationTitle: '개인화 설정',
+    personalizationDescription:
+      '현재 회원 범위에서 선택 모델, 저장 글, 알림, 공개 범위, 모의 포트폴리오 바로가기를 묶어 보여줍니다.',
+    personalizationSafety:
+      '개인화 행은 읽기/설정 구조만 보여주며 실제 계좌, 입금, 주문, 브로커 연결과 무관합니다.',
+    personalizationItems: {
+      selectedModel: {
+        title: '선택 모델',
+        description: 'DB 선택 기록 확인',
+        status: '회원 범위'
+      },
+      savedFeed: {
+        title: '저장 글',
+        description: '개인 읽기 바로가기',
+        status: 'DB 조회'
+      },
+      notifications: {
+        title: '알림',
+        description: '로컬 읽음 상태',
+        status: '실제 발송 없음'
+      },
+      visibility: {
+        title: '공개/비공개',
+        description: '비공개 읽기 모델',
+        status: '공개 전환 없음'
+      },
+      portfolio: {
+        title: '모의 포트폴리오',
+        description: 'MockDeposit 요약',
+        status: '모의 전용'
+      }
+    },
     activityTitle: '활동 조회 상태',
     activityDescription:
       '내 정보는 앞으로 저장, 댓글, 알림 상태를 DB 기반 조회로 묶어 보여줍니다.',
@@ -254,6 +288,38 @@ const myPageCopy = {
     selectedSectionTitle: 'Selected InvestmentModel',
     selectedSectionDescription:
       'Reads the active UserModelSelection persisted in DB. It is not a suitability or order setting.',
+    personalizationTitle: 'Personalized settings',
+    personalizationDescription:
+      'Groups selected model, saved posts, notifications, visibility/privacy, and simulated portfolio shortcuts for the current member scope.',
+    personalizationSafety:
+      'Personalized rows are read/settings structure only, unrelated to real accounts, deposits, orders, or brokerage connections.',
+    personalizationItems: {
+      selectedModel: {
+        title: 'Selected model',
+        description: 'DB selection record',
+        status: 'Member scope'
+      },
+      savedFeed: {
+        title: 'Saved feed',
+        description: 'Private reading shortcut',
+        status: 'DB read'
+      },
+      notifications: {
+        title: 'Notifications',
+        description: 'Local read state',
+        status: 'No delivery'
+      },
+      visibility: {
+        title: 'Visibility & privacy',
+        description: 'Private read model',
+        status: 'No public toggle'
+      },
+      portfolio: {
+        title: 'Simulated portfolio',
+        description: 'MockDeposit summary',
+        status: 'Simulated only'
+      }
+    },
     activityTitle: 'Activity read model',
     activityDescription:
       'My Page will collect saved, comment, and notification states through DB read models.',
@@ -355,6 +421,52 @@ export default async function InvestModelMyPage({
     (locale === 'ko'
       ? 'DB 알림 읽기 활동 없음'
       : 'No DB notification read-model activity');
+  const personalizationRows = [
+    {
+      key: 'selected-model',
+      icon: UserRound,
+      href: '/invest-model/models',
+      title: copy.personalizationItems.selectedModel.title,
+      description:
+        myPageSummary.activeSelection?.modelVersionPublicId ??
+        copy.personalizationItems.selectedModel.description,
+      status:
+        myPageSummary.activeSelection?.status ??
+        copy.personalizationItems.selectedModel.status
+    },
+    {
+      key: 'saved-feed',
+      icon: Bookmark,
+      href: '/invest-model/feed',
+      title: copy.personalizationItems.savedFeed.title,
+      description: savedDescription,
+      status: savedValue
+    },
+    {
+      key: 'notifications',
+      icon: Bell,
+      href: '/invest-model/notifications',
+      title: copy.personalizationItems.notifications.title,
+      description: noticesDescription,
+      status: noticesValue
+    },
+    {
+      key: 'visibility-privacy',
+      icon: Eye,
+      href: '/invest-model/my',
+      title: copy.personalizationItems.visibility.title,
+      description: copy.personalizationItems.visibility.description,
+      status: copy.personalizationItems.visibility.status
+    },
+    {
+      key: 'simulated-portfolio',
+      icon: WalletCards,
+      href: '/invest-model/portfolio',
+      title: copy.personalizationItems.portfolio.title,
+      description: copy.personalizationItems.portfolio.description,
+      status: copy.personalizationItems.portfolio.status
+    }
+  ];
 
   return (
     <MobileShell
@@ -426,6 +538,64 @@ export default async function InvestModelMyPage({
             ? `데이터 출처: ${routeDataContextLabel}.`
             : `API dataContext: ${routeDataContext}.`}
         </p>
+
+        <section className="space-y-invest-card-gap">
+          <SectionHeader
+            title={copy.personalizationTitle}
+            description={copy.personalizationDescription}
+          />
+          <div
+            role="list"
+            aria-label={copy.personalizationTitle}
+            className="grid gap-2 rounded-invest-card border border-invest-border bg-invest-surface p-2 shadow-invest-card"
+          >
+            {personalizationRows.map((item) => {
+              const Icon = item.icon;
+              const ariaLabel =
+                locale === 'ko'
+                  ? `${item.title}. ${item.description}. 상태: ${item.status}. 현재 회원 범위의 개인화 설정 행이며 실제 계좌, 입금, 주문, 브로커 연결과 무관합니다.`
+                  : `${item.title}. ${item.description}. Status: ${item.status}. Current member personalized settings row, unrelated to real accounts, deposits, orders, or brokerage connections.`;
+
+              return (
+                <Link
+                  key={item.key}
+                  href={withInvestModelLocale(item.href, locale)}
+                  role="listitem"
+                  aria-label={ariaLabel}
+                  title={ariaLabel}
+                  className={cn(
+                    'group grid min-h-invest-touch-target grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface',
+                    investMotionClass.interactiveControl
+                  )}
+                >
+                  <span className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary transition-[transform,background-color] duration-200 ease-out group-hover:scale-[1.03] group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
+                    <Icon aria-hidden className="size-5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-bold leading-5 text-invest-text">
+                      {item.title}
+                    </span>
+                    <span className="mt-0.5 block truncate text-[12px] leading-4 text-invest-text-muted">
+                      {item.description}
+                    </span>
+                  </span>
+                  <span className="flex min-w-0 max-w-[7rem] items-center gap-2">
+                    <span className="truncate text-right text-[12px] font-semibold leading-5 text-invest-text-muted">
+                      {item.status}
+                    </span>
+                    <ArrowRight
+                      aria-hidden
+                      className="size-4 shrink-0 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-active:scale-100"
+                    />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+          <p className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+            {copy.personalizationSafety}
+          </p>
+        </section>
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
