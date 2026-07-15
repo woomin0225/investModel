@@ -435,6 +435,15 @@ assertCondition(
   'Feed cards must wire Save and Comment actions to DB-backed save state and the comment section'
 );
 assertCondition(
+  feedPageSource.includes('parseFeedPostType') &&
+    feedPageSource.includes('selectedPostType') &&
+    feedPageSource.includes('filterHref(locale, filter.postType)') &&
+    feedPageSource.includes("params.set('postType', postType)") &&
+    feedPageSource.includes('readInvestModelFeedPosts(selectedPostType)') &&
+    feedPageSource.includes('visiblePostCountLabel'),
+  'Feed filters must use URL postType state, DB-backed /api/feed filtering, active link state, and visible result counts'
+);
+assertCondition(
   feedDetailPageSource.includes('id="comments"') &&
     feedDetailPageSource.includes('<FeedCommentAction'),
   'Feed detail must expose a comments anchor for Feed card comment actions'
