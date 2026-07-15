@@ -77,7 +77,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const userScope = await resolveInvestModelUserScope(request);
+    const userScope = await resolveInvestModelUserScope(request, {
+      ignoreClientUserPublicId: true
+    });
     const notificationCenter = await readNotificationCenter({
       userPublicId: userScope.userPublicId,
       limit
@@ -96,7 +98,6 @@ export async function GET(request: NextRequest) {
         ],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        clientUserPublicIdIgnored: Boolean(userScope.ignoredClientUserPublicId),
         limit,
         readOnly: true,
         sendsRealPush: false,

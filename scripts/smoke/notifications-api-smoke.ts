@@ -145,7 +145,7 @@ async function main() {
       successJson.meta?.brokerageConnection === false &&
       successJson.meta?.financialAdvice === false &&
       successJson.meta?.userScopeSource === 'demo_fallback' &&
-      successJson.meta?.clientUserPublicIdIgnored === false,
+      successJson.meta?.clientUserPublicIdIgnored === undefined,
     'notifications keep mock-safe API meta'
   );
   assertCondition(
@@ -155,15 +155,15 @@ async function main() {
   assertCondition(
     ignoredClientUserResponse.status === 200 &&
       ignoredClientUserJson.meta?.userPublicId === 'user_demo_001' &&
-      ignoredClientUserJson.meta?.clientUserPublicIdIgnored === true,
-    'client userPublicId is ignored in favor of server-resolved user scope'
+      ignoredClientUserJson.meta?.clientUserPublicIdIgnored === undefined,
+    'client userPublicId compatibility metadata is not exposed for notifications'
   );
   assertCondition(invalidLimitResponse.status === 422, 'invalid limit is rejected');
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
-      sessionScopedJson.meta?.clientUserPublicIdIgnored === true &&
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001',
     'session role and user scope win for notifications'
   );
