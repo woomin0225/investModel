@@ -5,7 +5,10 @@ import {
   parseFeedLimit,
   parseFeedPostType
 } from '@/lib/domain/feed/feed-post';
-import type { AccessRole } from '@/lib/domain/types';
+import {
+  readInvestModelRole,
+  readInvestModelSessionRole
+} from '@/lib/server/invest-model-user-scope';
 
 /**
  * This route reads informational FeedPost rows for the Feed surface.
@@ -32,24 +35,12 @@ function errorResponse(
   );
 }
 
-function readRole(request: NextRequest): AccessRole {
-  const role = request.headers.get('x-invest-model-role');
-
-  if (
-    role === 'public' ||
-    role === 'user' ||
-    role === 'creator' ||
-    role === 'admin' ||
-    role === 'system'
-  ) {
-    return role;
-  }
-
-  return 'public';
-}
-
 export async function GET(request: NextRequest) {
-  const role = readRole(request);
+  const headerRole = readInvestModelRole(request);
+  const role =
+    headerRole === 'public'
+      ? await readInvestModelSessionRole(request)
+      : headerRole;
 
   if (!canReadFeed(role)) {
     return errorResponse(

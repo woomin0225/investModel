@@ -10,6 +10,7 @@ import path from 'path';
 import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 import { GET } from '../../app/api/feed/route';
+import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
@@ -32,6 +33,33 @@ async function applyTrackedFeedSeed() {
   await connection.end();
 }
 
+async function readSeedUserId() {
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+  const [rows] = await connection.query<mysql.RowDataPacket[]>(
+    "SELECT id FROM users WHERE public_id = 'user_demo_001' LIMIT 1"
+  );
+  await connection.end();
+
+  const userId = rows[0]?.id;
+  assertCondition(
+    typeof userId === 'number',
+    'seed user id exists for session role smoke'
+  );
+  return userId;
+}
+
+async function createSessionCookie(userId: number) {
+  const encryptedSession = await signToken({
+    user: { id: userId },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  return `session=${encryptedSession}`;
+}
+
 async function readFeed(search = '') {
   return GET(
     new NextRequest(`http://localhost/api/feed${search}`, {
@@ -43,8 +71,21 @@ async function readFeed(search = '') {
   );
 }
 
+async function readFeedWithSession(search: string, sessionCookie: string) {
+  return GET(
+    new NextRequest(`http://localhost/api/feed${search}`, {
+      method: 'GET',
+      headers: {
+        cookie: sessionCookie
+      }
+    })
+  );
+}
+
 async function main() {
   await applyTrackedFeedSeed();
+  const seedUserId = await readSeedUserId();
+  const sessionCookie = await createSessionCookie(seedUserId);
 
   const forbiddenResponse = await GET(
     new NextRequest('http://localhost/api/feed', {
@@ -53,6 +94,11 @@ async function main() {
   );
   const listResponse = await readFeed('?limit=3');
   const listJson = await listResponse.json();
+  const sessionScopedResponse = await readFeedWithSession(
+    '?limit=2',
+    sessionCookie
+  );
+  const sessionScopedJson = await sessionScopedResponse.json();
   const modelNoteResponse = await readFeed('?postType=model_note&limit=10');
   const modelNoteJson = await modelNoteResponse.json();
   const marketContextResponse = await readFeed(
@@ -65,6 +111,12 @@ async function main() {
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(listResponse.status === 200, 'feed list responds');
+  assertCondition(
+    sessionScopedResponse.status === 200 &&
+      Array.isArray(sessionScopedJson.data) &&
+      sessionScopedJson.data.length === 2,
+    'session role can read feed list without role header'
+  );
   assertCondition(
     Array.isArray(listJson.data) && listJson.data.length === 3,
     'feed list respects limit'
