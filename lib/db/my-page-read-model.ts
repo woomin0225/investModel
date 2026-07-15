@@ -5,12 +5,24 @@ import {
   feedPostComments,
   feedPosts,
   feedPostSaves,
+  investmentModels,
+  modelVersions,
+  userModelSelections,
   users
 } from '@/lib/db/schema';
+import { readNotificationCenter } from '@/lib/db/notification-read-model';
 import type {
   MyPageFeedActivityItem,
   MyPageFeedActivitySummary
 } from '@/lib/domain/my-page/feed-activity';
+import {
+  myPagePolicyNotices,
+  type MyPageSummaryDto
+} from '@/lib/domain/my-page/summary';
+import {
+  buildUserModelSelectionDto,
+  type UserModelSelectionDto
+} from '@/lib/domain/models/model-selection';
 
 const fallbackSummary: MyPageFeedActivitySummary = {
   userPublicId: 'user_demo_001',
@@ -127,4 +139,121 @@ export async function readMyPageFeedActivitySummary(
   } catch {
     return { ...fallbackSummary, userPublicId };
   }
+}
+
+async function readActiveUserModelSelection(
+  userPublicId: string
+): Promise<UserModelSelectionDto | null> {
+  const [row] = await db
+    .select({
+      selection: userModelSelections,
+      userPublicId: users.publicId,
+      modelPublicId: investmentModels.publicId,
+      modelVersionPublicId: modelVersions.publicId
+    })
+    .from(userModelSelections)
+    .innerJoin(users, eq(userModelSelections.userId, users.id))
+    .innerJoin(
+      investmentModels,
+      eq(userModelSelections.modelId, investmentModels.id)
+    )
+    .innerJoin(
+      modelVersions,
+      eq(userModelSelections.modelVersionId, modelVersions.id)
+    )
+    .where(
+      and(
+        eq(users.publicId, userPublicId),
+        eq(userModelSelections.status, 'active')
+      )
+    )
+    .orderBy(desc(userModelSelections.selectedAt))
+    .limit(1);
+
+  if (!row) {
+    return null;
+  }
+
+  return buildUserModelSelectionDto(
+    {
+      userPublicId: row.userPublicId,
+      modelPublicId: row.modelPublicId,
+      modelVersionPublicId: row.modelVersionPublicId,
+      riskAcknowledgedAt:
+        row.selection.riskAcknowledgedAt?.toISOString() ??
+        row.selection.selectedAt.toISOString()
+    },
+    row.selection.selectedAt.toISOString(),
+    'persisted',
+    row.selection.publicId
+  );
+}
+
+export async function readMyPageSummary(
+  userPublicId = 'user_demo_001'
+): Promise<MyPageSummaryDto> {
+  const [user] = await db
+    .select({
+      id: users.id,
+      publicId: users.publicId,
+      name: users.name,
+      role: users.role
+    })
+    .from(users)
+    .where(and(eq(users.publicId, userPublicId), isNull(users.deletedAt)))
+    .limit(1);
+
+  if (!user) {
+    return {
+      userPublicId,
+      profile: {
+        userPublicId,
+        displayName: 'Demo User',
+        roleLabel: 'unknown'
+      },
+      activeSelection: null,
+      feedActivity: { ...fallbackSummary, userPublicId },
+      notificationSummary: {
+        unreadCount: 0,
+        totalCount: 0
+      },
+      recentNotifications: [],
+      dataContext: 'mock_safe_fallback',
+      notices: myPagePolicyNotices()
+    };
+  }
+
+  const [feedActivity, activeSelection, notificationCenter] =
+    await Promise.all([
+      readMyPageFeedActivitySummary(userPublicId),
+      readActiveUserModelSelection(userPublicId),
+      readNotificationCenter({ userPublicId, limit: 3 })
+    ]);
+  const latestNotification = notificationCenter.items[0];
+
+  return {
+    userPublicId: user.publicId,
+    profile: {
+      userPublicId: user.publicId,
+      displayName: user.name ?? 'Demo User',
+      roleLabel:
+        user.role === 'member' || user.role === 'creator' || user.role === 'admin'
+          ? user.role
+          : 'unknown'
+    },
+    activeSelection,
+    feedActivity,
+    notificationSummary: {
+      unreadCount: notificationCenter.unreadCount,
+      totalCount: notificationCenter.items.length,
+      latestNotificationTitle: latestNotification?.title,
+      latestNotificationHref: latestNotification?.href
+    },
+    recentNotifications: notificationCenter.items,
+    dataContext:
+      feedActivity.sourceLabel === 'db_read_model'
+        ? 'db_read_model'
+        : 'mock_safe_fallback',
+    notices: myPagePolicyNotices()
+  };
 }
