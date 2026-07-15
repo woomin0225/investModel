@@ -13,10 +13,21 @@ import { GET } from '../../app/api/feed/route';
 import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
+const IGNORED_CLIENT_USER_PUBLIC_ID = 'user_other_001';
+
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
+}
+
+function assertNoClientUserPublicIdExposure(payload: unknown, context: string) {
+  const serializedPayload = JSON.stringify(payload);
+
+  assertCondition(
+    !serializedPayload.includes(IGNORED_CLIENT_USER_PUBLIC_ID),
+    `${context} does not expose ignored client userPublicId`
+  );
 }
 
 async function applyTrackedFeedSeed() {
@@ -94,8 +105,12 @@ async function main() {
   );
   const listResponse = await readFeed('?limit=3');
   const listJson = await listResponse.json();
+  const clientScopedResponse = await readFeed(
+    `?limit=2&userPublicId=${IGNORED_CLIENT_USER_PUBLIC_ID}`
+  );
+  const clientScopedJson = await clientScopedResponse.json();
   const sessionScopedResponse = await readFeedWithSession(
-    '?limit=2',
+    `?limit=2&userPublicId=${IGNORED_CLIENT_USER_PUBLIC_ID}`,
     sessionCookie
   );
   const sessionScopedJson = await sessionScopedResponse.json();
@@ -116,6 +131,41 @@ async function main() {
       Array.isArray(sessionScopedJson.data) &&
       sessionScopedJson.data.length === 2,
     'session role can read feed list without role header'
+  );
+  assertCondition(
+    clientScopedResponse.status === 200 &&
+      Array.isArray(clientScopedJson.data) &&
+      clientScopedJson.data.length === 2,
+    'feed list ignores client userPublicId query under prototype fallback'
+  );
+  assertNoClientUserPublicIdExposure(
+    clientScopedJson,
+    'prototype fallback feed list'
+  );
+  assertNoClientUserPublicIdExposure(
+    sessionScopedJson,
+    'session scoped feed list'
+  );
+  assertCondition(
+    [...clientScopedJson.data, ...sessionScopedJson.data].every(
+      (post: { userPublicId?: string; authorPublicId?: string }) => {
+        return (
+          post.userPublicId === undefined && post.authorPublicId === undefined
+        );
+      }
+    ),
+    'feed list does not expose user public ids for client-selected scope'
+  );
+  assertCondition(
+    [clientScopedJson.meta, sessionScopedJson.meta].every(
+      (meta: { userPublicId?: string; clientUserPublicIdIgnored?: string }) => {
+        return (
+          meta.userPublicId === undefined &&
+          meta.clientUserPublicIdIgnored === undefined
+        );
+      }
+    ),
+    'feed list meta does not expose client-selected user scope'
   );
   assertCondition(
     Array.isArray(listJson.data) && listJson.data.length === 3,
