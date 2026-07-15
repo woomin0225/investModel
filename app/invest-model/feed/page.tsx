@@ -265,6 +265,32 @@ function feedRankingVisibleBoundaries(locale: FeedLocale) {
       ];
 }
 
+function feedEmptyAccessibleLabel(locale: FeedLocale) {
+  return locale === 'ko'
+    ? 'FeedPost empty state. DB-backed FeedPost read model scope only; informational only, not a recommendation, order, brokerage action, or realtime external data.'
+    : 'FeedPost empty state. DB-backed FeedPost read model scope only; informational only, not a recommendation, order, brokerage action, or realtime external data.';
+}
+
+function feedEmptyVisibleBoundaries(locale: FeedLocale) {
+  return locale === 'ko'
+    ? [
+        'DB FeedPost empty state',
+        'informational only',
+        'no recommendation',
+        'no order',
+        'no brokerage',
+        'no realtime external data'
+      ]
+    : [
+        'DB FeedPost empty state',
+        'informational only',
+        'no recommendation',
+        'no order',
+        'no brokerage',
+        'no realtime external data'
+      ];
+}
+
 function feedSafetyAccessibleLabel(locale: FeedLocale) {
   return locale === 'ko'
     ? 'Feed 안전 경계. FeedPost와 like ranking은 정보성 DB read model이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터 또는 실계좌 데이터가 아닙니다.'
@@ -386,6 +412,7 @@ export default async function InvestModelFeedPage({
           ? '샘플 표시'
           : 'Sample fallback';
   const safetyAccessibleLabel = feedSafetyAccessibleLabel(locale);
+  const emptyAccessibleLabel = feedEmptyAccessibleLabel(locale);
 
   return (
     <MobileShell
@@ -659,10 +686,32 @@ export default async function InvestModelFeedPage({
                 </article>
               ))
             ) : (
-              <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted">
-                {locale === 'ko'
-                  ? '선택한 필터에 표시할 DB 피드가 아직 없습니다.'
-                  : 'There are no DB feed rows for this filter yet.'}
+              <div
+                aria-label={emptyAccessibleLabel}
+                title={emptyAccessibleLabel}
+                className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted"
+              >
+                <p>
+                  {locale === 'ko'
+                    ? '선택한 필터에 표시할 DB 피드가 아직 없습니다.'
+                    : 'There are no DB feed rows for this filter yet.'}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-bg-soft p-2">
+                  {feedEmptyVisibleBoundaries(locale).map((boundary) => (
+                    <RiskBadge
+                      key={boundary}
+                      tone={
+                        boundary === 'no recommendation' ||
+                        boundary === 'no order' ||
+                        boundary === 'no brokerage'
+                          ? 'blocked'
+                          : 'neutral'
+                      }
+                    >
+                      {boundary}
+                    </RiskBadge>
+                  ))}
+                </div>
               </div>
             )}
           </div>
