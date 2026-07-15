@@ -73,7 +73,7 @@ function searchFormAccessibleLabel(
         : 'Recent DB-backed search results';
 
   return locale === 'ko'
-    ? `${queryLabel}. ${resultLabel}. InvestmentModels, DB-backed FeedPosts, SignalEvents만 검색합니다. 추천, 주문, 브로커 계좌, 실시간 외부 데이터, 실잔고 검색이 아닙니다.`
+    ? `${queryLabel}. ${resultLabel}. InvestmentModel, DB 기반 FeedPost, SignalEvent만 검색합니다. 추천, 주문, 브로커 계좌, 실시간 외부 데이터, 실잔고 검색이 아닙니다.`
     : `${queryLabel}. ${resultLabel}. Searches only InvestmentModels, DB-backed FeedPosts, and SignalEvents. This is not recommendation, order, brokerage account, realtime external data, or real balance search.`;
 }
 
@@ -84,7 +84,7 @@ function searchResultAccessibleLabel(
   detail: string
 ) {
   return locale === 'ko'
-    ? `${kind} 결과: ${title}. ${detail}. DB-backed read model 결과이며 추천, 주문, 브로커 동작 또는 실시간 외부 데이터가 아닙니다.`
+    ? `${kind} 결과: ${title}. ${detail}. DB 기반 읽기 모델 결과이며 추천, 주문, 브로커 동작 또는 실시간 외부 데이터가 아닙니다.`
     : `${kind} result: ${title}. ${detail}. DB-backed read model result, not a recommendation, order, brokerage action, or realtime external data.`;
 }
 
@@ -126,7 +126,7 @@ function EmptySearchResultCard({
 }) {
   const emptyAccessibleLabel =
     locale === 'ko'
-      ? `${kind} 빈 검색 결과. ${message} DB-backed scoped search의 빈 상태이며 추천, 주문, 브로커 동작, 실시간 외부 데이터, 실잔고 검색이 아닙니다.`
+      ? `${kind} 빈 검색 결과. ${message} DB 기반 범위 검색의 빈 상태이며 추천, 주문, 브로커 동작, 실시간 외부 데이터, 실잔고 검색이 아닙니다.`
       : `${kind} empty search result. ${message} Empty state for DB-backed scoped search, not a recommendation, order, brokerage action, realtime external data, or real balance search.`;
 
   return (
@@ -263,7 +263,7 @@ export default async function InvestModelSearchPage({
           </div>
           <p className="mt-3 text-[12px] font-semibold leading-5 text-invest-text-muted">
             {locale === 'ko'
-              ? '검색은 탐색 가능한 InvestmentModel과 DB-backed FeedPost, SignalEvent만 읽습니다. 브로커 계좌, 주문, 실시간 외부 피드, 실잔고는 검색하지 않습니다.'
+              ? '검색은 탐색 가능한 InvestmentModel과 DB 기반 FeedPost, SignalEvent만 읽습니다. 브로커 계좌, 주문, 실시간 외부 피드, 실잔고는 검색하지 않습니다.'
               : 'Search reads discoverable InvestmentModels plus DB-backed FeedPosts and SignalEvents. It does not search broker accounts, orders, realtime external feeds, or real balances.'}
           </p>
         </form>
@@ -274,8 +274,8 @@ export default async function InvestModelSearchPage({
             description={
               locale === 'ko'
                 ? query.length > 0
-                  ? `DB read model 결과 ${filteredModels.length}개`
-                  : `DB-backed 탐색 가능 모델 ${filteredModels.length}개`
+                  ? `DB 읽기 모델 결과 ${filteredModels.length}개`
+                  : `DB 기반 탐색 가능 모델 ${filteredModels.length}개`
                 : query.length > 0
                   ? `${filteredModels.length} DB read model results`
                   : `${filteredModels.length} DB-backed discoverable models`
@@ -344,7 +344,7 @@ export default async function InvestModelSearchPage({
                         </div>
                         <div className="mt-3 flex items-center justify-between gap-3 text-[12px] font-semibold leading-4 text-invest-text-muted">
                           <span className="min-w-0 truncate">
-                            DB read model
+                            {locale === 'ko' ? 'DB 읽기 모델' : 'DB read model'}
                           </span>
                           <ArrowRight
                             aria-hidden
@@ -459,7 +459,7 @@ export default async function InvestModelSearchPage({
                 kind="FeedPost"
                 message={
                   locale === 'ko'
-                    ? '이 검색어와 일치하는 DB-backed FeedPost가 없습니다.'
+                    ? '이 검색어와 일치하는 DB 기반 FeedPost가 없습니다.'
                     : 'No DB-backed FeedPost matched this search.'
                 }
               />
@@ -471,9 +471,13 @@ export default async function InvestModelSearchPage({
           <SectionHeader
             title={locale === 'ko' ? 'SignalEvents' : 'SignalEvents'}
             description={
-              query.length > 0
-                ? `${filteredSignals.length} DB-backed SignalEvent results`
-                : `${filteredSignals.length} recent DB-backed SignalEvents`
+              locale === 'ko'
+                ? query.length > 0
+                  ? `DB 기반 SignalEvent 결과 ${filteredSignals.length}개`
+                  : `최근 DB 기반 SignalEvent ${filteredSignals.length}개`
+                : query.length > 0
+                  ? `${filteredSignals.length} DB-backed SignalEvent results`
+                  : `${filteredSignals.length} recent DB-backed SignalEvents`
             }
           />
           <div
@@ -546,7 +550,7 @@ export default async function InvestModelSearchPage({
                 kind="SignalEvent"
                 message={
                   locale === 'ko'
-                    ? '이 검색어와 일치하는 DB-backed SignalEvent가 없습니다.'
+                    ? '이 검색어와 일치하는 DB 기반 SignalEvent가 없습니다.'
                     : 'No DB-backed SignalEvent matched this search.'
                 }
               />
@@ -578,7 +582,7 @@ export default async function InvestModelSearchPage({
               </p>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {locale === 'ko'
-                  ? '검색 결과는 로컬 DB-backed read model의 모델 탐색 기록, 정보성 FeedPost 기록, 관찰 SignalEvent 행입니다. 추천, 모델 선택, 수익률 주장, 브로커 동작, 실시간 외부 데이터, 계좌 데이터가 아닙니다.'
+                  ? '검색 결과는 로컬 DB 기반 읽기 모델의 모델 탐색 기록, 정보성 FeedPost 기록, 관찰 SignalEvent 행입니다. 추천, 모델 선택, 수익률 주장, 브로커 동작, 실시간 외부 데이터, 계좌 데이터가 아닙니다.'
                   : 'Search results are model discovery records, informational FeedPost records, and observed SignalEvent rows from the local DB-backed read model. They are not recommendations, model selections, return claims, broker actions, realtime external data, or account data.'}
               </p>
             </div>

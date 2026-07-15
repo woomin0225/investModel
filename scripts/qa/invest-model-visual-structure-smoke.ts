@@ -686,8 +686,14 @@ assertCondition(
     searchPageSource.includes('추천 아님 / 주문 없음') &&
     searchPageSource.includes('브로커 계좌, 주문, 실시간 외부 피드, 실잔고는 검색하지 않습니다.') &&
     searchPageSource.includes('이 검색어와 일치하는 InvestmentModel이 없습니다.') &&
-    searchPageSource.includes('이 검색어와 일치하는 DB-backed FeedPost가 없습니다.') &&
-    searchPageSource.includes('이 검색어와 일치하는 DB-backed SignalEvent가 없습니다.') &&
+    searchPageSource.includes('이 검색어와 일치하는 DB 기반 FeedPost가 없습니다.') &&
+    searchPageSource.includes('이 검색어와 일치하는 DB 기반 SignalEvent가 없습니다.') &&
+    searchPageSource.includes('DB 기반 범위 검색의 빈 상태') &&
+    searchPageSource.includes('DB 기반 읽기 모델 결과') &&
+    searchPageSource.includes('로컬 DB 기반 읽기 모델의 모델 탐색 기록') &&
+    !searchPageSource.includes('DB-backed scoped search의 빈 상태') &&
+    !searchPageSource.includes('DB-backed read model 결과') &&
+    !searchPageSource.includes('로컬 DB-backed read model의 모델 탐색 기록') &&
     !searchPageSource.includes("locale === 'ko' ? 'Search' : 'Search'") &&
     !searchPageSource.includes(
       "locale === 'ko'\n              ? 'Search models, FeedPosts, and SignalEvents'"
