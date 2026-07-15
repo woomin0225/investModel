@@ -15,6 +15,10 @@ assert(appManifest.display === 'standalone', 'manifest display should keep stand
 assert(appManifest.orientation === 'portrait', 'manifest orientation should prefer portrait mobile use');
 assert(appManifest.launch_handler?.client_mode === 'navigate-existing', 'manifest should reuse the installed app window');
 assert(appManifest.icons?.some((icon) => icon.src === '/icon' && icon.sizes === '512x512'), 'manifest should expose a 512px app icon');
+assert(
+  appManifest.icons?.some((icon) => icon.src === '/icon' && icon.sizes === '512x512' && icon.purpose === 'maskable'),
+  'manifest should expose a 512px maskable app icon'
+);
 
 const shortcutUrls = new Set(appManifest.shortcuts?.map((shortcut) => shortcut.url));
 
