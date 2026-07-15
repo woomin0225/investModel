@@ -3,15 +3,60 @@
  * It never sends push, email, SMS, broker, order, or account notifications.
  */
 
+import fs from 'fs';
+import path from 'path';
+import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 
 import { GET } from '../../app/api/notifications/route';
+import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
+}
+
+async function applyTrackedAppSeed() {
+  const seedPath = path.resolve(
+    'docs/database/seeds/001_invest_model_domain_seed.sql'
+  );
+  const sql = fs.readFileSync(seedPath, 'utf8');
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+
+  await connection.query(sql);
+  await connection.end();
+}
+
+async function readSeedUserId() {
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+  const [rows] = await connection.query<mysql.RowDataPacket[]>(
+    "SELECT id FROM users WHERE public_id = 'user_demo_001' LIMIT 1"
+  );
+  await connection.end();
+
+  const userId = rows[0]?.id;
+  assertCondition(
+    typeof userId === 'number',
+    'seed user id exists for session scope smoke'
+  );
+  return userId;
+}
+
+async function createSessionCookie(userId: number) {
+  const encryptedSession = await signToken({
+    user: { id: userId },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  return `session=${encryptedSession}`;
 }
 
 async function readNotifications(search = '') {
@@ -25,7 +70,25 @@ async function readNotifications(search = '') {
   );
 }
 
+async function readNotificationsWithSession(
+  search: string,
+  sessionCookie: string
+) {
+  return GET(
+    new NextRequest(`http://localhost/api/notifications${search}`, {
+      method: 'GET',
+      headers: {
+        cookie: sessionCookie
+      }
+    })
+  );
+}
+
 async function main() {
+  await applyTrackedAppSeed();
+  const seedUserId = await readSeedUserId();
+  const sessionCookie = await createSessionCookie(seedUserId);
+
   const publicResponse = await GET(
     new NextRequest('http://localhost/api/notifications', {
       method: 'GET'
@@ -48,6 +111,11 @@ async function main() {
   );
   const ignoredClientUserJson = await ignoredClientUserResponse.json();
   const invalidLimitResponse = await readNotifications('?limit=31');
+  const sessionScopedResponse = await readNotificationsWithSession(
+    '?userPublicId=user_demo_999',
+    sessionCookie
+  );
+  const sessionScopedJson = await sessionScopedResponse.json();
 
   assertCondition(publicResponse.status === 403, 'public role is forbidden');
   assertCondition(creatorResponse.status === 403, 'creator role is forbidden');
@@ -91,6 +159,14 @@ async function main() {
     'client userPublicId is ignored in favor of server-resolved user scope'
   );
   assertCondition(invalidLimitResponse.status === 422, 'invalid limit is rejected');
+  assertCondition(
+    sessionScopedResponse.status === 200 &&
+      sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === true &&
+      sessionScopedJson.meta?.userPublicId === 'user_demo_001',
+    'session role and user scope win for notifications'
+  );
 
   await client.end();
 }

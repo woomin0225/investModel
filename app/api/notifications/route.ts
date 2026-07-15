@@ -4,6 +4,7 @@ import { readNotificationCenter } from '@/lib/db/notification-read-model';
 import type { AccessRole } from '@/lib/domain/types';
 import {
   readInvestModelRole,
+  readInvestModelSessionRole,
   resolveInvestModelUserScope
 } from '@/lib/server/invest-model-user-scope';
 
@@ -51,7 +52,11 @@ function parseLimit(value: string | null) {
 }
 
 export async function GET(request: NextRequest) {
-  const role = readInvestModelRole(request);
+  const headerRole = readInvestModelRole(request);
+  const role =
+    headerRole === 'public'
+      ? await readInvestModelSessionRole(request)
+      : headerRole;
 
   if (!canReadNotifications(role)) {
     return errorResponse(
