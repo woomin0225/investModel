@@ -410,6 +410,9 @@ const feedDetailPageSource = readProjectFile(
 const feedCommentActionSource = readProjectFile(
   'components/invest-model/feed-comment-action.tsx'
 );
+const adminReportsPageSource = readProjectFile(
+  'app/invest-model/admin/reports/page.tsx'
+);
 
 assertCondition(
   mobileShellSource.includes('max-w-[var(--invest-mobile-frame-width)]'),
@@ -631,6 +634,13 @@ assertCondition(
 assertCondition(
   !feedPageSource.includes('Simulated list action state'),
   'Feed card actions must not describe DB-backed interactions as simulated list state'
+);
+assertCondition(
+  adminReportsPageSource.includes("t.stateLabels.join(' / ')") &&
+    adminReportsPageSource.includes('{t.disabledAction}') &&
+    !adminReportsPageSource.includes('t.stateLabels.map((stateLabel) => (') &&
+    !adminReportsPageSource.includes('<RiskBadge tone="blocked">{t.disabledAction}</RiskBadge>'),
+  'Admin Reports must present read-only state candidates and disabled actions as prose instead of hashtag status chip groups'
 );
 assertCondition(
   !homePageSource.includes('<SoftBanner') &&

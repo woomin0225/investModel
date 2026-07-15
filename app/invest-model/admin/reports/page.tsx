@@ -182,12 +182,12 @@ function AdminReportCard({
         <p className="text-sm font-semibold leading-5 text-invest-text">
           {t.availableStates}
         </p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {t.stateLabels.map((stateLabel) => (
-            <RiskBadge key={stateLabel}>{stateLabel}</RiskBadge>
-          ))}
-          <RiskBadge tone="blocked">{t.disabledAction}</RiskBadge>
-        </div>
+        <p className="mt-2 text-xs leading-5 text-invest-text-muted">
+          {t.stateLabels.join(' / ')}
+        </p>
+        <p className="mt-1 text-xs font-medium leading-5 text-invest-danger">
+          {t.disabledAction}
+        </p>
         <p className="mt-2 text-xs leading-5 text-invest-text-muted">
           {report.blockedActionLabel}
         </p>
@@ -204,4 +204,3 @@ function ReportDetail({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
