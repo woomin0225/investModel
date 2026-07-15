@@ -1,7 +1,7 @@
 /**
  * Verifies the My Page DB read model keeps member-scoped activity separated.
- * The fallback path must not leak the demo member's selections, feed activity,
- * or notifications when a different public user id is requested directly.
+ * The prototype fallback path must not leak the seeded member's selections,
+ * feed activity, or notifications when a different public user id is requested directly.
  */
 
 import fs from 'fs';
@@ -34,7 +34,7 @@ async function applyTrackedAppSeed() {
   await connection.end();
 }
 
-function containsDemoScopedActivity(value: unknown) {
+function containsSeededMemberPublicId(value: unknown) {
   return JSON.stringify(value).includes('user_demo_001');
 }
 
@@ -51,7 +51,7 @@ async function main() {
     demoSummary.userPublicId === 'user_demo_001' &&
       demoSummary.profile.userPublicId === 'user_demo_001' &&
       demoSummary.dataContext === 'db_read_model',
-    'demo member summary uses the DB-backed member scope'
+    'seed member summary uses the DB-backed member scope'
   );
   assertCondition(
     demoSummary.activeSelection?.userPublicId === 'user_demo_001' &&
@@ -60,7 +60,7 @@ async function main() {
       demoSummary.feedActivity.commentCount > 0 &&
       demoSummary.notificationSummary.totalCount > 0 &&
       demoSummary.recentNotifications.length > 0,
-    'demo member summary includes scoped selection, activity, and notifications'
+    'seed member summary includes scoped selection, activity, and notifications'
   );
 
   assertCondition(
@@ -91,9 +91,9 @@ async function main() {
     'direct feed activity read model fallback is also member scoped'
   );
   assertCondition(
-    !containsDemoScopedActivity(missingSummary) &&
-      !containsDemoScopedActivity(missingFeedActivity),
-    'fallback summaries do not contain demo member scoped identifiers'
+    !containsSeededMemberPublicId(missingSummary) &&
+      !containsSeededMemberPublicId(missingFeedActivity),
+    'prototype fallback summaries do not contain seeded member scoped identifiers'
   );
 
   await client.end();
