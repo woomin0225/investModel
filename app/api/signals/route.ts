@@ -82,6 +82,7 @@ export async function GET(request: NextRequest) {
         persistence: 'persisted',
         sourceTables: [
           'model_signal_events',
+          'signal_score_snapshots',
           'model_versions',
           'investment_models',
           'market_instruments'

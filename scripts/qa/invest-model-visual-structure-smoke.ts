@@ -334,6 +334,9 @@ const mobileShellSource = readProjectFile(
 );
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
+const signalRefreshActionSource = readProjectFile(
+  'components/invest-model/signal-refresh-action.tsx'
+);
 const signalDetailPageSource = readProjectFile(
   'app/invest-model/signals/[signalId]/page.tsx'
 );
@@ -409,6 +412,14 @@ assertCondition(
     signalDetailPageSource.includes('scoreSnapshotRows') &&
     signalDetailPageSource.includes('Rank movement'),
   'Signals list/detail must surface DB-backed score snapshot rank movement without advice or order language'
+);
+assertCondition(
+  signalsPageSource.includes('<SignalRefreshAction') &&
+    signalsPageSource.includes('latestScoreSnapshotLabel') &&
+    signalRefreshActionSource.includes('router.refresh()') &&
+    signalRefreshActionSource.includes('Auto refresh 60s') &&
+    signalRefreshActionSource.includes('No external realtime data, advice, or order'),
+  'Realtime Signals must expose manual/60s DB snapshot refresh UX with safety boundary copy'
 );
 assertCondition(
   modelsPageSource.includes('name="q"') &&

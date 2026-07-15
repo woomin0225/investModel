@@ -8,6 +8,7 @@ import {
   RiskBadge,
   SectionHeader,
   SearchAndNotificationActions,
+  SignalRefreshAction,
   SoftBanner,
   investMotionClass
 } from '@/components/invest-model';
@@ -171,6 +172,35 @@ function formatCapturedAt(value: string, locale: SignalLocale) {
     hour: '2-digit',
     minute: '2-digit'
   }).format(capturedAt);
+}
+
+function latestScoreSnapshotLabel(
+  locale: SignalLocale,
+  signals: SignalEventDto[],
+  readState: 'db' | 'empty' | 'fallback'
+) {
+  if (readState === 'fallback') {
+    return locale === 'ko'
+      ? 'DB Signals refresh unavailable'
+      : 'DB Signals refresh unavailable';
+  }
+
+  const latestSnapshotTime = signals
+    .map((signal) => signal.scoreSnapshot?.capturedAt)
+    .filter((value): value is string => Boolean(value))
+    .map((value) => new Date(value))
+    .filter((value) => !Number.isNaN(value.getTime()))
+    .sort((left, right) => right.getTime() - left.getTime())[0];
+
+  if (!latestSnapshotTime) {
+    return locale === 'ko'
+      ? 'No DB score snapshot yet'
+      : 'No DB score snapshot yet';
+  }
+
+  return locale === 'ko'
+    ? `Latest DB snapshot ${formatCapturedAt(latestSnapshotTime.toISOString(), locale)}`
+    : `Latest DB snapshot ${formatCapturedAt(latestSnapshotTime.toISOString(), locale)}`;
 }
 
 function signalStatusLabel(locale: SignalLocale, signal: SignalEventDto) {
@@ -391,6 +421,16 @@ export default async function InvestModelSignalsPage({
           <SectionHeader
             title={signalsCopy.sectionTitle}
             description={signalsCopy.sectionDescription}
+          />
+
+          <SignalRefreshAction
+            locale={locale}
+            lastUpdatedLabel={latestScoreSnapshotLabel(
+              locale,
+              dbSignals,
+              signalReadState
+            )}
+            disabled={signalReadState === 'fallback'}
           />
 
           <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">

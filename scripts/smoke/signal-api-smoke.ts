@@ -105,7 +105,8 @@ async function main() {
       listJson.meta?.tradeIntentCreated === false &&
       listJson.meta?.realOrder === false &&
       listJson.meta?.brokerageConnection === false &&
-      listJson.meta?.financialAdvice === false,
+      listJson.meta?.financialAdvice === false &&
+      listJson.meta?.sourceTables?.includes('signal_score_snapshots'),
     'signal list keeps mock-safe API meta'
   );
   assertCondition(
