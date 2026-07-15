@@ -386,6 +386,9 @@ const modelsPageSource = readProjectFile('app/invest-model/models/page.tsx');
 const modelComparePageSource = readProjectFile(
   'app/invest-model/models/compare/page.tsx'
 );
+const modelDetailPageSource = readProjectFile(
+  'app/invest-model/models/[modelId]/page.tsx'
+);
 const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
 const portfolioPageSource = readProjectFile(
   'app/invest-model/portfolio/page.tsx'
@@ -638,6 +641,15 @@ assertCondition(
       'No live orders / Approved mock only / Backtest placeholder'
     ),
   'Model Compare must present safety boundaries as prose instead of hashtag safety chip groups'
+);
+assertCondition(
+  modelDetailPageSource.includes("detailVisibleBoundaries.join(' / ')") &&
+    modelDetailPageSource.includes("selectionVisibleBoundaries.join(' / ')") &&
+    !modelDetailPageSource.includes('detailVisibleBoundaries.map((boundary) => (') &&
+    !modelDetailPageSource.includes('selectionVisibleBoundaries.map((boundary) => (') &&
+    modelDetailPageSource.includes('Model detail visible safety boundaries') &&
+    modelDetailPageSource.includes('Model selection visible safety boundaries'),
+  'Model Detail must present visible safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&

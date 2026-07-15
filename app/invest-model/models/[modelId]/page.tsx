@@ -212,13 +212,9 @@ export default async function InvestModelDetailPage({
 
         <div
           aria-label="Model detail visible safety boundaries"
-          className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-bg-soft p-2"
+          className="rounded-invest-control bg-invest-bg-soft p-2 text-xs font-semibold leading-5 text-invest-text-muted"
         >
-          {detailVisibleBoundaries.map((boundary) => (
-            <RiskBadge key={boundary} tone="neutral">
-              {boundary}
-            </RiskBadge>
-          ))}
+          {detailVisibleBoundaries.join(' / ')}
         </div>
 
         <PerformanceMetricGroup
@@ -398,13 +394,9 @@ export default async function InvestModelDetailPage({
           </div>
           <div
             aria-label="Model selection visible safety boundaries"
-            className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-bg-soft p-2"
+            className="mt-3 rounded-invest-control bg-invest-bg-soft p-2 text-xs font-semibold leading-5 text-invest-text-muted"
           >
-            {selectionVisibleBoundaries.map((boundary) => (
-              <RiskBadge key={boundary} tone="neutral">
-                {boundary}
-              </RiskBadge>
-            ))}
+            {selectionVisibleBoundaries.join(' / ')}
           </div>
           <ModelSelectionCta
             modelPublicId={model.modelPublicId}
