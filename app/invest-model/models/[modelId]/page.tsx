@@ -205,10 +205,13 @@ export default async function InvestModelDetailPage({
           riskLabel={model.riskLabel}
           leverageLabel={model.leverageLabel}
           statusLabel={model.statusLabel}
-          constraintLabels={[copy.noLiveTradingLabel, model.reviewLabel]}
+          constraintLabels={[model.reviewLabel]}
           riskTone={model.riskTone}
           statusTone={model.statusTone}
         />
+        <p className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+          {copy.noLiveTradingLabel}
+        </p>
 
         <div
           aria-label="Model detail visible safety boundaries"
@@ -385,11 +388,11 @@ export default async function InvestModelDetailPage({
             </div>
           ) : null}
           <div className="mt-4 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-2">
-            <RiskBadge tone="neutral" className="justify-center text-center">
+            <p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-[12px] font-semibold leading-5 text-invest-text-muted">
               {model.dataContext === 'db_read_model'
                 ? detailReadModelCopy[locale].dbDetailLabel
                 : copy.reviewPlaceholderLabel}
-            </RiskBadge>
+            </p>
             <p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-[12px] font-semibold leading-5 text-invest-text-muted">
               {copy.noLiveTradingLabel}
             </p>

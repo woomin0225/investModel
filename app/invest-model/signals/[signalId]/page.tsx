@@ -444,13 +444,13 @@ export default async function InvestModelSignalDetailPage({
                 <RiskBadge tone={badgeToneByScore[scoreTone]}>
                   {signal.scoreDisplay}
                 </RiskBadge>
-                <RiskBadge tone="neutral">
+                <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
                   {signal.dataContext === 'mock'
                     ? locale === 'ko'
                       ? 'Seed/mock'
                       : 'Seed/mock'
                     : signal.dataContext}
-                </RiskBadge>
+                </span>
               </div>
               <p className="mt-2 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
                 {signalDetailVisibleBoundaries(locale).join(' / ')}
@@ -481,9 +481,9 @@ export default async function InvestModelSignalDetailPage({
                   ? 'Score snapshot rank'
                   : 'Score snapshot rank'}
               </h3>
-              <RiskBadge tone="neutral">
+              <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
                 {locale === 'ko' ? 'DB read model' : 'DB read model'}
-              </RiskBadge>
+              </span>
             </div>
             {scoreSnapshotRows.map((row) => (
               <div

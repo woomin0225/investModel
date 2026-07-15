@@ -539,6 +539,18 @@ assertCondition(
     !signalDetailPageSource.includes('signalScoreSnapshotVisibleBoundaries(locale).map((boundary) => (') &&
     !signalDetailPageSource.includes('signalEvidenceVisibleBoundaries(locale).map((boundary) => (') &&
     !signalDetailPageSource.includes('signalRelatedVisibleBoundaries(locale).map((boundary) => (') &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{signal\.dataContext === 'mock'[\s\S]{0,180}: signal\.dataContext\}\s*<\/span>/.test(
+      signalDetailPageSource
+    ) &&
+    !/<RiskBadge\b[^>]*tone="neutral"[^>]*>[\s\S]{0,220}\{signal\.dataContext === 'mock'[\s\S]{0,120}<\/RiskBadge>/.test(
+      signalDetailPageSource
+    ) &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{locale === 'ko' \? 'DB read model' : 'DB read model'\}\s*<\/span>/.test(
+      signalDetailPageSource
+    ) &&
+    !/<RiskBadge\b[^>]*tone="neutral"[^>]*>[\s\S]{0,80}DB read model[\s\S]{0,80}<\/RiskBadge>/.test(
+      signalDetailPageSource
+    ) &&
     !signalDetailPageSource.includes("<RiskBadge tone=\"blocked\">\n                  {locale === 'ko' ? '異붿쿇 ?꾨떂' : 'No recommendation'}\n                </RiskBadge>") &&
     !signalDetailPageSource.includes("<RiskBadge tone=\"medium\">\n                  {locale === 'ko' ? '二쇰Ц ?놁쓬' : 'No order'}\n                </RiskBadge>") &&
     !signalDetailPageSource.includes("'No recommendation'}\n                </RiskBadge>") &&
@@ -764,7 +776,20 @@ assertCondition(
     !modelDetailPageSource.includes('selectionVisibleBoundaries.map((boundary) => (') &&
     modelDetailPageSource.includes('Model detail visible safety boundaries') &&
     modelDetailPageSource.includes('Model selection visible safety boundaries') &&
+    modelDetailPageSource.includes('constraintLabels={[model.reviewLabel]}') &&
+    !modelDetailPageSource.includes(
+      'constraintLabels={[copy.noLiveTradingLabel, model.reviewLabel]}'
+    ) &&
     !/<RiskBadge\b[^>]*tone="blocked"[^>]*>[\s\S]{0,160}\{copy\.noLiveTradingLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
+      modelDetailPageSource
+    ) &&
+    !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{copy\.noLiveTradingLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
+      modelDetailPageSource
+    ) &&
+    /<p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{model\.dataContext === 'db_read_model'[\s\S]{0,160}: copy\.reviewPlaceholderLabel\}\s*<\/p>/.test(
+      modelDetailPageSource
+    ) &&
+    !/<RiskBadge\b[^>]*tone="neutral"[^>]*[\s\S]{0,160}\{model\.dataContext === 'db_read_model'[\s\S]{0,120}<\/RiskBadge>/.test(
       modelDetailPageSource
     ) &&
     modelSelectionCtaSource.includes('const successMetaLine') &&
