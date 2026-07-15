@@ -242,6 +242,11 @@ export default async function InvestModelPortfolioPage({
   const blockedVisibleBoundaries = portfolioBlockedVisibleBoundaries(locale);
   const timeDashboardVisibleBoundaries =
     portfolioTimeDashboardVisibleBoundaries(locale);
+  const timeDashboardSafetyLine = [
+    portfolio.mockDeposit.safetyLabel,
+    copy.preOrderOnly,
+    copy.noBrokerage
+  ].join(' / ');
 
   return (
     <MobileShell
@@ -307,12 +312,8 @@ export default async function InvestModelPortfolioPage({
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              <RiskBadge tone="neutral">
-                {portfolio.mockDeposit.safetyLabel}
-              </RiskBadge>
-              <RiskBadge tone="medium">{copy.preOrderOnly}</RiskBadge>
-              <RiskBadge tone="blocked">{copy.noBrokerage}</RiskBadge>
+            <div className="rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+              {timeDashboardSafetyLine}
             </div>
           </div>
           <p className="rounded-invest-control bg-invest-surface-muted px-3 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
@@ -347,6 +348,11 @@ export default async function InvestModelPortfolioPage({
           >
             {portfolio.timeSnapshots.map((snapshot) => {
               const snapshotStateLabel = `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. Mock-only checkpoint; not a real return, real balance, order, or brokerage data.`;
+              const snapshotSafetyLine = [
+                'DB snapshot',
+                'mock-only checkpoint',
+                snapshot.safetyLabel
+              ].join(' / ');
 
               return (
                 <article
@@ -377,10 +383,8 @@ export default async function InvestModelPortfolioPage({
                   <p className="mt-2 text-[12px] font-semibold leading-4 text-invest-primary">
                     {snapshot.signalLabel}
                   </p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    <RiskBadge tone="neutral">DB snapshot</RiskBadge>
-                    <RiskBadge>mock-only checkpoint</RiskBadge>
-                    <RiskBadge tone="blocked">{snapshot.safetyLabel}</RiskBadge>
+                  <div className="mt-2 rounded-invest-control bg-invest-bg-soft px-2 py-1.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                    {snapshotSafetyLine}
                   </div>
                 </article>
               );

@@ -233,6 +233,8 @@ const screens: ScreenCheck[] = [
       investModelPortfolioMock.selectedModel.statusLabel,
       investModelPortfolioMock.selectedModel.mandateLabel,
       investModelPortfolioMock.mockDeposit.safetyLabel,
+      'Pre-order simulation stage only',
+      'No brokerage account or order execution is connected',
       'Mock time dashboard',
       'Read-model trace',
       'mock time windows from DB-backed',
@@ -696,10 +698,20 @@ assertCondition(
     portfolioPageSource.includes('portfolio.allocationDecision.statusLabel') &&
     portfolioPageSource.includes('portfolio.tradeIntent.statusLabel') &&
     portfolioPageSource.includes('Portfolio time dashboard read-model trace') &&
+    portfolioPageSource.includes('const timeDashboardSafetyLine') &&
+    portfolioPageSource.includes("portfolio.mockDeposit.safetyLabel,\n    copy.preOrderOnly,\n    copy.noBrokerage") &&
+    portfolioPageSource.includes('const snapshotSafetyLine') &&
+    portfolioPageSource.includes("'DB snapshot',\n                'mock-only checkpoint',\n                snapshot.safetyLabel") &&
     portfolioPageSource.includes("timeDashboardVisibleBoundaries.join(' / ')") &&
     portfolioPageSource.includes("blockedVisibleBoundaries.join(' / ')") &&
     !portfolioPageSource.includes('timeDashboardVisibleBoundaries.map((boundary) => (') &&
     !portfolioPageSource.includes('blockedVisibleBoundaries.map((boundary) => (') &&
+    !portfolioPageSource.includes('<RiskBadge tone="neutral">\n                {portfolio.mockDeposit.safetyLabel}\n              </RiskBadge>') &&
+    !portfolioPageSource.includes('<RiskBadge tone="medium">{copy.preOrderOnly}</RiskBadge>') &&
+    !portfolioPageSource.includes('<RiskBadge tone="blocked">{copy.noBrokerage}</RiskBadge>') &&
+    !portfolioPageSource.includes('<RiskBadge tone="neutral">DB snapshot</RiskBadge>') &&
+    !portfolioPageSource.includes('<RiskBadge>mock-only checkpoint</RiskBadge>') &&
+    !portfolioPageSource.includes('<RiskBadge tone="blocked">{snapshot.safetyLabel}</RiskBadge>') &&
     portfolioPageSource.includes('portfolio.timeSnapshots.length') &&
     portfolioPageSource.includes('position.quantityLabel'),
   'Portfolio must start with the DB-backed time dashboard summary and present safety boundaries as prose instead of top simulation banner/metric cards or hashtag safety chip groups'
