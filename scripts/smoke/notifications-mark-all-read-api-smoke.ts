@@ -96,6 +96,8 @@ async function main() {
   assertCondition(
     ignoredClientUserResponse.status === 200 &&
       ignoredClientUserJson.meta?.userPublicId === 'user_demo_001' &&
+      ignoredClientUserJson.meta?.dataContext ===
+        ignoredClientUserJson.data?.notificationCenter?.dataContext &&
       ignoredClientUserJson.meta?.clientUserPublicIdIgnored === undefined,
     'client userPublicId is not exposed and server-resolved user scope is used'
   );
@@ -130,6 +132,7 @@ async function main() {
       markJson.meta?.brokerageConnection === false &&
       markJson.meta?.financialAdvice === false &&
       markJson.meta?.userScopeSource === 'demo_fallback' &&
+      markJson.meta?.dataContext === markJson.data?.notificationCenter?.dataContext &&
       markJson.meta?.clientUserPublicIdIgnored === undefined,
     'mark all read keeps mock-safe meta'
   );

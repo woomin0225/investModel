@@ -112,6 +112,7 @@ export async function POST(request: NextRequest) {
         sourceTables: ['users', 'feed_posts', 'feed_post_reads'],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
+        dataContext: result.data.dataContext,
         limit,
         readStateOnly: true,
         sendsRealPush: false,
