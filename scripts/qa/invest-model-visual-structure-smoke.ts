@@ -794,6 +794,11 @@ assertCondition(
     !portfolioPageSource.includes('<RiskBadge tone="neutral">DB snapshot</RiskBadge>') &&
     !portfolioPageSource.includes('<RiskBadge>mock-only checkpoint</RiskBadge>') &&
     !portfolioPageSource.includes('<RiskBadge tone="blocked">{snapshot.safetyLabel}</RiskBadge>') &&
+    portfolioPageSource.includes('portfolio.tradeIntent.blockedActions.map((action) => (') &&
+    portfolioPageSource.includes('role="listitem"') &&
+    !/<RiskBadge\b[^>]*tone="blocked"[^>]*>[\s\S]{0,240}\{action\}[\s\S]{0,80}<\/RiskBadge>/.test(
+      portfolioPageSource
+    ) &&
     portfolioPageSource.includes('portfolio.timeSnapshots.length') &&
     portfolioPageSource.includes('position.quantityLabel'),
   'Portfolio must start with the DB-backed time dashboard summary and present safety boundaries as prose instead of top simulation banner/metric cards or hashtag safety chip groups'

@@ -627,7 +627,7 @@ export default async function InvestModelPortfolioPage({
                 role="list"
                 aria-label={blockedActionsAccessibleLabel}
                 title={blockedActionsAccessibleLabel}
-                className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-risk-soft/40 p-2"
+                className="mt-3 space-y-1 rounded-invest-control bg-invest-risk-soft/40 p-2 text-[12px] font-semibold leading-5 text-invest-danger"
               >
                 {portfolio.tradeIntent.blockedActions.map((action) => (
                   <span
@@ -642,7 +642,7 @@ export default async function InvestModelPortfolioPage({
                       action
                     )}
                   >
-                    <RiskBadge tone="blocked">{action}</RiskBadge>
+                    {action}
                   </span>
                 ))}
               </div>
