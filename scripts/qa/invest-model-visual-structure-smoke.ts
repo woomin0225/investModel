@@ -410,6 +410,10 @@ const feedDetailPageSource = readProjectFile(
 const feedCommentActionSource = readProjectFile(
   'components/invest-model/feed-comment-action.tsx'
 );
+const feedLikeActionSource = readProjectFile(
+  'components/invest-model/feed-like-action.tsx'
+);
+const feedLikeActionNormalizedSource = feedLikeActionSource.replace(/\r\n/g, '\n');
 const adminReportsPageSource = readProjectFile(
   'app/invest-model/admin/reports/page.tsx'
 );
@@ -747,6 +751,14 @@ assertCondition(
     !feedCommentActionSource.includes("isKorean ? 'Informational reply body' : 'Informational reply body'") &&
     !feedCommentActionSource.includes("locale === 'ko'\n              ? `Replies ${comment.replyCount}`"),
   'Feed comment reply Korean copy must not fall back to English'
+);
+assertCondition(
+  feedLikeActionNormalizedSource.includes('내가 누른 좋아요입니다. 인기 맥락일 뿐 투자 조언, 수익, 주문 신호가 아닙니다.') &&
+    feedLikeActionNormalizedSource.includes('좋아요를 누르지 않았습니다. 인기 맥락일 뿐 투자 조언, 수익, 주문 신호가 아닙니다.') &&
+    feedLikeActionNormalizedSource.includes("isKorean\n      ? '내가 누른 좋아요입니다.") &&
+    feedLikeActionNormalizedSource.includes("isKorean\n      ? '좋아요를 누르지 않았습니다.") &&
+    !feedLikeActionNormalizedSource.includes("const actionTitle = reactionState.liked\n    ? 'Liked by you."),
+  'Feed like action Korean title copy must not fall back to English'
 );
 assertCondition(
   adminReportsPageSource.includes("t.stateLabels.join(' / ')") &&

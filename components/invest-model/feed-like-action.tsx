@@ -42,8 +42,12 @@ export function FeedLikeAction({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isKorean = locale === 'ko';
   const actionTitle = reactionState.liked
-    ? 'Liked by you. Popularity context only; not advice, return, or order signal.'
-    : 'Not liked by you. Popularity context only; not advice, return, or order signal.';
+    ? isKorean
+      ? '내가 누른 좋아요입니다. 인기 맥락일 뿐 투자 조언, 수익, 주문 신호가 아닙니다.'
+      : 'Liked by you. Popularity context only; not advice, return, or order signal.'
+    : isKorean
+      ? '좋아요를 누르지 않았습니다. 인기 맥락일 뿐 투자 조언, 수익, 주문 신호가 아닙니다.'
+      : 'Not liked by you. Popularity context only; not advice, return, or order signal.';
 
   async function handleToggleLike() {
     if (isPending) {
