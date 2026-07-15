@@ -91,7 +91,7 @@ function myPageActivityAccessibleLabel(
   badge: string
 ) {
   return locale === 'ko'
-    ? `${title}. ${description}. 상태: ${badge}. My Page DB read model 또는 mock-safe 상태이며 실제 계좌, 주문, 브로커 동작, push/email/SMS 전송, 투자 조언이 아닙니다.`
+    ? `${title}. ${description}. 상태: ${badge}. 내 정보의 DB 읽기 모델 또는 모의 안전 상태이며 실제 계좌, 주문, 브로커 동작, 푸시/이메일/SMS 전송, 투자 조언이 아닙니다.`
     : `${title}. ${description}. Status: ${badge}. My Page DB read model or mock-safe state, not a real account, order, brokerage action, push/email/SMS delivery, or investment advice.`;
 }
 
@@ -106,13 +106,13 @@ function recentFeedActivityAccessibleLabel(
     (locale === 'ko' ? '활동 시각 없음' : 'No activity timestamp');
 
   return locale === 'ko'
-    ? `${label} FeedPost 활동: ${title}. ${timeLabel}. user-scoped DB read model의 읽기 shortcut이며 추천, 주문, 브로커 동작, 실계좌 데이터가 아닙니다.`
+    ? `${label} FeedPost 활동: ${title}. ${timeLabel}. 사용자 범위 DB 읽기 모델의 읽기 바로가기이며 추천, 주문, 브로커 동작, 실계좌 데이터가 아닙니다.`
     : `${label} FeedPost activity: ${title}. ${timeLabel}. User-scoped DB read model reading shortcut, not advice, an order, a brokerage action, or real account data.`;
 }
 
 function myPageSafetyAccessibleLabel(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? 'My Page 안전 경계. 값은 현재 회원의 앱 내 DB read model 또는 mock-safe 상태이며 실제 계좌 잔고, 은행 연결, 브로커 주문, push/email/SMS 전송, 법률 판단 또는 투자 조언이 아닙니다.'
+    ? '내 정보 안전 경계. 값은 현재 회원의 앱 내 DB 읽기 모델 또는 모의 안전 상태이며 실제 계좌 잔고, 은행 연결, 브로커 주문, 푸시/이메일/SMS 전송, 법률 판단 또는 투자 조언이 아닙니다.'
     : 'My Page safety boundary. Values are current member in-app DB read models or mock-safe state, not real account balances, bank links, brokerage orders, push/email/SMS delivery, legal judgments, or investment advice.';
 }
 
@@ -124,7 +124,7 @@ function myPageActivityVisibleBoundaries(locale: 'ko' | 'en') {
 
 function myPageRecentActivityVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? ['DB FeedPost activity', '저장/댓글 읽기', '브로커 미연결', '푸시 전송 없음']
+    ? ['DB FeedPost 활동', '저장/댓글 읽기', '브로커 미연결', '푸시 전송 없음']
     : [
         'DB FeedPost activity',
         'saved/comment read model',
@@ -136,8 +136,8 @@ function myPageRecentActivityVisibleBoundaries(locale: 'ko' | 'en') {
 function myPageSummaryVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
     ? [
-        'DB 사용자 read model',
-        'local profile summary',
+        'DB 사용자 읽기 모델',
+        '로컬 프로필 요약',
         '실계좌 없음',
         '브로커 미연결',
         '실주문 없음',
@@ -164,7 +164,7 @@ function myPageScopeBadgeLabel(
   }
 
   return locale === 'ko'
-    ? '프로토타입 fallback 범위'
+    ? '프로토타입 대체 범위'
     : 'Prototype fallback scope';
 }
 
@@ -175,14 +175,14 @@ function myPageScopeAccessibleLabel(
   const scopeLabel = myPageScopeBadgeLabel(locale, meta);
 
   return locale === 'ko'
-    ? `${scopeLabel}. My Page는 API의 userScopeSource를 기준으로 현재 회원 DB read model 또는 프로토타입 fallback 상태를 구분합니다. 클라이언트가 보낸 userPublicId로 회원 범위를 바꾸지 않습니다.`
+    ? `${scopeLabel}. 내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 읽기 모델 또는 프로토타입 대체 상태를 구분합니다. 클라이언트가 보낸 사용자 공개 ID로 회원 범위를 바꾸지 않습니다.`
     : `${scopeLabel}. My Page distinguishes current member DB read model state from prototype fallback through the API userScopeSource. Client-provided userPublicId does not change the member scope.`;
 }
 
 const myPageCopy = {
   ko: {
     eyebrow: '내 정보',
-    title: 'My Page',
+    title: '내 정보',
     alertLabel: '내 알림',
     bannerEyebrow: '회원 상태',
     bannerTitle: '현재 회원의 앱 활동',
@@ -197,39 +197,39 @@ const myPageCopy = {
       commentsDescription: '댓글 API 연결 전',
       notices: '알림',
       noticesValue: '준비 중',
-      noticesDescription: '실제 push/email/SMS 아님'
+      noticesDescription: '실제 푸시/이메일/SMS 아님'
     },
-    selectedSectionTitle: '선택한 InvestmentModel',
+    selectedSectionTitle: '선택한 투자 모델',
     selectedSectionDescription:
-      'DB에 저장된 active UserModelSelection을 읽습니다. 투자 성향이나 주문 설정이 아닙니다.',
-    activityTitle: '활동 read model',
+      'DB에 저장된 활성 모델 선택 기록을 읽습니다. 투자 성향이나 주문 설정이 아닙니다.',
+    activityTitle: '활동 읽기 모델',
     activityDescription:
-      'My Page는 앞으로 저장, 댓글, 알림 상태를 DB read model로 묶어 보여줍니다.',
+      '내 정보는 앞으로 저장, 댓글, 알림 상태를 DB 읽기 모델로 묶어 보여줍니다.',
     activityItems: [
       {
         icon: Bookmark,
         href: '/invest-model/feed',
         title: '저장 글',
-        description: 'FeedPost 저장 토글이 연결되면 최근 저장한 글을 표시합니다.',
+        description: '피드 글 저장 토글이 연결되면 최근 저장한 글을 표시합니다.',
         badge: '준비 중'
       },
       {
         icon: MessageCircle,
         href: '/invest-model/feed',
         title: '댓글',
-        description: '댓글/대댓글 API가 연결되면 최근 작성한 댓글을 표시합니다.',
+        description: '댓글/대댓글 기능이 연결되면 최근 작성한 댓글을 표시합니다.',
         badge: '준비 중'
       },
       {
         icon: Bell,
         href: '/invest-model/notifications',
         title: '알림',
-        description: '모델 선택, 신호 변화, 피드 반응 알림을 mock-safe 상태로 표시합니다.',
+        description: '모델 선택, 신호 변화, 피드 반응 알림을 모의 안전 상태로 표시합니다.',
         badge: '실제 발송 없음'
       }
     ],
     footer:
-      'My Page의 모든 값은 현재 회원의 앱 내 read model 또는 준비 중인 mock-safe 상태입니다. 실제 계좌 잔고, 은행 연결, 브로커 주문, 법률 판단을 표시하지 않습니다.'
+      '내 정보의 모든 값은 현재 회원의 앱 내 읽기 모델 또는 준비 중인 모의 안전 상태입니다. 실제 계좌 잔고, 은행 연결, 브로커 주문, 법률 판단을 표시하지 않습니다.'
   },
   en: {
     eyebrow: 'Member',
@@ -315,7 +315,9 @@ export default async function InvestModelMyPage({
     (locale === 'ko' ? 'DB 댓글 활동 없음' : 'No comment activity');
   const sourceTrend =
     routeDataContext === 'db_read_model'
-      ? 'DB read model'
+      ? locale === 'ko'
+        ? 'DB 읽기 모델'
+        : 'DB read model'
       : locale === 'ko'
         ? '대기'
         : 'pending';
@@ -342,7 +344,7 @@ export default async function InvestModelMyPage({
   const noticesDescription =
     notificationSummary.latestNotificationTitle ??
     (locale === 'ko'
-      ? 'DB notification read-model activity 없음'
+      ? 'DB 알림 읽기 활동 없음'
       : 'No DB notification read-model activity');
 
   return (
@@ -407,7 +409,7 @@ export default async function InvestModelMyPage({
           className="text-[12px] leading-5 text-invest-text-muted"
         >
           {locale === 'ko'
-            ? '회원 범위는 API userScopeSource로 확인하며, 화면 값은 현재 회원 DB read model 또는 프로토타입 fallback만 표시합니다.'
+            ? '회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 읽기 모델 또는 프로토타입 대체 상태만 표시합니다.'
             : 'Member scope is confirmed through the API userScopeSource, and this screen shows only current member DB read models or prototype fallback state.'}
         </p>
         <p className="text-[12px] leading-5 text-invest-text-muted">
@@ -436,7 +438,9 @@ export default async function InvestModelMyPage({
               const Icon = item.icon;
               const badge =
                 index < 2 && activitySummary.sourceLabel === 'db_read_model'
-                  ? 'DB read model'
+                  ? locale === 'ko'
+                    ? 'DB 읽기 모델'
+                    : 'DB read model'
                   : item.badge;
               const activityAccessibleLabel = myPageActivityAccessibleLabel(
                 locale,
@@ -496,13 +500,15 @@ export default async function InvestModelMyPage({
                 </h2>
                 <p className="mt-1 text-[12px] leading-5 text-invest-text-muted">
                   {locale === 'ko'
-                    ? '현재 회원의 저장/댓글 shortcut을 DB read model에서 최신순으로 표시합니다.'
+                    ? '현재 회원의 저장/댓글 바로가기를 DB 읽기 모델에서 최신순으로 표시합니다.'
                     : 'DB-backed saved and comment shortcuts for the current member, sorted by latest activity.'}
                 </p>
               </div>
               <p className="shrink-0 text-right text-[12px] font-semibold leading-5 text-invest-text-muted">
                 {activitySummary.sourceLabel === 'db_read_model'
-                  ? 'DB read model'
+                  ? locale === 'ko'
+                    ? 'DB 읽기 모델'
+                    : 'DB read model'
                   : 'mock-safe'}
               </p>
             </div>
@@ -515,7 +521,7 @@ export default async function InvestModelMyPage({
                 role="list"
                 aria-label={
                   locale === 'ko'
-                    ? '최근 FeedPost 활동. 현재 회원의 저장 및 댓글 DB read model shortcut입니다.'
+                    ? '최근 FeedPost 활동. 현재 회원의 저장 및 댓글 DB 읽기 모델 바로가기입니다.'
                     : 'Recent FeedPost activity. Current member saved and comment DB read model shortcuts.'
                 }
                 className="mt-3 space-y-2"
@@ -568,14 +574,14 @@ export default async function InvestModelMyPage({
             ) : (
               <p className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-sm leading-5 text-invest-text-muted">
                 {locale === 'ko'
-                  ? '표시할 DB FeedPost 활동이 아직 없습니다.'
+                  ? '표시할 DB 피드 글 활동이 아직 없습니다.'
                   : 'No DB FeedPost activity to show yet.'}
               </p>
             )}
 
             <p className="mt-3 text-[12px] leading-5 text-invest-text-muted">
               {locale === 'ko'
-                ? '저장/댓글 활동은 정보성 읽기 shortcut이며 추천, 주문, 실계좌, 실제 알림 전송과 연결되지 않습니다.'
+                ? '저장/댓글 활동은 정보성 읽기 바로가기이며 추천, 주문, 실계좌, 실제 알림 전송과 연결되지 않습니다.'
                 : 'Saved/comment activity is an informational reading shortcut only, not advice, orders, real accounts, or notification delivery.'}
             </p>
           </div>
@@ -588,7 +594,7 @@ export default async function InvestModelMyPage({
         >
           <p className="text-xs font-semibold leading-5 text-invest-text-muted">
             {locale === 'ko'
-              ? '실계좌 없음 / 실주문 없음 / DB read model'
+              ? '실계좌 없음 / 실주문 없음 / DB 읽기 모델'
               : 'No real account / No real orders / DB read model'}
           </p>
           <p className="mt-3 text-sm leading-6 text-invest-text-muted">

@@ -918,7 +918,8 @@ assertCondition(
   'Home and model selection read status must not start with the top blue SoftBanner or hashtag safety chip group and must preserve mock/no-order safety context'
 );
 assertCondition(
-  myPageSource.includes('No real account / No real orders / DB read model') &&
+  myPageSource.includes('실계좌 없음 / 실주문 없음 / DB 읽기 모델') &&
+    myPageSource.includes('No real account / No real orders / DB read model') &&
     myPageSource.includes('{myPageScopeBadgeLabel(locale, myPageMeta)}') &&
     myPageSource.includes("activitySummary.sourceLabel === 'db_read_model'") &&
     myPageSource.includes("summaryVisibleBoundaries.join(' / ')") &&
@@ -934,12 +935,31 @@ assertCondition(
   'My Page safety boundaries must use prose instead of hashtag safety chip groups'
 );
 assertCondition(
+  myPageSource.includes('내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 읽기 모델 또는 프로토타입 대체 상태를 구분합니다.') &&
+    myPageSource.includes('회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 읽기 모델 또는 프로토타입 대체 상태만 표시합니다.') &&
+    myPageSource.includes('DB 사용자 읽기 모델') &&
+    myPageSource.includes('로컬 프로필 요약') &&
+    myPageSource.includes('현재 회원의 저장/댓글 바로가기를 DB 읽기 모델에서 최신순으로 표시합니다.') &&
+    myPageSource.includes('최근 FeedPost 활동. 현재 회원의 저장 및 댓글 DB 읽기 모델 바로가기입니다.') &&
+    myPageSource.includes('저장/댓글 활동은 정보성 읽기 바로가기이며 추천, 주문, 실계좌, 실제 알림 전송과 연결되지 않습니다.') &&
+    !myPageSource.includes('My Page DB read model 또는 mock-safe') &&
+    !myPageSource.includes('user-scoped DB read model') &&
+    !myPageSource.includes('프로토타입 fallback') &&
+    !myPageSource.includes('활동 read model') &&
+    !myPageSource.includes('사용자 publicId') &&
+    !myPageSource.includes('DB 사용자 read model') &&
+    !myPageSource.includes('정보성 읽기 shortcut') &&
+    !myPageSource.includes('실제 push/email/SMS 아님'),
+  'My Page Korean copy must not fall back to English technical wording'
+);
+assertCondition(
   /<p className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{myPageScopeBadgeLabel\(locale, myPageMeta\)\}\s*<\/p>/.test(myPageSource) &&
     !/<RiskBadge[\s\S]{0,240}myPageScopeBadgeLabel\(locale, myPageMeta\)[\s\S]{0,80}<\/RiskBadge>/.test(myPageSource),
   'My Page summary scope/source must render as prose, not a RiskBadge'
 );
 assertCondition(
-  /<p className="shrink-0 text-right text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{activitySummary\.sourceLabel === 'db_read_model'\s*\?\s*'DB read model'\s*:\s*'mock-safe'\}\s*<\/p>/.test(myPageSource) &&
+  myPageSource.includes("? 'DB 읽기 모델'") &&
+    myPageSource.includes(": 'DB read model'") &&
     !/<RiskBadge[\s\S]{0,240}activitySummary\.sourceLabel === 'db_read_model'[\s\S]{0,120}<\/RiskBadge>/.test(myPageSource),
   'My Page Recent FeedPost source label must render as prose, not a RiskBadge'
 );
