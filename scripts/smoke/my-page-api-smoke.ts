@@ -76,8 +76,7 @@ async function readMyPageWithSession(search: string, sessionCookie: string) {
     new NextRequest(`http://localhost/api/my${search}`, {
       method: 'GET',
       headers: {
-        cookie: sessionCookie,
-        'x-invest-model-role': 'user'
+        cookie: sessionCookie
       }
     })
   );
@@ -171,7 +170,7 @@ async function main() {
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === true &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001',
-    'session user scope wins over client-provided userPublicId'
+    'session role and user scope win over client-provided userPublicId'
   );
 
   await client.end();

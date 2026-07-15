@@ -4,6 +4,7 @@ import { readMyPageSummary } from '@/lib/db/my-page-read-model';
 import type { AccessRole } from '@/lib/domain/types';
 import {
   readInvestModelRole,
+  readInvestModelSessionRole,
   resolveInvestModelUserScope
 } from '@/lib/server/invest-model-user-scope';
 
@@ -37,7 +38,11 @@ function canReadMyPage(role: AccessRole) {
 }
 
 export async function GET(request: NextRequest) {
-  const role = readInvestModelRole(request);
+  const headerRole = readInvestModelRole(request);
+  const role =
+    headerRole === 'public'
+      ? await readInvestModelSessionRole(request)
+      : headerRole;
 
   if (!canReadMyPage(role)) {
     return errorResponse(

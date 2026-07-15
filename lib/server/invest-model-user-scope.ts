@@ -35,6 +35,18 @@ export function readInvestModelRole(request: NextRequest): AccessRole {
   return 'public';
 }
 
+function mapStoredUserRoleToAccessRole(role: string | null): AccessRole {
+  if (role === 'admin' || role === 'creator') {
+    return role;
+  }
+
+  if (role === 'member' || role === 'user') {
+    return 'user';
+  }
+
+  return 'public';
+}
+
 async function readUserFromRequestCookie(request: NextRequest) {
   const sessionCookie = request.cookies.get('session')?.value;
 
@@ -60,6 +72,32 @@ async function readUserFromRequestCookie(request: NextRequest) {
     .limit(1);
 
   return user ?? null;
+}
+
+export async function readInvestModelSessionRole(
+  request: NextRequest
+): Promise<AccessRole> {
+  try {
+    const user = await getUser();
+
+    if (user) {
+      return mapStoredUserRoleToAccessRole(user.role);
+    }
+  } catch {
+    // Route-level smoke tests can run without a Next cookies context.
+  }
+
+  try {
+    const user = await readUserFromRequestCookie(request);
+
+    if (user) {
+      return mapStoredUserRoleToAccessRole(user.role);
+    }
+  } catch {
+    // Invalid or absent request cookies are treated as public access.
+  }
+
+  return 'public';
 }
 
 export async function resolveInvestModelUserScope(
