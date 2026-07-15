@@ -188,10 +188,10 @@ function signalScoreSnapshotRows(locale: SignalLocale, signal: SignalEventDto) {
   if (!snapshot) {
     return [
       {
-        label: locale === 'ko' ? 'Score snapshot rank' : 'Score snapshot rank',
+        label: locale === 'ko' ? '점수 스냅샷 순위' : 'Score snapshot rank',
         value:
           locale === 'ko'
-            ? 'No DB score snapshot is available yet.'
+            ? '아직 DB 점수 스냅샷이 없습니다.'
             : 'No DB score snapshot is available yet.'
       }
     ];
@@ -199,23 +199,23 @@ function signalScoreSnapshotRows(locale: SignalLocale, signal: SignalEventDto) {
 
   return [
     {
-      label: locale === 'ko' ? 'Snapshot rank' : 'Snapshot rank',
+      label: locale === 'ko' ? '스냅샷 순위' : 'Snapshot rank',
       value: snapshot.rankLabel
     },
     {
-      label: locale === 'ko' ? 'Rank movement' : 'Rank movement',
+      label: locale === 'ko' ? '순위 변동' : 'Rank movement',
       value: snapshot.rankDeltaDisplay
     },
     {
-      label: locale === 'ko' ? 'Snapshot score' : 'Snapshot score',
+      label: locale === 'ko' ? '스냅샷 점수' : 'Snapshot score',
       value: snapshot.totalScoreDisplay
     },
     {
-      label: locale === 'ko' ? 'Calculated at' : 'Calculated at',
+      label: locale === 'ko' ? '계산 시각' : 'Calculated at',
       value: formatCapturedAt(snapshot.capturedAt, locale)
     },
     {
-      label: locale === 'ko' ? 'Calculation context' : 'Calculation context',
+      label: locale === 'ko' ? '계산 맥락' : 'Calculation context',
       value: snapshot.calculationContext
     }
   ];
@@ -369,8 +369,12 @@ export default async function InvestModelSignalDetailPage({
       label: locale === 'ko' ? '점수 변동 기록' : 'Score movement history',
       value:
         signal.scoreSnapshot
-          ? `${signal.scoreSnapshot.rankLabel}, ${signal.scoreSnapshot.rankDeltaDisplay}, ${signal.scoreSnapshot.totalScoreDisplay}. DB score snapshot rank only, not advice or order.`
-          : `${signal.scoreDisplay}. No DB score snapshot is available yet.`
+          ? locale === 'ko'
+            ? `${signal.scoreSnapshot.rankLabel}, ${signal.scoreSnapshot.rankDeltaDisplay}, ${signal.scoreSnapshot.totalScoreDisplay}. DB 점수 스냅샷 순위일 뿐 조언이나 주문이 아닙니다.`
+            : `${signal.scoreSnapshot.rankLabel}, ${signal.scoreSnapshot.rankDeltaDisplay}, ${signal.scoreSnapshot.totalScoreDisplay}. DB score snapshot rank only, not advice or order.`
+          : locale === 'ko'
+            ? `${signal.scoreDisplay}. 아직 DB 점수 스냅샷이 없습니다.`
+            : `${signal.scoreDisplay}. No DB score snapshot is available yet.`
     }
   ];
 
@@ -478,11 +482,11 @@ export default async function InvestModelSignalDetailPage({
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="min-w-0 text-[15px] font-bold leading-6 text-invest-text">
                 {locale === 'ko'
-                  ? 'Score snapshot rank'
+                  ? '점수 스냅샷 순위'
                   : 'Score snapshot rank'}
               </h3>
               <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
-                {locale === 'ko' ? 'DB read model' : 'DB read model'}
+                {locale === 'ko' ? 'DB 읽기 모델' : 'DB read model'}
               </span>
             </div>
             {scoreSnapshotRows.map((row) => (
@@ -523,7 +527,7 @@ export default async function InvestModelSignalDetailPage({
             <div className="flex items-center justify-between gap-3">
               <h3 className="min-w-0 text-[15px] font-bold leading-6 text-invest-text">
                 {locale === 'ko'
-                  ? 'DB-backed detail evidence'
+                  ? 'DB 기반 상세 근거'
                   : 'DB-backed detail evidence'}
               </h3>
               <RiskBadge tone="neutral">

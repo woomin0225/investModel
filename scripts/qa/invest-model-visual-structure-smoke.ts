@@ -524,18 +524,31 @@ assertCondition(
 );
 assertCondition(
   signalsPageSource.includes('rankSnapshot') &&
-    signalsPageSource.includes('DB score snapshot rank only') &&
+    signalsPageSource.includes('DB 점수 스냅샷 순위일 뿐 조언이나 주문이 아닙니다') &&
     signalDetailPageSource.includes('scoreSnapshotRows') &&
-    signalDetailPageSource.includes('Rank movement'),
+    signalDetailPageSource.includes('순위 변동') &&
+    signalDetailPageSource.includes('스냅샷 점수') &&
+    signalDetailPageSource.includes('계산 시각') &&
+    signalDetailPageSource.includes('DB 점수 스냅샷 순위일 뿐 조언이나 주문이 아닙니다') &&
+    !signalDetailPageSource.includes("label: locale === 'ko' ? 'Score snapshot rank'") &&
+    !signalDetailPageSource.includes("locale === 'ko'\n                  ? 'Score snapshot rank'") &&
+    !signalDetailPageSource.includes("locale === 'ko' ? 'DB read model' : 'DB read model'") &&
+    !signalDetailPageSource.includes("locale === 'ko'\n                  ? 'DB-backed detail evidence'"),
   'Signals list/detail must surface DB-backed score snapshot rank movement without advice or order language'
 );
 assertCondition(
   signalsPageSource.includes('<SignalRefreshAction') &&
     signalsPageSource.includes('latestScoreSnapshotLabel') &&
+    signalsPageSource.includes('DB 신호 새로고침 사용 불가') &&
+    signalsPageSource.includes('DB 점수 스냅샷 없음') &&
+    signalsPageSource.includes('최신 DB 스냅샷') &&
     signalRefreshActionSource.includes('router.refresh()') &&
     signalRefreshActionSource.includes('Auto refresh 60s') &&
-    signalRefreshActionSource.includes('No external realtime data, advice, or order') &&
+    signalRefreshActionSource.includes('DB 점수 스냅샷만 새로고침합니다. 외부 실시간 데이터, 투자 조언, 주문이 아닙니다.') &&
+    signalRefreshActionSource.includes('DB 읽기 모델 새로고침') &&
     signalRefreshActionSource.includes("].join(' / ')") &&
+    !signalRefreshActionSource.includes("locale === 'ko'\n      ? 'DB score snapshots only.") &&
+    !signalRefreshActionSource.includes("'DB read model refresh',\n    'signal_score_snapshots'") &&
     !signalRefreshActionSource.includes('RiskBadge') &&
     !signalRefreshActionSource.includes('<RiskBadge'),
   'Realtime Signals must expose manual/60s DB snapshot refresh UX with safety boundary copy'
@@ -581,7 +594,7 @@ assertCondition(
     !/<RiskBadge\b[^>]*tone="neutral"[^>]*>[\s\S]{0,220}\{signal\.dataContext === 'mock'[\s\S]{0,120}<\/RiskBadge>/.test(
       signalDetailPageSource
     ) &&
-    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{locale === 'ko' \? 'DB read model' : 'DB read model'\}\s*<\/span>/.test(
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{locale === 'ko' \? 'DB 읽기 모델' : 'DB read model'\}\s*<\/span>/.test(
       signalDetailPageSource
     ) &&
     !/<RiskBadge\b[^>]*tone="neutral"[^>]*>[\s\S]{0,80}DB read model[\s\S]{0,80}<\/RiskBadge>/.test(

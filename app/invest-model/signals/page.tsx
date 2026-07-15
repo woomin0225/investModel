@@ -180,7 +180,7 @@ function latestScoreSnapshotLabel(
 ) {
   if (readState === 'fallback') {
     return locale === 'ko'
-      ? 'DB Signals refresh unavailable'
+      ? 'DB 신호 새로고침 사용 불가'
       : 'DB Signals refresh unavailable';
   }
 
@@ -193,12 +193,12 @@ function latestScoreSnapshotLabel(
 
   if (!latestSnapshotTime) {
     return locale === 'ko'
-      ? 'No DB score snapshot yet'
+      ? 'DB 점수 스냅샷 없음'
       : 'No DB score snapshot yet';
   }
 
   return locale === 'ko'
-    ? `Latest DB snapshot ${formatCapturedAt(latestSnapshotTime.toISOString(), locale)}`
+    ? `최신 DB 스냅샷 ${formatCapturedAt(latestSnapshotTime.toISOString(), locale)}`
     : `Latest DB snapshot ${formatCapturedAt(latestSnapshotTime.toISOString(), locale)}`;
 }
 
@@ -559,7 +559,7 @@ export default async function InvestModelSignalsPage({
                           </p>
                           <p>
                             {locale === 'ko'
-                              ? 'DB score snapshot rank only, not advice or order'
+                              ? 'DB 점수 스냅샷 순위일 뿐 조언이나 주문이 아닙니다'
                               : 'DB score snapshot rank only, not advice or order'}
                             {' · '}
                             {signal.rankSnapshot.capturedAtLabel}

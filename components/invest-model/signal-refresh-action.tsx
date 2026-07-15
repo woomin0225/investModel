@@ -53,12 +53,12 @@ export function SignalRefreshAction({
   const pendingLabel = locale === 'ko' ? '갱신 중' : 'Refreshing';
   const safeBoundary =
     locale === 'ko'
-      ? 'DB score snapshots only. No external realtime data, advice, or order.'
+      ? 'DB 점수 스냅샷만 새로고침합니다. 외부 실시간 데이터, 투자 조언, 주문이 아닙니다.'
       : 'DB score snapshots only. No external realtime data, advice, or order.';
-  const refreshMetaLine = [
-    'DB read model refresh',
-    'signal_score_snapshots'
-  ].join(' / ');
+  const refreshMetaLine =
+    locale === 'ko'
+      ? ['DB 읽기 모델 새로고침', 'signal_score_snapshots'].join(' / ')
+      : ['DB read model refresh', 'signal_score_snapshots'].join(' / ');
 
   return (
     <div className="rounded-invest-control border border-invest-border bg-invest-surface p-2 shadow-invest-card">
