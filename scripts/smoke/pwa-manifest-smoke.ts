@@ -13,6 +13,8 @@ assert(appManifest.start_url === '/invest-model', 'manifest start_url should ope
 assert(appManifest.scope === '/invest-model', 'manifest scope should stay inside investModel routes');
 assert(appManifest.display === 'standalone', 'manifest display should keep standalone PWA mode');
 assert(appManifest.orientation === 'portrait', 'manifest orientation should prefer portrait mobile use');
+assert(appManifest.prefer_related_applications === false, 'manifest should prefer the web PWA over related native apps');
+assert(appManifest.related_applications?.length === 0, 'manifest should not point users to native broker or store apps');
 assert(appManifest.launch_handler?.client_mode === 'navigate-existing', 'manifest should reuse the installed app window');
 assert(appManifest.icons?.some((icon) => icon.src === '/icon' && icon.sizes === '512x512'), 'manifest should expose a 512px app icon');
 assert(

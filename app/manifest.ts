@@ -20,6 +20,8 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: '#F5F7FB',
     theme_color: '#246BFE',
     categories: ['finance', 'productivity'],
+    prefer_related_applications: false,
+    related_applications: [],
     launch_handler: {
       client_mode: 'navigate-existing'
     },
