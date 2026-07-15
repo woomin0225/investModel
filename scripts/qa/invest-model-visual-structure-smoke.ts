@@ -968,6 +968,21 @@ assertCondition(
 assertCondition(
   !homePageSource.includes('<SoftBanner') &&
     !homePageSource.includes('homeVisibleBoundaries(locale).map') &&
+    homePageSource.includes('homeTopSummaryCopy') &&
+    homePageSource.includes('topSummaryAccessibleLabel') &&
+    homePageSource.includes('aria-label={topSummaryAccessibleLabel}') &&
+    homePageSource.includes('portfolio.selectedModel.name') &&
+    homePageSource.includes('portfolio.selectedModel.statusLabel') &&
+    homePageSource.includes('mockBalanceLabel: portfolio.mockDeposit.amountLabel') &&
+    homePageSource.includes('account.mockBalanceLabel') &&
+    homePageSource.includes('grid grid-cols-[1fr_auto]') &&
+    homePageSource.includes('min-w-[104px]') &&
+    homePageSource.includes('flex min-w-0 items-start gap-2') &&
+    homePageSource.includes('size-4 shrink-0') &&
+    homePageSource.includes('MockDeposit simulation amount') &&
+    homePageSource.includes('not a real account, deposit, order, or brokerage connection') &&
+    !homePageSource.includes('Deposit now') &&
+    !homePageSource.includes('Connect brokerage') &&
     homePageSource.includes('homeSafetyBoundaryCopy') &&
     !homePageSource.includes('RiskBadge') &&
     homePageSource.includes('ModelSelectionReadStatus') &&

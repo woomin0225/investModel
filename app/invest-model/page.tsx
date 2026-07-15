@@ -51,6 +51,27 @@ const homeMetricSummaryCopy = {
   }
 } as const;
 
+const homeTopSummaryCopy = {
+  ko: {
+    ariaLabel: '선택 모델과 모의 운용 요약',
+    modelLabel: '선택 모델',
+    fundsLabel: '모의 금액',
+    statusLabel: '안전 상태',
+    statusValue: '실제 주문 없음',
+    caption:
+      'DB 기반 선택 모델과 MockDeposit 모의 금액만 보여주며 실제 계좌, 입금, 주문, 브로커 연결이 아닙니다.'
+  },
+  en: {
+    ariaLabel: 'Selected model and simulation summary',
+    modelLabel: 'Selected model',
+    fundsLabel: 'Sim funds',
+    statusLabel: 'Safety state',
+    statusValue: 'No live orders',
+    caption:
+      'Shows only the DB-backed selected model and MockDeposit simulation amount; not a real account, deposit, order, or brokerage connection.'
+  }
+} as const;
+
 function homeSafetyBoundaryCopy(locale: 'ko' | 'en') {
   return locale === 'ko'
     ? '이 홈 화면은 DB와 모의 데이터를 기반으로 선택 모델 맥락과 모의 자금을 읽어 보여주는 시뮬레이션 화면입니다. 실계좌, 주문, 브로커 연결, 투자조언으로 동작하지 않습니다.'
@@ -96,6 +117,8 @@ export default async function InvestModelPreviewPage({
       portfolio.timeSnapshots[0]?.valueLabel ??
       investModelHomeMock.account.backtestReturnLabel
   };
+  const topSummaryCopy = homeTopSummaryCopy[locale];
+  const topSummaryAccessibleLabel = `${topSummaryCopy.ariaLabel}: ${portfolio.selectedModel.name}, ${topSummaryCopy.fundsLabel} ${account.mockBalanceLabel}, ${topSummaryCopy.statusValue}.`;
   const metricSummaryCopy = homeMetricSummaryCopy[locale];
   const metricSummaryItems = [
     {
@@ -141,6 +164,47 @@ export default async function InvestModelPreviewPage({
       }
     >
       <section className="space-y-invest-section-gap">
+        <div
+          aria-label={topSummaryAccessibleLabel}
+          className="rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card"
+        >
+          <div className="grid grid-cols-[1fr_auto] items-start gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold leading-4 text-invest-text-muted">
+                {topSummaryCopy.modelLabel}
+              </p>
+              <h2 className="mt-1 text-[18px] font-bold leading-6 text-invest-text">
+                {portfolio.selectedModel.name}
+              </h2>
+              <p className="mt-1 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                {portfolio.selectedModel.statusLabel}
+              </p>
+            </div>
+            <div className="min-w-[104px] rounded-invest-control bg-invest-bg-soft px-3 py-2 text-right">
+              <p className="text-[11px] font-semibold leading-4 text-invest-text-muted">
+                {topSummaryCopy.fundsLabel}
+              </p>
+              <p className="mt-1 text-[15px] font-bold leading-5 text-invest-text">
+                {account.mockBalanceLabel}
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 flex min-w-0 items-start gap-2 rounded-invest-control bg-invest-surface-muted px-3 py-2">
+            <ShieldCheck
+              aria-hidden
+              className="mt-0.5 size-4 shrink-0 text-invest-risk"
+            />
+            <div className="min-w-0">
+              <p className="text-[12px] font-bold leading-5 text-invest-risk">
+                {topSummaryCopy.statusValue}
+              </p>
+              <p className="text-[12px] font-medium leading-5 text-invest-text-muted">
+                {topSummaryCopy.caption}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard
             label={homeCopy.metrics.mockBalance}
