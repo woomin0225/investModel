@@ -95,8 +95,8 @@ function recentFeedActivityAccessibleLabel(
 
 function myPageSafetyAccessibleLabel(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? 'My Page 안전 경계. 값은 user 1의 앱 내 DB read model 또는 mock-safe 상태이며 실제 계좌 잔고, 은행 연결, 브로커 주문, push/email/SMS 전송, 법률 판단 또는 투자 조언이 아닙니다.'
-    : 'My Page safety boundary. Values are user 1 in-app DB read models or mock-safe state, not real account balances, bank links, brokerage orders, push/email/SMS delivery, legal judgments, or investment advice.';
+    ? 'My Page 안전 경계. 값은 현재 회원의 앱 내 DB read model 또는 mock-safe 상태이며 실제 계좌 잔고, 은행 연결, 브로커 주문, push/email/SMS 전송, 법률 판단 또는 투자 조언이 아닙니다.'
+    : 'My Page safety boundary. Values are current member in-app DB read models or mock-safe state, not real account balances, bank links, brokerage orders, push/email/SMS delivery, legal judgments, or investment advice.';
 }
 
 function myPageActivityVisibleBoundaries(locale: 'ko' | 'en') {
@@ -144,7 +144,7 @@ const myPageCopy = {
     title: 'My Page',
     alertLabel: '내 알림',
     bannerEyebrow: '회원 상태',
-    bannerTitle: '사용자 1의 앱 활동',
+    bannerTitle: '현재 회원의 앱 활동',
     bannerDescription:
       '모델 선택, 저장 글, 댓글 같은 앱 안의 활동만 보여줍니다. 실계좌, 실입금, 실주문 정보는 연결하지 않습니다.',
     summary: {
@@ -188,14 +188,14 @@ const myPageCopy = {
       }
     ],
     footer:
-      'My Page의 모든 값은 회원 1의 앱 내 read model 또는 준비 중인 mock-safe 상태입니다. 실제 계좌 잔고, 은행 연결, 브로커 주문, 법률 판단을 표시하지 않습니다.'
+      'My Page의 모든 값은 현재 회원의 앱 내 read model 또는 준비 중인 mock-safe 상태입니다. 실제 계좌 잔고, 은행 연결, 브로커 주문, 법률 판단을 표시하지 않습니다.'
   },
   en: {
     eyebrow: 'Member',
     title: 'My Page',
     alertLabel: 'My notifications',
     bannerEyebrow: 'Member state',
-    bannerTitle: 'User 1 app activity',
+    bannerTitle: 'Current member app activity',
     bannerDescription:
       'Shows only in-app activity such as model selection, saved posts, and comments. No real account, deposit, or order data is connected.',
     summary: {
@@ -239,7 +239,7 @@ const myPageCopy = {
       }
     ],
     footer:
-      'Every My Page value is either an in-app read model for user 1 or a pending mock-safe state. It never displays real account balances, bank links, brokerage orders, or legal judgments.'
+      'Every My Page value is either an in-app read model for the current member or a pending mock-safe state. It never displays real account balances, bank links, brokerage orders, or legal judgments.'
   }
 } as const;
 
@@ -444,8 +444,8 @@ export default async function InvestModelMyPage({
                 </h2>
                 <p className="mt-1 text-[12px] leading-5 text-invest-text-muted">
                   {locale === 'ko'
-                    ? 'user 1의 저장/댓글 shortcut을 DB read model에서 최신순으로 표시합니다.'
-                    : 'DB-backed saved and comment shortcuts for user 1, sorted by latest activity.'}
+                    ? '현재 회원의 저장/댓글 shortcut을 DB read model에서 최신순으로 표시합니다.'
+                    : 'DB-backed saved and comment shortcuts for the current member, sorted by latest activity.'}
                 </p>
               </div>
               <RiskBadge
@@ -475,8 +475,8 @@ export default async function InvestModelMyPage({
                 role="list"
                 aria-label={
                   locale === 'ko'
-                    ? '최근 FeedPost 활동. user 1의 저장 및 댓글 DB read model shortcut입니다.'
-                    : 'Recent FeedPost activity. User 1 saved and comment DB read model shortcuts.'
+                    ? '최근 FeedPost 활동. 현재 회원의 저장 및 댓글 DB read model shortcut입니다.'
+                    : 'Recent FeedPost activity. Current member saved and comment DB read model shortcuts.'
                 }
                 className="mt-3 space-y-2"
               >

@@ -27,6 +27,7 @@ type ScreenCheck = {
   pageFile: string;
   activeTab: InvestModelTabKey;
   requiredCopy: string[];
+  forbiddenCopy?: string[];
 };
 
 const projectRoot = process.cwd();
@@ -70,6 +71,15 @@ const screens: ScreenCheck[] = [
       'Saved/comment activity is an informational reading shortcut only',
       '/invest-model/feed',
       '/invest-model/notifications'
+    ],
+    forbiddenCopy: [
+      'user 1 in-app',
+      'User 1 app activity',
+      'for user 1',
+      'User 1 saved',
+      'user 1의',
+      '회원 1의',
+      '사용자 1의'
     ]
   },
   {
@@ -498,6 +508,10 @@ const screenResults = screens.map((screen) => {
   assertCondition(
     screen.requiredCopy.every(Boolean),
     `${screen.name}: required mock copy is missing`
+  );
+  assertCondition(
+    !screen.forbiddenCopy?.some((copy) => source.includes(copy)),
+    `${screen.name}: forbidden member-scope copy is still present`
   );
   assertNoLongUnbrokenText(screen.name, screen.requiredCopy);
 
