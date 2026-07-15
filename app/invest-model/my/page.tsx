@@ -164,8 +164,8 @@ function myPageScopeBadgeLabel(
   }
 
   return locale === 'ko'
-    ? '프로토타입 demo fallback'
-    : 'Prototype demo fallback';
+    ? '프로토타입 fallback 범위'
+    : 'Prototype fallback scope';
 }
 
 function myPageScopeAccessibleLabel(

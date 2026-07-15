@@ -68,7 +68,7 @@ const screens: ScreenCheck[] = [
       'No real orders',
       'DB read model',
       'Session member scope',
-      'Prototype demo fallback',
+      'Prototype fallback scope',
       'API userScopeSource',
       'Recent FeedPost activity',
       'Saved/comment activity is an informational reading shortcut only',
@@ -80,6 +80,7 @@ const screens: ScreenCheck[] = [
       'User 1 app activity',
       'for user 1',
       'User 1 saved',
+      'Prototype demo fallback',
       'user 1의',
       '회원 1의',
       '사용자 1의'
