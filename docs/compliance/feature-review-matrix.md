@@ -43,7 +43,8 @@ Agents must check it before implementing financial, model, account, signal, disc
 | Audit log event creation for review or status changes | `allowed` | Design and implement for non-financial MVP state changes. | Actor, entity, action, before/after fields. |
 | Scheduled automation that updates checklist, docs, mock data, or code | `allowed` | Keep one small work unit per run and commit/push. | Automation harness, Google Sheet run records. |
 | Automation that creates money movement, orders, account connections, or secrets | `financial_operation` | Block and record an Issue. | Explicit approval plus all required reviews. |
-| Native app packaging or store submission | `security_review` | Evaluate later; PWA first. | Store policy, signing, update, privacy and device permission review. |
+| Native app packaging | `security_review` | Capacitor-first planning is allowed for an internal test app, but no native permissions or store release by default. | WebView source strategy, signing approach, update policy, privacy and device permission review. |
+| App Store or Play Store submission | `security_review` | Keep as a separate release-readiness task after the internal native shell is validated. | Store policy, signing, support process, privacy policy, release notes, and legal/financial copy review. |
 
 ## Required Stop Checks
 
