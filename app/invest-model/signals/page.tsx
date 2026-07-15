@@ -549,29 +549,21 @@ export default async function InvestModelSignalsPage({
                         )}
                       </p>
                       {'rankSnapshot' in signal && signal.rankSnapshot ? (
-                        <div className="mt-2.5 grid gap-1.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2 min-[360px]:grid-cols-3">
-                          <RiskBadge
-                            tone="neutral"
-                            className="justify-center text-center"
-                          >
-                            {signal.rankSnapshot.scoreLabel}
-                          </RiskBadge>
-                          <RiskBadge
-                            tone="neutral"
-                            className="justify-center text-center"
-                          >
-                            {signal.rankSnapshot.deltaLabel}
-                          </RiskBadge>
-                          <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
-                            {signal.rankSnapshot.contextLabel}
-                          </span>
-                          <span className="min-[360px]:col-span-3 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
+                        <div className="mt-2.5 space-y-1 text-xs font-semibold leading-5 text-invest-text-muted">
+                          <p>
+                            {[
+                              signal.rankSnapshot.scoreLabel,
+                              signal.rankSnapshot.deltaLabel,
+                              signal.rankSnapshot.contextLabel
+                            ].join(' / ')}
+                          </p>
+                          <p>
                             {locale === 'ko'
                               ? 'DB score snapshot rank only, not advice or order'
                               : 'DB score snapshot rank only, not advice or order'}
                             {' · '}
                             {signal.rankSnapshot.capturedAtLabel}
-                          </span>
+                          </p>
                         </div>
                       ) : null}
                       <p className="mt-2.5 text-sm font-semibold leading-5 text-invest-text-muted transition-colors duration-200 ease-out group-hover:text-invest-text motion-reduce:transition-none">
