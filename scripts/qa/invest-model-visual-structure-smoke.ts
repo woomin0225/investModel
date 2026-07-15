@@ -1023,12 +1023,38 @@ assertCondition(
     portfolioPageSource.includes('portfolio.allocationDecision.statusLabel') &&
     portfolioPageSource.includes('portfolio.tradeIntent.statusLabel') &&
     portfolioPageSource.includes('Portfolio time dashboard read-model trace') &&
+    portfolioPageSource.includes("locale === 'ko' ? '모의 기간 대시보드' : 'Mock time dashboard'") &&
+    portfolioPageSource.includes('포트폴리오 기간 대시보드 읽기 모델 추적') &&
+    portfolioPageSource.includes("locale === 'ko' ? '읽기 모델 추적' : 'Read-model trace'") &&
+    portfolioPageSource.includes('DB 기반 포트폴리오 모의 기간 상태') &&
+    portfolioPageSource.includes('모의 전용 기준점이며 실제 수익률, 실잔고, 주문, 브로커 데이터가 아닙니다.') &&
+    portfolioPageSource.includes("'DB 스냅샷', '모의 전용 기준점', snapshot.safetyLabel") &&
+    portfolioPageSource.includes("locale === 'ko' ? '모델 버전(ModelVersion)' : 'ModelVersion'") &&
+    portfolioPageSource.includes("locale === 'ko' ? '선택 모델 상태' : 'Selected model state'") &&
+    portfolioPageSource.includes("locale === 'ko' ? '선택 참조 정보' : 'Selection reference'") &&
+    portfolioPageSource.includes('선택된 투자 모델:') &&
+    portfolioPageSource.includes('DB 기반 모의 요약이며 사용자 투자성향 설정') &&
+    portfolioPageSource.includes('시뮬레이션 구성 비중이며 실제 보유 종목') &&
+    portfolioPageSource.includes('시뮬레이션 전용 결정 파이프라인이며 실제 주문') &&
     portfolioPageSource.includes('const timeDashboardSafetyLine') &&
     portfolioPageSource.includes("portfolio.mockDeposit.safetyLabel,\n    copy.preOrderOnly,\n    copy.noBrokerage") &&
     portfolioPageSource.includes('const snapshotSafetyLine') &&
-    portfolioPageSource.includes("'DB snapshot',\n                'mock-only checkpoint',\n                snapshot.safetyLabel") &&
+    portfolioPageSource.includes("'DB snapshot',") &&
+    portfolioPageSource.includes("'mock-only checkpoint',") &&
     portfolioPageSource.includes("timeDashboardVisibleBoundaries.join(' / ')") &&
     portfolioPageSource.includes("blockedVisibleBoundaries.join(' / ')") &&
+    !portfolioPageSource.includes("locale === 'ko' ? 'Mock time dashboard' : 'Mock time dashboard'") &&
+    !portfolioPageSource.includes('aria-label="Portfolio time dashboard read-model trace"') &&
+    !portfolioPageSource.includes('>Read-model trace<') &&
+    !portfolioPageSource.includes('mock time windows from DB-backed\n                Portfolio state') &&
+    !portfolioPageSource.includes('const snapshotStateLabel = `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. Mock-only checkpoint; not a real return, real balance, order, or brokerage data.`;') &&
+    !portfolioPageSource.includes("'DB snapshot',\n                'mock-only checkpoint',\n                snapshot.safetyLabel") &&
+    !portfolioPageSource.includes('Selected model state\n                    </dt>') &&
+    !portfolioPageSource.includes('Selection reference\n                    </dt>') &&
+    !portfolioPageSource.includes('선택된 InvestmentModel:') &&
+    !portfolioPageSource.includes('DB-backed mock summary이며') &&
+    !portfolioPageSource.includes('시뮬레이션 allocation mix') &&
+    !portfolioPageSource.includes('simulation-only 결정 파이프라인') &&
     !portfolioPageSource.includes('timeDashboardVisibleBoundaries.map((boundary) => (') &&
     !portfolioPageSource.includes('blockedVisibleBoundaries.map((boundary) => (') &&
     !portfolioPageSource.includes('<RiskBadge tone="neutral">\n                {portfolio.mockDeposit.safetyLabel}\n              </RiskBadge>') &&

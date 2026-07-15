@@ -36,25 +36,25 @@ const portfolioCopy = {
     bannerEyebrow: '시뮬레이션 전용',
     bannerTitle: '선택 모델 운용 현황',
     bannerDescription:
-      '선택한 InvestmentModel의 운용 범위 안에서 구성된 포트폴리오 상태를 보여줍니다.',
+      '선택한 투자 모델의 운용 범위 안에서 구성된 포트폴리오 상태를 보여줍니다.',
     mockBalance: '운용금액',
     mockSafety: '시뮬레이션 기준, 실제 계좌와 분리',
-    allocationState: 'AllocationDecision',
+    allocationState: '배분 결정',
     preOrderOnly: '주문 전 시뮬레이션 단계입니다',
-    policyState: 'TradeIntent',
+    policyState: '주문 전 의도',
     noBrokerage: '브로커 계좌나 주문 실행과 연결되지 않습니다',
-    selectedModelTitle: '선택한 InvestmentModel',
+    selectedModelTitle: '선택한 투자 모델',
     selectedModelDescription:
-      '사용자 성향 설정이 아니라 모델이 가진 PortfolioMandate 기준입니다.',
+      '사용자 성향 설정이 아니라 모델이 가진 운용 범위(PortfolioMandate) 기준입니다.',
     positionTitle: '구성 비중',
     positionDescription:
       '모든 금액과 비중은 관찰 데이터와 정책 검증 결과로 계산된 시뮬레이션입니다.',
     decisionTitle: '결정 파이프라인',
     decisionDescription:
-      'AllocationDecision과 TradeIntent는 실제 주문, 체결, 운용 지시가 아닙니다.',
+      '배분 결정과 주문 전 의도는 실제 주문, 체결, 운용 지시가 아닙니다.',
     blockedActionsTitle: '비활성화된 실제 기능',
     footer:
-      '포트폴리오 값, 포지션, TradeIntent는 실제 자산, 투자 조언, 주문, 계좌 연결을 의미하지 않습니다.'
+      '포트폴리오 값, 포지션, 주문 전 의도는 실제 자산, 투자 조언, 주문, 계좌 연결을 의미하지 않습니다.'
   },
   en: {
     eyebrow: 'My portfolio',
@@ -95,7 +95,7 @@ function portfolioSelectedModelAccessibleLabel(
   portfolio: InvestModelPortfolioSummary
 ) {
   if (locale === 'ko') {
-    return `선택된 InvestmentModel: ${portfolio.selectedModel.name}. ${portfolio.selectedModel.statusLabel}. ${portfolio.selectedModel.mandateLabel}. ModelVersion ${portfolio.selectedModel.versionLabel}. DB-backed mock summary이며 사용자 투자성향 설정, 실제 계좌, 주문, 브로커 동작, 투자 조언이 아닙니다.`;
+    return `선택된 투자 모델: ${portfolio.selectedModel.name}. ${portfolio.selectedModel.statusLabel}. ${portfolio.selectedModel.mandateLabel}. 모델 버전 ${portfolio.selectedModel.versionLabel}. DB 기반 모의 요약이며 사용자 투자성향 설정, 실제 계좌, 주문, 브로커 동작, 투자 조언이 아닙니다.`;
   }
 
   return `Selected InvestmentModel: ${portfolio.selectedModel.name}. ${portfolio.selectedModel.statusLabel}. ${portfolio.selectedModel.mandateLabel}. ModelVersion ${portfolio.selectedModel.versionLabel}. DB-backed mock summary; not a user preference setting, real account, order, brokerage action, or investment advice.`;
@@ -106,7 +106,7 @@ function portfolioPositionAccessibleLabel(
   position: InvestModelPortfolioSummary['positions'][number]
 ) {
   if (locale === 'ko') {
-    return `${position.symbol} 포지션. ${position.name}. ${position.quantityLabel}, ${position.weightLabel}, ${position.valueLabel}. ${position.stateLabel}. ${position.sourceLabel}. 시뮬레이션 allocation mix이며 실제 보유 종목, 실잔고, 주문 지시, 투자 조언이 아닙니다.`;
+    return `${position.symbol} 포지션. ${position.name}. ${position.quantityLabel}, ${position.weightLabel}, ${position.valueLabel}. ${position.stateLabel}. ${position.sourceLabel}. 시뮬레이션 구성 비중이며 실제 보유 종목, 실잔고, 주문 지시, 투자 조언이 아닙니다.`;
   }
 
   return `${position.symbol} position. ${position.name}. ${position.quantityLabel}, ${position.weightLabel}, ${position.valueLabel}. ${position.stateLabel}. ${position.sourceLabel}. Simulated allocation mix; not a real holding, real balance, order instruction, or investment advice.`;
@@ -117,7 +117,7 @@ function portfolioDecisionAccessibleLabel(
   portfolio: InvestModelPortfolioSummary
 ) {
   if (locale === 'ko') {
-    return `AllocationDecision: ${portfolio.allocationDecision.statusLabel}. ${portfolio.allocationDecision.sourceLabel}. ${portfolio.allocationDecision.generatedAtLabel}. ${portfolio.allocationDecision.rationale}. simulation-only 결정 파이프라인이며 실제 주문, 체결, 브로커 동작, 투자 조언이 아닙니다.`;
+    return `배분 결정: ${portfolio.allocationDecision.statusLabel}. ${portfolio.allocationDecision.sourceLabel}. ${portfolio.allocationDecision.generatedAtLabel}. ${portfolio.allocationDecision.rationale}. 시뮬레이션 전용 결정 파이프라인이며 실제 주문, 체결, 브로커 동작, 투자 조언이 아닙니다.`;
   }
 
   return `AllocationDecision: ${portfolio.allocationDecision.statusLabel}. ${portfolio.allocationDecision.sourceLabel}. ${portfolio.allocationDecision.generatedAtLabel}. ${portfolio.allocationDecision.rationale}. Simulation-only decision pipeline; not a real order, fill, brokerage action, or investment advice.`;
@@ -139,7 +139,7 @@ function portfolioBlockedActionAccessibleLabel(
   action: string
 ) {
   if (locale === 'ko') {
-    return `차단된 실제 기능: ${action}. Portfolio mock summary에서는 실행되지 않습니다.`;
+    return `차단된 실제 기능: ${action}. 포트폴리오 모의 요약에서는 실행되지 않습니다.`;
   }
 
   return `Blocked real-world action: ${action}. It is not executed in the Portfolio mock summary.`;
@@ -168,9 +168,9 @@ function portfolioBlockedVisibleBoundaries(locale: 'ko' | 'en') {
 function portfolioTimeDashboardVisibleBoundaries(locale: 'ko' | 'en') {
   if (locale === 'ko') {
     return [
-      'DB mock summary',
-      'time-window snapshot',
-      'sample/backtest 지표',
+      'DB 모의 요약',
+      '기간별 스냅샷',
+      '샘플·백테스트 지표',
       '실잔고 아님',
       '실주문 없음',
       '브로커 미연결',
@@ -268,11 +268,11 @@ export default async function InvestModelPortfolioPage({
         <div className="space-y-invest-card-gap">
           <SectionHeader
             title={
-              locale === 'ko' ? 'Mock time dashboard' : 'Mock time dashboard'
+              locale === 'ko' ? '모의 기간 대시보드' : 'Mock time dashboard'
             }
             description={
               locale === 'ko'
-                ? '1D, 1W, 1M 상태는 시뮬레이션 checkpoint이며 실제 수익률이나 계좌 성과가 아닙니다.'
+                ? '1D, 1W, 1M 상태는 시뮬레이션 기준점이며 실제 수익률이나 계좌 성과가 아닙니다.'
                 : '1D, 1W, and 1M states are simulated checkpoints, not real returns or account performance.'
             }
           />
@@ -320,16 +320,21 @@ export default async function InvestModelPortfolioPage({
             {timeDashboardVisibleBoundaries.join(' / ')}
           </p>
           <div
-            aria-label="Portfolio time dashboard read-model trace"
+            aria-label={
+              locale === 'ko'
+                ? '포트폴리오 기간 대시보드 읽기 모델 추적'
+                : 'Portfolio time dashboard read-model trace'
+            }
             className="grid gap-2 rounded-invest-card border border-invest-primary/10 bg-invest-primary-soft/35 p-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto]"
           >
             <div className="min-w-0">
               <p className="text-[11px] font-bold uppercase leading-4 text-invest-text-muted">
-                Read-model trace
+                {locale === 'ko' ? '읽기 모델 추적' : 'Read-model trace'}
               </p>
               <p className="mt-1 text-sm font-semibold leading-5 text-invest-text">
-                {portfolio.timeSnapshots.length} mock time windows from DB-backed
-                Portfolio state
+                {locale === 'ko'
+                  ? `${portfolio.timeSnapshots.length}개 DB 기반 포트폴리오 모의 기간 상태`
+                  : `${portfolio.timeSnapshots.length} mock time windows from DB-backed Portfolio state`}
               </p>
             </div>
             <div className="flex flex-wrap items-start gap-1.5 min-[360px]:justify-end">
@@ -343,16 +348,26 @@ export default async function InvestModelPortfolioPage({
           </div>
           <div
             role="list"
-            aria-label="Mock time dashboard"
+            aria-label={
+              locale === 'ko' ? '모의 기간 대시보드' : 'Mock time dashboard'
+            }
             className="grid grid-cols-3 gap-2 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
             {portfolio.timeSnapshots.map((snapshot) => {
-              const snapshotStateLabel = `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. Mock-only checkpoint; not a real return, real balance, order, or brokerage data.`;
-              const snapshotSafetyLine = [
-                'DB snapshot',
-                'mock-only checkpoint',
-                snapshot.safetyLabel
-              ].join(' / ');
+              const snapshotStateLabel =
+                locale === 'ko'
+                  ? `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. 모의 전용 기준점이며 실제 수익률, 실잔고, 주문, 브로커 데이터가 아닙니다.`
+                  : `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. Mock-only checkpoint; not a real return, real balance, order, or brokerage data.`;
+              const snapshotSafetyLine =
+                locale === 'ko'
+                  ? ['DB 스냅샷', '모의 전용 기준점', snapshot.safetyLabel].join(
+                      ' / '
+                    )
+                  : [
+                      'DB snapshot',
+                      'mock-only checkpoint',
+                      snapshot.safetyLabel
+                    ].join(' / ');
 
               return (
                 <article
@@ -424,21 +439,21 @@ export default async function InvestModelPortfolioPage({
                 <dl className="mt-3 grid gap-2 text-xs leading-5 text-invest-text-muted">
                   <div className="grid gap-1 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                     <dt className="font-semibold text-invest-text">
-                      ModelVersion
+                      {locale === 'ko' ? '모델 버전(ModelVersion)' : 'ModelVersion'}
                     </dt>
                     <dd>{portfolio.selectedModel.versionLabel}</dd>
                     <dd>{portfolio.selectedModel.modelVersionPublicId}</dd>
                   </div>
                   <div className="grid gap-1 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                     <dt className="font-semibold text-invest-text">
-                      Selected model state
+                      {locale === 'ko' ? '선택 모델 상태' : 'Selected model state'}
                     </dt>
                     <dd>{portfolio.selectedModel.statusLabel}</dd>
                     <dd>{portfolio.selectedModel.statusDescription}</dd>
                   </div>
                   <div className="grid gap-1 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                     <dt className="font-semibold text-invest-text">
-                      Selection reference
+                      {locale === 'ko' ? '선택 참조 정보' : 'Selection reference'}
                     </dt>
                     <dd>{portfolio.selectedModel.selectionPublicId}</dd>
                     <dd>{portfolio.selectedModel.modelPublicId}</dd>
