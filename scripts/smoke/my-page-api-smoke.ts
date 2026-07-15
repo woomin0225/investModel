@@ -10,6 +10,7 @@ import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 
 import { GET } from '../../app/api/my/route';
+import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
@@ -32,6 +33,33 @@ async function applyTrackedAppSeed() {
   await connection.end();
 }
 
+async function readSeedUserId() {
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+  const [rows] = await connection.query<mysql.RowDataPacket[]>(
+    "SELECT id FROM users WHERE public_id = 'user_demo_001' LIMIT 1"
+  );
+  await connection.end();
+
+  const userId = rows[0]?.id;
+  assertCondition(
+    typeof userId === 'number',
+    'seed user id exists for session scope smoke'
+  );
+  return userId;
+}
+
+async function createSessionCookie(userId: number) {
+  const encryptedSession = await signToken({
+    user: { id: userId },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  return `session=${encryptedSession}`;
+}
+
 async function readMyPage(search = '') {
   return GET(
     new NextRequest(`http://localhost/api/my${search}`, {
@@ -43,8 +71,22 @@ async function readMyPage(search = '') {
   );
 }
 
+async function readMyPageWithSession(search: string, sessionCookie: string) {
+  return GET(
+    new NextRequest(`http://localhost/api/my${search}`, {
+      method: 'GET',
+      headers: {
+        cookie: sessionCookie,
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+}
+
 async function main() {
   await applyTrackedAppSeed();
+  const seedUserId = await readSeedUserId();
+  const sessionCookie = await createSessionCookie(seedUserId);
 
   const forbiddenResponse = await GET(
     new NextRequest('http://localhost/api/my', {
@@ -65,6 +107,11 @@ async function main() {
   const explicitDemoJson = await explicitDemoResponse.json();
   const invalidUserResponse = await readMyPage('?userPublicId=user_other_001');
   const invalidUserJson = await invalidUserResponse.json();
+  const sessionScopedResponse = await readMyPageWithSession(
+    '?userPublicId=user_other_001',
+    sessionCookie
+  );
+  const sessionScopedJson = await sessionScopedResponse.json();
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(creatorResponse.status === 403, 'creator role is forbidden');
@@ -117,6 +164,14 @@ async function main() {
       invalidUserJson.meta?.userPublicId === 'user_demo_001' &&
       invalidUserJson.meta?.clientUserPublicIdIgnored === true,
     'client-provided non-demo userPublicId is ignored'
+  );
+  assertCondition(
+    sessionScopedResponse.status === 200 &&
+      sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === true &&
+      sessionScopedJson.meta?.userPublicId === 'user_demo_001',
+    'session user scope wins over client-provided userPublicId'
   );
 
   await client.end();
