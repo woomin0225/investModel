@@ -20,7 +20,7 @@
 
 | Screen | Route | Primary API | DTO | Current fallback | Auth level | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| Home / My AI Investment | `/invest-model` | `GET /api/portfolio/mock-summary`; `GET /api/signals?limit=3`; `GET /api/feed?limit=2` | `PortfolioSummaryDto`; `SignalEventDto[]`; `FeedPostDto[]` | `lib/mock/invest-model-home.ts`; `lib/mock/invest-model-signals.ts`; `lib/mock/invest-model-feed.ts` | `user` for portfolio, signed-in for signals/feed | mock balance, selected model, recent signals, recent feed only. No real account balance. |
+| Home / My AI Investment | `/invest-model` | `GET /api/portfolio/mock-summary`; `GET /api/signals?limit=3`; `GET /api/feed?limit=2` | `PortfolioSummaryDto`; `SignalEventDto[]`; `FeedPostDto[]` | DB-backed portfolio summary with mock-safe fallback; signal/feed read models | `user` for portfolio, signed-in for signals/feed | mock deposit, selected model, recent signals, recent feed only. No real account balance. |
 | Discover Models | `/invest-model/models` | `GET /api/models` | `ModelCardDto[]` | `lib/mock/invest-model-discovery.ts` | `public` or signed-in | only approved/live models; pending_review excluded. |
 | Realtime Signals | `/invest-model/signals` | `GET /api/signals` | `SignalEventDto[]` | `lib/mock/invest-model-signals.ts` | signed-in | observed inputs only; no recommendation/order language. |
 | Signal Detail | `/invest-model/signals/[signalId]` | future `GET /api/signals/:signalId` | `SignalDetailDto` | `SignalEventDto` list item plus future detail mock | signed-in | route param uses public id only; observed context only; no buy/sell/hold advice. |
@@ -29,6 +29,7 @@
 | Feed Detail | `/invest-model/feed/[postId]` | `GET /api/feed/:postId`; feed action APIs | `FeedPostDetailDto`; `FeedCommentDto`; `FeedReactionStateDto` | `FeedPostDto` list item plus future detail mock | signed-in | route param uses public id only; informational content only; comments/actions are user-scoped contracts. |
 | Search | `/invest-model/search` | `GET /api/search?q=` | `SearchResultDto` | DB-backed grouped result arrays; empty arrays when no match | signed-in | read-only grouped search; no recommendation, model selection, TradeIntent, external paid search, order, or brokerage action. |
 | Notification Center | `/invest-model/notifications` | `GET /api/notifications`; `POST /api/notifications/mark-all-read` | `NotificationCenterDto` | DB-backed feed-derived notification rows and read state | user | read/unread center only; no push/email/SMS delivery, broker/account connection, order, or advice. |
+| Portfolio | `/invest-model/portfolio` | `GET /api/portfolio/mock-summary` | `PortfolioSummaryDto`; `PortfolioDashboardTimelineDto[]` | DB-backed mock-safe summary fallback | user | 1D/1W/1M time dashboard, simulated positions, AllocationDecision, and blocked TradeIntent state only. No real deposit, balance, order, broker, or advice. |
 
 ## Supporting Screens
 
@@ -63,6 +64,28 @@ Fallback:
 - Use `lib/mock/invest-model-home.ts` for portfolio summary.
 - Use signal/feed mocks when API is unavailable.
 - Empty state should explain that this is a mock/simulated portfolio, not a real account.
+
+### Portfolio
+
+Data needs:
+
+- `PortfolioSummaryDto.selectedModel` with public model and version ids, selected time label, mandate label, risk label, and DB/mock status copy
+- `PortfolioSummaryDto.mockDeposit` with display amount, status, source, and "not a real deposit or cash balance" safety copy
+- `PortfolioSummaryDto.allocationDecision` with status, DB source label, generated time, and simulated rationale
+- `PortfolioDashboardTimelineDto[]` in `timeSnapshots` for `1D`, `1W`, and `1M` dashboard windows
+- `positions[]` with symbol, simulated quantity, target weight, simulated value, state, and DB/mock source labels
+- `tradeIntent` with pre-order simulation boundary and blocked real-world actions
+- API meta flags for `mockOnly`, `realDeposit=false`, `realBalance=false`, `realOrder=false`, `brokerageConnection=false`, and `financialAdvice=false`
+
+API sequence:
+
+1. `GET /api/portfolio/mock-summary?userPublicId=user_demo_001`
+
+Fallback:
+
+- The API uses `lib/mock/invest-model-portfolio.ts` only as a mock-safe fallback when DB state is unavailable.
+- The screen should keep its 1D/1W/1M cards visible when fallback data is used, but every value must retain mock/simulated/no real P/L/no return claim/no brokerage labels.
+- Empty or unavailable state must not invite deposit setup, account connection, real order entry, or suitability advice.
 
 ### Discover Models
 

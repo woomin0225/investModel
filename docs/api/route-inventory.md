@@ -34,7 +34,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `POST` | `/api/notifications/mark-all-read` | Mark notification-center FeedPost read state as read. | user | DB-backed read-state action implemented |
 | `GET` | `/api/my/activity` | Read user-scoped My Page saved/comment activity summary. | user | DB-backed read implemented |
 | `POST` | `/api/model-selections` | Simulate a user selecting a specific model version. | user | mock-backed allowed |
-| `GET` | `/api/portfolio/mock-summary` | Read selected model, mock balance, simulated allocation, and sample positions. | user | mock-backed allowed |
+| `GET` | `/api/portfolio/mock-summary` | Read selected model, mock deposit, simulated allocation, time dashboard snapshots, positions, and blocked TradeIntent state. | user | DB-backed read implemented with mock-safe fallback |
 | `POST` | `/api/creator/models` | Create a creator model draft. | creator | design-only until RBAC is implemented |
 | `POST` | `/api/admin/models/:id/reviews` | Record admin review decisions for model approval workflows. | admin | design-only until RBAC/audit is implemented |
 
@@ -273,14 +273,15 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
-| Purpose | Provide Home/Portfolio with mock balance, selected model, simulated allocation, and sample positions. |
-| Request | No body. Later query parameters may include `modelSelectionId`. |
-| Response DTO | `PortfolioSummaryDto` |
-| Permission | Signed-in `user` and only the user's own mock state. |
+| Status | DB-backed read API implemented in `app/api/portfolio/mock-summary/route.ts`. |
+| Purpose | Provide Home/Portfolio with mock-safe selected model state, MockDeposit, AllocationDecision, 1D/1W/1M time dashboard snapshots, simulated positions, and blocked TradeIntent state. |
+| Request | Optional query parameter `userPublicId`, currently limited to `user_demo_001` in the prototype. No request body. |
+| Response DTO | `PortfolioSummaryDto` with embedded `PortfolioDashboardTimelineDto` rows in `timeSnapshots`. |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
 | Screens | Home, Portfolio |
-| Source tables | `user_model_selections`, `mock_deposits`, `portfolios`, `portfolio_positions`, `market_instruments`, `model_signal_events` |
-| Mock source | `lib/mock/invest-model-home.ts` |
-| Safety notes | Must use mock/simulated labels. This route must not connect payments, bank accounts, brokerage accounts, or real balances. |
+| Source tables | `users`, `user_model_selections`, `investment_models`, `model_versions`, `mock_deposits`, `portfolios`, `portfolio_positions`, `market_instruments`, `allocation_decisions`, `trade_intents` |
+| Mock source | `lib/mock/invest-model-portfolio.ts` is used only as a mock-safe fallback when DB state is unavailable. |
+| Safety notes | Must use mock/simulated labels. This route must not connect payments, bank accounts, brokerage accounts, real balances, real deposits, real orders, executions, fills, settlements, or investment advice. `TradeIntent` rows are displayed only as pre-order simulation or blocked state. |
 
 ### `POST /api/creator/models`
 

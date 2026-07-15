@@ -514,50 +514,76 @@ Safety requirements:
 
 ## `PortfolioSummaryDto`
 
-Used by `GET /api/portfolio/mock-summary`, Home, and future Portfolio screen.
+Used by `GET /api/portfolio/mock-summary`, Home, and the Portfolio time dashboard screen.
+
+Implementation note: the current API uses the existing `GET /api/portfolio/mock-summary` route instead of introducing a second dashboard endpoint. The route returns the public view DTO implemented as `InvestModelPortfolioSummary`; this section documents that API contract as `PortfolioSummaryDto` for screen and route inventory consistency.
 
 ```ts
 interface PortfolioSummaryDto {
-  portfolioPublicId: string;
-  userPublicId: string;
-  modelSelectionPublicId: string;
+  isMockOnly: true;
   selectedModel: {
+    selectionPublicId: string;
     modelPublicId: string;
     modelVersionPublicId: string;
     name: string;
-    risk: RiskBadgeDto;
+    versionLabel: string;
+    mandateLabel: string;
+    statusLabel: string;
+    riskLabel: string;
+    selectedAtLabel: string;
+    statusDescription: string;
   };
-  mockBalance: MoneyDto;
-  simulatedMarketValue: MoneyDto;
-  simulatedTotalValue: MoneyDto;
+  mockDeposit: {
+    displayLabel: string;
+    amountLabel: string;
+    statusLabel: string;
+    sourceLabel: string;
+    safetyLabel: string;
+  };
+  allocationDecision: {
+    statusLabel: string;
+    sourceLabel: string;
+    generatedAtLabel: string;
+    rationale: string;
+  };
+  timeSnapshots: PortfolioDashboardTimelineDto[];
   positions: Array<{
-    instrumentPublicId: string;
     symbol: string;
     name: string;
-    assetType: 'stock' | 'etf' | 'bond' | 'cash' | 'index';
-    allocationDisplay: string;
-    marketValue: MoneyDto;
-    dataContext: 'mock' | 'simulated';
+    quantityLabel: string;
+    weightLabel: string;
+    valueLabel: string;
+    stateLabel: string;
+    sourceLabel: string;
   }>;
-  recentSignals: SignalEventDto[];
-  recentTradeIntents: Array<{
-    tradeIntentPublicId: string;
-    title: string;
-    status: 'pending_policy_check' | 'approved_for_simulation' | 'blocked' | 'cancelled';
-    dataContext: 'pre_order_simulation';
-    blockedReason?: string;
-  }>;
-  notices: PolicyNoticeDto[];
+  tradeIntent: {
+    statusLabel: string;
+    boundaryLabel: 'pre-order simulation only' | string;
+    blockedActions: string[];
+  };
+}
+
+interface PortfolioDashboardTimelineDto {
+  rangeLabel: '1D' | '1W' | '1M' | string;
+  valueLabel: string;
+  checkpointLabel: string;
+  signalLabel: string;
+  safetyLabel: string;
 }
 ```
 
-Source tables: `user_model_selections`, `mock_deposits`, `portfolios`, `portfolio_positions`, `market_instruments`, `model_signal_events`, `trade_intents`.
+Source tables: `users`, `user_model_selections`, `investment_models`, `model_versions`, `mock_deposits`, `portfolios`, `portfolio_positions`, `market_instruments`, `allocation_decisions`, `trade_intents`.
 
 Safety requirements:
 
-- `mockBalance`, `simulatedMarketValue`, and `simulatedTotalValue` are not real account balances.
-- `recentTradeIntents` are pre-order simulation records only.
-- Do not add bank, broker, account number, execution, fill, or settlement fields.
+- `isMockOnly` must remain true for this route.
+- `mockDeposit.displayLabel`, `mockDeposit.amountLabel`, `positions[].valueLabel`, and `timeSnapshots[].valueLabel` are display labels only; they are not real account balances or real deposits.
+- `timeSnapshots` are dashboard checkpoints for mock/simulated state. They must include `safetyLabel` values such as no real P/L, no return claim, or no brokerage data.
+- `positions[].quantityLabel` and `positions[].valueLabel` must preserve simulated wording and must not imply custody, settlement, or broker-held assets.
+- `allocationDecision` is simulated analysis only and must not be displayed as personalized investment advice.
+- `tradeIntent` is pre-order simulation or blocked state only. `blockedActions` may name disabled real-world actions but must not provide execution instructions.
+- The route meta must keep `mockOnly: true`, `realDeposit: false`, `realBalance: false`, `realOrder: false`, `brokerageConnection: false`, and `financialAdvice: false`.
+- Do not add bank, broker, account number, routing number, real balance, real deposit, order, execution, fill, settlement, suitability, or personalized advice fields.
 
 ## Implementation Order
 
