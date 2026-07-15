@@ -125,7 +125,7 @@ function notificationItemAccessibleLabel(
   const eventLabel = notificationEventLabel(locale, item);
 
   if (locale === 'ko') {
-    return `${item.status === 'unread' ? '읽지 않은' : '읽은'} DB 기반 FeedPost 알림 후보: ${item.title}. ${eventLabel}. 연결 모델: ${linkedModelName}. 정보성 읽기 모델이며 실제 푸시, 이메일, 문자, 주문, 브로커 동작, 투자 조언이 아닙니다.`;
+    return `${item.status === 'unread' ? '읽지 않은' : '읽은'} DB 기반 피드 글 알림 후보: ${item.title}. ${eventLabel}. 연결 모델: ${linkedModelName}. 정보성 읽기 모델이며 실제 푸시, 이메일, 문자, 주문, 브로커 동작, 투자 조언이 아닙니다.`;
   }
 
   return `${item.status === 'unread' ? 'Unread' : 'Read'} DB-backed FeedPost notification candidate: ${item.title}. ${eventLabel}. Linked model: ${linkedModelName}. Informational-only read model; not real push, email, SMS, orders, brokerage action, or investment advice.`;
@@ -140,8 +140,8 @@ function notificationEventLabel(
   }
 
   return item.status === 'unread'
-    ? '새 DB 기반 FeedPost'
-    : '읽은 FeedPost 업데이트';
+    ? '새 DB 기반 피드 글'
+    : '읽은 피드 글 업데이트';
 }
 
 function notificationSafetyAccessibleLabel(locale: 'ko' | 'en') {
@@ -154,7 +154,7 @@ function notificationSafetyAccessibleLabel(locale: 'ko' | 'en') {
 
 function notificationSummaryVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? ['DB 읽음 상태', 'FeedPost 기반', '실제 푸시 없음', '실주문 없음']
+    ? ['DB 읽음 상태', '피드 글 기반', '실제 푸시 없음', '실주문 없음']
     : ['DB read state', 'FeedPost derived', 'no real push', 'no orders'];
 }
 
@@ -166,7 +166,7 @@ function notificationActionVisibleBoundaries(locale: 'ko' | 'en') {
 
 function notificationItemVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? ['DB FeedPost 기반', '정보성 알림', '계좌 메시지 아님']
+    ? ['DB 피드 글 기반', '정보성 알림', '계좌 메시지 아님']
     : ['DB FeedPost', 'informational alert', 'not account messaging'];
 }
 
@@ -288,7 +288,7 @@ export default async function InvestModelNotificationsPage({
             <div className="min-w-0 flex-1">
               <p className="rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
                 {[
-                  locale === 'ko' ? 'DB FeedPost 기반' : 'DB FeedPost',
+                  locale === 'ko' ? 'DB 피드 글 기반' : 'DB FeedPost',
                   copy.noPush,
                   ...notificationSummaryVisibleBoundaries(locale)
                 ].join(' / ')}

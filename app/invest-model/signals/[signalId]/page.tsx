@@ -115,7 +115,7 @@ function signalDetailAccessibleLabel(
   signalTypeText: string
 ) {
   return locale === 'ko'
-    ? `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB seed/mock 관찰 입력 상세입니다. 추천, 주문, TradeIntent 또는 실시간 외부 데이터 연결이 아닙니다.`
+    ? `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB seed/mock 관찰 입력 상세입니다. 추천, 주문, 주문 전 의도 또는 실시간 외부 데이터 연결이 아닙니다.`
     : `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB seed/mock observation detail. This is not a recommendation, order, TradeIntent, or realtime external data connection.`;
 }
 
@@ -148,7 +148,7 @@ function signalSafetyDescription(locale: SignalLocale, signal: SignalEventDto) {
 
 function signalDetailVisibleBoundaries(locale: SignalLocale) {
   return locale === 'ko'
-    ? ['DB 관찰 입력', '정보성 신호', '추천 아님', 'TradeIntent 없음', '외부 실시간 미연결']
+    ? ['DB 관찰 입력', '정보성 신호', '추천 아님', '주문 전 의도 없음', '외부 실시간 미연결']
     : [
         'DB observed input',
         'informational signal',
@@ -340,7 +340,7 @@ export default async function InvestModelSignalDetailPage({
         signal.signalType === 'news_traffic'
           ? signal.summary
           : locale === 'ko'
-            ? '이 SignalEvent에는 별도 뉴스 트래픽 근거가 연결되지 않았습니다.'
+            ? '이 관찰 신호에는 별도 뉴스 트래픽 근거가 연결되지 않았습니다.'
             : 'No separate news traffic evidence is linked to this SignalEvent.'
     },
     {
@@ -349,7 +349,7 @@ export default async function InvestModelSignalDetailPage({
         signal.signalType === 'price_trend'
           ? signal.summary
           : locale === 'ko'
-            ? '이 SignalEvent에는 별도 가격 추세 근거가 연결되지 않았습니다.'
+            ? '이 관찰 신호에는 별도 가격 추세 근거가 연결되지 않았습니다.'
             : 'No separate price trend evidence is linked to this SignalEvent.'
     },
     {
@@ -381,7 +381,7 @@ export default async function InvestModelSignalDetailPage({
   return (
     <MobileShell
       activeTab="signals"
-      eyebrow={locale === 'ko' ? 'Signal Detail' : 'Signal Detail'}
+      eyebrow={locale === 'ko' ? '신호 상세' : 'Signal Detail'}
       title={locale === 'ko' ? '신호 상세' : 'Signal Detail'}
       locale={locale}
       currentPath={currentPath}
@@ -451,7 +451,7 @@ export default async function InvestModelSignalDetailPage({
                 <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
                   {signal.dataContext === 'mock'
                     ? locale === 'ko'
-                      ? 'Seed/mock'
+                      ? 'seed/mock 관찰'
                       : 'Seed/mock'
                     : signal.dataContext}
                 </span>
@@ -531,7 +531,7 @@ export default async function InvestModelSignalDetailPage({
                   : 'DB-backed detail evidence'}
               </h3>
               <RiskBadge tone="neutral">
-                {locale === 'ko' ? 'SignalEvent' : 'SignalEvent'}
+                {locale === 'ko' ? '관찰 신호' : 'SignalEvent'}
               </RiskBadge>
             </div>
             {evidenceRows.map((row) => (
@@ -596,12 +596,12 @@ export default async function InvestModelSignalDetailPage({
               </p>
               <h2 className="mt-2 text-[16px] font-bold leading-6 text-invest-text">
                 {locale === 'ko'
-                  ? '관련 Feed 검색'
+                  ? '관련 피드 검색'
                   : 'Related Feed search'}
               </h2>
               <p className="mt-1 text-sm leading-6 text-invest-text-muted">
                 {locale === 'ko'
-                  ? `${signal.linkedModelName} 관련 DB 기반 FeedPost를 검색합니다. 주문이나 추천의 근거가 아니라 참고용 읽기 자료입니다.`
+                  ? `${signal.linkedModelName} 관련 DB 기반 피드 글을 검색합니다. 주문이나 추천의 근거가 아니라 참고용 읽기 자료입니다.`
                   : `Search DB-backed FeedPosts for ${signal.linkedModelName}. This is supporting reading, not evidence for an order or recommendation.`}
               </p>
             </div>
@@ -615,7 +615,7 @@ export default async function InvestModelSignalDetailPage({
             </span>
             <p className="text-sm font-semibold leading-6 text-invest-text-muted">
               {locale === 'ko'
-                ? '이 상세 화면은 DB에 저장된 SignalEvent public id를 읽어 표시합니다. 실시간 검색량, 브라우저 트래픽, 유료 외부 데이터는 아직 연결하지 않았습니다.'
+                ? '이 상세 화면은 DB에 저장된 관찰 신호 공개 ID를 읽어 표시합니다. 실시간 검색량, 브라우저 트래픽, 유료 외부 데이터는 아직 연결하지 않았습니다.'
                 : 'This detail screen reads a stored SignalEvent public id from the DB. Realtime search volume, browser traffic, and paid external sources are not connected yet.'}
             </p>
           </div>

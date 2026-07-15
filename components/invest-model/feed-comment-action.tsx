@@ -503,7 +503,7 @@ export function FeedCommentAction({
         title={isKorean ? '댓글' : 'Comments'}
         description={
           isKorean
-            ? `DB-backed 토론 댓글 ${reactionState.commentCount}개`
+            ? `DB 기반 토론 댓글 ${reactionState.commentCount}개`
             : `${reactionState.commentCount} DB-backed discussion comments.`
         }
       />

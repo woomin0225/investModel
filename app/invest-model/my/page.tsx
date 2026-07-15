@@ -124,7 +124,7 @@ function myPageActivityVisibleBoundaries(locale: 'ko' | 'en') {
 
 function myPageRecentActivityVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? ['DB FeedPost 활동', '저장/댓글 읽기', '브로커 미연결', '푸시 전송 없음']
+    ? ['DB 피드 글 활동', '저장/댓글 읽기', '브로커 미연결', '푸시 전송 없음']
     : [
         'DB FeedPost activity',
         'saved/comment read model',
@@ -321,6 +321,14 @@ export default async function InvestModelMyPage({
       : locale === 'ko'
         ? '대기'
         : 'pending';
+  const routeDataContextLabel =
+    routeDataContext === 'db_read_model'
+      ? locale === 'ko'
+        ? 'DB 읽기 모델'
+        : 'DB read model'
+      : locale === 'ko'
+        ? '모의 안전 상태'
+        : 'mock-safe';
   const safetyAccessibleLabel = myPageSafetyAccessibleLabel(locale);
   const scopeAccessibleLabel = myPageScopeAccessibleLabel(locale, myPageMeta);
   const summaryVisibleBoundaries = myPageSummaryVisibleBoundaries(locale);
@@ -390,7 +398,7 @@ export default async function InvestModelMyPage({
             label={copy.summary.notices}
             value={noticesValue}
             description={noticesDescription}
-            trend={locale === 'ko' ? 'mock' : 'mock'}
+            trend={locale === 'ko' ? '모의' : 'mock'}
             tone="risk"
             className="p-3"
           />
@@ -413,7 +421,9 @@ export default async function InvestModelMyPage({
             : 'Member scope is confirmed through the API userScopeSource, and this screen shows only current member DB read models or prototype fallback state.'}
         </p>
         <p className="text-[12px] leading-5 text-invest-text-muted">
-          API dataContext: {routeDataContext}.
+          {locale === 'ko'
+            ? `데이터 출처: ${routeDataContextLabel}.`
+            : `API dataContext: ${routeDataContext}.`}
         </p>
 
         <div className="space-y-invest-card-gap">
@@ -495,7 +505,7 @@ export default async function InvestModelMyPage({
               <div className="min-w-0">
                 <h2 className="text-sm font-bold leading-5 text-invest-text">
                   {locale === 'ko'
-                    ? '최근 FeedPost 활동'
+                    ? '최근 피드 글 활동'
                     : 'Recent FeedPost activity'}
                 </h2>
                 <p className="mt-1 text-[12px] leading-5 text-invest-text-muted">
@@ -509,7 +519,9 @@ export default async function InvestModelMyPage({
                   ? locale === 'ko'
                     ? 'DB 읽기 모델'
                     : 'DB read model'
-                  : 'mock-safe'}
+                  : locale === 'ko'
+                    ? '모의 안전'
+                    : 'mock-safe'}
               </p>
             </div>
             <p className="mt-3 text-[12px] font-semibold leading-5 text-invest-text-muted">
@@ -521,7 +533,7 @@ export default async function InvestModelMyPage({
                 role="list"
                 aria-label={
                   locale === 'ko'
-                    ? '최근 FeedPost 활동. 현재 회원의 저장 및 댓글 DB 읽기 모델 바로가기입니다.'
+                    ? '최근 피드 글 활동. 현재 회원의 저장 및 댓글 DB 읽기 모델 바로가기입니다.'
                     : 'Recent FeedPost activity. Current member saved and comment DB read model shortcuts.'
                 }
                 className="mt-3 space-y-2"

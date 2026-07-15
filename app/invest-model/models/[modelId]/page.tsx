@@ -108,7 +108,7 @@ export default async function InvestModelDetailPage({
             '모델이 정한 운용 범위, 손실 가능성, 금지된 동작을 확인한 뒤 선택 기록을 저장합니다. 이 기록은 실제 입금, 주문, 브로커 연결이 아닙니다.',
           confirmLabel: '위험과 금지된 동작을 확인했습니다',
           confirmDescription:
-            '선택 기록은 ModelVersion 저장용이며 사용자 투자성향 변경이나 실거래 동의가 아닙니다.',
+            '선택 기록은 모델 버전 저장용이며 사용자 투자성향 변경이나 실거래 동의가 아닙니다.',
           submitLabel: '선택 기록 저장',
           submittingLabel: '저장 중',
           successTitle: '선택 기록을 저장했습니다',
@@ -435,9 +435,9 @@ function modelDetailVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
     ? [
         '승인/공개 모델',
-        'ModelVersion 맥락',
-        'PortfolioMandate 맥락',
-        'RiskProfile 맥락'
+        '모델 버전 맥락',
+        '모델 운용 범위 맥락',
+        '위험 프로필 맥락'
       ]
     : [
         'Approved/public model',

@@ -57,7 +57,7 @@ export function SignalRefreshAction({
       : 'DB score snapshots only. No external realtime data, advice, or order.';
   const refreshMetaLine =
     locale === 'ko'
-      ? ['DB 읽기 모델 새로고침', 'signal_score_snapshots'].join(' / ')
+      ? ['DB 읽기 모델 새로고침', '점수 스냅샷 테이블'].join(' / ')
       : ['DB read model refresh', 'signal_score_snapshots'].join(' / ');
 
   return (

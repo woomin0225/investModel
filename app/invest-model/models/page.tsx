@@ -81,8 +81,8 @@ const modelReadStateCopy = {
     dbLabel: 'DB 읽기 모델',
     unavailableTitle: 'DB 읽기 모델 사용 불가',
     unavailableDescription:
-      'InvestmentModel 목록을 읽지 못했습니다. 추천, 주문, 브로커 연결은 생성되지 않았습니다.',
-    emptyTitle: 'DB 기반 공개 InvestmentModel 없음',
+      '투자 모델 목록을 읽지 못했습니다. 추천, 주문, 브로커 연결은 생성되지 않았습니다.',
+    emptyTitle: 'DB 기반 공개 투자 모델 없음',
     emptyDescription:
       '현재 필터에 표시할 공개 투자 모델 데이터가 없습니다. 실제 주문이나 모델 선택은 생성되지 않았습니다.',
     marketplaceFallback: '마켓플레이스 모델',
@@ -107,8 +107,8 @@ function modelDiscoveryVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
     ? [
         '승인/공개 모델',
-        'ModelVersion 맥락',
-        'ModelRiskProfile',
+        '모델 버전 맥락',
+        '모델 위험 프로필',
         '백테스트 대체 지표',
         '추천 아님',
         '주문 아님',

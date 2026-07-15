@@ -557,8 +557,10 @@ assertCondition(
     signalRefreshActionSource.includes('DB 점수 스냅샷만 새로고침합니다. 외부 실시간 데이터, 투자 조언, 주문이 아닙니다.') &&
     signalRefreshActionSource.includes('DB 읽기 모델 새로고침') &&
     signalRefreshActionSource.includes("].join(' / ')") &&
+    signalRefreshActionSource.includes("'점수 스냅샷 테이블'") &&
     !signalRefreshActionSource.includes("locale === 'ko'\n      ? 'DB score snapshots only.") &&
     !signalRefreshActionSource.includes("'DB read model refresh',\n    'signal_score_snapshots'") &&
+    !signalRefreshActionSource.includes("'DB 읽기 모델 새로고침',\n    'signal_score_snapshots'") &&
     !signalRefreshActionSource.includes('RiskBadge') &&
     !signalRefreshActionSource.includes('<RiskBadge'),
   'Realtime Signals must expose manual/60s DB snapshot refresh UX with safety boundary copy'
@@ -762,9 +764,11 @@ assertCondition(
     notificationsPageSource.includes('DB 기반 알림 빈 상태') &&
     notificationsPageSource.includes('로컬 DB 읽음 상태만 업데이트합니다') &&
     notificationsPageSource.includes('정보성 읽기 모델이며 실제 푸시') &&
-    notificationsPageSource.includes("locale === 'ko' ? 'DB FeedPost 기반' : 'DB FeedPost'") &&
-    notificationsPageSource.includes("item.status === 'unread'\n    ? '새 DB 기반 FeedPost'") &&
-    notificationsPageSource.includes("    : '읽은 FeedPost 업데이트'") &&
+    notificationsPageSource.includes("locale === 'ko' ? 'DB 피드 글 기반' : 'DB FeedPost'") &&
+    notificationsPageSource.includes("item.status === 'unread'\n    ? '새 DB 기반 피드 글'") &&
+    notificationsPageSource.includes("    : '읽은 피드 글 업데이트'") &&
+    notificationsPageSource.includes('DB 기반 피드 글 알림 후보') &&
+    notificationsPageSource.includes("'피드 글 기반'") &&
     notificationsPageSource.includes("locale === 'ko'\n                                ? '연결된 모델 없음'") &&
     !notificationsPageSource.includes('DB-backed notification empty state이며') &&
     !notificationsPageSource.includes('informational-only read model이며') &&
@@ -774,7 +778,11 @@ assertCondition(
     !notificationsPageSource.includes('notificationSummaryVisibleBoundaries(locale).map(') &&
     !notificationsPageSource.includes('notificationActionVisibleBoundaries(locale).map(') &&
     !notificationsPageSource.includes('notificationItemVisibleBoundaries(locale).map(') &&
-    !notificationsPageSource.includes('notificationEmptyVisibleBoundaries(locale).map('),
+    !notificationsPageSource.includes('notificationEmptyVisibleBoundaries(locale).map(') &&
+    !notificationsPageSource.includes('DB 기반 FeedPost 알림 후보') &&
+    !notificationsPageSource.includes("'새 DB 기반 FeedPost'") &&
+    !notificationsPageSource.includes("'읽은 FeedPost 업데이트'") &&
+    !notificationsPageSource.includes("'FeedPost 기반'"),
   'Notifications must present safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
@@ -812,10 +820,10 @@ assertCondition(
 );
 assertCondition(
   feedDetailPageSource.includes("eyebrow={locale === 'ko' ? '피드 상세' : 'Feed Detail'}") &&
-    feedDetailPageSource.includes("locale === 'ko' ? '관련 SignalEvent' : 'Related SignalEvents'") &&
+    feedDetailPageSource.includes("locale === 'ko' ? '관련 관찰 신호' : 'Related SignalEvents'") &&
     feedDetailPageSource.includes('피드 상세 액션은 DB 사용자 범위의 읽음, 댓글, 좋아요, 저장 상태만 변경하며 추천, 실주문, 브로커 연결, 투자 조언이 아닙니다.') &&
-    feedDetailPageSource.includes('관련 DB 기반 SignalEvent') &&
-    feedDetailPageSource.includes('아직 연결된 DB 기반 SignalEvent가 없습니다.') &&
+    feedDetailPageSource.includes('관련 DB 기반 관찰 신호') &&
+    feedDetailPageSource.includes('아직 연결된 DB 기반 관찰 신호가 없습니다.') &&
     feedDetailPageSource.includes("locale === 'ko' ? '참여 맥락 전용' : 'Engagement only'") &&
     feedDetailPageSource.includes("locale === 'ko'\n                    ? '최근 좋아요 순위'") &&
     feedDetailPageSource.includes('좋아요 순위는 DB 기반 읽기 신호입니다.') &&
@@ -826,6 +834,9 @@ assertCondition(
     !feedDetailPageSource.includes("locale === 'ko' ? '관련 SignalEvents' : 'Related SignalEvents'") &&
     !feedDetailPageSource.includes('관련 DB-backed SignalEvent') &&
     !feedDetailPageSource.includes('아직 연결된 DB-backed SignalEvent가 없습니다.') &&
+    !feedDetailPageSource.includes("locale === 'ko' ? '관련 SignalEvent' : 'Related SignalEvents'") &&
+    !feedDetailPageSource.includes('관련 DB 기반 SignalEvent') &&
+    !feedDetailPageSource.includes('아직 연결된 DB 기반 SignalEvent가 없습니다.') &&
     !feedDetailPageSource.includes('좋아요 순위는 DB-backed 읽기 신호입니다.') &&
     !feedDetailPageSource.includes("locale === 'ko'\n                    ? 'Recent like ranking'") &&
     !feedDetailPageSource.includes("locale === 'ko' ? 'Rank' : 'Rank'") &&
@@ -834,7 +845,7 @@ assertCondition(
 );
 assertCondition(
   feedCommentActionSource.includes("title={isKorean ? '댓글' : 'Comments'}") &&
-    feedCommentActionSource.includes('DB-backed 토론 댓글 ${reactionState.commentCount}개') &&
+    feedCommentActionSource.includes('DB 기반 토론 댓글 ${reactionState.commentCount}개') &&
     feedCommentActionSource.includes("{isKorean ? '댓글 추가' : 'Add comment'}") &&
     feedCommentActionSource.includes('정보성 시장 또는 모델 메모를 남겨보세요.') &&
     feedCommentActionSource.includes('정보성 토론 전용입니다. 투자 조언, 주문, 승인을 만들지 않습니다.') &&
@@ -844,7 +855,8 @@ assertCondition(
     !feedCommentActionSource.includes("title={isKorean ? 'Comments' : 'Comments'}") &&
     !feedCommentActionSource.includes("{isKorean ? 'Add comment' : 'Add comment'}") &&
     !feedCommentActionSource.includes("{isKorean ? 'Post comment' : 'Post comment'}") &&
-    !feedCommentActionSource.includes("{isKorean ? 'No comments yet.' : 'There are no comments yet.'}"),
+    !feedCommentActionSource.includes("{isKorean ? 'No comments yet.' : 'There are no comments yet.'}") &&
+    !feedCommentActionSource.includes('DB-backed 토론 댓글'),
   'Feed comment top-level Korean copy must not fall back to English'
 );
 assertCondition(
@@ -978,7 +990,7 @@ assertCondition(
     myPageSource.includes('DB 사용자 읽기 모델') &&
     myPageSource.includes('로컬 프로필 요약') &&
     myPageSource.includes('현재 회원의 저장/댓글 바로가기를 DB 읽기 모델에서 최신순으로 표시합니다.') &&
-    myPageSource.includes('최근 FeedPost 활동. 현재 회원의 저장 및 댓글 DB 읽기 모델 바로가기입니다.') &&
+    myPageSource.includes('최근 피드 글 활동. 현재 회원의 저장 및 댓글 DB 읽기 모델 바로가기입니다.') &&
     myPageSource.includes('저장/댓글 활동은 정보성 읽기 바로가기이며 추천, 주문, 실계좌, 실제 알림 전송과 연결되지 않습니다.') &&
     !myPageSource.includes('My Page DB read model 또는 mock-safe') &&
     !myPageSource.includes('user-scoped DB read model') &&
@@ -987,7 +999,10 @@ assertCondition(
     !myPageSource.includes('사용자 publicId') &&
     !myPageSource.includes('DB 사용자 read model') &&
     !myPageSource.includes('정보성 읽기 shortcut') &&
-    !myPageSource.includes('실제 push/email/SMS 아님'),
+    !myPageSource.includes('실제 push/email/SMS 아님') &&
+    !myPageSource.includes('최근 FeedPost 활동') &&
+    !myPageSource.includes('DB FeedPost 활동') &&
+    !myPageSource.includes('API dataContext: {routeDataContext}.'),
   'My Page Korean copy must not fall back to English technical wording'
 );
 assertCondition(
@@ -998,6 +1013,8 @@ assertCondition(
 assertCondition(
   myPageSource.includes("? 'DB 읽기 모델'") &&
     myPageSource.includes(": 'DB read model'") &&
+    myPageSource.includes("? '모의 안전 상태'") &&
+    myPageSource.includes("trend={locale === 'ko' ? '모의' : 'mock'}") &&
     !/<RiskBadge[\s\S]{0,240}activitySummary\.sourceLabel === 'db_read_model'[\s\S]{0,120}<\/RiskBadge>/.test(myPageSource),
   'My Page Recent FeedPost source label must render as prose, not a RiskBadge'
 );
@@ -1040,7 +1057,7 @@ assertCondition(
 assertCondition(
   modelsPageSource.includes("dbLabel: 'DB 읽기 모델'") &&
     modelsPageSource.includes("unavailableTitle: 'DB 읽기 모델 사용 불가'") &&
-    modelsPageSource.includes("emptyTitle: 'DB 기반 공개 InvestmentModel 없음'") &&
+    modelsPageSource.includes("emptyTitle: 'DB 기반 공개 투자 모델 없음'") &&
     modelsPageSource.includes(
       "'현재 필터에 표시할 공개 투자 모델 데이터가 없습니다. 실제 주문이나 모델 선택은 생성되지 않았습니다.'"
     ) &&
@@ -1065,7 +1082,9 @@ assertCondition(
       "'현재 필터에 표시할 공개 InvestmentModel DTO가 없습니다."
     ) &&
     !modelsPageSource.includes("'백테스트 placeholder'") &&
-    !modelsPageSource.includes("card.leverageAllowed ? 'leverage allowed'"),
+    !modelsPageSource.includes("card.leverageAllowed ? 'leverage allowed'") &&
+    !modelsPageSource.includes("emptyTitle: 'DB 기반 공개 InvestmentModel 없음'") &&
+    !modelsPageSource.includes('InvestmentModel 목록을 읽지 못했습니다'),
   'Discover Models Korean read-model copy must not fall back to English'
 );
 assertCondition(
@@ -1135,9 +1154,9 @@ assertCondition(
       "emptySectionFallback:\n      'DB 읽기 모델 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'"
     ) &&
     modelDetailPageSource.includes("'승인/공개 모델'") &&
-    modelDetailPageSource.includes("'ModelVersion 맥락'") &&
-    modelDetailPageSource.includes("'PortfolioMandate 맥락'") &&
-    modelDetailPageSource.includes("'RiskProfile 맥락'") &&
+    modelDetailPageSource.includes("'모델 버전 맥락'") &&
+    modelDetailPageSource.includes("'모델 운용 범위 맥락'") &&
+    modelDetailPageSource.includes("'위험 프로필 맥락'") &&
     modelDetailPageSource.includes(
       "'추천 아님', '실주문 없음', '브로커 연결 없음', '투자 조언 아님'"
     ) &&
@@ -1159,6 +1178,10 @@ assertCondition(
     !modelDetailPageSource.includes("?? 'Review before selection'") &&
     !modelDetailPageSource.includes("label: 'Backtest'") &&
     !modelDetailPageSource.includes("label: 'Max drawdown'") &&
+    !modelDetailPageSource.includes("'ModelVersion 맥락'") &&
+    !modelDetailPageSource.includes("'PortfolioMandate 맥락'") &&
+    !modelDetailPageSource.includes("'RiskProfile 맥락'") &&
+    !modelDetailPageSource.includes('선택 기록은 ModelVersion 저장용이며') &&
     !/<RiskBadge\b[\s\S]{0,180}No recommendation[\s\S]{0,80}<\/RiskBadge>/.test(
       modelDetailPageSource
     ),

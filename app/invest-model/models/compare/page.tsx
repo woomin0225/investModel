@@ -170,10 +170,10 @@ const comparisonModels: Record<InvestModelLocale, ComparisonModel[]> = {
 function modelCompareVisibleBoundaries(locale: InvestModelLocale) {
   return locale === 'ko'
     ? [
-        'approved mock comparison',
-        'ModelVersion 맥락',
-        'ModelRiskProfile',
-        'backtest placeholder',
+        '승인된 모의 비교',
+        '모델 버전 맥락',
+        '모델 위험 프로필',
+        '백테스트 참고',
         '추천 아님',
         '주문 아님',
         '브로커 미연결'

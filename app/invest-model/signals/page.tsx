@@ -113,7 +113,7 @@ function signalFilterTitle(
 ) {
   const safeBoundary =
     locale === 'ko'
-      ? 'DB seed/mock 관찰값만 필터링합니다. 추천, 주문, TradeIntent 또는 실시간 외부 데이터 연결이 아닙니다.'
+      ? 'DB seed/mock 관찰값만 필터링합니다. 추천, 주문, 주문 전 의도 또는 실시간 외부 데이터 연결이 아닙니다.'
       : 'Filters DB seed/mock observations only. This is not a recommendation, order, TradeIntent, or realtime external data connection.';
   const stateLabel =
     locale === 'ko'
@@ -370,7 +370,7 @@ export default async function InvestModelSignalsPage({
           ? 'DB 신호 없음'
           : 'No DB signals'
         : locale === 'ko'
-          ? '샘플 fallback 표시'
+          ? '샘플 대체 표시'
           : 'Sample fallback shown';
 
   return (

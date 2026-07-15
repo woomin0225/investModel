@@ -254,7 +254,7 @@ export const investModelCopy = {
         noLiveOrders: '실주문 없음'
       },
       footer:
-        '표시된 입금, 포트폴리오 가치, 수익률, 신호, TradeIntent 상태는 실제 계좌나 주문과 연결되지 않은 시뮬레이션 정보입니다.'
+        '표시된 입금, 포트폴리오 가치, 수익률, 신호, 주문 전 의도 상태는 실제 계좌나 주문과 연결되지 않은 시뮬레이션 정보입니다.'
     },
     models: {
       eyebrow: '탐색',
@@ -345,7 +345,7 @@ export const investModelCopy = {
       summary: {
         title: '실시간 신호 모니터',
         description:
-          '신호는 뉴스 트래픽, 가격 모멘텀, 모델 관심도를 결합합니다. TradeIntent나 실주문을 만들지 않습니다.',
+          '신호는 뉴스 트래픽, 가격 모멘텀, 모델 관심도를 결합합니다. 주문 전 의도나 실주문을 만들지 않습니다.',
         activeCountLabel: '관찰 신호 6개',
         latencyLabel: '관찰 지연 12초',
         blockedLabel: '실주문 0건'
@@ -358,7 +358,7 @@ export const investModelCopy = {
         notLiveMarketFeed: '실시간 시장 피드 아님',
         executionStatus: '실행 상태',
         noTradeIntent:
-          '신호는 주문을 실행하거나 live TradeIntent 기록을 만들지 않습니다.',
+          '신호는 주문을 실행하거나 활성 주문 전 의도 기록을 만들지 않습니다.',
         sample: '참고',
         mock: '관찰',
         blocked: '차단'
@@ -515,7 +515,7 @@ export const investModelCopy = {
           id: 'feed-consumer-traffic-fade',
           title: '소비 주제량 감소',
           excerpt:
-            '피드는 소비 섹터 관심도 하락을 기록하며, 해석을 TradeIntent 생성과 분리합니다.',
+            '피드는 소비 섹터 관심도 하락을 기록하며, 해석을 주문 전 의도 생성과 분리합니다.',
           authorLabel: '시장 모니터',
           sourceLabel: '뉴스 트래픽',
           linkedModelName: 'Macro ETF 밸런스',
