@@ -270,17 +270,13 @@ export default async function InvestModelNotificationsPage({
               <Bell aria-hidden className="size-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="medium">DB FeedPost</RiskBadge>
-                <RiskBadge tone="neutral">{copy.noPush}</RiskBadge>
-                {notificationSummaryVisibleBoundaries(locale).map(
-                  (boundary) => (
-                    <RiskBadge key={boundary} tone="neutral">
-                      {boundary}
-                    </RiskBadge>
-                  )
-                )}
-              </div>
+              <p className="rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                {[
+                  'DB FeedPost',
+                  copy.noPush,
+                  ...notificationSummaryVisibleBoundaries(locale)
+                ].join(' / ')}
+              </p>
               <h2 className="mt-3 text-[20px] font-bold leading-7 text-invest-text">
                 {copy.summaryTitle}
               </h2>
@@ -330,15 +326,9 @@ export default async function InvestModelNotificationsPage({
                 <p className="text-[12px] font-semibold leading-5 text-invest-text-muted">
                   {copy.actionHint}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {notificationActionVisibleBoundaries(locale).map(
-                    (boundary) => (
-                      <RiskBadge key={boundary} tone="neutral">
-                        {boundary}
-                      </RiskBadge>
-                    )
-                  )}
-                </div>
+                <p className="rounded-invest-control bg-invest-surface px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                  {notificationActionVisibleBoundaries(locale).join(' / ')}
+                </p>
               </form>
             </div>
           </div>
@@ -399,14 +389,10 @@ export default async function InvestModelNotificationsPage({
                             {isUnread ? copy.unread : copy.read}
                           </RiskBadge>
                           <RiskBadge tone="neutral">{item.feedPost.postType}</RiskBadge>
-                          {notificationItemVisibleBoundaries(locale).map(
-                            (boundary) => (
-                              <RiskBadge key={boundary} tone="neutral">
-                                {boundary}
-                              </RiskBadge>
-                            )
-                          )}
                         </div>
+                        <p className="mt-2 rounded-invest-control bg-invest-surface-muted px-2 py-1.5 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                          {notificationItemVisibleBoundaries(locale).join(' / ')}
+                        </p>
                         <h3 className="mt-2 line-clamp-2 text-[16px] font-bold leading-6 text-invest-text">
                           {item.title}
                         </h3>
@@ -439,15 +425,9 @@ export default async function InvestModelNotificationsPage({
                 <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                   {copy.emptyDescription}
                 </p>
-                <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
-                  {notificationEmptyVisibleBoundaries(locale).map(
-                    (boundary) => (
-                      <RiskBadge key={boundary} tone="neutral">
-                        {boundary}
-                      </RiskBadge>
-                    )
-                  )}
-                </div>
+                <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                  {notificationEmptyVisibleBoundaries(locale).join(' / ')}
+                </p>
               </div>
             )}
           </div>
@@ -464,11 +444,9 @@ export default async function InvestModelNotificationsPage({
               className="mt-0.5 size-5 shrink-0 text-invest-primary"
             />
             <div className="min-w-0">
-              <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="blocked">{copy.noAdvice}</RiskBadge>
-                <RiskBadge tone="medium">{copy.noOrders}</RiskBadge>
-                <RiskBadge tone="neutral">{copy.noPush}</RiskBadge>
-              </div>
+              <p className="rounded-invest-control bg-invest-surface px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                {copy.noAdvice} / {copy.noOrders} / {copy.noPush}
+              </p>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {copy.footer}
               </p>

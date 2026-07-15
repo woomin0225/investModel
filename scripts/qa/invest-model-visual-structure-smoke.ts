@@ -371,6 +371,9 @@ const topIconBarSource = readProjectFile(
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const homePageSource = readProjectFile('app/invest-model/page.tsx');
 const myPageSource = readProjectFile('app/invest-model/my/page.tsx');
+const notificationsPageSource = readProjectFile(
+  'app/invest-model/notifications/page.tsx'
+);
 const searchPageSource = readProjectFile('app/invest-model/search/page.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
 const signalRefreshActionSource = readProjectFile(
@@ -539,6 +542,17 @@ assertCondition(
     !searchPageSource.includes("{locale === 'ko' ? 'No advice' : 'No advice'}\n                </RiskBadge>") &&
     searchPageSource.includes('No advice / No orders'),
   'Search must present empty/footer safety boundaries as prose instead of hashtag safety chip groups'
+);
+assertCondition(
+  notificationsPageSource.includes("notificationSummaryVisibleBoundaries(locale)\n                ].join(' / ')") &&
+    notificationsPageSource.includes("notificationActionVisibleBoundaries(locale).join(' / ')") &&
+    notificationsPageSource.includes("notificationItemVisibleBoundaries(locale).join(' / ')") &&
+    notificationsPageSource.includes("notificationEmptyVisibleBoundaries(locale).join(' / ')") &&
+    !notificationsPageSource.includes('notificationSummaryVisibleBoundaries(locale).map(') &&
+    !notificationsPageSource.includes('notificationActionVisibleBoundaries(locale).map(') &&
+    !notificationsPageSource.includes('notificationItemVisibleBoundaries(locale).map(') &&
+    !notificationsPageSource.includes('notificationEmptyVisibleBoundaries(locale).map('),
+  'Notifications must present safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
   !feedPageSource.includes('Simulated list action state'),
