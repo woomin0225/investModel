@@ -31,21 +31,25 @@ type InvestmentModelDetailView = MockInvestmentModelDetail & {
 
 const detailReadModelCopy = {
   ko: {
-    dbDetailLabel: 'DB read model detail',
-    mockFallbackLabel: 'Mock detail fallback',
-    leverageAllowed: 'Leverage allowed',
-    noLeverageFlag: 'No leverage flag',
-    derivativeAllowed: 'Derivatives allowed',
-    shortSellingAllowed: 'Short selling allowed',
-    userOverrideBlocked: 'User override disabled',
-    noRealOrder: 'No real order, deposit, or brokerage connection is created.',
+    dbDetailLabel: 'DB 조회 모델 상세',
+    mockFallbackLabel: 'Mock 상세 대체 데이터',
+    leverageAllowed: '레버리지 허용',
+    noLeverageFlag: '레버리지 없음',
+    derivativeAllowed: '파생상품 허용',
+    shortSellingAllowed: '공매도 허용',
+    userOverrideBlocked: '사용자 임의 변경 비활성',
+    noRealOrder: '실제 주문, 입금, 브로커 연결은 생성되지 않습니다.',
     noFutureReturn:
-      'Backtest and placeholder metrics do not imply future performance.',
-    mandateFallback: 'Model mandate',
+      '백테스트와 placeholder 지표는 미래 성과를 의미하지 않습니다.',
+    mandateFallback: '모델 운용 범위',
     disclosureFallback:
-      'Disclosure rows are DB read-model context only and still require qualified review before production use.',
-    updatedFallback: 'DB snapshot',
-    volatilityLabel: 'Volatility'
+      '공시 행은 DB read-model 맥락일 뿐이며 실제 운영 전 적격 검토가 필요합니다.',
+    updatedFallback: 'DB 스냅샷',
+    volatilityLabel: '변동성',
+    backtestLabel: '백테스트',
+    maxDrawdownLabel: '최대 낙폭',
+    emptySectionFallback:
+      'DB read-model 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'
   },
   en: {
     dbDetailLabel: 'DB read model detail',
@@ -62,7 +66,11 @@ const detailReadModelCopy = {
     disclosureFallback:
       'Disclosure rows are DB read-model context only and still require qualified review before production use.',
     updatedFallback: 'DB snapshot',
-    volatilityLabel: 'Volatility'
+    volatilityLabel: 'Volatility',
+    backtestLabel: 'Backtest',
+    maxDrawdownLabel: 'Max drawdown',
+    emptySectionFallback:
+      'DB read model context is available, but this section has no populated rows yet.'
   }
 } as const;
 
@@ -129,8 +137,9 @@ export default async function InvestModelDetailPage({
         ['#model-disclosure', model.disclosureTitle]
       ]
     : [];
-  const detailVisibleBoundaries = modelDetailVisibleBoundaries();
-  const selectionVisibleBoundaries = modelDetailSelectionVisibleBoundaries();
+  const detailVisibleBoundaries = modelDetailVisibleBoundaries(locale);
+  const selectionVisibleBoundaries =
+    modelDetailSelectionVisibleBoundaries(locale);
 
   if (!model) {
     return (
@@ -414,22 +423,31 @@ export default async function InvestModelDetailPage({
   );
 }
 
-function modelDetailVisibleBoundaries() {
-  return [
-    'Approved/public model',
-    'ModelVersion context',
-    'PortfolioMandate context',
-    'RiskProfile context'
-  ];
+function modelDetailVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? [
+        '승인/공개 모델',
+        'ModelVersion 맥락',
+        'PortfolioMandate 맥락',
+        'RiskProfile 맥락'
+      ]
+    : [
+        'Approved/public model',
+        'ModelVersion context',
+        'PortfolioMandate context',
+        'RiskProfile context'
+      ];
 }
 
-function modelDetailSelectionVisibleBoundaries() {
-  return [
-    'No recommendation',
-    'No live order',
-    'No brokerage',
-    'No advice'
-  ];
+function modelDetailSelectionVisibleBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? ['추천 아님', '실주문 없음', '브로커 연결 없음', '투자 조언 아님']
+    : [
+        'No recommendation',
+        'No live order',
+        'No brokerage',
+        'No advice'
+      ];
 }
 
 async function readInvestmentModelDetailView(
@@ -517,7 +535,7 @@ function toInvestmentModelDetailView(
     updatedLabel: model.performance.measuredAt ?? readCopy.updatedFallback,
     metrics: [
       {
-        label: 'Backtest',
+        label: readCopy.backtestLabel,
         value: model.performance.cumulativeReturn.display,
         description: readCopy.noFutureReturn,
         tone:
@@ -527,7 +545,7 @@ function toInvestmentModelDetailView(
             : 'risk'
       },
       {
-        label: 'Max drawdown',
+        label: readCopy.maxDrawdownLabel,
         value: model.performance.maxDrawdown.display,
         description: model.risk.summary ?? readCopy.noFutureReturn,
         tone: 'risk'
@@ -546,7 +564,7 @@ function toInvestmentModelDetailView(
       model.rebalanceFrequency,
       model.mandate.leveragePolicy,
       model.mandate.rebalancePolicy
-    ]),
+    ], readCopy.emptySectionFallback),
     riskTitle: copy.models[0]?.riskTitle ?? 'Risks and limits',
     riskItems: compactDetailItems([
       model.risk.summary,
@@ -554,7 +572,7 @@ function toInvestmentModelDetailView(
       model.risk.shortSellingAllowed ? readCopy.shortSellingAllowed : undefined,
       model.maxDrawdown.display,
       readCopy.noFutureReturn
-    ]),
+    ], readCopy.emptySectionFallback),
     limitationTitle: copy.models[0]?.limitationTitle ?? 'MVP forbidden actions',
     limitationItems: compactDetailItems([
       model.forbiddenScope,
@@ -563,7 +581,7 @@ function toInvestmentModelDetailView(
         ? undefined
         : readCopy.userOverrideBlocked,
       readCopy.noRealOrder
-    ]),
+    ], readCopy.emptySectionFallback),
     disclosureTitle: copy.models[0]?.disclosureTitle ?? 'Disclosure',
     disclosureDescription,
     actionLabel: copy.models[0]?.actionLabel ?? 'Review before selection',
@@ -571,12 +589,10 @@ function toInvestmentModelDetailView(
   };
 }
 
-function compactDetailItems(items: Array<string | undefined>) {
+function compactDetailItems(items: Array<string | undefined>, fallback: string) {
   const compacted = items.filter((item): item is string => Boolean(item));
 
-  return compacted.length > 0
-    ? compacted
-    : ['DB read model context is available, but this section has no populated rows yet.'];
+  return compacted.length > 0 ? compacted : [fallback];
 }
 
 function toDetailRiskTone(

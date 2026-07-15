@@ -785,6 +785,10 @@ assertCondition(
 assertCondition(
   modelDetailPageSource.includes("detailVisibleBoundaries.join(' / ')") &&
     modelDetailPageSource.includes("selectionVisibleBoundaries.join(' / ')") &&
+    modelDetailPageSource.includes("modelDetailVisibleBoundaries(locale)") &&
+    modelDetailPageSource.includes(
+      'modelDetailSelectionVisibleBoundaries(locale)'
+    ) &&
     !modelDetailPageSource.includes('detailVisibleBoundaries.map((boundary) => (') &&
     !modelDetailPageSource.includes('selectionVisibleBoundaries.map((boundary) => (') &&
     modelDetailPageSource.includes('Model detail visible safety boundaries') &&
@@ -813,6 +817,37 @@ assertCondition(
     !modelSelectionCtaSource.includes('RiskBadge') &&
     !modelSelectionCtaSource.includes('<RiskBadge'),
   'Model Detail and ModelSelectionCta must present visible safety boundaries as prose instead of hashtag safety chip groups'
+);
+assertCondition(
+  modelDetailPageSource.includes("dbDetailLabel: 'DB 조회 모델 상세'") &&
+    modelDetailPageSource.includes(
+      "noRealOrder: '실제 주문, 입금, 브로커 연결은 생성되지 않습니다.'"
+    ) &&
+    modelDetailPageSource.includes("backtestLabel: '백테스트'") &&
+    modelDetailPageSource.includes("maxDrawdownLabel: '최대 낙폭'") &&
+    modelDetailPageSource.includes("leverageAllowed: '레버리지 허용'") &&
+    modelDetailPageSource.includes("derivativeAllowed: '파생상품 허용'") &&
+    modelDetailPageSource.includes("shortSellingAllowed: '공매도 허용'") &&
+    modelDetailPageSource.includes(
+      "emptySectionFallback:\n      'DB read-model 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'"
+    ) &&
+    modelDetailPageSource.includes("'승인/공개 모델'") &&
+    modelDetailPageSource.includes("'ModelVersion 맥락'") &&
+    modelDetailPageSource.includes("'PortfolioMandate 맥락'") &&
+    modelDetailPageSource.includes("'RiskProfile 맥락'") &&
+    modelDetailPageSource.includes(
+      "'추천 아님', '실주문 없음', '브로커 연결 없음', '투자 조언 아님'"
+    ) &&
+    modelDetailPageSource.includes("dbDetailLabel: 'DB read model detail'") &&
+    modelDetailPageSource.includes("backtestLabel: 'Backtest'") &&
+    modelDetailPageSource.includes('label: readCopy.backtestLabel') &&
+    modelDetailPageSource.includes('label: readCopy.maxDrawdownLabel') &&
+    !modelDetailPageSource.includes("label: 'Backtest'") &&
+    !modelDetailPageSource.includes("label: 'Max drawdown'") &&
+    !/<RiskBadge\b[\s\S]{0,180}No recommendation[\s\S]{0,80}<\/RiskBadge>/.test(
+      modelDetailPageSource
+    ),
+  'Model Detail Korean read-model copy must not fall back to English safety/source labels'
 );
 assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&
