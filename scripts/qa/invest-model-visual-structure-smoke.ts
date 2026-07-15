@@ -390,6 +390,9 @@ const portfolioPageSource = readProjectFile(
 const feedDetailPageSource = readProjectFile(
   'app/invest-model/feed/[postId]/page.tsx'
 );
+const feedCommentActionSource = readProjectFile(
+  'components/invest-model/feed-comment-action.tsx'
+);
 
 assertCondition(
   mobileShellSource.includes('max-w-[var(--invest-mobile-frame-width)]'),
@@ -524,6 +527,11 @@ assertCondition(
     !feedDetailPageSource.includes('{feedCopy.footerBadges.noAdvice}\n                </RiskBadge>') &&
     feedDetailPageSource.includes("{feedCopy.footerBadges.noAdvice} /{' '}"),
   'Feed detail must present action/footer safety boundaries as prose instead of hashtag safety chip groups'
+);
+assertCondition(
+  feedCommentActionSource.includes("feedCommentVisibleBoundaries(locale).join(' / ')") &&
+    !feedCommentActionSource.includes('feedCommentVisibleBoundaries(locale).map((boundary) => ('),
+  'Feed comment action must present safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
   searchPageSource.includes("searchResultVisibleBoundaries(locale, kind).join(' / ')") &&

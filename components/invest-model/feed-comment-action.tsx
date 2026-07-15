@@ -214,13 +214,9 @@ function CommentItem({
       <p className="mt-2 text-sm leading-6 text-invest-text-muted">
         {comment.body}
       </p>
-      <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
-        {feedCommentVisibleBoundaries(locale).map((boundary) => (
-          <RiskBadge key={boundary} tone="neutral">
-            {boundary}
-          </RiskBadge>
-        ))}
-      </div>
+      <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+        {feedCommentVisibleBoundaries(locale).join(' / ')}
+      </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -256,13 +252,9 @@ function CommentItem({
           onSubmit={handleReplySubmit}
           className="mt-3 rounded-invest-control border border-invest-border bg-invest-bg-soft p-2.5"
         >
-          <div className="mb-2 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface px-2 py-2">
-            {feedCommentVisibleBoundaries(locale).map((boundary) => (
-              <RiskBadge key={boundary} tone="neutral">
-                {boundary}
-              </RiskBadge>
-            ))}
-          </div>
+          <p className="mb-2 rounded-invest-control bg-invest-surface px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+            {feedCommentVisibleBoundaries(locale).join(' / ')}
+          </p>
           <textarea
             value={replyDraft}
             onChange={(event) => {
@@ -507,13 +499,9 @@ export function FeedCommentAction({
           <MessageCircle aria-hidden className="size-4 text-invest-primary" />
           {isKorean ? 'Add comment' : 'Add comment'}
         </label>
-        <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
-          {feedCommentVisibleBoundaries(locale).map((boundary) => (
-            <RiskBadge key={boundary} tone="neutral">
-              {boundary}
-            </RiskBadge>
-          ))}
-        </div>
+        <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+          {feedCommentVisibleBoundaries(locale).join(' / ')}
+        </p>
         <textarea
           id="feed-comment-body"
           value={draft}
