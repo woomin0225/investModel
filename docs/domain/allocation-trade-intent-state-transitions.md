@@ -142,6 +142,8 @@ Forbidden labels:
 
 ## Follow-Up Links
 
+- `BK-088`: `docs/domain/rebalance-decision-record.md` defines the reviewable
+  reason record for mock rebalance decisions without creating real orders.
 - `BK-146`: convert these transitions into tests and fixture assertions.
 - `BK-133`: align mock loaders and DTO labels with these status names.
 - `BK-059`: keep API naming consistent with the pre-order simulation boundary.
