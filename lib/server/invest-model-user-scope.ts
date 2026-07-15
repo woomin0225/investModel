@@ -11,6 +11,10 @@ export type InvestModelUserScope = {
   ignoredClientUserPublicId?: string;
 };
 
+type ResolveInvestModelUserScopeOptions = {
+  clientUserPublicId?: string | null;
+};
+
 export function readInvestModelRole(request: NextRequest): AccessRole {
   const role = request.headers.get('x-invest-model-role');
 
@@ -28,11 +32,15 @@ export function readInvestModelRole(request: NextRequest): AccessRole {
 }
 
 export async function resolveInvestModelUserScope(
-  request: NextRequest
+  request: NextRequest,
+  options: ResolveInvestModelUserScopeOptions = {}
 ): Promise<InvestModelUserScope> {
-  const clientUserPublicId = request.nextUrl.searchParams
+  const bodyClientUserPublicId = options.clientUserPublicId?.trim();
+  const queryClientUserPublicId = request.nextUrl.searchParams
     .get('userPublicId')
     ?.trim();
+  const clientUserPublicId =
+    bodyClientUserPublicId || queryClientUserPublicId;
 
   try {
     const user = await getUser();

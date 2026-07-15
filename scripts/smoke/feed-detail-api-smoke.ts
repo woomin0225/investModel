@@ -122,6 +122,12 @@ async function main() {
     }
   );
   const missingUserResponse = await detailRequest('feed_mock_001', '');
+  const missingUserJson = await missingUserResponse.json();
+  const ignoredUserResponse = await detailRequest(
+    'feed_mock_001',
+    '?userPublicId=user_other_001'
+  );
+  const ignoredUserJson = await ignoredUserResponse.json();
   const notFoundResponse = await detailRequest('feed_mock_missing');
   const detailResponse = await detailRequest('feed_mock_001');
   const detailJson = await detailResponse.json();
@@ -131,8 +137,16 @@ async function main() {
     'public role is forbidden'
   );
   assertCondition(
-    missingUserResponse.status === 422,
-    'userPublicId is required'
+    missingUserResponse.status === 200 &&
+      missingUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      missingUserJson.meta?.clientUserPublicIdIgnored === false,
+    'missing userPublicId falls back to the mock-safe demo scope'
+  );
+  assertCondition(
+    ignoredUserResponse.status === 200 &&
+      ignoredUserJson.data?.userState?.userPublicId === 'user_demo_001' &&
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client userPublicId is ignored for FeedPost detail state'
   );
   assertCondition(notFoundResponse.status === 404, 'missing post is 404');
   assertCondition(detailResponse.status === 200, 'feed detail responds');

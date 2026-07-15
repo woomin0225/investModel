@@ -85,6 +85,7 @@ async function main() {
     }
   );
   const missingUserPublicIdResponse = await likeRequest('feed_mock_001', {});
+  const missingUserPublicIdJson = await missingUserPublicIdResponse.json();
   const invalidDesiredStateResponse = await likeRequest('feed_mock_001', {
     userPublicId: 'user_demo_001',
     desiredState: 'yes'
@@ -92,9 +93,11 @@ async function main() {
   const notFoundResponse = await likeRequest('feed_mock_missing', {
     userPublicId: 'user_demo_001'
   });
-  const userNotFoundResponse = await likeRequest('feed_mock_001', {
-    userPublicId: 'user_missing'
+  const ignoredUserResponse = await likeRequest('feed_mock_001', {
+    userPublicId: 'user_missing',
+    desiredState: true
   });
+  const ignoredUserJson = await ignoredUserResponse.json();
   const unlikeResponse = await likeRequest('feed_mock_001', {
     userPublicId: 'user_demo_001',
     desiredState: false
@@ -110,15 +113,22 @@ async function main() {
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(
-    missingUserPublicIdResponse.status === 422,
-    'userPublicId is required'
+    missingUserPublicIdResponse.status === 200 &&
+      missingUserPublicIdJson.meta?.userScopeSource === 'demo_fallback' &&
+      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === false,
+    'missing userPublicId falls back to the mock-safe demo scope'
   );
   assertCondition(
     invalidDesiredStateResponse.status === 422,
     'invalid desiredState returns validation error'
   );
   assertCondition(notFoundResponse.status === 404, 'missing post is 404');
-  assertCondition(userNotFoundResponse.status === 404, 'missing user is 404');
+  assertCondition(
+    ignoredUserResponse.status === 200 &&
+      ignoredUserJson.data?.userPublicId === 'user_demo_001' &&
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client userPublicId is ignored for like state'
+  );
   assertCondition(unlikeResponse.status === 200, 'unlike responds');
   assertCondition(likeResponse.status === 200, 'like responds');
   assertCondition(

@@ -2,7 +2,10 @@ import { NextRequest } from 'next/server';
 
 import { setFeedPostLikeState } from '@/lib/db/feed-detail-read-model';
 import { canReadFeed } from '@/lib/domain/feed/feed-post';
-import type { AccessRole } from '@/lib/domain/types';
+import {
+  readInvestModelRole,
+  resolveInvestModelUserScope
+} from '@/lib/server/invest-model-user-scope';
 
 /**
  * This route mutates only user-scoped FeedPost like UI state.
@@ -44,22 +47,6 @@ function errorResponse(
   );
 }
 
-function readRole(request: NextRequest): AccessRole {
-  const role = request.headers.get('x-invest-model-role');
-
-  if (
-    role === 'public' ||
-    role === 'user' ||
-    role === 'creator' ||
-    role === 'admin' ||
-    role === 'system'
-  ) {
-    return role;
-  }
-
-  return 'public';
-}
-
 async function readBody(request: NextRequest): Promise<LikeRequestBody> {
   try {
     return (await request.json()) as LikeRequestBody;
@@ -69,7 +56,7 @@ async function readBody(request: NextRequest): Promise<LikeRequestBody> {
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
-  const role = readRole(request);
+  const role = readInvestModelRole(request);
 
   if (!canReadFeed(role)) {
     return errorResponse(
@@ -82,8 +69,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
   const { postId } = await context.params;
   const postPublicId = postId.trim();
   const body = await readBody(request);
-  const userPublicId =
+  const clientUserPublicId =
     typeof body.userPublicId === 'string' ? body.userPublicId.trim() : '';
+  const userScope = await resolveInvestModelUserScope(request, {
+    clientUserPublicId
+  });
   const desiredState =
     typeof body.desiredState === 'boolean' ? body.desiredState : undefined;
 
@@ -92,14 +82,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
       422,
       'validation_error',
       'FeedPost public id is required.'
-    );
-  }
-
-  if (!userPublicId) {
-    return errorResponse(
-      422,
-      'validation_error',
-      'userPublicId body field is required for user-scoped like state.'
     );
   }
 
@@ -117,7 +99,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const result = await setFeedPostLikeState({
       postPublicId,
-      userPublicId,
+      userPublicId: userScope.userPublicId,
       desiredState
     });
 
@@ -144,6 +126,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
         persistence: 'persisted',
         action: 'like_toggle',
         sourceTables: ['feed_posts', 'feed_post_reactions', 'users'],
+        userPublicId: userScope.userPublicId,
+        userScopeSource: userScope.source,
+        clientUserPublicIdIgnored:
+          userScope.ignoredClientUserPublicId !== undefined,
         informationalOnly: true,
         popularityContextOnly: true,
         recommendationSignal: false,

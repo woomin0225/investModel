@@ -2,7 +2,10 @@ import { NextRequest } from 'next/server';
 
 import { readFeedPostDetailDto } from '@/lib/db/feed-detail-read-model';
 import { canReadFeed } from '@/lib/domain/feed/feed-post';
-import type { AccessRole } from '@/lib/domain/types';
+import {
+  readInvestModelRole,
+  resolveInvestModelUserScope
+} from '@/lib/server/invest-model-user-scope';
 
 /**
  * This route reads one informational FeedPost detail by public id.
@@ -39,24 +42,8 @@ function errorResponse(
   );
 }
 
-function readRole(request: NextRequest): AccessRole {
-  const role = request.headers.get('x-invest-model-role');
-
-  if (
-    role === 'public' ||
-    role === 'user' ||
-    role === 'creator' ||
-    role === 'admin' ||
-    role === 'system'
-  ) {
-    return role;
-  }
-
-  return 'public';
-}
-
 export async function GET(request: NextRequest, context: RouteContext) {
-  const role = readRole(request);
+  const role = readInvestModelRole(request);
 
   if (!canReadFeed(role)) {
     return errorResponse(
@@ -68,7 +55,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
   const { postId } = await context.params;
   const postPublicId = postId.trim();
-  const userPublicId = request.nextUrl.searchParams.get('userPublicId')?.trim();
+  const userScope = await resolveInvestModelUserScope(request);
 
   if (!postPublicId) {
     return errorResponse(
@@ -78,16 +65,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
     );
   }
 
-  if (!userPublicId) {
-    return errorResponse(
-      422,
-      'validation_error',
-      'userPublicId query parameter is required for user-scoped feed state.'
-    );
-  }
-
   try {
-    const result = await readFeedPostDetailDto({ postPublicId, userPublicId });
+    const result = await readFeedPostDetailDto({
+      postPublicId,
+      userPublicId: userScope.userPublicId
+    });
 
     if (result.status === 'post_not_found') {
       return errorResponse(
@@ -121,6 +103,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
           'investment_models',
           'users'
         ],
+        userPublicId: userScope.userPublicId,
+        userScopeSource: userScope.source,
+        clientUserPublicIdIgnored:
+          userScope.ignoredClientUserPublicId !== undefined,
         informationalOnly: true,
         realOrder: false,
         brokerageConnection: false,

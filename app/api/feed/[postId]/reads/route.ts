@@ -2,7 +2,10 @@ import { NextRequest } from 'next/server';
 
 import { setFeedPostReadState } from '@/lib/db/feed-detail-read-model';
 import { canReadFeed } from '@/lib/domain/feed/feed-post';
-import type { AccessRole } from '@/lib/domain/types';
+import {
+  readInvestModelRole,
+  resolveInvestModelUserScope
+} from '@/lib/server/invest-model-user-scope';
 
 /**
  * This route mutates only private user-scoped FeedPost read state.
@@ -43,22 +46,6 @@ function errorResponse(
   );
 }
 
-function readRole(request: NextRequest): AccessRole {
-  const role = request.headers.get('x-invest-model-role');
-
-  if (
-    role === 'public' ||
-    role === 'user' ||
-    role === 'creator' ||
-    role === 'admin' ||
-    role === 'system'
-  ) {
-    return role;
-  }
-
-  return 'public';
-}
-
 async function readBody(request: NextRequest): Promise<ReadRequestBody> {
   try {
     return (await request.json()) as ReadRequestBody;
@@ -68,7 +55,7 @@ async function readBody(request: NextRequest): Promise<ReadRequestBody> {
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
-  const role = readRole(request);
+  const role = readInvestModelRole(request);
 
   if (!canReadFeed(role)) {
     return errorResponse(
@@ -81,8 +68,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
   const { postId } = await context.params;
   const postPublicId = postId.trim();
   const body = await readBody(request);
-  const userPublicId =
+  const clientUserPublicId =
     typeof body.userPublicId === 'string' ? body.userPublicId.trim() : '';
+  const userScope = await resolveInvestModelUserScope(request, {
+    clientUserPublicId
+  });
 
   if (!postPublicId) {
     return errorResponse(
@@ -92,18 +82,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
     );
   }
 
-  if (!userPublicId) {
-    return errorResponse(
-      422,
-      'validation_error',
-      'userPublicId body field is required for user-scoped read state.'
-    );
-  }
-
   try {
     const result = await setFeedPostReadState({
       postPublicId,
-      userPublicId
+      userPublicId: userScope.userPublicId
     });
 
     if (result.status === 'post_not_found') {
@@ -129,6 +111,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
         persistence: 'persisted',
         action: 'mark_read',
         sourceTables: ['feed_posts', 'feed_post_reads', 'users'],
+        userPublicId: userScope.userPublicId,
+        userScopeSource: userScope.source,
+        clientUserPublicIdIgnored:
+          userScope.ignoredClientUserPublicId !== undefined,
         informationalOnly: true,
         privateReadingStateOnly: true,
         recommendationSignal: false,

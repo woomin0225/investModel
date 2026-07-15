@@ -81,12 +81,14 @@ async function main() {
     }
   );
   const missingUserPublicIdResponse = await readRequest('feed_mock_003', {});
+  const missingUserPublicIdJson = await missingUserPublicIdResponse.json();
   const notFoundResponse = await readRequest('feed_mock_missing', {
     userPublicId: 'user_demo_001'
   });
-  const userNotFoundResponse = await readRequest('feed_mock_003', {
+  const ignoredUserResponse = await readRequest('feed_mock_003', {
     userPublicId: 'user_missing'
   });
+  const ignoredUserJson = await ignoredUserResponse.json();
   const markReadResponse = await readRequest('feed_mock_003', {
     userPublicId: 'user_demo_001'
   });
@@ -100,11 +102,18 @@ async function main() {
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(
-    missingUserPublicIdResponse.status === 422,
-    'userPublicId is required'
+    missingUserPublicIdResponse.status === 200 &&
+      missingUserPublicIdJson.meta?.userScopeSource === 'demo_fallback' &&
+      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === false,
+    'missing userPublicId falls back to the mock-safe demo scope'
   );
   assertCondition(notFoundResponse.status === 404, 'missing post is 404');
-  assertCondition(userNotFoundResponse.status === 404, 'missing user is 404');
+  assertCondition(
+    ignoredUserResponse.status === 200 &&
+      ignoredUserJson.data?.userPublicId === 'user_demo_001' &&
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client userPublicId is ignored for read state'
+  );
   assertCondition(markReadResponse.status === 200, 'mark read responds');
   assertCondition(
     repeatMarkReadResponse.status === 200,
