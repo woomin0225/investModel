@@ -60,7 +60,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
   const { postId } = await context.params;
   const postPublicId = postId.trim();
-  const userScope = await resolveInvestModelUserScope(request);
+  const userScope = await resolveInvestModelUserScope(request, {
+    ignoreClientUserPublicId: true
+  });
 
   if (!postPublicId) {
     return errorResponse(
@@ -110,8 +112,6 @@ export async function GET(request: NextRequest, context: RouteContext) {
         ],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        clientUserPublicIdIgnored:
-          userScope.ignoredClientUserPublicId !== undefined,
         informationalOnly: true,
         realOrder: false,
         brokerageConnection: false,

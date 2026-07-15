@@ -192,14 +192,15 @@ async function main() {
   assertCondition(
     missingUserResponse.status === 200 &&
       missingUserJson.meta?.userScopeSource === 'demo_fallback' &&
-      missingUserJson.meta?.clientUserPublicIdIgnored === false,
+      missingUserJson.meta?.clientUserPublicIdIgnored === undefined,
     'missing userPublicId falls back to the mock-safe demo scope'
   );
   assertCondition(
     ignoredUserResponse.status === 200 &&
       ignoredUserJson.data?.userState?.userPublicId === 'user_demo_001' &&
-      ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
-    'client userPublicId is ignored for FeedPost detail state'
+      ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined,
+    'client userPublicId is not exposed as compatibility meta for FeedPost detail state'
   );
   assertCondition(notFoundResponse.status === 404, 'missing post is 404');
   assertCondition(detailResponse.status === 200, 'feed detail responds');
@@ -207,7 +208,7 @@ async function main() {
     sessionDetailResponse.status === 200 &&
       sessionDetailJson.data?.userState?.userPublicId === 'user_demo_001' &&
       sessionDetailJson.meta?.userScopeSource === 'session' &&
-      sessionDetailJson.meta?.clientUserPublicIdIgnored === true,
+      sessionDetailJson.meta?.clientUserPublicIdIgnored === undefined,
     'session role can read FeedPost detail without role header'
   );
   assertCondition(
