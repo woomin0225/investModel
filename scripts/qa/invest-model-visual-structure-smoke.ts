@@ -707,6 +707,21 @@ assertCondition(
     notificationsPageSource.includes("notificationActionVisibleBoundaries(locale).join(' / ')") &&
     notificationsPageSource.includes("notificationItemVisibleBoundaries(locale).join(' / ')") &&
     notificationsPageSource.includes("notificationEmptyVisibleBoundaries(locale).join(' / ')") &&
+    notificationsPageSource.includes("eyebrow: '알림'") &&
+    notificationsPageSource.includes("summaryTitle: 'DB 기반 알림 센터'") &&
+    notificationsPageSource.includes("markAllRead: '모두 읽음 처리'") &&
+    notificationsPageSource.includes('DB 기반 알림 빈 상태') &&
+    notificationsPageSource.includes('로컬 DB 읽음 상태만 업데이트합니다') &&
+    notificationsPageSource.includes('정보성 읽기 모델이며 실제 푸시') &&
+    notificationsPageSource.includes("locale === 'ko' ? 'DB FeedPost 기반' : 'DB FeedPost'") &&
+    notificationsPageSource.includes("item.status === 'unread'\n    ? '새 DB 기반 FeedPost'") &&
+    notificationsPageSource.includes("    : '읽은 FeedPost 업데이트'") &&
+    notificationsPageSource.includes("locale === 'ko'\n                                ? '연결된 모델 없음'") &&
+    !notificationsPageSource.includes('DB-backed notification empty state이며') &&
+    !notificationsPageSource.includes('informational-only read model이며') &&
+    !notificationsPageSource.includes('local DB read state만 업데이트합니다') &&
+    !notificationsPageSource.includes('{item.eventLabel}') &&
+    !notificationsPageSource.includes("'연결된 FeedPost 없음'") &&
     !notificationsPageSource.includes('notificationSummaryVisibleBoundaries(locale).map(') &&
     !notificationsPageSource.includes('notificationActionVisibleBoundaries(locale).map(') &&
     !notificationsPageSource.includes('notificationItemVisibleBoundaries(locale).map(') &&
