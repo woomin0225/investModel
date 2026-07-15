@@ -52,26 +52,10 @@ const homeMetricSummaryCopy = {
   }
 } as const;
 
-function homeVisibleBoundaries(locale: 'ko' | 'en') {
+function homeSafetyBoundaryCopy(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? [
-        'DB/mock read model',
-        '선택 모델 맥락',
-        'MockDeposit funds',
-        '실계좌 아님',
-        '주문 아님',
-        '브로커 미연결',
-        '투자 조언 아님'
-      ]
-    : [
-        'DB/mock read model',
-        'selected model context',
-        'MockDeposit funds',
-        'no real account',
-        'not an order',
-        'no brokerage',
-        'not financial advice'
-      ];
+    ? '이 홈 화면은 DB/mock read model과 선택 모델 맥락, MockDeposit 자금을 읽어 보여주는 시뮬레이션 화면입니다. 실계좌, 주문, 브로커 연결, 투자조언으로 동작하지 않습니다.'
+    : 'This home screen reads DB/mock read models, selected model context, and MockDeposit funds for simulation only. It is not a real account, order, brokerage connection, or financial advice.';
 }
 
 async function readHomePortfolioSummaryRoute(): Promise<InvestModelPortfolioSummary> {
@@ -237,13 +221,9 @@ export default async function InvestModelPreviewPage({
             performanceLabel={portfolio.selectedModel.versionLabel}
             mandateLabel={portfolio.selectedModel.modelVersionPublicId}
           />
-          <div className="flex flex-wrap gap-1.5 rounded-invest-card border border-invest-border bg-invest-surface-muted p-3 shadow-invest-card">
-            {homeVisibleBoundaries(locale).map((boundary) => (
-              <RiskBadge key={boundary} tone="neutral">
-                {boundary}
-              </RiskBadge>
-            ))}
-          </div>
+          <p className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-3 text-xs font-medium leading-5 text-invest-text-muted shadow-invest-card">
+            {homeSafetyBoundaryCopy(locale)}
+          </p>
           <ModelSelectionReadStatus copy={modelSelectionReadStatusCopy[locale]} />
         </div>
 
@@ -330,14 +310,16 @@ export default async function InvestModelPreviewPage({
         </div>
 
         <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
-          <div className="flex flex-wrap gap-2">
-            <RiskBadge tone="blocked">
+          <p className="text-sm leading-6 text-invest-text-muted">
+            <span className="font-bold text-invest-text">
               {homeCopy.footerBadges.noLiveOrders}
-            </RiskBadge>
-            <RiskBadge>{homeCopy.signal.source}</RiskBadge>
-            <RiskBadge tone="medium">{homeCopy.signal.status}</RiskBadge>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-invest-text-muted">
+            </span>
+            {' · '}
+            {homeCopy.signal.source}
+            {' · '}
+            {homeCopy.signal.status}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-invest-text-muted">
             {homeCopy.footer}
           </p>
         </div>

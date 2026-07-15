@@ -507,10 +507,12 @@ assertCondition(
 );
 assertCondition(
   !homePageSource.includes('<SoftBanner') &&
-    homePageSource.includes('homeVisibleBoundaries') &&
+    !homePageSource.includes('homeVisibleBoundaries(locale).map') &&
+    homePageSource.includes('homeSafetyBoundaryCopy') &&
     homePageSource.includes('ModelSelectionReadStatus') &&
-    homePageSource.includes('homeCopy.footerBadges.noLiveOrders'),
-  'Home must not start with the top blue SoftBanner and must preserve mock/no-order safety context'
+    homePageSource.includes('homeCopy.footerBadges.noLiveOrders') &&
+    homePageSource.includes('financial advice'),
+  'Home must not start with the top blue SoftBanner or hashtag safety chip group and must preserve mock/no-order safety context'
 );
 assertCondition(
   !modelsPageSource.includes('<SoftBanner') &&
