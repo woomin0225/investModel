@@ -96,6 +96,15 @@ const smokeCommands: SmokeCommand[] = [
     covers: ['MyPageSummaryDto', 'profile/activity/notification summary']
   },
   {
+    name: 'my-page-user-scope-read-model',
+    command: [
+      'npx',
+      'tsx',
+      'scripts/smoke/my-page-user-scope-read-model-smoke.ts'
+    ],
+    covers: ['MyPageSummaryDto user scope', 'fallback isolation']
+  },
+  {
     name: 'my-activity-api',
     command: ['npx', 'tsx', 'scripts/smoke/my-activity-api-smoke.ts'],
     covers: ['My Page saved/comment activity']
