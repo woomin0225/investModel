@@ -718,10 +718,26 @@ assertCondition(
     feedPageSource.includes('DB 기반 관심도 맥락일 뿐이며 모델 품질이나 기대 수익이 아닙니다.') &&
     feedPageSource.includes("{locale === 'ko' ? '추천 아님' : 'No advice'}") &&
     feedPageSource.includes('아직 추적된 좋아요 순위 행이 없습니다.') &&
+    feedPageSource.includes('${label} 피드 글 필터.') &&
+    feedPageSource.includes('DB 기반 피드 읽기 모델만 필터링하며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
+    feedPageSource.includes('피드 글: ${post.title}.') &&
+    feedPageSource.includes('정보성 DB 읽기 모델 글이며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
+    feedPageSource.includes('피드 상세를 열고 읽음 상태를 기록합니다.') &&
+    feedPageSource.includes('목록 또는 상세 댓글 영역의 DB 기반 피드 동작을 실행합니다.') &&
+    feedPageSource.includes('피드 좋아요 순위 ${ranking.rank}위') &&
+    feedPageSource.includes('DB 기반 추적 좋아요 순위이며 모델 품질, 기대 수익, 추천, 주문 근거가 아닙니다.') &&
+    feedPageSource.includes("'DB 기반 관심도 순위'") &&
+    feedPageSource.includes('피드 빈 상태입니다. DB 기반 피드 읽기 모델 범위만 표시하며 정보성 상태일 뿐 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
+    feedPageSource.includes("'DB 피드 빈 상태'") &&
+    feedPageSource.includes("'실시간 외부 데이터 없음'") &&
+    feedPageSource.includes('피드 글과 좋아요 순위는 정보성 DB 읽기 모델이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터 또는 실계좌 데이터가 아닙니다.') &&
     !feedPageSource.includes("locale === 'ko' ? 'No linked model' : 'No linked model'") &&
     !feedPageSource.includes('${ranking.likeCount} tracked likes`\n        : `${ranking.likeCount} tracked likes') &&
     !feedPageSource.includes("title={locale === 'ko' ? 'Like ranking' : 'Like ranking'}") &&
-    !feedPageSource.includes("? 'No tracked like ranking rows yet.'\n                    : 'No tracked like ranking rows yet.'"),
+    !feedPageSource.includes("? 'No tracked like ranking rows yet.'\n                    : 'No tracked like ranking rows yet.'") &&
+    !feedPageSource.includes('DB-backed FeedPost read model만 필터링') &&
+    !feedPageSource.includes('FeedPost 상세를 열고 읽음 상태를 기록합니다.') &&
+    !feedPageSource.includes('FeedPost와 like ranking은 정보성 DB read model'),
   'Feed Korean like ranking copy must not fall back to English'
 );
 assertCondition(
