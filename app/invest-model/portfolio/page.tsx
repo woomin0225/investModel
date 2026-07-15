@@ -100,7 +100,7 @@ function toKoreanPortfolioLabel(label: string) {
     'sourceType: mock': '출처: 모의 데이터',
     ready_for_simulation: '시뮬레이션 준비됨',
     'Mock decision engine': '모의 결정 엔진',
-    'DB read model': 'DB 읽기 모델',
+    'DB read model': 'DB 기반 조회',
     approved_for_simulation: '시뮬레이션 승인됨',
     'pre-order simulation only': '주문 전 시뮬레이션만 가능',
     'No real P/L': '실제 손익 아님',
@@ -115,7 +115,7 @@ function toKoreanPortfolioLabel(label: string) {
     'DB mock position': 'DB 모의 포지션',
     'Mock volatility guard active': '모의 변동성 안전 한도 활성',
     'PortfolioMandate guardrails only': '모델 운용 범위 안전 한도만 적용',
-    'DB read model sample window': 'DB 읽기 모델 샘플 기간'
+    'DB read model sample window': 'DB 기반 조회 샘플 기간'
   };
 
   if (exactLabels[label]) {
@@ -143,14 +143,14 @@ function toKoreanPortfolioLabel(label: string) {
     .replace(/(\d+) observed SignalEvents/g, '관찰 신호 $1개')
     .replace(/(\d+) simulated PortfolioPositions/g, '모의 포지션 $1개')
     .replace(/Current selected model status is live mock; inactive models cannot create simulated TradeIntent records\./g, '현재 선택 모델은 모의 운용 중이며 비활성 모델은 모의 주문 전 의도를 만들 수 없습니다.')
-    .replace(/Current selected model status comes from DB read model; it cannot create real orders or account activity\./g, '현재 선택 모델 상태는 DB 읽기 모델에서 왔으며 실제 주문이나 계좌 활동을 만들 수 없습니다.')
+    .replace(/Current selected model status comes from DB read model; it cannot create real orders or account activity\./g, '현재 선택 모델 상태는 DB 기반 조회에서 왔으며 실제 주문이나 계좌 활동을 만들 수 없습니다.')
     .replace(/Mock market and news observations created pre-order simulation TradeIntent records after policy checks\./g, '모의 시장과 뉴스 관찰값이 정책 검증 뒤 주문 전 시뮬레이션 기록을 만들었습니다.')
     .replace(/No DB AllocationDecision row yet; showing mock-safe fallback state only\./g, 'DB 배분 결정 행이 없어 모의 안전 대체 상태만 표시합니다.')
     .replace(/\bAllocationDecision\b/g, '배분 결정')
     .replace(/\bTradeIntent\b/g, '주문 전 의도')
     .replace(/\bMockDeposit\b/g, '모의 입금')
     .replace(/\bPortfolioMandate\b/g, '모델 운용 범위')
-    .replace(/\bDB read model\b/g, 'DB 읽기 모델')
+    .replace(/\bDB read model\b/g, 'DB 기반 조회')
     .replace(/\bmock-safe fallback\b/g, '모의 안전 대체')
     .replace(/\bfallback\b/g, '대체 상태');
 }

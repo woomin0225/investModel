@@ -28,7 +28,7 @@ const adminReviewCopy = {
     title: '모델 심사',
     noticeTitle: '읽기 전용 심사 대기열',
     noticeDescription:
-      '이 화면은 pending_review mock 모델의 필수 정보를 확인하기 위한 모바일 관리자 화면입니다. 승인, 반려, 중지, 실제 모델 실행은 아직 연결하지 않습니다.',
+      '이 화면은 심사 대기 중인 모의 모델의 필수 정보를 확인하기 위한 모바일 관리자 화면입니다. 승인, 반려, 중지, 실제 모델 실행은 아직 연결하지 않습니다.',
     sectionTitle: '심사 대기 모델',
     sectionDescription: '승인 또는 반려 전 확인해야 하는 모델 설명과 위험 정보를 함께 표시합니다.',
     submittedAt: '제출 시각',
@@ -84,7 +84,7 @@ export default async function AdminModelReviewsPage({
     >
       <section className="space-y-invest-section-gap">
         <SoftBanner
-          eyebrow="pending_review"
+          eyebrow="심사 대기"
           title={copy.noticeTitle}
           description={copy.noticeDescription}
           icon={ClipboardCheck}
@@ -134,7 +134,7 @@ function AdminReviewModelCard({
             {copy.creator}: {model.creatorName}
           </p>
         </div>
-        <RiskBadge tone="medium">pending_review</RiskBadge>
+        <RiskBadge tone="medium">심사 대기</RiskBadge>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">

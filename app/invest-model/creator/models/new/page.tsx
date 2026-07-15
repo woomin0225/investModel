@@ -41,7 +41,7 @@ const creatorDraftCopy = {
         forbiddenAssets: '금지 자산',
         riskSummary: '위험 설명',
         performanceSource: '성과 근거 출처',
-        disclosurePlaceholder: '법률/위험 고지 placeholder'
+        disclosurePlaceholder: '법률/위험 고지 임시 문구'
       },
       placeholders: {
         commaList: '예: 미국 주식, ETF',
@@ -51,7 +51,7 @@ const creatorDraftCopy = {
         commaList: '여러 값은 쉼표로 구분합니다.',
         noFileUpload: '모델 파일 업로드 없음',
         mockOnly:
-          '제출 결과는 draft/private/metadata_only 상태입니다. 공개 탐색, 모델 실행, 실제 주문과 연결되지 않습니다.'
+          '제출 결과는 초안, 비공개, 설명 정보 전용 상태입니다. 공개 탐색, 모델 실행, 실제 주문과 연결되지 않습니다.'
       },
       actions: {
         submit: '초안 생성',
@@ -60,9 +60,9 @@ const creatorDraftCopy = {
       result: {
         successTitle: '모델 초안이 생성되었습니다.',
         errorTitle: '필수 입력값을 다시 확인해 주세요.',
-        draftStatus: 'draft',
-        privateVisibility: 'private',
-        metadataOnly: 'metadata_only'
+        draftStatus: '초안',
+        privateVisibility: '비공개',
+        metadataOnly: '설명 정보 전용'
       }
     }
   },

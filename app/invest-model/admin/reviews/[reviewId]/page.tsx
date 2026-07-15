@@ -31,7 +31,7 @@ const copy = {
     back: '심사 목록으로',
     bannerTitle: '읽기 전용 상세 검토',
     bannerDescription:
-      '이 화면은 pending_review mock 모델의 필수 검토 정보를 확인하기 위한 관리자 화면입니다. 승인, 반려, 중지, 실제 모델 실행은 연결하지 않습니다.',
+      '이 화면은 심사 대기 중인 모의 모델의 필수 검토 정보를 확인하기 위한 관리자 화면입니다. 승인, 반려, 중지, 실제 모델 실행은 연결하지 않습니다.',
     summary: '제출 요약',
     modelContext: '모델 운용 맥락',
     riskAndLimits: '위험 및 제한',
@@ -48,7 +48,7 @@ const copy = {
     forbiddenAssets: '금지 자산/동작',
     actionsDisabled: '상태 변경 비활성화',
     footer:
-      '이 상세 화면은 심사 판단을 돕는 mock 관리자 UI입니다. 법률/금융 문구를 확정하거나 모델을 공개 상태로 전환하지 않습니다.'
+      '이 상세 화면은 심사 판단을 돕는 모의 관리자 UI입니다. 법률/금융 문구를 확정하거나 모델을 공개 상태로 전환하지 않습니다.'
   },
   en: {
     eyebrow: 'Admin',
@@ -120,7 +120,7 @@ export default async function AdminReviewDetailPage({
         </Link>
 
         <SoftBanner
-          eyebrow="pending_review"
+          eyebrow={locale === 'ko' ? '심사 대기' : 'pending_review'}
           title={t.bannerTitle}
           description={t.bannerDescription}
           icon={ClipboardCheck}
@@ -136,7 +136,9 @@ export default async function AdminReviewDetailPage({
                 {model.strategySummary}
               </p>
             </div>
-            <RiskBadge tone="medium">pending_review</RiskBadge>
+            <RiskBadge tone="medium">
+              {locale === 'ko' ? '심사 대기' : 'pending_review'}
+            </RiskBadge>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">

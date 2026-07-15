@@ -47,13 +47,13 @@ const detailReadModelCopy = {
     disclosureTitleFallback: '공시',
     actionLabelFallback: '선택 전 검토',
     disclosureFallback:
-      '공시 행은 DB 읽기 모델 맥락일 뿐이며 실제 운영 전 적격 검토가 필요합니다.',
+      '공시 행은 DB 기반 조회 맥락일 뿐이며 실제 운영 전 적격 검토가 필요합니다.',
     updatedFallback: 'DB 스냅샷',
     volatilityLabel: '변동성',
     backtestLabel: '백테스트',
     maxDrawdownLabel: '최대 낙폭',
     emptySectionFallback:
-      'DB 읽기 모델 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'
+      'DB 기반 조회 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'
   },
   en: {
     dbDetailLabel: 'DB read model detail',

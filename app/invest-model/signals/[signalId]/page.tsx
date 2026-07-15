@@ -115,13 +115,13 @@ function signalDetailAccessibleLabel(
   signalTypeText: string
 ) {
   return locale === 'ko'
-    ? `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB seed/mock 관찰 입력 상세입니다. 추천, 주문, 주문 전 의도 또는 실시간 외부 데이터 연결이 아닙니다.`
+    ? `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB 초기/모의 관찰 입력 상세입니다. 추천, 주문, 주문 전 의도 또는 실시간 외부 데이터 연결이 아닙니다.`
     : `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB seed/mock observation detail. This is not a recommendation, order, TradeIntent, or realtime external data connection.`;
 }
 
 function signalBackAccessibleLabel(locale: SignalLocale) {
   return locale === 'ko'
-    ? 'DB seed/mock 신호 목록으로 돌아가기'
+    ? 'DB 초기/모의 신호 목록으로 돌아가기'
     : 'Back to the DB seed/mock signal list';
 }
 
@@ -130,7 +130,7 @@ function signalRelatedSearchAccessibleLabel(
   signal: SignalEventDto
 ) {
   return locale === 'ko'
-    ? `${signal.linkedModelName} 관련 DB FeedPost 검색. 참고용 읽기 자료이며 주문이나 추천 근거가 아닙니다.`
+    ? `${signal.linkedModelName} 관련 DB 피드 글 검색. 참고용 읽기 자료이며 주문이나 추천 근거가 아닙니다.`
     : `Search DB-backed FeedPosts for ${signal.linkedModelName}. Reference reading only, not evidence for an order or recommendation.`;
 }
 
@@ -160,7 +160,7 @@ function signalDetailVisibleBoundaries(locale: SignalLocale) {
 
 function signalRelatedVisibleBoundaries(locale: SignalLocale) {
   return locale === 'ko'
-    ? ['DB FeedPost', '참고 읽기', '주문 근거 아님']
+    ? ['DB 피드 글', '참고 읽기', '주문 근거 아님']
     : ['DB FeedPost', 'reference reading', 'not order evidence'];
 }
 
@@ -168,8 +168,8 @@ function signalScoreSnapshotVisibleBoundaries(locale: SignalLocale) {
   return locale === 'ko'
     ? [
         '점수 스냅샷',
-        'DB SignalEvent',
-        'seed/mock 관찰',
+        'DB 관찰 신호',
+        '초기/모의 관찰',
         '외부 실시간 미연결',
         '주문 아님'
       ]
@@ -224,9 +224,9 @@ function signalScoreSnapshotRows(locale: SignalLocale, signal: SignalEventDto) {
 function signalEvidenceVisibleBoundaries(locale: SignalLocale) {
   return locale === 'ko'
     ? [
-        'DB source rows',
+        'DB 원천 행',
         '관찰 시점 표시',
-        'mock/seed 근거',
+        '초기/모의 근거',
         '추천 근거 아님',
         '주문 근거 아님'
       ]
@@ -311,7 +311,7 @@ export default async function InvestModelSignalDetailPage({
     locale === 'ko' ? '\uC8FC\uBB38 \uC5C6\uC74C' : 'No order'
   ].join(' / ');
   const relatedFeedMetaLine = [
-    'DB FeedPost',
+    locale === 'ko' ? 'DB 피드 글' : 'DB FeedPost',
     locale === 'ko' ? '\uCC38\uACE0\uC6A9' : 'Reference only'
   ].join(' / ');
   const sourceRows = [
@@ -358,7 +358,7 @@ export default async function InvestModelSignalDetailPage({
         signal.signalType === 'news_traffic'
           ? signal.sourceLabel
           : locale === 'ko'
-            ? '트래픽 값은 seed/mock 관찰 범위에서만 표시됩니다.'
+            ? '트래픽 값은 초기/모의 관찰 범위에서만 표시됩니다.'
             : 'Traffic values are shown only within seed/mock observation scope.'
     },
     {
@@ -412,7 +412,7 @@ export default async function InvestModelSignalDetailPage({
             label={locale === 'ko' ? '관찰 점수' : 'Observation score'}
             value={signal.scoreDisplay}
             description={
-              locale === 'ko' ? 'DB seed/mock 기반' : 'DB seed/mock based'
+              locale === 'ko' ? 'DB 초기/모의 기반' : 'DB seed/mock based'
             }
             trend={locale === 'ko' ? '관찰값' : 'Observed'}
             tone={scoreTone === 'high' ? 'risk' : undefined}
@@ -422,7 +422,7 @@ export default async function InvestModelSignalDetailPage({
             value={locale === 'ko' ? '미연결' : 'Not connected'}
             description={
               locale === 'ko'
-                ? 'IS-004 해결 전까지 seed/mock만 사용'
+                ? 'IS-004 해결 전까지 초기/모의 데이터만 사용'
                 : 'Seed/mock only until IS-004 is resolved'
             }
             trend={locale === 'ko' ? '안전 경계' : 'Safety boundary'}
@@ -451,7 +451,7 @@ export default async function InvestModelSignalDetailPage({
                 <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
                   {signal.dataContext === 'mock'
                     ? locale === 'ko'
-                      ? 'seed/mock 관찰'
+                      ? '초기/모의 관찰'
                       : 'Seed/mock'
                     : signal.dataContext}
                 </span>
@@ -486,7 +486,7 @@ export default async function InvestModelSignalDetailPage({
                   : 'Score snapshot rank'}
               </h3>
               <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
-                {locale === 'ko' ? 'DB 읽기 모델' : 'DB read model'}
+                {locale === 'ko' ? 'DB 기반 조회' : 'DB read model'}
               </span>
             </div>
             {scoreSnapshotRows.map((row) => (

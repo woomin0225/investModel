@@ -114,7 +114,7 @@ function searchResultAccessibleLabel(
   detail: string
 ) {
   return locale === 'ko'
-    ? `${searchKindDisplayLabel(locale, kind)} 결과: ${title}. ${detail}. DB 기반 읽기 결과이며 추천, 주문, 브로커 동작 또는 실시간 외부 데이터가 아닙니다.`
+    ? `${searchKindDisplayLabel(locale, kind)} 결과: ${title}. ${detail}. DB 기반 조회 결과이며 추천, 주문, 브로커 동작 또는 실시간 외부 데이터가 아닙니다.`
     : `${kind} result: ${title}. ${detail}. DB-backed read model result, not a recommendation, order, brokerage action, or realtime external data.`;
 }
 
@@ -304,10 +304,10 @@ export default async function InvestModelSearchPage({
             description={
               locale === 'ko'
                 ? query.length > 0
-                  ? `DB 읽기 결과 ${filteredModels.length}개`
+                  ? `DB 기반 조회 결과 ${filteredModels.length}개`
                   : `DB 기반 탐색 가능 투자 모델 ${filteredModels.length}개`
                 : query.length > 0
-                  ? `${filteredModels.length} DB read model results`
+                  ? `${filteredModels.length} DB 기반 조회 결과`
                   : `${filteredModels.length} DB-backed discoverable models`
             }
           />
@@ -376,7 +376,7 @@ export default async function InvestModelSearchPage({
                         </div>
                         <div className="mt-3 flex items-center justify-between gap-3 text-[12px] font-semibold leading-4 text-invest-text-muted">
                           <span className="min-w-0 truncate">
-                            {locale === 'ko' ? 'DB 읽기 모델' : 'DB read model'}
+                            {locale === 'ko' ? 'DB 기반 조회' : 'DB read model'}
                           </span>
                           <ArrowRight
                             aria-hidden
@@ -614,7 +614,7 @@ export default async function InvestModelSearchPage({
               </p>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {locale === 'ko'
-                  ? '검색 결과는 로컬 DB 기반 읽기 결과의 모델 탐색 기록, 정보성 피드 글 기록, 관찰 신호 행입니다. 추천, 모델 선택, 수익률 주장, 브로커 동작, 실시간 외부 데이터, 계좌 데이터가 아닙니다.'
+                  ? '검색 결과는 로컬 DB 기반 조회 결과의 모델 탐색 기록, 정보성 피드 글 기록, 관찰 신호 행입니다. 추천, 모델 선택, 수익률 주장, 브로커 동작, 실시간 외부 데이터, 계좌 데이터가 아닙니다.'
                   : 'Search results are model discovery records, informational FeedPost records, and observed SignalEvent rows from the local DB-backed read model. They are not recommendations, model selections, return claims, broker actions, realtime external data, or account data.'}
               </p>
             </div>

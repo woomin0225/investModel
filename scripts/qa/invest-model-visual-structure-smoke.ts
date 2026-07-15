@@ -413,7 +413,7 @@ const portfolioPageSource = readProjectFile(
 const portfolioKoreanLabelMapRequired = [
   '모의 배정됨',
   '출처: 모의 데이터',
-  'DB 읽기 모델',
+  'DB 기반 조회',
   '주문 전 시뮬레이션만 가능',
   '브로커 데이터 없음'
 ];
@@ -594,21 +594,25 @@ assertCondition(
     signalDetailPageSource.includes("signalRelatedVisibleBoundaries(locale).join(' / ')") &&
     signalDetailPageSource.includes('const signalSafetyLine') &&
     signalDetailPageSource.includes('const relatedFeedMetaLine') &&
-    signalDetailPageSource.includes("'DB FeedPost',") &&
+    signalDetailPageSource.includes("'DB 피드 글',") &&
+    signalDetailPageSource.includes("'DB 관찰 신호',") &&
     signalDetailPageSource.includes("'Reference only'") &&
     !signalDetailPageSource.includes('signalDetailVisibleBoundaries(locale).map((boundary) => (') &&
     !signalDetailPageSource.includes('signalScoreSnapshotVisibleBoundaries(locale).map((boundary) => (') &&
     !signalDetailPageSource.includes('signalEvidenceVisibleBoundaries(locale).map((boundary) => (') &&
     !signalDetailPageSource.includes('signalRelatedVisibleBoundaries(locale).map((boundary) => (') &&
+    !signalDetailPageSource.includes("? ['DB FeedPost', '참고 읽기', '주문 근거 아님']") &&
+    !signalDetailPageSource.includes("'DB SignalEvent',\n        'seed/mock 관찰'") &&
     /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{signal\.dataContext === 'mock'[\s\S]{0,180}: signal\.dataContext\}\s*<\/span>/.test(
       signalDetailPageSource
     ) &&
     !/<RiskBadge\b[^>]*tone="neutral"[^>]*>[\s\S]{0,220}\{signal\.dataContext === 'mock'[\s\S]{0,120}<\/RiskBadge>/.test(
       signalDetailPageSource
     ) &&
-    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{locale === 'ko' \? 'DB 읽기 모델' : 'DB read model'\}\s*<\/span>/.test(
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{locale === 'ko' \? 'DB 기반 조회' : 'DB read model'\}\s*<\/span>/.test(
       signalDetailPageSource
     ) &&
+    !signalDetailPageSource.includes("locale === 'ko' ? 'DB 읽기 모델' : 'DB read model'") &&
     !/<RiskBadge\b[^>]*tone="neutral"[^>]*>[\s\S]{0,80}DB read model[\s\S]{0,80}<\/RiskBadge>/.test(
       signalDetailPageSource
     ) &&
@@ -730,14 +734,17 @@ assertCondition(
     searchPageSource.includes('이 검색어와 일치하는 DB 기반 피드 글이 없습니다.') &&
     searchPageSource.includes('이 검색어와 일치하는 DB 기반 관찰 신호가 없습니다.') &&
     searchPageSource.includes('DB 기반 범위 검색의 빈 상태') &&
-    searchPageSource.includes('DB 읽기 결과') &&
-    searchPageSource.includes('로컬 DB 기반 읽기 결과의 모델 탐색 기록') &&
+    searchPageSource.includes('DB 기반 조회 결과') &&
+    searchPageSource.includes('로컬 DB 기반 조회 결과의 모델 탐색 기록') &&
     searchPageSource.includes('투자 모델 ${filteredModels.length}개') &&
     searchPageSource.includes('탐색 가능 투자 모델 ${filteredModels.length}개') &&
     searchPageSource.includes('검색은 탐색 가능한 투자 모델과 DB 기반 피드 글, 관찰 신호만 읽습니다.') &&
     searchPageSource.includes('검색 안전 경계. 결과는 모델 탐색, 정보성 피드 글, 관찰 신호이며') &&
     !searchPageSource.includes('DB-backed scoped search의 빈 상태') &&
     !searchPageSource.includes('DB-backed read model 결과') &&
+    !searchPageSource.includes('DB 기반 읽기 결과') &&
+    !searchPageSource.includes('DB 읽기 결과') &&
+    !searchPageSource.includes('로컬 DB 기반 읽기 결과의 모델 탐색 기록') &&
     !searchPageSource.includes('로컬 DB-backed read model의 모델 탐색 기록') &&
     !searchPageSource.includes('모델, FeedPost, SignalEvent 검색') &&
     !searchPageSource.includes('검색은 탐색 가능한 InvestmentModel과 DB 기반 FeedPost, SignalEvent만 읽습니다.') &&
@@ -764,10 +771,14 @@ assertCondition(
     notificationsPageSource.includes('DB 기반 알림 빈 상태') &&
     notificationsPageSource.includes('로컬 DB 읽음 상태만 업데이트합니다') &&
     notificationsPageSource.includes('정보성 읽기 모델이며 실제 푸시') &&
+    notificationsPageSource.includes('피드 글 읽음 상태에서 알림 행을 파생합니다') &&
+    notificationsPageSource.includes('피드 글 행이 추가되거나 읽음 상태가 바뀌면') &&
+    notificationsPageSource.includes("sectionDescription: '피드 글 기록과 읽음 상태에서 파생됩니다.'") &&
     notificationsPageSource.includes("locale === 'ko' ? 'DB 피드 글 기반' : 'DB FeedPost'") &&
     notificationsPageSource.includes("item.status === 'unread'\n    ? '새 DB 기반 피드 글'") &&
     notificationsPageSource.includes("    : '읽은 피드 글 업데이트'") &&
     notificationsPageSource.includes('DB 기반 피드 글 알림 후보') &&
+    notificationsPageSource.includes('피드 글 알림 후보의 로컬 DB 읽음 상태만 업데이트합니다') &&
     notificationsPageSource.includes("'피드 글 기반'") &&
     notificationsPageSource.includes("locale === 'ko'\n                                ? '연결된 모델 없음'") &&
     !notificationsPageSource.includes('DB-backed notification empty state이며') &&
@@ -782,7 +793,11 @@ assertCondition(
     !notificationsPageSource.includes('DB 기반 FeedPost 알림 후보') &&
     !notificationsPageSource.includes("'새 DB 기반 FeedPost'") &&
     !notificationsPageSource.includes("'읽은 FeedPost 업데이트'") &&
-    !notificationsPageSource.includes("'FeedPost 기반'"),
+    !notificationsPageSource.includes("'FeedPost 기반'") &&
+    !notificationsPageSource.includes('FeedPost 읽음 상태에서 파생된') &&
+    !notificationsPageSource.includes('FeedPost 행이 추가되거나') &&
+    !notificationsPageSource.includes("sectionDescription: 'FeedPost 기록과 읽음 상태에서 파생됩니다.'") &&
+    !notificationsPageSource.includes('FeedPost 알림 후보의 로컬 DB'),
   'Notifications must present safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
@@ -799,7 +814,7 @@ assertCondition(
     feedPageSource.includes('${label} 피드 글 필터.') &&
     feedPageSource.includes('DB 기반 피드 읽기 모델만 필터링하며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
     feedPageSource.includes('피드 글: ${post.title}.') &&
-    feedPageSource.includes('정보성 DB 읽기 모델 글이며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
+    feedPageSource.includes('정보성 DB 기반 조회 글이며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
     feedPageSource.includes('피드 상세를 열고 읽음 상태를 기록합니다.') &&
     feedPageSource.includes('목록 또는 상세 댓글 영역의 DB 기반 피드 동작을 실행합니다.') &&
     feedPageSource.includes('피드 좋아요 순위 ${ranking.rank}위') &&
@@ -808,13 +823,15 @@ assertCondition(
     feedPageSource.includes('피드 빈 상태입니다. DB 기반 피드 읽기 모델 범위만 표시하며 정보성 상태일 뿐 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
     feedPageSource.includes("'DB 피드 빈 상태'") &&
     feedPageSource.includes("'실시간 외부 데이터 없음'") &&
-    feedPageSource.includes('피드 글과 좋아요 순위는 정보성 DB 읽기 모델이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터 또는 실계좌 데이터가 아닙니다.') &&
+    feedPageSource.includes('피드 글과 좋아요 순위는 정보성 DB 기반 조회이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터 또는 실계좌 데이터가 아닙니다.') &&
     !feedPageSource.includes("locale === 'ko' ? 'No linked model' : 'No linked model'") &&
     !feedPageSource.includes('${ranking.likeCount} tracked likes`\n        : `${ranking.likeCount} tracked likes') &&
     !feedPageSource.includes("title={locale === 'ko' ? 'Like ranking' : 'Like ranking'}") &&
     !feedPageSource.includes("? 'No tracked like ranking rows yet.'\n                    : 'No tracked like ranking rows yet.'") &&
     !feedPageSource.includes('DB-backed FeedPost read model만 필터링') &&
     !feedPageSource.includes('FeedPost 상세를 열고 읽음 상태를 기록합니다.') &&
+    !feedPageSource.includes('정보성 DB 읽기 모델 글이며') &&
+    !feedPageSource.includes('피드 글과 좋아요 순위는 정보성 DB 읽기 모델이며') &&
     !feedPageSource.includes('FeedPost와 like ranking은 정보성 DB read model'),
   'Feed Korean like ranking copy must not fall back to English'
 );
@@ -968,7 +985,7 @@ assertCondition(
   'Home and model selection read status must not start with the top blue SoftBanner or hashtag safety chip group and must preserve mock/no-order safety context'
 );
 assertCondition(
-  myPageSource.includes('실계좌 없음 / 실주문 없음 / DB 읽기 모델') &&
+  myPageSource.includes('실계좌 없음 / 실주문 없음 / DB 기반 조회') &&
     myPageSource.includes('No real account / No real orders / DB read model') &&
     myPageSource.includes('{myPageScopeBadgeLabel(locale, myPageMeta)}') &&
     myPageSource.includes("activitySummary.sourceLabel === 'db_read_model'") &&
@@ -985,12 +1002,12 @@ assertCondition(
   'My Page safety boundaries must use prose instead of hashtag safety chip groups'
 );
 assertCondition(
-  myPageSource.includes('내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 읽기 모델 또는 프로토타입 대체 상태를 구분합니다.') &&
-    myPageSource.includes('회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 읽기 모델 또는 프로토타입 대체 상태만 표시합니다.') &&
+  myPageSource.includes('내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 기반 조회 또는 프로토타입 대체 상태를 구분합니다.') &&
+    myPageSource.includes('회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 기반 조회 또는 프로토타입 대체 상태만 표시합니다.') &&
     myPageSource.includes('DB 사용자 읽기 모델') &&
     myPageSource.includes('로컬 프로필 요약') &&
-    myPageSource.includes('현재 회원의 저장/댓글 바로가기를 DB 읽기 모델에서 최신순으로 표시합니다.') &&
-    myPageSource.includes('최근 피드 글 활동. 현재 회원의 저장 및 댓글 DB 읽기 모델 바로가기입니다.') &&
+    myPageSource.includes('현재 회원의 저장/댓글 바로가기를 DB 기반 조회에서 최신순으로 표시합니다.') &&
+    myPageSource.includes('최근 피드 글 활동. 현재 회원의 저장 및 댓글 DB 기반 조회 바로가기입니다.') &&
     myPageSource.includes('저장/댓글 활동은 정보성 읽기 바로가기이며 추천, 주문, 실계좌, 실제 알림 전송과 연결되지 않습니다.') &&
     !myPageSource.includes('My Page DB read model 또는 mock-safe') &&
     !myPageSource.includes('user-scoped DB read model') &&
@@ -1011,7 +1028,7 @@ assertCondition(
   'My Page summary scope/source must render as prose, not a RiskBadge'
 );
 assertCondition(
-  myPageSource.includes("? 'DB 읽기 모델'") &&
+  myPageSource.includes("? 'DB 기반 조회'") &&
     myPageSource.includes(": 'DB read model'") &&
     myPageSource.includes("? '모의 안전 상태'") &&
     myPageSource.includes("trend={locale === 'ko' ? '모의' : 'mock'}") &&
@@ -1055,8 +1072,8 @@ assertCondition(
   'Discover Models Korean search form copy must not fall back to English'
 );
 assertCondition(
-  modelsPageSource.includes("dbLabel: 'DB 읽기 모델'") &&
-    modelsPageSource.includes("unavailableTitle: 'DB 읽기 모델 사용 불가'") &&
+  modelsPageSource.includes("dbLabel: 'DB 기반 조회'") &&
+    modelsPageSource.includes("unavailableTitle: 'DB 기반 조회 사용 불가'") &&
     modelsPageSource.includes("emptyTitle: 'DB 기반 공개 투자 모델 없음'") &&
     modelsPageSource.includes(
       "'현재 필터에 표시할 공개 투자 모델 데이터가 없습니다. 실제 주문이나 모델 선택은 생성되지 않았습니다.'"
@@ -1064,6 +1081,8 @@ assertCondition(
     modelsPageSource.includes("marketplaceFallback: '마켓플레이스 모델'") &&
     modelsPageSource.includes("mandateFallback: '모델 운용 범위'") &&
     modelsPageSource.includes("backtestSuffix: '백테스트'") &&
+    !modelsPageSource.includes("dbLabel: 'DB 읽기 모델'") &&
+    !modelsPageSource.includes("unavailableTitle: 'DB 읽기 모델 사용 불가'") &&
     modelsPageSource.includes("'승인/공개 모델'") &&
     modelsPageSource.includes("'백테스트 대체 지표'") &&
     modelsPageSource.includes("? '레버리지 허용'") &&
@@ -1151,8 +1170,9 @@ assertCondition(
     modelDetailPageSource.includes("derivativeAllowed: '파생상품 허용'") &&
     modelDetailPageSource.includes("shortSellingAllowed: '공매도 허용'") &&
     modelDetailPageSource.includes(
-      "emptySectionFallback:\n      'DB 읽기 모델 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'"
+      "emptySectionFallback:\n      'DB 기반 조회 맥락은 있지만 이 섹션에 채워진 행은 아직 없습니다.'"
     ) &&
+    !modelDetailPageSource.includes('DB 읽기 모델 맥락') &&
     modelDetailPageSource.includes("'승인/공개 모델'") &&
     modelDetailPageSource.includes("'모델 버전 맥락'") &&
     modelDetailPageSource.includes("'모델 운용 범위 맥락'") &&

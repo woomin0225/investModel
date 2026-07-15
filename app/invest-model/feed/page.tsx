@@ -223,7 +223,7 @@ function feedFilterAccessibleLabel(
 
 function feedPostAccessibleLabel(locale: FeedLocale, post: FeedCard) {
   return locale === 'ko'
-    ? `피드 글: ${post.title}. ${post.typeLabel}. ${post.linkedModelName}. ${post.sourceLabel}, ${post.timeLabel}. 정보성 DB 읽기 모델 글이며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.`
+    ? `피드 글: ${post.title}. ${post.typeLabel}. ${post.linkedModelName}. ${post.sourceLabel}, ${post.timeLabel}. 정보성 DB 기반 조회 글이며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.`
     : `FeedPost: ${post.title}. ${post.typeLabel}. ${post.linkedModelName}. ${post.sourceLabel}, ${post.timeLabel}. Informational DB read model post, not a recommendation, order, brokerage action, or realtime external data.`;
 }
 
@@ -292,7 +292,7 @@ function feedEmptyVisibleBoundaries(locale: FeedLocale) {
 
 function feedSafetyAccessibleLabel(locale: FeedLocale) {
   return locale === 'ko'
-    ? '피드 안전 경계. 피드 글과 좋아요 순위는 정보성 DB 읽기 모델이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터 또는 실계좌 데이터가 아닙니다.'
+    ? '피드 안전 경계. 피드 글과 좋아요 순위는 정보성 DB 기반 조회이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터 또는 실계좌 데이터가 아닙니다.'
     : 'Feed safety boundary. FeedPosts and like rankings are informational DB read models, not recommendations, orders, return claims, brokerage actions, realtime external data, or real account data.';
 }
 

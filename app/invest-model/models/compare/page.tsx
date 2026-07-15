@@ -31,10 +31,10 @@ const comparisonCopy = {
   ko: {
     eyebrow: '비교',
     title: '모델 비교',
-    bannerEyebrow: 'Mock 비교표',
+    bannerEyebrow: '모의 비교표',
     bannerTitle: '성과와 위험을 함께 보기',
     bannerDescription:
-      '이 화면은 승인된 mock 모델의 시장, 위험, 변동성, 손실 구간을 나란히 보여줍니다. 수익률은 백테스트 placeholder이며 실제 투자 조언이나 주문 실행이 아닙니다.',
+      '이 화면은 승인된 모의 모델의 시장, 위험, 변동성, 손실 구간을 나란히 보여줍니다. 수익률은 백테스트 임시 값이며 실제 투자 조언이나 주문 실행이 아닙니다.',
     sectionTitle: '승인 모델 3개',
     sectionDescription: '모바일 390px에서 가로 스크롤 없이 핵심 지표를 세로로 비교합니다.',
     tableTitle: '핵심 지표',

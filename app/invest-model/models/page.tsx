@@ -78,8 +78,8 @@ const discoverySummaryCopy = {
 
 const modelReadStateCopy = {
   ko: {
-    dbLabel: 'DB 읽기 모델',
-    unavailableTitle: 'DB 읽기 모델 사용 불가',
+    dbLabel: 'DB 기반 조회',
+    unavailableTitle: 'DB 기반 조회 사용 불가',
     unavailableDescription:
       '투자 모델 목록을 읽지 못했습니다. 추천, 주문, 브로커 연결은 생성되지 않았습니다.',
     emptyTitle: 'DB 기반 공개 투자 모델 없음',

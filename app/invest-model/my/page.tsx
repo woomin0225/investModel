@@ -91,7 +91,7 @@ function myPageActivityAccessibleLabel(
   badge: string
 ) {
   return locale === 'ko'
-    ? `${title}. ${description}. 상태: ${badge}. 내 정보의 DB 읽기 모델 또는 모의 안전 상태이며 실제 계좌, 주문, 브로커 동작, 푸시/이메일/SMS 전송, 투자 조언이 아닙니다.`
+    ? `${title}. ${description}. 상태: ${badge}. 내 정보의 DB 기반 조회 또는 모의 안전 상태이며 실제 계좌, 주문, 브로커 동작, 푸시/이메일/SMS 전송, 투자 조언이 아닙니다.`
     : `${title}. ${description}. Status: ${badge}. My Page DB read model or mock-safe state, not a real account, order, brokerage action, push/email/SMS delivery, or investment advice.`;
 }
 
@@ -106,13 +106,13 @@ function recentFeedActivityAccessibleLabel(
     (locale === 'ko' ? '활동 시각 없음' : 'No activity timestamp');
 
   return locale === 'ko'
-    ? `${label} FeedPost 활동: ${title}. ${timeLabel}. 사용자 범위 DB 읽기 모델의 읽기 바로가기이며 추천, 주문, 브로커 동작, 실계좌 데이터가 아닙니다.`
+    ? `${label} 피드 글 활동: ${title}. ${timeLabel}. 사용자 범위 DB 기반 조회의 읽기 바로가기이며 추천, 주문, 브로커 동작, 실계좌 데이터가 아닙니다.`
     : `${label} FeedPost activity: ${title}. ${timeLabel}. User-scoped DB read model reading shortcut, not advice, an order, a brokerage action, or real account data.`;
 }
 
 function myPageSafetyAccessibleLabel(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? '내 정보 안전 경계. 값은 현재 회원의 앱 내 DB 읽기 모델 또는 모의 안전 상태이며 실제 계좌 잔고, 은행 연결, 브로커 주문, 푸시/이메일/SMS 전송, 법률 판단 또는 투자 조언이 아닙니다.'
+    ? '내 정보 안전 경계. 값은 현재 회원의 앱 내 DB 기반 조회 또는 모의 안전 상태이며 실제 계좌 잔고, 은행 연결, 브로커 주문, 푸시/이메일/SMS 전송, 법률 판단 또는 투자 조언이 아닙니다.'
     : 'My Page safety boundary. Values are current member in-app DB read models or mock-safe state, not real account balances, bank links, brokerage orders, push/email/SMS delivery, legal judgments, or investment advice.';
 }
 
@@ -175,7 +175,7 @@ function myPageScopeAccessibleLabel(
   const scopeLabel = myPageScopeBadgeLabel(locale, meta);
 
   return locale === 'ko'
-    ? `${scopeLabel}. 내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 읽기 모델 또는 프로토타입 대체 상태를 구분합니다. 클라이언트가 보낸 사용자 공개 ID로 회원 범위를 바꾸지 않습니다.`
+    ? `${scopeLabel}. 내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 기반 조회 또는 프로토타입 대체 상태를 구분합니다. 클라이언트가 보낸 사용자 공개 ID로 회원 범위를 바꾸지 않습니다.`
     : `${scopeLabel}. My Page distinguishes current member DB read model state from prototype fallback through the API userScopeSource. Client-provided userPublicId does not change the member scope.`;
 }
 
@@ -204,7 +204,7 @@ const myPageCopy = {
       'DB에 저장된 활성 모델 선택 기록을 읽습니다. 투자 성향이나 주문 설정이 아닙니다.',
     activityTitle: '활동 읽기 모델',
     activityDescription:
-      '내 정보는 앞으로 저장, 댓글, 알림 상태를 DB 읽기 모델로 묶어 보여줍니다.',
+      '내 정보는 앞으로 저장, 댓글, 알림 상태를 DB 기반 조회로 묶어 보여줍니다.',
     activityItems: [
       {
         icon: Bookmark,
@@ -316,7 +316,7 @@ export default async function InvestModelMyPage({
   const sourceTrend =
     routeDataContext === 'db_read_model'
       ? locale === 'ko'
-        ? 'DB 읽기 모델'
+        ? 'DB 기반 조회'
         : 'DB read model'
       : locale === 'ko'
         ? '대기'
@@ -324,7 +324,7 @@ export default async function InvestModelMyPage({
   const routeDataContextLabel =
     routeDataContext === 'db_read_model'
       ? locale === 'ko'
-        ? 'DB 읽기 모델'
+        ? 'DB 기반 조회'
         : 'DB read model'
       : locale === 'ko'
         ? '모의 안전 상태'
@@ -417,7 +417,7 @@ export default async function InvestModelMyPage({
           className="text-[12px] leading-5 text-invest-text-muted"
         >
           {locale === 'ko'
-            ? '회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 읽기 모델 또는 프로토타입 대체 상태만 표시합니다.'
+            ? '회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 기반 조회 또는 프로토타입 대체 상태만 표시합니다.'
             : 'Member scope is confirmed through the API userScopeSource, and this screen shows only current member DB read models or prototype fallback state.'}
         </p>
         <p className="text-[12px] leading-5 text-invest-text-muted">
@@ -449,7 +449,7 @@ export default async function InvestModelMyPage({
               const badge =
                 index < 2 && activitySummary.sourceLabel === 'db_read_model'
                   ? locale === 'ko'
-                    ? 'DB 읽기 모델'
+                    ? 'DB 기반 조회'
                     : 'DB read model'
                   : item.badge;
               const activityAccessibleLabel = myPageActivityAccessibleLabel(
@@ -510,14 +510,14 @@ export default async function InvestModelMyPage({
                 </h2>
                 <p className="mt-1 text-[12px] leading-5 text-invest-text-muted">
                   {locale === 'ko'
-                    ? '현재 회원의 저장/댓글 바로가기를 DB 읽기 모델에서 최신순으로 표시합니다.'
+                    ? '현재 회원의 저장/댓글 바로가기를 DB 기반 조회에서 최신순으로 표시합니다.'
                     : 'DB-backed saved and comment shortcuts for the current member, sorted by latest activity.'}
                 </p>
               </div>
               <p className="shrink-0 text-right text-[12px] font-semibold leading-5 text-invest-text-muted">
                 {activitySummary.sourceLabel === 'db_read_model'
                   ? locale === 'ko'
-                    ? 'DB 읽기 모델'
+                    ? 'DB 기반 조회'
                     : 'DB read model'
                   : locale === 'ko'
                     ? '모의 안전'
@@ -533,7 +533,7 @@ export default async function InvestModelMyPage({
                 role="list"
                 aria-label={
                   locale === 'ko'
-                    ? '최근 피드 글 활동. 현재 회원의 저장 및 댓글 DB 읽기 모델 바로가기입니다.'
+                    ? '최근 피드 글 활동. 현재 회원의 저장 및 댓글 DB 기반 조회 바로가기입니다.'
                     : 'Recent FeedPost activity. Current member saved and comment DB read model shortcuts.'
                 }
                 className="mt-3 space-y-2"
@@ -606,7 +606,7 @@ export default async function InvestModelMyPage({
         >
           <p className="text-xs font-semibold leading-5 text-invest-text-muted">
             {locale === 'ko'
-              ? '실계좌 없음 / 실주문 없음 / DB 읽기 모델'
+              ? '실계좌 없음 / 실주문 없음 / DB 기반 조회'
               : 'No real account / No real orders / DB read model'}
           </p>
           <p className="mt-3 text-sm leading-6 text-invest-text-muted">

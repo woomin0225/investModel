@@ -27,17 +27,17 @@ const creatorDashboardCopy = {
   ko: {
     eyebrow: '제작자',
     title: '제작자 대시보드',
-    bannerEyebrow: 'creator scope',
+    bannerEyebrow: '제작자 범위',
     bannerTitle: '내 모델 상태와 심사 결과',
     bannerDescription:
-      '이 화면은 현재 로그인한 ModelCreator의 mock 모델만 보여줍니다. 다른 제작자 모델, 실제 자금, 브로커 계좌, 모델 파일 실행은 연결하지 않습니다.',
+      '이 화면은 현재 로그인한 제작자의 모의 모델만 보여줍니다. 다른 제작자 모델, 실제 자금, 브로커 계좌, 모델 파일 실행은 연결하지 않습니다.',
     newModel: '새 모델 초안',
     sectionTitle: '내 모델',
     sectionDescription:
       '상태, 심사 결과, 다음 조치만 읽기 전용으로 확인합니다.',
     metrics: {
       total: '내 모델',
-      live: 'Live mock',
+      live: '모의 운영 중',
       pending: '심사 대기',
       changes: '수정 요청'
     },
@@ -47,9 +47,9 @@ const creatorDashboardCopy = {
     reviewNotes: '심사 메모',
     securityTitle: '권한 경계',
     securityDescription:
-      'creatorPublicId 기준으로 필터링된 mock 데이터만 표시합니다. 운영자 심사, 상태 변경 저장, 다른 제작자 데이터 조회는 별도 RBAC/API 작업에서 다룹니다.',
+      '제작자 공개 ID 기준으로 필터링된 모의 데이터만 표시합니다. 운영자 심사, 상태 변경 저장, 다른 제작자 데이터 조회는 별도 권한/API 작업에서 다룹니다.',
     footer:
-      '제작자 대시보드는 metadata_only 상태 확인용입니다. 실제 주문, 입금, 계좌 연결, 모델 파일 실행을 수행하지 않습니다.'
+      '제작자 대시보드는 설명 정보만 확인하는 화면입니다. 실제 주문, 입금, 계좌 연결, 모델 파일 실행을 수행하지 않습니다.'
   },
   en: {
     eyebrow: 'Creator',
@@ -131,12 +131,12 @@ export default async function CreatorDashboardPage({
           <MetricCard
             label={copy.metrics.pending}
             value={String(dashboard.summary.pendingReviews)}
-            description="pending_review"
+            description={locale === 'ko' ? '심사 대기' : 'pending_review'}
           />
           <MetricCard
             label={copy.metrics.changes}
             value={String(dashboard.summary.changesRequested)}
-            description="changes_requested"
+            description={locale === 'ko' ? '수정 요청' : 'changes_requested'}
             tone="risk"
           />
         </div>
@@ -158,7 +158,11 @@ export default async function CreatorDashboardPage({
         </div>
 
         <SoftBanner
-          eyebrow={dashboard.creatorPublicId}
+          eyebrow={
+            locale === 'ko'
+              ? '제작자 범위 확인'
+              : dashboard.creatorPublicId
+          }
           title={copy.securityTitle}
           description={copy.securityDescription}
           icon={ShieldCheck}

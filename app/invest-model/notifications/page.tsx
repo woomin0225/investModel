@@ -46,14 +46,14 @@ const notificationCopy = {
     title: '알림',
     summaryTitle: 'DB 기반 알림 센터',
     summaryDescription:
-      '이 첫 알림 묶음은 서버에서 확인한 회원 범위의 FeedPost 읽음 상태에서 알림 행을 파생합니다. 실제 푸시, 이메일, 문자, 브로커, 주문, 계좌 메시지가 아닙니다.',
+      '이 첫 알림 묶음은 서버에서 확인한 회원 범위의 피드 글 읽음 상태에서 알림 행을 파생합니다. 실제 푸시, 이메일, 문자, 브로커, 주문, 계좌 메시지가 아닙니다.',
     unread: '읽지 않음',
     read: '읽음',
     emptyTitle: '아직 DB 기반 알림이 없습니다',
     emptyDescription:
-      'FeedPost 행이 추가되거나 읽음 상태가 바뀌면 이 센터에 해당 기록이 표시될 수 있습니다.',
+      '피드 글 행이 추가되거나 읽음 상태가 바뀌면 이 센터에 해당 기록이 표시될 수 있습니다.',
     sectionTitle: '최근 알림 후보',
-    sectionDescription: 'FeedPost 기록과 읽음 상태에서 파생됩니다.',
+    sectionDescription: '피드 글 기록과 읽음 상태에서 파생됩니다.',
     noAdvice: '추천 아님',
     noOrders: '주문 없음',
     noPush: '실제 푸시 없음',
@@ -62,7 +62,7 @@ const notificationCopy = {
     actionHint:
       '로컬 DB 읽음 상태만 업데이트합니다. 푸시, 이메일, 문자, 주문, 브로커 동작, 투자 조언은 전송하지 않습니다.',
     footer:
-      '여기의 알림은 로컬 DB 읽기 모델에서 만든 프로토타입 UI 기록입니다. 증권을 추천하거나 수익을 보장하거나 계좌를 연결하거나 주문을 실행하지 않습니다.'
+      '여기의 알림은 로컬 DB 기반 조회에서 만든 프로토타입 UI 기록입니다. 증권을 추천하거나 수익을 보장하거나 계좌를 연결하거나 주문을 실행하지 않습니다.'
   },
   en: {
     eyebrow: 'Notifications',
@@ -94,7 +94,7 @@ function notificationSummaryAccessibleLabel(
   notificationCenter: NotificationCenterDto
 ) {
   if (locale === 'ko') {
-    return `DB 기반 알림 센터. 읽지 않은 알림 ${notificationCenter.unreadCount}개, DB 행 ${notificationCenter.items.length}개. FeedPost 읽음 상태에서 파생된 프로토타입 알림이며 실제 푸시, 이메일, 문자, 주문, 브로커, 계좌 메시지, 투자 조언이 아닙니다.`;
+    return `DB 기반 알림 센터. 읽지 않은 알림 ${notificationCenter.unreadCount}개, DB 행 ${notificationCenter.items.length}개. 피드 글 읽음 상태에서 파생된 프로토타입 알림이며 실제 푸시, 이메일, 문자, 주문, 브로커, 계좌 메시지, 투자 조언이 아닙니다.`;
   }
 
   return `DB-backed notification center. ${notificationCenter.unreadCount} unread notifications and ${notificationCenter.items.length} DB rows. Prototype notifications derived from FeedPost read state; not real push, email, SMS, orders, brokerage, account messaging, or investment advice.`;
@@ -106,7 +106,7 @@ function notificationMarkAllReadAccessibleLabel(
 ) {
   if (locale === 'ko') {
     return notificationCenter.unreadCount > 0
-      ? `모두 읽음 처리. ${notificationCenter.unreadCount}개 FeedPost 알림 후보의 로컬 DB 읽음 상태만 업데이트합니다. 실제 푸시, 이메일, 문자, 주문, 브로커, 계좌 메시지, 투자 조언은 전송하지 않습니다.`
+      ? `모두 읽음 처리. ${notificationCenter.unreadCount}개 피드 글 알림 후보의 로컬 DB 읽음 상태만 업데이트합니다. 실제 푸시, 이메일, 문자, 주문, 브로커, 계좌 메시지, 투자 조언은 전송하지 않습니다.`
       : '모든 DB 기반 알림 후보가 읽음 상태입니다. 실제 푸시, 이메일, 문자, 주문, 브로커, 계좌 메시지, 투자 조언은 연결되지 않았습니다.';
   }
 
@@ -146,7 +146,7 @@ function notificationEventLabel(
 
 function notificationSafetyAccessibleLabel(locale: 'ko' | 'en') {
   if (locale === 'ko') {
-    return '알림 안전 경계. 이 화면은 로컬 DB 읽기 모델 프로토타입입니다. 증권 추천, 수익 보장, 계좌 연결, 실제 주문, 푸시, 이메일, 문자 전송을 수행하지 않습니다.';
+    return '알림 안전 경계. 이 화면은 로컬 DB 기반 조회 프로토타입입니다. 증권 추천, 수익 보장, 계좌 연결, 실제 주문, 푸시, 이메일, 문자 전송을 수행하지 않습니다.';
   }
 
   return 'Notifications safety boundary. This screen is a local DB read model prototype. It does not recommend securities, guarantee returns, connect accounts, execute orders, or send push, email, or SMS messages.';
