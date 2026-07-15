@@ -129,6 +129,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         sourceTables: ['feed_posts', 'feed_post_saves', 'users'],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
+        dataContext: result.data.dataContext,
         informationalOnly: true,
         privateReadingShortcutOnly: true,
         modelSelectionSignal: false,

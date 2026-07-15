@@ -144,6 +144,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
           sourceTables: ['feed_posts', 'feed_post_comments', 'users'],
           userPublicId: userScope.userPublicId,
           userScopeSource: userScope.source,
+          dataContext: result.data.userState.dataContext,
           informationalOnly: true,
           discussionOnly: true,
           recommendationSignal: false,

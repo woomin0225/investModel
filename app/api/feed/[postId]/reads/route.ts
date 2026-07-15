@@ -101,6 +101,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         sourceTables: ['feed_posts', 'feed_post_reads', 'users'],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
+        dataContext: result.data.dataContext,
         informationalOnly: true,
         privateReadingStateOnly: true,
         recommendationSignal: false,

@@ -189,6 +189,7 @@ async function main() {
       ignoredUserJson.data?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredUserJson.meta?.dataContext === ignoredUserJson.data?.dataContext &&
       ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsIgnoredClientUserPublicId(ignoredUserJson.data),
     'client userPublicId is not exposed as compatibility meta or saved state'
@@ -199,6 +200,7 @@ async function main() {
       sessionScopedJson.data?.saved === false &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.dataContext === sessionScopedJson.data?.dataContext &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsIgnoredClientUserPublicId(sessionScopedJson.data),
     'session role and user scope win for saved state'
@@ -226,7 +228,8 @@ async function main() {
     'saved state persists through FeedPost detail revisit'
   );
   assertCondition(
-    saveJson.meta?.routeStatus === 'db_backed' &&
+      saveJson.meta?.routeStatus === 'db_backed' &&
+      saveJson.meta?.dataContext === saveJson.data?.dataContext &&
       saveJson.meta?.privateReadingShortcutOnly === true &&
       saveJson.meta?.modelSelectionSignal === false &&
       saveJson.meta?.allocationSignal === false &&

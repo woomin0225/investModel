@@ -193,6 +193,7 @@ async function main() {
       ignoredUserJson.data?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredUserJson.meta?.dataContext === ignoredUserJson.data?.dataContext &&
       ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsIgnoredClientUserPublicId(ignoredUserJson.data),
     'client userPublicId is not exposed as compatibility meta or like state'
@@ -203,6 +204,7 @@ async function main() {
       sessionScopedJson.data?.liked === false &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.dataContext === sessionScopedJson.data?.dataContext &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsIgnoredClientUserPublicId(sessionScopedJson.data),
     'session role and user scope win for like state'
@@ -230,7 +232,8 @@ async function main() {
     'like state persists through FeedPost detail revisit'
   );
   assertCondition(
-    likeJson.meta?.routeStatus === 'db_backed' &&
+      likeJson.meta?.routeStatus === 'db_backed' &&
+      likeJson.meta?.dataContext === likeJson.data?.dataContext &&
       likeJson.meta?.popularityContextOnly === true &&
       likeJson.meta?.recommendationSignal === false &&
       likeJson.meta?.modelQualitySignal === false &&

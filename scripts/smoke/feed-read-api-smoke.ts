@@ -177,6 +177,7 @@ async function main() {
       ignoredUserJson.data?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredUserJson.meta?.dataContext === ignoredUserJson.data?.dataContext &&
       ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsIgnoredClientUserPublicId(ignoredUserJson.data),
     'client userPublicId is not exposed as compatibility meta or read state'
@@ -187,6 +188,7 @@ async function main() {
       sessionScopedJson.data?.read === true &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.dataContext === sessionScopedJson.data?.dataContext &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsIgnoredClientUserPublicId(sessionScopedJson.data),
     'session role and user scope win for read state'
@@ -216,7 +218,8 @@ async function main() {
     'read state persists through FeedPost detail revisit'
   );
   assertCondition(
-    markReadJson.meta?.routeStatus === 'db_backed' &&
+      markReadJson.meta?.routeStatus === 'db_backed' &&
+      markReadJson.meta?.dataContext === markReadJson.data?.dataContext &&
       markReadJson.meta?.privateReadingStateOnly === true &&
       markReadJson.meta?.recommendationSignal === false &&
       markReadJson.meta?.modelQualitySignal === false &&

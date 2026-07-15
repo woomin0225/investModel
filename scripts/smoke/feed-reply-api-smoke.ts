@@ -286,6 +286,8 @@ async function main() {
       ignoredUserJson.data?.userState?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredUserJson.meta?.dataContext ===
+        ignoredUserJson.data?.userState?.dataContext &&
       ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsIgnoredClientUserPublicId(ignoredUserJson.data),
     'client userPublicId is not exposed as compatibility meta or reply state'
@@ -302,7 +304,8 @@ async function main() {
     'reply creation returns refreshed FeedPost detail with nested reply'
   );
   assertCondition(
-    createJson.meta?.routeStatus === 'db_backed' &&
+      createJson.meta?.routeStatus === 'db_backed' &&
+      createJson.meta?.dataContext === createJson.data?.userState?.dataContext &&
       createJson.meta?.discussionOnly === true &&
       createJson.meta?.recommendationSignal === false &&
       createJson.meta?.orderIntentSignal === false &&
@@ -317,6 +320,8 @@ async function main() {
       sessionScopedJson.data?.userState?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.meta?.dataContext ===
+        sessionScopedJson.data?.userState?.dataContext &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsIgnoredClientUserPublicId(sessionScopedJson.data),
     'session role and user scope win for reply creation'
