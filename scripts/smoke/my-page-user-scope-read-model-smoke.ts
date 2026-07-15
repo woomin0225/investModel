@@ -14,6 +14,7 @@ import {
   readMyPageSummary
 } from '../../lib/db/my-page-read-model';
 import type { MyPageFeedActivityItem } from '../../lib/domain/my-page/feed-activity';
+import type { PolicyNoticeDto } from '../../lib/domain/feed/feed-post';
 import { readNotificationCenter } from '../../lib/db/notification-read-model';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
@@ -110,8 +111,29 @@ async function main() {
       repeatedMissingFeedActivity.recentCommentPosts.length === 0,
     'fallback feed activity returns isolated arrays on repeated reads'
   );
+  (missingSummary.recentNotifications as unknown[]).push({
+    notificationPublicId: 'notif_mock_mutated',
+    title: 'Mutated fallback should not persist'
+  });
+  missingSummary.notices.push({
+    code: 'mutated_notice',
+    severity: 'info',
+    message: 'Mutated fallback notice should not persist.'
+  } satisfies PolicyNoticeDto);
+  const repeatedMissingSummary = await readMyPageSummary(missingUserPublicId);
+  assertCondition(
+    repeatedMissingSummary.userPublicId === missingUserPublicId &&
+      repeatedMissingSummary.recentNotifications.length === 0 &&
+      repeatedMissingSummary.notices.every(
+        (notice) => notice.code !== 'mutated_notice'
+      ) &&
+      repeatedMissingSummary.feedActivity.recentSavedPosts.length === 0 &&
+      repeatedMissingSummary.feedActivity.recentCommentPosts.length === 0,
+    'fallback my page summary returns isolated arrays and notices on repeated reads'
+  );
   assertCondition(
     !containsSeededMemberPublicId(missingSummary) &&
+      !containsSeededMemberPublicId(repeatedMissingSummary) &&
       !containsSeededMemberPublicId(repeatedMissingFeedActivity) &&
       !containsSeededMemberPublicId(missingNotificationCenter),
     'prototype fallback read models do not contain seeded member scoped identifiers'

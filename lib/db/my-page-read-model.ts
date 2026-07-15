@@ -44,6 +44,26 @@ function buildFallbackFeedActivitySummary(
   };
 }
 
+function buildFallbackMyPageSummary(userPublicId: string): MyPageSummaryDto {
+  return {
+    userPublicId,
+    profile: {
+      userPublicId,
+      displayName: 'Demo User',
+      roleLabel: 'unknown'
+    },
+    activeSelection: null,
+    feedActivity: buildFallbackFeedActivitySummary(userPublicId),
+    notificationSummary: {
+      unreadCount: 0,
+      totalCount: 0
+    },
+    recentNotifications: [],
+    dataContext: 'mock_safe_fallback',
+    notices: myPagePolicyNotices()
+  };
+}
+
 function toIso(value: Date | string | null | undefined) {
   if (!value) {
     return undefined;
@@ -215,23 +235,7 @@ export async function readMyPageSummary(
     .limit(1);
 
   if (!user) {
-    return {
-      userPublicId,
-      profile: {
-        userPublicId,
-        displayName: 'Demo User',
-        roleLabel: 'unknown'
-      },
-      activeSelection: null,
-      feedActivity: buildFallbackFeedActivitySummary(userPublicId),
-      notificationSummary: {
-        unreadCount: 0,
-        totalCount: 0
-      },
-      recentNotifications: [],
-      dataContext: 'mock_safe_fallback',
-      notices: myPagePolicyNotices()
-    };
+    return buildFallbackMyPageSummary(userPublicId);
   }
 
   const [feedActivity, activeSelection, notificationCenter] =
