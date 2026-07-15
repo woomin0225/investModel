@@ -694,22 +694,9 @@ export default async function InvestModelFeedPage({
                     ? '선택한 필터에 표시할 DB 피드가 아직 없습니다.'
                     : 'There are no DB feed rows for this filter yet.'}
                 </p>
-                <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-bg-soft p-2">
-                  {feedEmptyVisibleBoundaries(locale).map((boundary) => (
-                    <RiskBadge
-                      key={boundary}
-                      tone={
-                        boundary === 'no recommendation' ||
-                        boundary === 'no order' ||
-                        boundary === 'no brokerage'
-                          ? 'blocked'
-                          : 'neutral'
-                      }
-                    >
-                      {boundary}
-                    </RiskBadge>
-                  ))}
-                </div>
+                <p className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                  {feedEmptyVisibleBoundaries(locale).join(' / ')}
+                </p>
               </div>
             )}
           </div>
@@ -757,15 +744,9 @@ export default async function InvestModelFeedPage({
                       <p className="mt-1 truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
                         {ranking.linkedModelName}
                       </p>
-                      <div className="mt-2 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface px-2 py-2">
-                        {feedRankingVisibleBoundaries(locale).map(
-                          (boundary) => (
-                            <RiskBadge key={boundary} tone="neutral">
-                              {boundary}
-                            </RiskBadge>
-                          )
-                        )}
-                      </div>
+                      <p className="mt-2 rounded-invest-control bg-invest-surface px-2 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                        {feedRankingVisibleBoundaries(locale).join(' / ')}
+                      </p>
                     </div>
                     <div className="min-[360px]:text-right">
                       <p className="rounded-invest-badge bg-invest-surface px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary">
@@ -799,15 +780,11 @@ export default async function InvestModelFeedPage({
               className="mt-0.5 size-5 shrink-0 text-invest-primary"
             />
             <div className="min-w-0">
-              <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="blocked">
-                  {feedCopy.footerBadges.noAdvice}
-                </RiskBadge>
-                <RiskBadge tone="medium">
-                  {feedCopy.footerBadges.reviewPlaceholder}
-                </RiskBadge>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-invest-text-muted">
+              <p className="text-[12px] font-bold leading-5 text-invest-text-muted">
+                {feedCopy.footerBadges.noAdvice} /{' '}
+                {feedCopy.footerBadges.reviewPlaceholder}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                 {feedCopy.footer}
               </p>
             </div>

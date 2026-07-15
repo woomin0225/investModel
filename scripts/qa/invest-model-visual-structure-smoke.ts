@@ -543,6 +543,16 @@ assertCondition(
   'Feed detail must present action/footer safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
+  feedPageSource.includes("feedEmptyVisibleBoundaries(locale).join(' / ')") &&
+    feedPageSource.includes("feedRankingVisibleBoundaries(locale).join(' / ')") &&
+    feedPageSource.includes("{feedCopy.footerBadges.noAdvice} /{' '}") &&
+    !feedPageSource.includes('feedEmptyVisibleBoundaries(locale).map((boundary) => (') &&
+    !feedPageSource.includes('feedRankingVisibleBoundaries(locale).map(') &&
+    !feedPageSource.includes('{feedCopy.footerBadges.noAdvice}\n                  </RiskBadge>') &&
+    !feedPageSource.includes('{feedCopy.footerBadges.reviewPlaceholder}\n                  </RiskBadge>'),
+  'Feed list must present empty/ranking/footer safety boundaries as prose instead of hashtag safety chip groups'
+);
+assertCondition(
   feedCommentActionSource.includes("feedCommentVisibleBoundaries(locale).join(' / ')") &&
     !feedCommentActionSource.includes('feedCommentVisibleBoundaries(locale).map((boundary) => ('),
   'Feed comment action must present safety boundaries as prose instead of hashtag safety chip groups'
