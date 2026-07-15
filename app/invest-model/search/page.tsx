@@ -343,16 +343,12 @@ export default async function InvestModelSearchPage({
                             className="size-4 shrink-0 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
                           />
                         </div>
-                        <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+                        <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
                           {searchResultVisibleBoundaries(
                             locale,
                             'InvestmentModel'
-                          ).map((boundary) => (
-                            <RiskBadge key={boundary} tone="neutral">
-                              {boundary}
-                            </RiskBadge>
-                          ))}
-                        </div>
+                          ).join(' / ')}
+                        </p>
                       </div>
                     </div>
                   </Link>
@@ -424,15 +420,12 @@ export default async function InvestModelSearchPage({
                           className="size-4 shrink-0 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
                         />
                       </div>
-                      <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
-                        {searchResultVisibleBoundaries(locale, 'FeedPost').map(
-                          (boundary) => (
-                            <RiskBadge key={boundary} tone="neutral">
-                              {boundary}
-                            </RiskBadge>
-                          )
-                        )}
-                      </div>
+                      <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                        {searchResultVisibleBoundaries(
+                          locale,
+                          'FeedPost'
+                        ).join(' / ')}
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -508,16 +501,12 @@ export default async function InvestModelSearchPage({
                           {signal.scoreDisplay}
                         </span>
                       </div>
-                      <div className="mt-3 flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2">
+                      <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
                         {searchResultVisibleBoundaries(
                           locale,
                           'SignalEvent'
-                        ).map((boundary) => (
-                          <RiskBadge key={boundary} tone="neutral">
-                            {boundary}
-                          </RiskBadge>
-                        ))}
-                      </div>
+                        ).join(' / ')}
+                      </p>
                     </div>
                   </div>
                 </Link>

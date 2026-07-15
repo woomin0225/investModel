@@ -559,10 +559,22 @@ assertCondition(
 );
 assertCondition(
   searchPageSource.includes("searchResultVisibleBoundaries(locale, kind).join(' / ')") &&
+    searchPageSource.includes(
+      "searchResultVisibleBoundaries(\n                            locale,\n                            'InvestmentModel'\n                          ).join(' / ')"
+    ) &&
+    searchPageSource.includes(
+      "searchResultVisibleBoundaries(\n                          locale,\n                          'FeedPost'\n                        ).join(' / ')"
+    ) &&
+    searchPageSource.includes(
+      "searchResultVisibleBoundaries(\n                          locale,\n                          'SignalEvent'\n                        ).join(' / ')"
+    ) &&
     !searchPageSource.includes('searchResultVisibleBoundaries(locale, kind).map((boundary) => (') &&
+    !searchPageSource.includes("searchResultVisibleBoundaries(\n                            locale,\n                            'InvestmentModel'\n                          ).map((boundary) => (") &&
+    !searchPageSource.includes("searchResultVisibleBoundaries(locale, 'FeedPost').map(") &&
+    !searchPageSource.includes("searchResultVisibleBoundaries(\n                          locale,\n                          'SignalEvent'\n                        ).map((boundary) => (") &&
     !searchPageSource.includes("{locale === 'ko' ? 'No advice' : 'No advice'}\n                </RiskBadge>") &&
     searchPageSource.includes('No advice / No orders'),
-  'Search must present empty/footer safety boundaries as prose instead of hashtag safety chip groups'
+  'Search must present result/empty/footer safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
   notificationsPageSource.includes("notificationSummaryVisibleBoundaries(locale)\n                ].join(' / ')") &&
