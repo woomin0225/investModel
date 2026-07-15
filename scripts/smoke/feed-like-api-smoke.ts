@@ -10,6 +10,7 @@ import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 import { GET as readFeedDetail } from '../../app/api/feed/[postId]/route';
 import { POST } from '../../app/api/feed/[postId]/likes/route';
+import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
@@ -32,6 +33,33 @@ async function applyTrackedFeedSeed() {
   await connection.end();
 }
 
+async function readSeedUserId() {
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+  const [rows] = await connection.query<mysql.RowDataPacket[]>(
+    "SELECT id FROM users WHERE public_id = 'user_demo_001' LIMIT 1"
+  );
+  await connection.end();
+
+  const userId = rows[0]?.id;
+  assertCondition(
+    typeof userId === 'number',
+    'seed user id exists for session scope smoke'
+  );
+  return userId;
+}
+
+async function createSessionCookie(userId: number) {
+  const encryptedSession = await signToken({
+    user: { id: userId },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  return `session=${encryptedSession}`;
+}
+
 function likeRequest(
   postId: string,
   body: unknown,
@@ -43,6 +71,26 @@ function likeRequest(
       headers: {
         'content-type': 'application/json',
         'x-invest-model-role': role
+      },
+      body: JSON.stringify(body)
+    }),
+    {
+      params: Promise.resolve({ postId })
+    }
+  );
+}
+
+function likeRequestWithSession(
+  postId: string,
+  body: unknown,
+  sessionCookie: string
+) {
+  return POST(
+    new NextRequest(`http://localhost/api/feed/${postId}/likes`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        cookie: sessionCookie
       },
       body: JSON.stringify(body)
     }),
@@ -71,6 +119,8 @@ function detailRequest(postId: string) {
 
 async function main() {
   await applyTrackedFeedSeed();
+  const seedUserId = await readSeedUserId();
+  const sessionCookie = await createSessionCookie(seedUserId);
 
   const forbiddenResponse = await POST(
     new NextRequest('http://localhost/api/feed/feed_mock_001/likes', {
@@ -98,6 +148,15 @@ async function main() {
     desiredState: true
   });
   const ignoredUserJson = await ignoredUserResponse.json();
+  const sessionScopedResponse = await likeRequestWithSession(
+    'feed_mock_001',
+    {
+      userPublicId: 'user_missing',
+      desiredState: false
+    },
+    sessionCookie
+  );
+  const sessionScopedJson = await sessionScopedResponse.json();
   const unlikeResponse = await likeRequest('feed_mock_001', {
     userPublicId: 'user_demo_001',
     desiredState: false
@@ -128,6 +187,14 @@ async function main() {
       ignoredUserJson.data?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
     'client userPublicId is ignored for like state'
+  );
+  assertCondition(
+    sessionScopedResponse.status === 200 &&
+      sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.data?.liked === false &&
+      sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === true,
+    'session role and user scope win for like state'
   );
   assertCondition(unlikeResponse.status === 200, 'unlike responds');
   assertCondition(likeResponse.status === 200, 'like responds');
