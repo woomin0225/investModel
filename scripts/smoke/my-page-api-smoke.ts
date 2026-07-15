@@ -13,6 +13,8 @@ import { GET } from '../../app/api/my/route';
 import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
+const ignoredClientUserPublicId = 'user_other_001';
+
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
@@ -60,6 +62,10 @@ async function createSessionCookie(userId: number) {
   return `session=${encryptedSession}`;
 }
 
+function containsIgnoredClientUserPublicId(value: unknown) {
+  return JSON.stringify(value).includes(ignoredClientUserPublicId);
+}
+
 async function readMyPage(search = '') {
   return GET(
     new NextRequest(`http://localhost/api/my${search}`, {
@@ -102,10 +108,12 @@ async function main() {
   );
   const summaryResponse = await readMyPage();
   const summaryJson = await summaryResponse.json();
-  const clientScopedResponse = await readMyPage('?userPublicId=user_other_001');
+  const clientScopedResponse = await readMyPage(
+    `?userPublicId=${ignoredClientUserPublicId}`
+  );
   const clientScopedJson = await clientScopedResponse.json();
   const sessionScopedResponse = await readMyPageWithSession(
-    '?userPublicId=user_other_001',
+    `?userPublicId=${ignoredClientUserPublicId}`,
     sessionCookie
   );
   const sessionScopedJson = await sessionScopedResponse.json();
@@ -155,15 +163,20 @@ async function main() {
     clientScopedResponse.status === 200 &&
       clientScopedJson.meta?.userPublicId === 'user_demo_001' &&
       clientScopedJson.meta?.userScopeSource === 'demo_fallback' &&
-      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined,
-    'client-provided userPublicId is not exposed as compatibility meta'
+      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
+      clientScopedJson.data?.userPublicId === 'user_demo_001' &&
+      clientScopedJson.data?.feedActivity?.userPublicId === 'user_demo_001' &&
+      !containsIgnoredClientUserPublicId(clientScopedJson.data),
+    'client-provided userPublicId is not exposed as compatibility meta or my page state'
   );
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.data?.feedActivity?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
-      sessionScopedJson.meta?.userPublicId === 'user_demo_001',
+      sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
+      !containsIgnoredClientUserPublicId(sessionScopedJson.data),
     'session role and user scope win over client-provided userPublicId'
   );
 
