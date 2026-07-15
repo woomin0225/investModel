@@ -138,7 +138,7 @@ function TopIconButton({
   const isPrimary = action.tone === 'primary';
   const accessibleLabel = getTopIconAccessibleLabel(action, locale);
   const className = cn(
-    'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border shadow-invest-card focus-visible:ring-2',
+    'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border shadow-invest-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-invest-bg',
     isPrimary
       ? 'border-invest-primary/25 bg-invest-primary-soft text-invest-primary focus-visible:ring-invest-primary/30'
       : 'border-invest-border bg-invest-surface text-invest-text focus-visible:ring-invest-primary/25',

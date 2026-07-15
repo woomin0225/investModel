@@ -138,24 +138,35 @@ export function BottomNav({
   locale = 'ko'
 }: BottomNavProps) {
   const labels = investModelNavLabels[locale];
+  const navigationLabel =
+    locale === 'ko'
+      ? 'investModel 하단 모바일 탭 내비게이션'
+      : 'investModel bottom mobile tab navigation';
 
   return (
     <nav
-      aria-label="investModel mobile navigation"
+      aria-label={navigationLabel}
       className="fixed inset-x-0 bottom-0 z-30 border-t border-invest-border bg-invest-surface/95 shadow-invest-nav backdrop-blur"
     >
       <div className="mx-auto grid h-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom))] max-w-[var(--invest-mobile-frame-width)] grid-cols-5 px-2 pb-[env(safe-area-inset-bottom)]">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = item.key === activeTab;
+          const label = labels[item.key];
+          const accessibleLabel =
+            locale === 'ko'
+              ? `${label} 탭${isActive ? ', 현재 화면' : ''}`
+              : `${label} tab${isActive ? ', current screen' : ''}`;
 
           return (
             <Link
               key={item.key}
               href={withInvestModelLocale(item.href, locale)}
+              aria-label={accessibleLabel}
               aria-current={isActive ? 'page' : undefined}
+              title={accessibleLabel}
               className={cn(
-                'group relative flex min-h-invest-touch-target flex-col items-center justify-center gap-1 rounded-invest-control px-1 text-[11px] font-semibold leading-none transition-[background-color,color,transform] duration-200 ease-out active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface motion-reduce:transition-none motion-reduce:active:scale-100',
+                'group relative flex min-h-invest-touch-target min-w-0 flex-col items-center justify-center gap-1 rounded-invest-control px-1 text-[11px] font-semibold leading-none transition-[background-color,color,transform] duration-200 ease-out active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-invest-surface motion-reduce:transition-none motion-reduce:active:scale-100',
                 isActive
                   ? 'bg-invest-primary-soft text-invest-primary'
                   : 'text-invest-text-muted hover:bg-invest-surface-muted hover:text-invest-text'
@@ -185,7 +196,7 @@ export function BottomNav({
                   )}
                 />
               </span>
-              <span className="max-w-full truncate">{labels[item.key]}</span>
+              <span className="max-w-full truncate">{label}</span>
             </Link>
           );
         })}

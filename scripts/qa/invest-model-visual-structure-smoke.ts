@@ -471,8 +471,10 @@ assertCondition(
   'MobileShell or BottomNav does not reserve bottom safe-area space'
 );
 assertCondition(
-  mobileShellSource.includes('aria-label="investModel mobile navigation"'),
-  'BottomNav is missing a navigation aria-label'
+  mobileShellSource.includes('const navigationLabel =') &&
+    mobileShellSource.includes('aria-label={navigationLabel}') &&
+    mobileShellSource.includes('investModel bottom mobile tab navigation'),
+  'BottomNav is missing a locale-aware navigation aria-label'
 );
 assertCondition(
   mobileShellSource.includes("aria-current={isActive ? 'page' : undefined}"),
@@ -480,8 +482,18 @@ assertCondition(
 );
 assertCondition(
   mobileShellSource.includes('focus:ring-2') &&
-    mobileShellSource.includes('focus:ring-invest-primary'),
+    mobileShellSource.includes('focus:ring-invest-primary') &&
+    mobileShellSource.includes('focus-visible:ring-offset-invest-surface'),
   'MobileShell links are missing visible keyboard focus styles'
+);
+assertCondition(
+  mobileShellSource.includes('const accessibleLabel =') &&
+    mobileShellSource.includes('aria-label={accessibleLabel}') &&
+    mobileShellSource.includes('title={accessibleLabel}') &&
+    mobileShellSource.includes('current screen') &&
+    mobileShellSource.includes('현재 화면') &&
+    mobileShellSource.includes('min-w-0 flex-col'),
+  'BottomNav tabs must expose locale-aware labels, current-screen context, title text, and shrink-safe 390px layout'
 );
 assertCondition(
   investModelNavItems.length === 5,
@@ -504,6 +516,14 @@ assertCondition(
 assertCondition(
   new Set(investModelNavItems.map((item) => item.key)).size === 5,
   'BottomNav tab keys are not unique'
+);
+assertCondition(
+  topIconBarSource.includes('focus-visible:outline-none') &&
+    topIconBarSource.includes('focus-visible:ring-offset-2') &&
+    topIconBarSource.includes('focus-visible:ring-offset-invest-bg') &&
+    topIconBarSource.includes('aria-label={accessibleLabel}') &&
+    topIconBarSource.includes('title={accessibleLabel}'),
+  'TopIconBar icon actions must expose accessible labels and visible focus-visible ring offsets'
 );
 assertCondition(
   investModelUiSource.includes('investMotionClass'),
