@@ -102,14 +102,10 @@ async function main() {
   );
   const activityResponse = await readMyActivity();
   const activityJson = await activityResponse.json();
-  const explicitDemoResponse = await readMyActivity(
-    '?userPublicId=user_demo_001'
-  );
-  const explicitDemoJson = await explicitDemoResponse.json();
-  const invalidUserResponse = await readMyActivity(
+  const clientScopedResponse = await readMyActivity(
     '?userPublicId=user_other_001'
   );
-  const invalidUserJson = await invalidUserResponse.json();
+  const clientScopedJson = await clientScopedResponse.json();
   const sessionScopedResponse = await readMyActivityWithSession(
     '?userPublicId=user_other_001',
     sessionCookie
@@ -140,7 +136,7 @@ async function main() {
     activityJson.meta?.routeStatus === 'db_backed' &&
       activityJson.meta?.readOnly === true &&
       activityJson.meta?.userScopeSource === 'demo_fallback' &&
-      activityJson.meta?.clientUserPublicIdIgnored === false &&
+      activityJson.meta?.clientUserPublicIdIgnored === undefined &&
       activityJson.meta?.sendsRealPush === false &&
       activityJson.meta?.sendsRealEmail === false &&
       activityJson.meta?.sendsRealSms === false &&
@@ -151,21 +147,16 @@ async function main() {
     'my activity keeps mock-safe API meta'
   );
   assertCondition(
-    explicitDemoResponse.status === 200 &&
-      explicitDemoJson.meta?.userPublicId === 'user_demo_001',
-    'explicit demo userPublicId is accepted'
-  );
-  assertCondition(
-    invalidUserResponse.status === 200 &&
-      invalidUserJson.meta?.userPublicId === 'user_demo_001' &&
-      invalidUserJson.meta?.clientUserPublicIdIgnored === true,
-    'client-provided non-demo userPublicId is ignored'
+    clientScopedResponse.status === 200 &&
+      clientScopedJson.meta?.userPublicId === 'user_demo_001' &&
+      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined,
+    'client userPublicId compatibility metadata is not exposed for my activity'
   );
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
-      sessionScopedJson.meta?.clientUserPublicIdIgnored === true &&
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001',
     'session role and user scope win for my activity'
   );

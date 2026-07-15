@@ -52,7 +52,9 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const userScope = await resolveInvestModelUserScope(request);
+  const userScope = await resolveInvestModelUserScope(request, {
+    ignoreClientUserPublicId: true
+  });
 
   try {
     const activitySummary = await readMyPageFeedActivitySummary(
@@ -72,8 +74,6 @@ export async function GET(request: NextRequest) {
         ],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        clientUserPublicIdIgnored:
-          userScope.ignoredClientUserPublicId !== undefined,
         readOnly: true,
         sendsRealPush: false,
         sendsRealEmail: false,
