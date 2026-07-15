@@ -13,6 +13,8 @@ import { POST } from '../../app/api/feed/[postId]/reads/route';
 import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
+const ignoredClientUserPublicId = 'user_missing';
+
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
@@ -58,6 +60,10 @@ async function createSessionCookie(userId: number) {
   });
 
   return `session=${encryptedSession}`;
+}
+
+function containsIgnoredClientUserPublicId(value: unknown) {
+  return JSON.stringify(value).includes(ignoredClientUserPublicId);
 }
 
 function readRequest(postId: string, body: unknown, role = 'user') {
@@ -136,13 +142,13 @@ async function main() {
     userPublicId: 'user_demo_001'
   });
   const ignoredUserResponse = await readRequest('feed_mock_003', {
-    userPublicId: 'user_missing'
+    userPublicId: ignoredClientUserPublicId
   });
   const ignoredUserJson = await ignoredUserResponse.json();
   const sessionScopedResponse = await readRequestWithSession(
     'feed_mock_003',
     {
-      userPublicId: 'user_missing'
+      userPublicId: ignoredClientUserPublicId
     },
     sessionCookie
   );
@@ -169,16 +175,20 @@ async function main() {
   assertCondition(
     ignoredUserResponse.status === 200 &&
       ignoredUserJson.data?.userPublicId === 'user_demo_001' &&
+      ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
-      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined,
-    'client userPublicId is not exposed as compatibility meta for read state'
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsIgnoredClientUserPublicId(ignoredUserJson.data),
+    'client userPublicId is not exposed as compatibility meta or read state'
   );
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.data?.read === true &&
+      sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
-      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined,
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsIgnoredClientUserPublicId(sessionScopedJson.data),
     'session role and user scope win for read state'
   );
   assertCondition(markReadResponse.status === 200, 'mark read responds');
