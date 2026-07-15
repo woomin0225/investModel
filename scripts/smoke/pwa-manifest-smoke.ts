@@ -26,6 +26,7 @@ const shortcutUrls = new Set(appManifest.shortcuts?.map((shortcut) => shortcut.u
 
 for (const expectedUrl of [
   '/invest-model/search',
+  '/invest-model/models',
   '/invest-model/signals',
   '/invest-model/feed',
   '/invest-model/portfolio',

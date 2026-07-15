@@ -54,6 +54,13 @@ export default function manifest(): MetadataRoute.Manifest {
         icons: [{ src: '/icon', sizes: '512x512', type: 'image/png' }]
       },
       {
+        name: 'Discover Models',
+        short_name: 'Models',
+        description: 'Browse public mock InvestmentModel cards.',
+        url: '/invest-model/models',
+        icons: [{ src: '/icon', sizes: '512x512', type: 'image/png' }]
+      },
+      {
         name: 'Signals',
         short_name: 'Signals',
         description: 'Open the mock-only signal dashboard.',
