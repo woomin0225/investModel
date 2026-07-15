@@ -9,6 +9,7 @@ import path from 'path';
 import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 import { POST } from '../../app/api/feed/[postId]/comments/[commentId]/replies/route';
+import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
 const smokeReplyBody = 'BK-325 smoke informational reply';
@@ -77,6 +78,29 @@ async function applyTrackedFeedSeed() {
   });
 }
 
+async function readSeedUserId() {
+  return withMysqlConnection(async (connection) => {
+    const [rows] = await connection.query<mysql.RowDataPacket[]>(
+      "SELECT id FROM users WHERE public_id = 'user_demo_001' LIMIT 1"
+    );
+    const userId = rows[0]?.id;
+    assertCondition(
+      typeof userId === 'number',
+      'seed user id exists for session scope smoke'
+    );
+    return userId;
+  });
+}
+
+async function createSessionCookie(userId: number) {
+  const encryptedSession = await signToken({
+    user: { id: userId },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  return `session=${encryptedSession}`;
+}
+
 function replyRequest(
   postId: string,
   commentId: string,
@@ -101,8 +125,34 @@ function replyRequest(
   );
 }
 
+function replyRequestWithSession(
+  postId: string,
+  commentId: string,
+  body: unknown,
+  sessionCookie: string
+) {
+  return POST(
+    new NextRequest(
+      `http://localhost/api/feed/${postId}/comments/${commentId}/replies`,
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          cookie: sessionCookie
+        },
+        body: JSON.stringify(body)
+      }
+    ),
+    {
+      params: Promise.resolve({ postId, commentId })
+    }
+  );
+}
+
 async function main() {
   await applyTrackedFeedSeed();
+  const seedUserId = await readSeedUserId();
+  const sessionCookie = await createSessionCookie(seedUserId);
 
   const forbiddenResponse = await POST(
     new NextRequest(
@@ -190,6 +240,16 @@ async function main() {
     }
   );
   const createJson = await createResponse.json();
+  const sessionScopedResponse = await replyRequestWithSession(
+    'feed_mock_001',
+    parentCommentPublicId,
+    {
+      userPublicId: 'user_missing',
+      body: smokeReplyBody
+    },
+    sessionCookie
+  );
+  const sessionScopedJson = await sessionScopedResponse.json();
   const parentComment = createJson.data?.comments?.find(
     (comment: { commentPublicId?: string }) =>
       comment.commentPublicId === parentCommentPublicId
@@ -243,6 +303,13 @@ async function main() {
       createJson.meta?.financialAdvice === false &&
       createJson.meta?.complianceApproval === false,
     'reply API keeps mock-safe action meta'
+  );
+  assertCondition(
+    sessionScopedResponse.status === 201 &&
+      sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === true,
+    'session role and user scope win for reply creation'
   );
 
   await withMysqlConnection(async (connection) => {
