@@ -12,12 +12,6 @@ export const investModelDemoUserPublicId = 'user_demo_001';
 export type InvestModelUserScope = {
   userPublicId: string;
   source: 'session' | 'demo_fallback';
-  ignoredClientUserPublicId?: string;
-};
-
-type ResolveInvestModelUserScopeOptions = {
-  clientUserPublicId?: string | null;
-  ignoreClientUserPublicId?: boolean;
 };
 
 export function readInvestModelRole(request: NextRequest): AccessRole {
@@ -102,25 +96,15 @@ export async function readInvestModelSessionRole(
 }
 
 export async function resolveInvestModelUserScope(
-  request: NextRequest,
-  options: ResolveInvestModelUserScopeOptions = {}
+  request: NextRequest
 ): Promise<InvestModelUserScope> {
-  const clientUserPublicId = options.ignoreClientUserPublicId
-    ? undefined
-    : options.clientUserPublicId?.trim() ||
-      request.nextUrl.searchParams.get('userPublicId')?.trim();
-
   try {
     const user = await getUser();
 
     if (user?.publicId) {
       return {
         userPublicId: user.publicId,
-        source: 'session',
-        ignoredClientUserPublicId:
-          clientUserPublicId && clientUserPublicId !== user.publicId
-            ? clientUserPublicId
-            : undefined
+        source: 'session'
       };
     }
   } catch {
@@ -133,11 +117,7 @@ export async function resolveInvestModelUserScope(
     if (user?.publicId) {
       return {
         userPublicId: user.publicId,
-        source: 'session',
-        ignoredClientUserPublicId:
-          clientUserPublicId && clientUserPublicId !== user.publicId
-            ? clientUserPublicId
-            : undefined
+        source: 'session'
       };
     }
   } catch {
@@ -146,10 +126,6 @@ export async function resolveInvestModelUserScope(
 
   return {
     userPublicId: investModelDemoUserPublicId,
-    source: 'demo_fallback',
-    ignoredClientUserPublicId:
-      clientUserPublicId && clientUserPublicId !== investModelDemoUserPublicId
-        ? clientUserPublicId
-        : undefined
+    source: 'demo_fallback'
   };
 }

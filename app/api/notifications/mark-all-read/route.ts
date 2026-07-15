@@ -85,9 +85,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const userScope = await resolveInvestModelUserScope(request, {
-      ignoreClientUserPublicId: true
-    });
+    const userScope = await resolveInvestModelUserScope(request);
     const result = await markNotificationCenterRead({
       userPublicId: userScope.userPublicId,
       limit

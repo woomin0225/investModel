@@ -60,9 +60,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   const { postId } = await context.params;
   const postPublicId = postId.trim();
-  const userScope = await resolveInvestModelUserScope(request, {
-    ignoreClientUserPublicId: true
-  });
+  const userScope = await resolveInvestModelUserScope(request);
 
   if (!postPublicId) {
     return errorResponse(

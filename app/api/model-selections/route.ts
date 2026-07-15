@@ -190,9 +190,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const userScope = await resolveInvestModelUserScope(request, {
-    ignoreClientUserPublicId: true
-  });
+  const userScope = await resolveInvestModelUserScope(request);
   const scopedBody =
     typeof body === 'object' && body !== null
       ? { ...body, userPublicId: userScope.userPublicId }

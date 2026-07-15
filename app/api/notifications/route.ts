@@ -77,9 +77,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const userScope = await resolveInvestModelUserScope(request, {
-      ignoreClientUserPublicId: true
-    });
+    const userScope = await resolveInvestModelUserScope(request);
     const notificationCenter = await readNotificationCenter({
       userPublicId: userScope.userPublicId,
       limit

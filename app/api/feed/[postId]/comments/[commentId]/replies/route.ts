@@ -78,9 +78,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   const postPublicId = postId.trim();
   const parentCommentPublicId = commentId.trim();
   const body = await readBody(request);
-  const userScope = await resolveInvestModelUserScope(request, {
-    ignoreClientUserPublicId: true
-  });
+  const userScope = await resolveInvestModelUserScope(request);
   const replyBody = typeof body.body === 'string' ? body.body.trim() : '';
 
   if (!postPublicId) {
