@@ -468,10 +468,14 @@ assertCondition(
   !signalsPageSource.includes('<SoftBanner') &&
     !signalDetailPageSource.includes('<SoftBanner') &&
     signalsPageSource.includes('signalsFooterSafetyLines.join') &&
+    signalsPageSource.includes('[signal.sourceLabel, signal.marketLabel].join') &&
+    signalsPageSource.includes('[signal.linkedModelName, signal.freshnessLabel].join') &&
     signalsPageSource.includes('signalsCopy.footerBadges.noRecommendation') &&
     signalsPageSource.includes('signalsCopy.footerBadges.mockData') &&
     !signalsPageSource.includes('{signalsCopy.footerBadges.noRecommendation}\n                </RiskBadge>') &&
     !signalsPageSource.includes('{signalsCopy.footerBadges.mockData}\n                </RiskBadge>') &&
+    !signalsPageSource.includes('Activity') &&
+    !signalsPageSource.includes('{signal.linkedModelName}\n                        </RiskBadge>') &&
     signalsPageSource.includes('signalsCopy.metrics.noTradeIntent') &&
     signalDetailPageSource.includes('safetyAccessibleLabel') &&
     signalDetailPageSource.includes('No recommendation') &&

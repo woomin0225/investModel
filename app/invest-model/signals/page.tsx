@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { NextRequest } from 'next/server';
-import { Activity, ShieldAlert } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 import { GET as readSignals } from '@/app/api/signals/route';
 import {
   MetricCard,
@@ -517,14 +517,11 @@ export default async function InvestModelSignalsPage({
                           <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-invest-text">
                             {signal.title}
                           </h3>
-                          <div className="mt-2 grid gap-1.5 min-[360px]:grid-cols-2">
-                            <RiskBadge className="justify-center text-center">
-                              {signal.sourceLabel}
-                            </RiskBadge>
-                            <RiskBadge className="justify-center text-center">
-                              {signal.marketLabel}
-                            </RiskBadge>
-                          </div>
+                          <p className="mt-2 text-xs font-semibold leading-5 text-invest-text-muted">
+                            {[signal.sourceLabel, signal.marketLabel].join(
+                              ' / '
+                            )}
+                          </p>
                         </div>
                         <div className="shrink-0 text-right">
                           <RiskBadge tone={badgeToneByScore[signal.scoreTone]}>
@@ -546,22 +543,11 @@ export default async function InvestModelSignalsPage({
                       <p className="mt-2 text-sm leading-6 text-invest-text-muted">
                         {signal.description}
                       </p>
-                      <div
-                        className={cn(
-                          'mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/35 group-active:scale-[0.995] group-focus-within:bg-invest-primary-soft/45 min-[360px]:grid-cols-[minmax(0,1fr)_auto]',
-                          'motion-reduce:transition-none motion-reduce:group-active:scale-100'
+                      <p className="mt-3 text-xs font-semibold leading-5 text-invest-text-muted transition-colors duration-200 ease-out group-hover:text-invest-text motion-reduce:transition-none">
+                        {[signal.linkedModelName, signal.freshnessLabel].join(
+                          ' / '
                         )}
-                      >
-                        <RiskBadge
-                          tone="neutral"
-                          className="justify-center text-center transition-transform duration-200 ease-out group-hover:scale-[1.01] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
-                        >
-                          {signal.linkedModelName}
-                        </RiskBadge>
-                        <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted transition-[color,transform] duration-200 ease-out group-hover:scale-[1.01] group-hover:text-invest-text group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
-                          {signal.freshnessLabel}
-                        </span>
-                      </div>
+                      </p>
                       {'rankSnapshot' in signal && signal.rankSnapshot ? (
                         <div className="mt-2.5 grid gap-1.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2 min-[360px]:grid-cols-3">
                           <RiskBadge
@@ -588,17 +574,9 @@ export default async function InvestModelSignalsPage({
                           </span>
                         </div>
                       ) : null}
-                      <div className="mt-2.5 flex items-start gap-2.5 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-2.5 transition-[background-color,border-color,transform] duration-200 ease-out group-hover:border-invest-primary/25 group-hover:bg-invest-surface group-active:scale-[0.995] group-focus-within:border-invest-primary/35 motion-reduce:transition-none motion-reduce:group-active:scale-100">
-                        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-invest-surface text-invest-primary shadow-invest-card transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100">
-                          <Activity
-                            aria-hidden
-                            className="size-4 transition-transform duration-200 ease-out group-hover:rotate-6 motion-reduce:transition-none motion-reduce:group-hover:rotate-0"
-                          />
-                        </span>
-                        <p className="pt-0.5 text-sm font-semibold leading-5 text-invest-text-muted transition-colors duration-200 ease-out group-hover:text-invest-text motion-reduce:transition-none">
-                          {signal.statusLabel}
-                        </p>
-                      </div>
+                      <p className="mt-2.5 text-sm font-semibold leading-5 text-invest-text-muted transition-colors duration-200 ease-out group-hover:text-invest-text motion-reduce:transition-none">
+                        {signal.statusLabel}
+                      </p>
                     </div>
                   </div>
                 </Link>
