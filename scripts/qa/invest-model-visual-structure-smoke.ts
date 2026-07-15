@@ -169,6 +169,9 @@ const screens: ScreenCheck[] = [
       investModelDetailCopy.en.highRiskNotice,
       investModelDetailCopy.en.highRiskConfirmLabel,
       investModelDetailCopy.en.noLiveTradingLabel,
+      'Model review schedule',
+      'Mock rebalance check',
+      'No real trading execution',
       'Approved/public model',
       'No recommendation',
       'No live order',
@@ -1498,6 +1501,20 @@ assertCondition(
           .includes('not real investment consent')
     ),
   'Model Detail high-risk models must require mock confirmation for leverage, concentration, and large loss context'
+);
+assertCondition(
+  modelDetailPageSource.includes('function ModelReviewScheduleStrip') &&
+    modelDetailPageSource.includes('modelDetailReviewScheduleItems') &&
+    modelDetailPageSource.includes('Model review schedule') &&
+    modelDetailPageSource.includes('Mock rebalance check') &&
+    modelDetailPageSource.includes('Disclosure review') &&
+    modelDetailPageSource.includes('No real trading execution') &&
+    modelDetailPageSource.includes('grid-cols-[4.75rem_minmax(0,1fr)]') &&
+    !modelDetailPageSource.includes(`rebalance ${'date'}`) &&
+    !modelDetailPageSource.includes(`execution ${'date'}`) &&
+    !modelDetailPageSource.includes(`next ${'order'}`) &&
+    !modelDetailPageSource.includes(`${'order'} window`),
+  'Model Detail review schedule must stay mock/review-only and 390px-safe'
 );
 assertCondition(
   pendingAdminReviewModels.every((model) =>

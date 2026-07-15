@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import { NextRequest } from 'next/server';
-import { ArrowLeft, FileText, ShieldAlert, SquareCheckBig } from 'lucide-react';
+import {
+  ArrowLeft,
+  CalendarCheck,
+  FileText,
+  ShieldAlert,
+  SquareCheckBig
+} from 'lucide-react';
 import { GET as readModelDetail } from '@/app/api/models/[modelId]/route';
 import {
   investMotionClass,
@@ -79,6 +85,67 @@ const detailReadModelCopy = {
     maxDrawdownLabel: 'Max drawdown',
     emptySectionFallback:
       'DB read model context is available, but this section has no populated rows yet.'
+  }
+} as const;
+
+const detailReviewScheduleCopy = {
+  ko: {
+    title: '모델 검토 일정',
+    description:
+      '리뷰와 모의 리밸런싱 점검만 표시하며 실제 주문, 체결, 브로커 동작 일정이 아닙니다.',
+    safetyLabel: '검토 전용 / 모의 점검 / 실제 거래 실행 없음',
+    items: {
+      review: {
+        label: '모델 리뷰',
+        dateLabel: '리뷰',
+        statusLabel: '검토 기록',
+        description:
+          '운영자 승인 맥락을 확인하는 항목이며 투자 조언이나 법률 판단이 아닙니다.'
+      },
+      rebalance: {
+        label: '모의 리밸런싱 점검',
+        dateLabel: '모의',
+        statusLabel: '체크포인트',
+        description:
+          '모델 원칙을 점검하는 mock checkpoint이며 실제 주문이나 체결 계획이 아닙니다.'
+      },
+      disclosure: {
+        label: '고지 문구 검토',
+        dateLabel: '고지',
+        statusLabel: '검토 필요',
+        description:
+          '공개 전 문구 확인 알림이며 자문 확정이나 브로커 실행 지시가 아닙니다.'
+      }
+    }
+  },
+  en: {
+    title: 'Model review schedule',
+    description:
+      'Shows review and mock rebalance checkpoints only, not real orders, execution, or brokerage actions.',
+    safetyLabel: 'Review only / Mock checkpoint / No real trading execution',
+    items: {
+      review: {
+        label: 'Model review',
+        dateLabel: 'Review',
+        statusLabel: 'Reviewed context',
+        description:
+          'Confirms operator review context only. It is not investment advice or legal approval.'
+      },
+      rebalance: {
+        label: 'Mock rebalance check',
+        dateLabel: 'Mock',
+        statusLabel: 'Checkpoint',
+        description:
+          'Checks model principles as a mock checkpoint, not a real trade or execution plan.'
+      },
+      disclosure: {
+        label: 'Disclosure review',
+        dateLabel: 'Notice',
+        statusLabel: 'Review needed',
+        description:
+          'Reminds reviewers to inspect copy before release. It is not advisory approval or brokerage instruction.'
+      }
+    }
   }
 } as const;
 
@@ -179,6 +246,8 @@ export default async function InvestModelDetailPage({
     );
   }
 
+  const reviewScheduleItems = modelDetailReviewScheduleItems(locale, model);
+
   return (
     <MobileShell
       activeTab="models"
@@ -244,6 +313,11 @@ export default async function InvestModelDetailPage({
           volatilityMetric={model.metrics[2]}
           drawdownMetric={model.metrics[1]}
           sourceLabel={copy.performanceGroupSourceLabel}
+        />
+
+        <ModelReviewScheduleStrip
+          locale={locale}
+          items={reviewScheduleItems}
         />
 
         <nav
@@ -429,6 +503,98 @@ export default async function InvestModelDetailPage({
       </section>
     </MobileShell>
   );
+}
+
+type ModelReviewScheduleItem = {
+  label: string;
+  dateLabel: string;
+  statusLabel: string;
+  description: string;
+};
+
+function ModelReviewScheduleStrip({
+  locale,
+  items
+}: {
+  locale: 'ko' | 'en';
+  items: ModelReviewScheduleItem[];
+}) {
+  const copy = detailReviewScheduleCopy[locale];
+
+  return (
+    <section
+      aria-label={copy.title}
+      className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+    >
+      <SectionHeader title={copy.title} description={copy.description} />
+      <div className="mt-4 grid gap-2" role="list">
+        {items.map((item) => (
+          <div
+            key={`${item.dateLabel}-${item.label}`}
+            role="listitem"
+            className={cn(
+              'grid min-h-invest-touch-target grid-cols-[4.75rem_minmax(0,1fr)] gap-3 rounded-invest-control border border-invest-border bg-invest-surface-muted p-2.5',
+              investMotionClass.interactiveCard
+            )}
+          >
+            <div className="grid min-w-0 content-center rounded-invest-control bg-invest-bg-soft px-2 py-1 text-center">
+              <p className="truncate text-[11px] font-bold uppercase leading-4 tracking-normal text-invest-primary">
+                {item.dateLabel}
+              </p>
+              <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
+                {item.statusLabel}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <CalendarCheck
+                  aria-hidden
+                  className="size-4 shrink-0 text-invest-primary"
+                />
+                <p className="min-w-0 text-sm font-bold leading-5 text-invest-text">
+                  {item.label}
+                </p>
+              </div>
+              <p className="mt-1 text-xs leading-5 text-invest-text-muted">
+                {item.description}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 rounded-invest-control bg-invest-bg-soft p-2 text-xs font-semibold leading-5 text-invest-text-muted">
+        {copy.safetyLabel}
+      </p>
+    </section>
+  );
+}
+
+function modelDetailReviewScheduleItems(
+  locale: 'ko' | 'en',
+  model: InvestmentModelDetailView
+): ModelReviewScheduleItem[] {
+  const copy = detailReviewScheduleCopy[locale].items;
+
+  return [
+    {
+      ...copy.review,
+      statusLabel: model.reviewLabel || copy.review.statusLabel
+    },
+    {
+      ...copy.rebalance,
+      statusLabel:
+        model.mandateItems.find((item) =>
+          item.toLowerCase().includes('rebalance')
+        ) ?? copy.rebalance.statusLabel
+    },
+    {
+      ...copy.disclosure,
+      statusLabel:
+        model.dataContext === 'db_read_model'
+          ? detailReadModelCopy[locale].dbDetailLabel
+          : copy.disclosure.statusLabel
+    }
+  ];
 }
 
 function modelDetailVisibleBoundaries(locale: 'ko' | 'en') {
