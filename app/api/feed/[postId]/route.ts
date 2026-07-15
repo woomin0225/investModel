@@ -110,6 +110,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         ],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
+        dataContext: result.data.userState.dataContext,
         informationalOnly: true,
         realOrder: false,
         brokerageConnection: false,

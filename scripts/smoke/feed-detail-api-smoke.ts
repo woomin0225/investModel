@@ -204,6 +204,8 @@ async function main() {
       ignoredUserJson.data?.userState?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredUserJson.meta?.dataContext ===
+        ignoredUserJson.data?.userState?.dataContext &&
       ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsClientRequestedPublicId(ignoredUserJson.data?.userState),
     'client userPublicId is not exposed as compatibility meta or FeedPost detail user state'
@@ -215,6 +217,8 @@ async function main() {
       sessionDetailJson.data?.userState?.userPublicId === 'user_demo_001' &&
       sessionDetailJson.meta?.userPublicId === 'user_demo_001' &&
       sessionDetailJson.meta?.userScopeSource === 'session' &&
+      sessionDetailJson.meta?.dataContext ===
+        sessionDetailJson.data?.userState?.dataContext &&
       sessionDetailJson.meta?.clientUserPublicIdIgnored === undefined &&
       !containsClientRequestedPublicId(sessionDetailJson.data?.userState),
     'session role reads FeedPost detail with the server-resolved user scope'
@@ -264,6 +268,7 @@ async function main() {
   );
   assertCondition(
     detailJson.meta?.routeStatus === 'db_backed' &&
+      detailJson.meta?.dataContext === detailJson.data?.userState?.dataContext &&
       detailJson.meta?.sourceTables?.includes('model_signal_events') &&
       detailJson.meta?.realOrder === false &&
       detailJson.meta?.brokerageConnection === false &&
