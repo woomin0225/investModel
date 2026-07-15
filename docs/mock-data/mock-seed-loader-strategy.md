@@ -14,6 +14,7 @@
 - `docs/mock-data/model-catalog.md`
 - `docs/mock-data/portfolio-deposit-data.md`
 - `docs/mock-data/signal-feed-data.md`
+- `docs/mock-data/mock-seed-parity-contract.md`
 - `docs/api/dto-contract.md`
 - `docs/api/screen-api-mapping.md`
 - `docs/architecture/folder-structure.md`
@@ -208,4 +209,3 @@ Before marking a loader change done:
 - `BK-136`: decide barrel export and import alias rules before adding many `index.ts` files.
 - `BK-137`: document UI component dependency boundaries so components do not depend on DB seed rows.
 - `BK-141`: API guards should run before calling loaders for user/creator/admin routes.
-
