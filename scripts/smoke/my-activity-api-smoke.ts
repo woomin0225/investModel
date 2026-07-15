@@ -168,8 +168,11 @@ async function main() {
   assertCondition(
     clientScopedResponse.status === 200 &&
       clientScopedJson.data?.userPublicId === 'user_demo_001' &&
+      clientScopedJson.data?.sourceLabel === 'db_read_model' &&
       clientScopedJson.meta?.userPublicId === 'user_demo_001' &&
       clientScopedJson.meta?.userScopeSource === 'demo_fallback' &&
+      clientScopedJson.meta?.dataContext ===
+        clientScopedJson.data?.sourceLabel &&
       clientScopedJson.meta?.clientUserPublicIdIgnored === undefined,
     'client userPublicId is not exposed as compatibility meta or my activity state'
   );
@@ -180,7 +183,10 @@ async function main() {
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.data?.sourceLabel === 'db_read_model' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.dataContext ===
+        sessionScopedJson.data?.sourceLabel &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001',
     'session role and user scope win for my activity'
