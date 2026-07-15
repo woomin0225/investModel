@@ -380,10 +380,10 @@ export default async function InvestModelDiscoveryPage({
                 type="search"
                 defaultValue={searchQuery ?? ''}
                 placeholder={
-                  locale === 'ko' ? 'Search models' : 'Search models'
+                  locale === 'ko' ? '모델 검색' : 'Search models'
                 }
                 aria-label={
-                  locale === 'ko' ? 'Search models' : 'Search models'
+                  locale === 'ko' ? '모델 검색' : 'Search models'
                 }
                 className="min-w-0 flex-1 bg-transparent text-sm font-semibold leading-6 text-invest-text outline-none placeholder:text-invest-text-subtle"
               />
@@ -394,7 +394,7 @@ export default async function InvestModelDiscoveryPage({
                   investMotionClass.interactiveControl
                 )}
               >
-                {locale === 'ko' ? 'Search' : 'Search'}
+                {locale === 'ko' ? '검색' : 'Search'}
               </button>
             </form>
             <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">

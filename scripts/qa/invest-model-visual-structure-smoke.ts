@@ -767,6 +767,13 @@ assertCondition(
   'Discover Models must not start with the top blue SoftBanner or safety chip groups and must preserve no-order/simulated safety context'
 );
 assertCondition(
+  modelsPageSource.includes("locale === 'ko' ? '모델 검색' : 'Search models'") &&
+    modelsPageSource.includes("locale === 'ko' ? '검색' : 'Search'") &&
+    !modelsPageSource.includes("locale === 'ko' ? 'Search models'") &&
+    !modelsPageSource.includes("locale === 'ko' ? 'Search' : 'Search'"),
+  'Discover Models Korean search form copy must not fall back to English'
+);
+assertCondition(
   modelComparePageSource.includes("visibleBoundaries.join(' / ')") &&
     !modelComparePageSource.includes('visibleBoundaries.map((boundary) => (') &&
     !modelComparePageSource.includes('<RiskBadge tone="blocked">No live orders</RiskBadge>') &&
