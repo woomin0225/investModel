@@ -13,6 +13,7 @@ import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
 const smokeCommentBody = 'BK-323 smoke informational comment';
+const ignoredClientUserPublicId = 'user_missing';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -70,6 +71,10 @@ async function createSessionCookie(userId: number) {
   });
 
   return `session=${encryptedSession}`;
+}
+
+function containsIgnoredClientUserPublicId(value: unknown) {
+  return JSON.stringify(value).includes(ignoredClientUserPublicId);
 }
 
 function commentRequest(postId: string, body: unknown, role = 'user') {
@@ -144,7 +149,7 @@ async function main() {
     body: smokeCommentBody
   });
   const ignoredUserResponse = await commentRequest('feed_mock_001', {
-    userPublicId: 'user_missing',
+    userPublicId: ignoredClientUserPublicId,
     body: smokeCommentBody
   });
   const ignoredUserJson = await ignoredUserResponse.json();
@@ -156,7 +161,7 @@ async function main() {
   const sessionScopedResponse = await commentRequestWithSession(
     'feed_mock_001',
     {
-      userPublicId: 'user_missing',
+      userPublicId: ignoredClientUserPublicId,
       body: smokeCommentBody
     },
     sessionCookie
@@ -178,10 +183,12 @@ async function main() {
   assertCondition(notFoundResponse.status === 404, 'missing post is 404');
   assertCondition(
     ignoredUserResponse.status === 201 &&
+      ignoredUserJson.data?.userState?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
-      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined,
-    'client userPublicId is not exposed as compatibility meta for comment creation'
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsIgnoredClientUserPublicId(ignoredUserJson.data),
+    'client userPublicId is not exposed as compatibility meta or comment state'
   );
   assertCondition(createResponse.status === 201, 'comment creation responds');
   assertCondition(
@@ -207,9 +214,11 @@ async function main() {
   );
   assertCondition(
     sessionScopedResponse.status === 201 &&
+      sessionScopedJson.data?.userState?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
-      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined,
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsIgnoredClientUserPublicId(sessionScopedJson.data),
     'session role and user scope win for comment creation'
   );
 
