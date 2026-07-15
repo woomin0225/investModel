@@ -45,6 +45,8 @@ async function main() {
   await applyTrackedAppSeed();
 
   const demoSummary = await readMyPageSummary('user_demo_001');
+  const directDemoFeedActivity =
+    await readMyPageFeedActivitySummary('user_demo_001');
   const missingUserPublicId = 'user_scope_empty_001';
   const missingSummary = await readMyPageSummary(missingUserPublicId);
   const missingFeedActivity =
@@ -72,6 +74,27 @@ async function main() {
       demoSummary.notificationSummary.totalCount > 0 &&
       demoSummary.recentNotifications.length > 0,
     'seed member summary includes scoped selection, activity, and notifications'
+  );
+  assertCondition(
+    directDemoFeedActivity.userPublicId === 'user_demo_001' &&
+      demoSummary.feedActivity.userPublicId ===
+        directDemoFeedActivity.userPublicId &&
+      demoSummary.feedActivity.savedCount === directDemoFeedActivity.savedCount &&
+      demoSummary.feedActivity.commentCount ===
+        directDemoFeedActivity.commentCount &&
+      demoSummary.feedActivity.recentSavedPosts
+        .map((item) => item.postPublicId)
+        .join('|') ===
+        directDemoFeedActivity.recentSavedPosts
+          .map((item) => item.postPublicId)
+          .join('|') &&
+      demoSummary.feedActivity.recentCommentPosts
+        .map((item) => item.postPublicId)
+        .join('|') ===
+        directDemoFeedActivity.recentCommentPosts
+          .map((item) => item.postPublicId)
+          .join('|'),
+    'seed member summary feed activity matches the direct member-scoped read model'
   );
   assertCondition(
     demoNotificationCenter.userPublicId === 'user_demo_001' &&
