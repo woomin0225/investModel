@@ -12,10 +12,21 @@ import { GET } from '../../app/api/feed/rankings/route';
 import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
+const IGNORED_CLIENT_USER_PUBLIC_ID = 'user_other_001';
+
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
+}
+
+function assertNoClientUserPublicIdExposure(payload: unknown, context: string) {
+  const serializedPayload = JSON.stringify(payload);
+
+  assertCondition(
+    !serializedPayload.includes(IGNORED_CLIENT_USER_PUBLIC_ID),
+    `${context} does not expose ignored client userPublicId`
+  );
 }
 
 async function applyTrackedFeedSeed() {
@@ -95,8 +106,12 @@ async function main() {
     '/api/feed/rankings?limit=3&window=tracked_seed'
   );
   const rankingJson = await rankingResponse.json();
+  const clientScopedRankingResponse = await rankingRequest(
+    `/api/feed/rankings?limit=2&window=tracked_seed&userPublicId=${IGNORED_CLIENT_USER_PUBLIC_ID}`
+  );
+  const clientScopedRankingJson = await clientScopedRankingResponse.json();
   const sessionRankingResponse = await rankingRequestWithSession(
-    '/api/feed/rankings?limit=2&window=tracked_seed',
+    `/api/feed/rankings?limit=2&window=tracked_seed&userPublicId=${IGNORED_CLIENT_USER_PUBLIC_ID}`,
     sessionCookie
   );
   const sessionRankingJson = await sessionRankingResponse.json();
@@ -117,6 +132,42 @@ async function main() {
       sessionRankingJson.data.length > 0 &&
       sessionRankingJson.data.length <= 2,
     'session role can read feed rankings without role header'
+  );
+  assertCondition(
+    clientScopedRankingResponse.status === 200 &&
+      Array.isArray(clientScopedRankingJson.data) &&
+      clientScopedRankingJson.data.length > 0 &&
+      clientScopedRankingJson.data.length <= 2,
+    'feed rankings ignore client userPublicId query under prototype fallback'
+  );
+  assertNoClientUserPublicIdExposure(
+    clientScopedRankingJson,
+    'prototype fallback feed ranking'
+  );
+  assertNoClientUserPublicIdExposure(
+    sessionRankingJson,
+    'session scoped feed ranking'
+  );
+  assertCondition(
+    [...clientScopedRankingJson.data, ...sessionRankingJson.data].every(
+      (post: { userPublicId?: string; authorPublicId?: string }) => {
+        return (
+          post.userPublicId === undefined && post.authorPublicId === undefined
+        );
+      }
+    ),
+    'feed rankings do not expose user public ids for client-selected scope'
+  );
+  assertCondition(
+    [clientScopedRankingJson.meta, sessionRankingJson.meta].every(
+      (meta: { userPublicId?: string; clientUserPublicIdIgnored?: string }) => {
+        return (
+          meta.userPublicId === undefined &&
+          meta.clientUserPublicIdIgnored === undefined
+        );
+      }
+    ),
+    'feed ranking meta does not expose client-selected user scope'
   );
   assertCondition(Array.isArray(rankingJson.data), 'ranking data is an array');
   assertCondition(rankingJson.data.length > 0, 'ranking returns seeded posts');
