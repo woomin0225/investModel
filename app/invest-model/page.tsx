@@ -8,7 +8,6 @@ import {
   ModelCard,
   ModelSelectionReadStatus,
   modelSelectionReadStatusCopy,
-  RiskBadge,
   SectionHeader,
   SearchAndNotificationActions
 } from '@/components/invest-model';
@@ -280,10 +279,10 @@ export default async function InvestModelPreviewPage({
                             {item.time}
                           </p>
                           {metadata ? (
-                            <RiskBadge tone="medium" className="mt-2">
+                            <p className="mt-2 inline-flex items-center text-[11px] font-semibold leading-4 text-invest-text-muted">
                               <ShieldCheck aria-hidden className="mr-1 inline size-3" />
                               {metadata.statusLabel}
-                            </RiskBadge>
+                            </p>
                           ) : null}
                         </div>
                       </div>
@@ -291,15 +290,14 @@ export default async function InvestModelPreviewPage({
                         {item.description}
                       </p>
                       {metadata ? (
-                        <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-surface-muted p-2 transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-active:scale-100 min-[360px]:grid-cols-[minmax(0,1fr)_auto]">
-                          <RiskBadge className="justify-center text-center">
-                            <Database aria-hidden className="mr-1 inline size-3" />
+                        <p className="mt-3 flex items-center gap-1.5 rounded-invest-control bg-invest-surface-muted px-2.5 py-2 text-[11px] font-semibold leading-4 text-invest-text-muted transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-active:scale-100">
+                          <Database aria-hidden className="size-3 shrink-0" />
+                          <span>
                             {metadata.sourceLabel}
-                          </RiskBadge>
-                          <span className="inline-flex min-h-7 items-center justify-center rounded-full bg-invest-surface px-2.5 text-center text-[11px] font-semibold leading-4 text-invest-text-muted">
+                            {' · '}
                             {metadata.statusLabel}
                           </span>
-                        </div>
+                        </p>
                       ) : null}
                     </div>
                   </div>

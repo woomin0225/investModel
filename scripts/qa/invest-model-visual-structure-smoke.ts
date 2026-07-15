@@ -43,8 +43,10 @@ const screens: ScreenCheck[] = [
       investModelHomeMock.account.balanceDescription,
       investModelHomeMock.account.policyDescription,
       investModelHomeMock.signal.status,
-      investModelHomeMock.timeline[0]?.sourceLabel ?? '',
-      investModelHomeMock.timeline[0]?.statusLabel ?? ''
+      ...investModelHomeMock.timeline.flatMap((item) => [
+        item.sourceLabel,
+        item.statusLabel
+      ])
     ]
   },
   {
@@ -509,6 +511,7 @@ assertCondition(
   !homePageSource.includes('<SoftBanner') &&
     !homePageSource.includes('homeVisibleBoundaries(locale).map') &&
     homePageSource.includes('homeSafetyBoundaryCopy') &&
+    !homePageSource.includes('RiskBadge') &&
     homePageSource.includes('ModelSelectionReadStatus') &&
     homePageSource.includes('homeCopy.footerBadges.noLiveOrders') &&
     homePageSource.includes('financial advice'),
