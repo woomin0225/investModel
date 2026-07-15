@@ -70,6 +70,7 @@ const screens: ScreenCheck[] = [
       'Session member scope',
       'Prototype fallback scope',
       'API userScopeSource',
+      'API dataContext',
       'Recent FeedPost activity',
       'Saved/comment activity is an informational reading shortcut only',
       '/invest-model/feed',

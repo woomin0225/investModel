@@ -34,6 +34,7 @@ type InvestModelMyPageProps = {
 };
 
 type MyPageSummaryRouteMeta = {
+  dataContext?: 'db_read_model' | 'mock_safe_fallback';
   userScopeSource?: 'session' | 'demo_fallback';
   readOnly?: boolean;
   realAccountConnection?: boolean;
@@ -292,6 +293,7 @@ export default async function InvestModelMyPage({
   const myPageRouteResult = await readMyPageSummaryRoute();
   const myPageSummary = myPageRouteResult.data;
   const myPageMeta = myPageRouteResult.meta;
+  const routeDataContext = myPageMeta.dataContext ?? myPageSummary.dataContext;
   const activitySummary = myPageSummary.feedActivity;
   const notificationSummary = myPageSummary.notificationSummary;
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
@@ -313,7 +315,7 @@ export default async function InvestModelMyPage({
     activitySummary.latestCommentPostTitle ??
     (locale === 'ko' ? 'DB 댓글 활동 없음' : 'No comment activity');
   const sourceTrend =
-    myPageSummary.dataContext === 'db_read_model'
+    routeDataContext === 'db_read_model'
       ? 'DB read model'
       : locale === 'ko'
         ? '대기'
@@ -413,6 +415,9 @@ export default async function InvestModelMyPage({
           {locale === 'ko'
             ? '회원 범위는 API userScopeSource로 확인하며, 화면 값은 현재 회원 DB read model 또는 프로토타입 fallback만 표시합니다.'
             : 'Member scope is confirmed through the API userScopeSource, and this screen shows only current member DB read models or prototype fallback state.'}
+        </p>
+        <p className="text-[12px] leading-5 text-invest-text-muted">
+          API dataContext: {routeDataContext}.
         </p>
 
         <div className="space-y-invest-card-gap">
