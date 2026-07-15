@@ -27,7 +27,6 @@ type RouteContext = {
 };
 
 type ReplyRequestBody = {
-  userPublicId?: unknown;
   body?: unknown;
   clientRequestId?: unknown;
 };
@@ -79,10 +78,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
   const postPublicId = postId.trim();
   const parentCommentPublicId = commentId.trim();
   const body = await readBody(request);
-  const clientUserPublicId =
-    typeof body.userPublicId === 'string' ? body.userPublicId.trim() : '';
   const userScope = await resolveInvestModelUserScope(request, {
-    clientUserPublicId
+    ignoreClientUserPublicId: true
   });
   const replyBody = typeof body.body === 'string' ? body.body.trim() : '';
 
@@ -156,8 +153,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
           sourceTables: ['feed_posts', 'feed_post_comments', 'users'],
           userPublicId: userScope.userPublicId,
           userScopeSource: userScope.source,
-          clientUserPublicIdIgnored:
-            userScope.ignoredClientUserPublicId !== undefined,
           informationalOnly: true,
           discussionOnly: true,
           recommendationSignal: false,
