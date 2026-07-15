@@ -9,6 +9,7 @@ import path from 'path';
 import mysql from 'mysql2/promise';
 import { NextRequest } from 'next/server';
 import { GET } from '../../app/api/feed/[postId]/route';
+import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
 const hiddenCommentBody = 'BK-275 smoke hidden moderation comment';
@@ -91,6 +92,33 @@ async function applyTrackedFeedSeed() {
   await connection.end();
 }
 
+async function readSeedUserId() {
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+  const [rows] = await connection.query<mysql.RowDataPacket[]>(
+    "SELECT id FROM users WHERE public_id = 'user_demo_001' LIMIT 1"
+  );
+  await connection.end();
+
+  const userId = rows[0]?.id;
+  assertCondition(
+    typeof userId === 'number',
+    'seed user id exists for detail session role smoke'
+  );
+  return userId;
+}
+
+async function createSessionCookie(userId: number) {
+  const encryptedSession = await signToken({
+    user: { id: userId },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  return `session=${encryptedSession}`;
+}
+
 function detailRequest(
   postId: string,
   search = '?userPublicId=user_demo_001',
@@ -109,8 +137,28 @@ function detailRequest(
   );
 }
 
+function detailRequestWithSession(
+  postId: string,
+  sessionCookie: string,
+  search = '?userPublicId=user_other_001'
+) {
+  return GET(
+    new NextRequest(`http://localhost/api/feed/${postId}${search}`, {
+      method: 'GET',
+      headers: {
+        cookie: sessionCookie
+      }
+    }),
+    {
+      params: Promise.resolve({ postId })
+    }
+  );
+}
+
 async function main() {
   await applyTrackedFeedSeed();
+  const seedUserId = await readSeedUserId();
+  const sessionCookie = await createSessionCookie(seedUserId);
 
   const forbiddenResponse = await GET(
     new NextRequest(
@@ -131,6 +179,11 @@ async function main() {
   const notFoundResponse = await detailRequest('feed_mock_missing');
   const detailResponse = await detailRequest('feed_mock_001');
   const detailJson = await detailResponse.json();
+  const sessionDetailResponse = await detailRequestWithSession(
+    'feed_mock_001',
+    sessionCookie
+  );
+  const sessionDetailJson = await sessionDetailResponse.json();
 
   assertCondition(
     forbiddenResponse.status === 403,
@@ -150,6 +203,13 @@ async function main() {
   );
   assertCondition(notFoundResponse.status === 404, 'missing post is 404');
   assertCondition(detailResponse.status === 200, 'feed detail responds');
+  assertCondition(
+    sessionDetailResponse.status === 200 &&
+      sessionDetailJson.data?.userState?.userPublicId === 'user_demo_001' &&
+      sessionDetailJson.meta?.userScopeSource === 'session' &&
+      sessionDetailJson.meta?.clientUserPublicIdIgnored === true,
+    'session role can read FeedPost detail without role header'
+  );
   assertCondition(
     detailJson.data?.postPublicId === 'feed_mock_001' &&
       detailJson.data?.id === undefined,

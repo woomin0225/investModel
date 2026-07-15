@@ -4,6 +4,7 @@ import { readFeedPostDetailDto } from '@/lib/db/feed-detail-read-model';
 import { canReadFeed } from '@/lib/domain/feed/feed-post';
 import {
   readInvestModelRole,
+  readInvestModelSessionRole,
   resolveInvestModelUserScope
 } from '@/lib/server/invest-model-user-scope';
 
@@ -43,7 +44,11 @@ function errorResponse(
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  const role = readInvestModelRole(request);
+  const headerRole = readInvestModelRole(request);
+  const role =
+    headerRole === 'public'
+      ? await readInvestModelSessionRole(request)
+      : headerRole;
 
   if (!canReadFeed(role)) {
     return errorResponse(
