@@ -13,6 +13,7 @@ import {
   readMyPageFeedActivitySummary,
   readMyPageSummary
 } from '../../lib/db/my-page-read-model';
+import { readNotificationCenter } from '../../lib/db/notification-read-model';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -46,6 +47,10 @@ async function main() {
   const missingSummary = await readMyPageSummary(missingUserPublicId);
   const missingFeedActivity =
     await readMyPageFeedActivitySummary(missingUserPublicId);
+  const missingNotificationCenter = await readNotificationCenter({
+    userPublicId: missingUserPublicId,
+    limit: 3
+  });
 
   assertCondition(
     demoSummary.userPublicId === 'user_demo_001' &&
@@ -92,8 +97,16 @@ async function main() {
   );
   assertCondition(
     !containsSeededMemberPublicId(missingSummary) &&
-      !containsSeededMemberPublicId(missingFeedActivity),
-    'prototype fallback summaries do not contain seeded member scoped identifiers'
+      !containsSeededMemberPublicId(missingFeedActivity) &&
+      !containsSeededMemberPublicId(missingNotificationCenter),
+    'prototype fallback read models do not contain seeded member scoped identifiers'
+  );
+  assertCondition(
+    missingNotificationCenter.userPublicId === missingUserPublicId &&
+      missingNotificationCenter.notices.every(
+        (notice) => notice.message.includes('DB-backed') || notice.message.includes('does not send')
+      ),
+    'direct notification read model keeps the requested member scope and safety notices'
   );
 
   await client.end();
