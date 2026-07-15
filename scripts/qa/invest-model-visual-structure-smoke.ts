@@ -129,8 +129,9 @@ const screens: ScreenCheck[] = [
     pageFile: 'app/invest-model/signals/page.tsx',
     activeTab: 'signals',
     requiredCopy: [
-      investModelSignalsMock.summary.title,
-      investModelSignalsMock.summary.description,
+      investModelCopy.en.signals.sectionTitle,
+      investModelCopy.en.signals.footerBadges.noRecommendation,
+      investModelCopy.en.signals.footerBadges.mockData,
       investModelSignalsMock.summary.blockedLabel
     ]
   },
@@ -287,7 +288,9 @@ function collectScreenTextValues() {
       model.simulatedAumLabel,
       ...model.tags
     ]),
-    investModelSignalsMock.summary.description,
+    investModelCopy.en.signals.footer,
+    investModelCopy.en.signals.footerBadges.noRecommendation,
+    investModelCopy.en.signals.footerBadges.mockData,
     ...investModelSignalsMock.signals.flatMap((signal) => [
       signal.title,
       signal.description,
@@ -458,6 +461,18 @@ assertCondition(
     signalRefreshActionSource.includes('Auto refresh 60s') &&
     signalRefreshActionSource.includes('No external realtime data, advice, or order'),
   'Realtime Signals must expose manual/60s DB snapshot refresh UX with safety boundary copy'
+);
+assertCondition(
+  !signalsPageSource.includes('<SoftBanner') &&
+    !signalDetailPageSource.includes('<SoftBanner') &&
+    signalsPageSource.includes('signalsCopy.footerBadges.noRecommendation') &&
+    signalsPageSource.includes('signalsCopy.footerBadges.mockData') &&
+    signalsPageSource.includes('signalsCopy.metrics.noTradeIntent') &&
+    signalDetailPageSource.includes('safetyAccessibleLabel') &&
+    signalDetailPageSource.includes('No recommendation') &&
+    signalDetailPageSource.includes('No order') &&
+    signalDetailPageSource.includes('no realtime external data'),
+  'Signals list/detail must not start with the top blue SoftBanner and must preserve observation/no-order safety context'
 );
 assertCondition(
   modelsPageSource.includes('name="q"') &&

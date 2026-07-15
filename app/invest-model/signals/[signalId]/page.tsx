@@ -1,4 +1,4 @@
-import { ArrowLeft, Activity, Radio, Search, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Activity, Search, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { NextRequest } from 'next/server';
@@ -9,7 +9,6 @@ import {
   MobileShell,
   NotificationAction,
   RiskBadge,
-  SoftBanner,
   investMotionClass
 } from '@/components/invest-model';
 import type {
@@ -395,13 +394,6 @@ export default async function InvestModelSignalDetailPage({
           <ArrowLeft aria-hidden className="size-4" />
           {locale === 'ko' ? '신호 목록으로 돌아가기' : 'Back to signals'}
         </Link>
-
-        <SoftBanner
-          eyebrow={signalTypeText}
-          title={signal.title}
-          description={signal.summary}
-          icon={Radio}
-        />
 
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard

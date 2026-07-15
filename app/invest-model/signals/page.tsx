@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { NextRequest } from 'next/server';
-import { Activity, Radio, ShieldAlert } from 'lucide-react';
+import { Activity, ShieldAlert } from 'lucide-react';
 import { GET as readSignals } from '@/app/api/signals/route';
 import {
   MetricCard,
@@ -9,7 +9,6 @@ import {
   SectionHeader,
   SearchAndNotificationActions,
   SignalRefreshAction,
-  SoftBanner,
   investMotionClass
 } from '@/components/invest-model';
 import {
@@ -387,13 +386,6 @@ export default async function InvestModelSignalsPage({
       }
     >
       <section className="space-y-invest-section-gap">
-        <SoftBanner
-          eyebrow={signalsCopy.bannerEyebrow}
-          title={summary.title}
-          description={summary.description}
-          icon={Radio}
-        />
-
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard
             label={signalsCopy.metrics.activeFeed}
