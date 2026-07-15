@@ -16,6 +16,7 @@ const smokeReplyBody = 'BK-325 smoke informational reply';
 const hiddenParentCommentBody = 'BK-275 smoke hidden parent comment';
 const hiddenParentCommentPublicId = 'feed_comment_smoke_hidden_parent';
 const parentCommentPublicId = 'feed_comment_mock_001';
+const ignoredClientUserPublicId = 'user_missing';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -99,6 +100,10 @@ async function createSessionCookie(userId: number) {
   });
 
   return `session=${encryptedSession}`;
+}
+
+function containsIgnoredClientUserPublicId(value: unknown) {
+  return JSON.stringify(value).includes(ignoredClientUserPublicId);
 }
 
 function replyRequest(
@@ -226,7 +231,7 @@ async function main() {
     'feed_mock_001',
     parentCommentPublicId,
     {
-      userPublicId: 'user_missing',
+      userPublicId: ignoredClientUserPublicId,
       body: smokeReplyBody
     }
   );
@@ -244,7 +249,7 @@ async function main() {
     'feed_mock_001',
     parentCommentPublicId,
     {
-      userPublicId: 'user_missing',
+      userPublicId: ignoredClientUserPublicId,
       body: smokeReplyBody
     },
     sessionCookie
@@ -278,10 +283,12 @@ async function main() {
   );
   assertCondition(
     ignoredUserResponse.status === 201 &&
+      ignoredUserJson.data?.userState?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
-      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined,
-    'client userPublicId is not exposed as compatibility meta for reply creation'
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsIgnoredClientUserPublicId(ignoredUserJson.data),
+    'client userPublicId is not exposed as compatibility meta or reply state'
   );
   assertCondition(createResponse.status === 201, 'reply creation responds');
   assertCondition(
@@ -307,9 +314,11 @@ async function main() {
   );
   assertCondition(
     sessionScopedResponse.status === 201 &&
+      sessionScopedJson.data?.userState?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
-      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined,
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsIgnoredClientUserPublicId(sessionScopedJson.data),
     'session role and user scope win for reply creation'
   );
 
