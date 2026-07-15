@@ -103,6 +103,19 @@ design-samples/selected/의 모바일 캡처 20장을 기준으로 관찰한 패
 - 리스트와 피드는 추천이나 매매 지시보다 관찰, 상태, 맥락, 모델 운용 범위를 읽히게 정리한다.
 - 작업 후에는 타입 검사와 390px visual structure smoke 기준을 통과해야 하며, 실패하면 다음 루프에서 작은 수정 항목으로 나눈다.
 
+## Reference Screenshot Workflow
+
+Use `design-samples/raw` and `design-samples/selected` as intentional design reference assets.
+
+- `raw` may contain many user-provided securities app screenshots. Treat these files as source references, not dirty-worktree blockers.
+- `selected` should contain only screenshots that show reusable UI/UX patterns for investModel.
+- Prefer preserving raw originals and copying chosen files into `selected`, unless the user explicitly asks to delete or move originals.
+- When new raw screenshots appear, review them for common securities-app patterns and standout patterns from a single app.
+- Record findings in `docs/design-sample-ui-patterns.md` or a follow-up design note before implementation.
+- Never copy competitor branding, mascots, exact copy, account flows, order screens, or broker/deposit affordances directly.
+- Convert patterns into investModel-safe UI tasks: model discovery, simulated portfolio context, signal observation, feed insight, empty state, search, and navigation improvements.
+- Every pattern-derived implementation must preserve mock/simulated/no-order/no-advice boundaries and must pass 390px mobile checks.
+
 ## Open Placeholders
 
 다음 항목은 사용자가 확정해야 한다.

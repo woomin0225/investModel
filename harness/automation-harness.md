@@ -55,3 +55,15 @@ Recurring and manual automation runs must use multi-agent work when the tool is 
 - Keep delegated write scopes disjoint. Agents must not revert unrelated user changes or other agents' changes.
 
 If no safe dependency-ready task exists in `In Progress`, `Issues`, or `Backlog`, do not invent one implementation task directly. Use a `planner` agent first, create roughly 20-40 small prioritized `Backlog` rows, record that planning run in `Runs` with `planner` in `agents_used`, and let the next automation run select from the newly created checklist.
+
+## Design Sample Refill Rule
+
+If the checklist has no safe dependency-ready UI task, or if the user asks to improve mobile securities-app UX, use the design sample workflow before inventing implementation work.
+
+1. Inspect `design-samples/raw` for new user-provided reference screenshots.
+2. Copy the strongest reusable references into `design-samples/selected` while preserving raw originals unless the user explicitly asks for deletion.
+3. Summarize common and standout UI/UX patterns in `docs/design-sample-ui-patterns.md`.
+4. Create small Backlog rows from those patterns before coding. Each row should name the target screen, source pattern, safety boundary, acceptance criteria, and required harness.
+5. Pattern-derived tasks must avoid real deposit, withdrawal, account linking, brokerage order, legal judgment, and external paid API requirements.
+6. Pattern-derived UI work must keep `MockDeposit`, `TradeIntent`, `SignalEvent`, and `AllocationDecision` visibly simulated or observational.
+7. Known untracked files under `design-samples/raw` and `design-samples/selected` are allowed reference assets and should not alone block automation work.
