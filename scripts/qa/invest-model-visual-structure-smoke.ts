@@ -742,15 +742,21 @@ assertCondition(
 );
 assertCondition(
   feedDetailPageSource.includes("eyebrow={locale === 'ko' ? '피드 상세' : 'Feed Detail'}") &&
-    feedDetailPageSource.includes("locale === 'ko' ? '관련 SignalEvents' : 'Related SignalEvents'") &&
-    feedDetailPageSource.includes('관련 DB-backed SignalEvent') &&
-    feedDetailPageSource.includes('아직 연결된 DB-backed SignalEvent가 없습니다.') &&
+    feedDetailPageSource.includes("locale === 'ko' ? '관련 SignalEvent' : 'Related SignalEvents'") &&
+    feedDetailPageSource.includes('피드 상세 액션은 DB 사용자 범위의 읽음, 댓글, 좋아요, 저장 상태만 변경하며 추천, 실주문, 브로커 연결, 투자 조언이 아닙니다.') &&
+    feedDetailPageSource.includes('관련 DB 기반 SignalEvent') &&
+    feedDetailPageSource.includes('아직 연결된 DB 기반 SignalEvent가 없습니다.') &&
     feedDetailPageSource.includes("locale === 'ko' ? '참여 맥락 전용' : 'Engagement only'") &&
     feedDetailPageSource.includes("locale === 'ko'\n                    ? '최근 좋아요 순위'") &&
-    feedDetailPageSource.includes('좋아요 순위는 DB-backed 읽기 신호입니다.') &&
+    feedDetailPageSource.includes('좋아요 순위는 DB 기반 읽기 신호입니다.') &&
     feedDetailPageSource.includes("locale === 'ko' ? '순위' : 'Rank'") &&
     feedDetailPageSource.includes("locale === 'ko' ? '좋아요' : 'Likes'") &&
     !feedDetailPageSource.includes("eyebrow={locale === 'ko' ? 'Feed Detail' : 'Feed Detail'}") &&
+    !feedDetailPageSource.includes('Feed 상세 액션은 DB 사용자 범위') &&
+    !feedDetailPageSource.includes("locale === 'ko' ? '관련 SignalEvents' : 'Related SignalEvents'") &&
+    !feedDetailPageSource.includes('관련 DB-backed SignalEvent') &&
+    !feedDetailPageSource.includes('아직 연결된 DB-backed SignalEvent가 없습니다.') &&
+    !feedDetailPageSource.includes('좋아요 순위는 DB-backed 읽기 신호입니다.') &&
     !feedDetailPageSource.includes("locale === 'ko'\n                    ? 'Recent like ranking'") &&
     !feedDetailPageSource.includes("locale === 'ko' ? 'Rank' : 'Rank'") &&
     !feedDetailPageSource.includes("locale === 'ko' ? 'Likes' : 'Likes'"),

@@ -79,7 +79,7 @@ function feedActionVisibleBoundaries(locale: FeedLocale) {
 
 function feedActionBoundaryLabel(locale: FeedLocale) {
   return locale === 'ko'
-    ? 'Feed 상세 액션은 DB 사용자 범위의 읽음, 댓글, 좋아요, 저장 상태만 변경하며 추천, 실주문, 브로커 연결, 투자 조언이 아닙니다.'
+    ? '피드 상세 액션은 DB 사용자 범위의 읽음, 댓글, 좋아요, 저장 상태만 변경하며 추천, 실주문, 브로커 연결, 투자 조언이 아닙니다.'
     : 'Feed detail actions only change DB user-scoped read, comment, like, and save state; they are not advice, orders, brokerage, or investment recommendations.';
 }
 
@@ -259,7 +259,7 @@ export default async function InvestModelFeedDetailPage({
           <div className="mt-3 rounded-invest-card bg-invest-bg-soft p-3">
             <div className="flex items-center justify-between gap-2">
               <p className="text-[12px] font-bold leading-4 text-invest-text">
-                {locale === 'ko' ? '관련 SignalEvents' : 'Related SignalEvents'}
+                {locale === 'ko' ? '관련 SignalEvent' : 'Related SignalEvents'}
               </p>
               <RadioTower
                 aria-hidden
@@ -278,7 +278,7 @@ export default async function InvestModelFeedDetailPage({
                     )}
                     aria-label={
                       locale === 'ko'
-                        ? `관련 DB-backed SignalEvent ${signalPublicId} 열기. 정보성 맥락일 뿐 추천이나 주문이 아닙니다.`
+                        ? `관련 DB 기반 SignalEvent ${signalPublicId} 열기. 정보성 맥락일 뿐 추천이나 주문이 아닙니다.`
                         : `Open related DB-backed SignalEvent ${signalPublicId}. Informational context only, not advice or an order.`
                     }
                   >
@@ -289,7 +289,7 @@ export default async function InvestModelFeedDetailPage({
             ) : (
               <p className="mt-1 text-sm font-semibold leading-6 text-invest-text-muted">
                 {locale === 'ko'
-                  ? '아직 연결된 DB-backed SignalEvent가 없습니다.'
+                  ? '아직 연결된 DB 기반 SignalEvent가 없습니다.'
                   : 'No DB-backed SignalEvent links yet.'}
               </p>
             )}
@@ -361,7 +361,7 @@ export default async function InvestModelFeedDetailPage({
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-invest-text-muted">
                   {locale === 'ko'
-                    ? '좋아요 순위는 DB-backed 읽기 신호입니다. 모델 품질, 추천, 수익, 주문 의도가 아닙니다.'
+                    ? '좋아요 순위는 DB 기반 읽기 신호입니다. 모델 품질, 추천, 수익, 주문 의도가 아닙니다.'
                     : 'Like ranking is a DB-backed reading signal. It is not model quality, advice, return, or order intent.'}
                 </p>
               </div>
