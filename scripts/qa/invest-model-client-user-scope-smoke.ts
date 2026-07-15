@@ -90,26 +90,31 @@ function findFetchCallEnd(source: string, start: number) {
   return source.length;
 }
 
-function findViolations(file: string): Violation[] {
+function findProtectedApiCallViolations(file: string): Violation[] {
   const source = readFileSync(path.join(projectRoot, file), 'utf8');
   const violations: Violation[] = [];
-  const fetchPattern = /\bfetch\s*\(/g;
+  const protectedApiCallPatterns = [
+    /\bfetch\s*\(/g,
+    /\bnew\s+NextRequest\s*\(/g
+  ];
   let match: RegExpExecArray | null;
 
-  while ((match = fetchPattern.exec(source)) !== null) {
-    const callStart = match.index;
-    const callEnd = findFetchCallEnd(source, callStart + match[0].length - 1);
-    const callSource = source.slice(callStart, callEnd);
+  for (const callPattern of protectedApiCallPatterns) {
+    while ((match = callPattern.exec(source)) !== null) {
+      const callStart = match.index;
+      const callEnd = findFetchCallEnd(source, callStart + match[0].length - 1);
+      const callSource = source.slice(callStart, callEnd);
 
-    if (
-      protectedApiPattern.test(callSource) &&
-      /\buserPublicId\b/.test(callSource)
-    ) {
-      violations.push({
-        file,
-        line: lineForIndex(source, callStart),
-        snippet: callSource.replace(/\s+/g, ' ').slice(0, 240)
-      });
+      if (
+        protectedApiPattern.test(callSource) &&
+        /\buserPublicId\b/.test(callSource)
+      ) {
+        violations.push({
+          file,
+          line: lineForIndex(source, callStart),
+          snippet: callSource.replace(/\s+/g, ' ').slice(0, 240)
+        });
+      }
     }
   }
 
@@ -138,7 +143,7 @@ function findApiMetaExposure(file: string): Violation[] {
 
 const sourceFiles = scanRoots.flatMap(listSourceFiles);
 const apiSourceFiles = apiScanRoots.flatMap(listSourceFiles);
-const violations = sourceFiles.flatMap(findViolations);
+const violations = sourceFiles.flatMap(findProtectedApiCallViolations);
 const apiMetaExposure = apiSourceFiles.flatMap(findApiMetaExposure);
 
 if (violations.length > 0 || apiMetaExposure.length > 0) {
