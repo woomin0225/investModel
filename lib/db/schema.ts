@@ -1291,6 +1291,16 @@ export type NewMarketInstrument = typeof marketInstruments.$inferInsert;
 export type SignalEvent = typeof modelSignalEvents.$inferSelect;
 export type NewSignalEvent = typeof modelSignalEvents.$inferInsert;
 /**
+ * SignalScoreSnapshot stores mock-safe score history for SignalEvent ranking.
+ */
+export type SignalScoreSnapshot = typeof signalScoreSnapshots.$inferSelect;
+export type NewSignalScoreSnapshot = typeof signalScoreSnapshots.$inferInsert;
+/**
+ * SignalScoreInput stores weighted mock-safe inputs behind a score snapshot.
+ */
+export type SignalScoreInput = typeof signalScoreInputs.$inferSelect;
+export type NewSignalScoreInput = typeof signalScoreInputs.$inferInsert;
+/**
  * FeedPost is informational commentary for feed list/detail read models.
  */
 export type FeedPost = typeof feedPosts.$inferSelect;
