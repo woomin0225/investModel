@@ -475,7 +475,10 @@ assertCondition(
     signalsPageSource.includes('latestScoreSnapshotLabel') &&
     signalRefreshActionSource.includes('router.refresh()') &&
     signalRefreshActionSource.includes('Auto refresh 60s') &&
-    signalRefreshActionSource.includes('No external realtime data, advice, or order'),
+    signalRefreshActionSource.includes('No external realtime data, advice, or order') &&
+    signalRefreshActionSource.includes("].join(' / ')") &&
+    !signalRefreshActionSource.includes('RiskBadge') &&
+    !signalRefreshActionSource.includes('<RiskBadge'),
   'Realtime Signals must expose manual/60s DB snapshot refresh UX with safety boundary copy'
 );
 assertCondition(

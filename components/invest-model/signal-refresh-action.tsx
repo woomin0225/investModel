@@ -5,7 +5,7 @@ import { RefreshCw, TimerReset } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
-import { investMotionClass, RiskBadge } from './ui';
+import { investMotionClass } from './ui';
 
 type SignalRefreshActionProps = {
   locale: 'ko' | 'en';
@@ -55,6 +55,10 @@ export function SignalRefreshAction({
     locale === 'ko'
       ? 'DB score snapshots only. No external realtime data, advice, or order.'
       : 'DB score snapshots only. No external realtime data, advice, or order.';
+  const refreshMetaLine = [
+    'DB read model refresh',
+    'signal_score_snapshots'
+  ].join(' / ');
 
   return (
     <div className="rounded-invest-control border border-invest-border bg-invest-surface p-2 shadow-invest-card">
@@ -98,9 +102,8 @@ export function SignalRefreshAction({
         />
       </label>
 
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        <RiskBadge tone="neutral">DB read model refresh</RiskBadge>
-        <RiskBadge tone="neutral">signal_score_snapshots</RiskBadge>
+      <div className="mt-2 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[11px] font-semibold leading-4 text-invest-text-muted">
+        {refreshMetaLine}
       </div>
     </div>
   );
