@@ -243,9 +243,9 @@ const notificationAccessibilityCopy: Record<
   NotificationAccessibilityCopy
 > = {
   ko: {
-    unread: 'unread DB-backed notifications',
-    unreadDot: 'unread DB-backed notifications',
-    none: 'no new DB-backed notifications'
+    unread: '읽지 않은 DB 기반 알림',
+    unreadDot: '읽지 않은 DB 기반 알림 있음',
+    none: '새 DB 기반 알림 없음'
   },
   en: {
     unread: 'unread DB-backed notifications',

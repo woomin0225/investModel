@@ -480,6 +480,14 @@ assertCondition(
   'My Page must remain reachable from a header profile action without adding a sixth bottom tab'
 );
 assertCondition(
+  topIconBarSource.includes("unread: '읽지 않은 DB 기반 알림'") &&
+    topIconBarSource.includes("unreadDot: '읽지 않은 DB 기반 알림 있음'") &&
+    topIconBarSource.includes("none: '새 DB 기반 알림 없음'") &&
+    !topIconBarSource.includes("ko: {\n    unread: 'unread DB-backed notifications'") &&
+    !topIconBarSource.includes("ko: {\n    unread: 'unread DB-backed notifications',\n    unreadDot: 'unread DB-backed notifications'"),
+  'TopIconBar Korean notification accessibility copy must not fall back to English'
+);
+assertCondition(
   new Set(investModelNavItems.map((item) => item.key)).size === 5,
   'BottomNav tab keys are not unique'
 );
