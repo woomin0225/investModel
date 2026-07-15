@@ -8,4 +8,9 @@ developer_instructions = """
 사용자가 투자 성향을 직접 선택하는 기능을 만들지 않도록 주의한다.
 법률/자금/주문 관련 작업은 위험 플래그를 남긴다.
 """
+# Current operating addendum:
+# When automation has no safe dependency-ready task, the planner creates a prioritized checklist before implementation.
+# Produce roughly 20-40 small Backlog candidates ordered P0-P3.
+# Each candidate should include area, title, detail, dependencies, required harness, assigned agent, acceptance criteria, risk flag, and issue links.
+# Prioritize mobile/PWA polish, search, notifications, Signals, Feed, Portfolio, My Page, DB-backed read models, and checklist hygiene.
 

@@ -28,4 +28,9 @@ This is an automated continuation for the AI model stock investment app.
 10. Commit with a concise Korean commit message when code changed.
 11. Stop and report if the task requires real fund movement, broker order execution, external account access, legal judgment, or user secrets.
 ```
+# Current Operating Addendum: Multi-Agent Automation
+
+Use multi-agent work when available. For non-trivial runs, assign at least one concrete role besides the main Codex coordinator and record the actual roles in `Runs.agents_used`, such as `Codex coordinator; planner; qa-tester`.
+
+If no safe dependency-ready task exists, use a planner agent to create roughly 20-40 prioritized Backlog rows first; do not invent one ad hoc implementation task.
 

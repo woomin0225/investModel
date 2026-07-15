@@ -154,3 +154,6 @@ For heartbeat runs, prefer quiet completion with `DONT_NOTIFY` unless user actio
 
 - `BK-149`: define verification, commit, and push criteria by work type.
 - `BK-150`: dry-run the sheet movement rules before relying on long unattended automation.
+# Current Operating Addendum: Multi-Agent Run Rows
+
+`agents_used` is not a default owner field. It must reflect actual multi-agent participation for that run. Prefer `Codex coordinator; planner`, `Codex coordinator; frontend-developer; qa-tester`, or similar role lists. Use `Codex coordinator (multi-agent unavailable)` only when the multi-agent tool cannot be used, and explain that in `verification`.

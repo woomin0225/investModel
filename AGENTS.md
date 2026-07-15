@@ -48,3 +48,11 @@
 - 작업 시작 전 Backlog, In Progress, Issues, Harness를 확인합니다.
 - 작업 완료 후 Done 또는 해당 상태로 반영하고, 구현 요약, 검증 결과, 문제사항, 커밋 해시를 기록합니다.
 - 문제가 남으면 Issues에 기록하고 다음 체크리스트에 연결합니다.
+# Current Operating Addendum: Multi-Agent Automation
+
+- Scheduled and manual automation should use multi-agent work when the tool is available.
+- The default operating flow is `planner -> designer/developer -> reviewer/qa -> recorder`; use the subset that fits the selected small task.
+- `Runs.agents_used` must list the actual roles used, such as `Codex coordinator; planner; frontend-developer; qa-tester`.
+- Do not write only `Codex` when a sub-agent or project role contributed.
+- If there is no safe dependency-ready checklist item, use a `planner` agent first to create roughly 20-40 prioritized Backlog rows before implementation.
+- Record the planning run in `Runs` and let later automation select from that checklist.

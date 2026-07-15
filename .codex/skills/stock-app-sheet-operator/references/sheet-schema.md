@@ -50,4 +50,7 @@ harness_id,name,path,last_checked_at,checked_by,notes,change_allowed
 - Decision: `DC-###`
 - Run: `RUN-YYYYMMDD-###`
 - Harness: `HN-###`
+# Current Operating Addendum: agents_used
+
+`agents_used` must list the actual roles used in the run, separated by semicolons. Examples: `Codex coordinator; planner`, `Codex coordinator; frontend-developer; qa-tester`. If multi-agent tooling is unavailable, write `Codex coordinator (multi-agent unavailable)` and explain the reason in `verification`.
 

@@ -43,3 +43,15 @@
 - 하네스 충돌
 - 사용자 비밀 정보 필요
 - 테스트나 빌드 실패를 2회 이상 해결하지 못함
+# Current Operating Addendum: Multi-Agent Automation
+
+Recurring and manual automation runs must use multi-agent work when the tool is available. `Runs.agents_used` is an audit field for actual roles used, not a generic owner label.
+
+- For any non-trivial implementation, planning, review, or sheet operation, use at least one concrete project role besides the main Codex coordinator.
+- Valid role examples include `planner`, `frontend-developer`, `backend-developer`, `database-engineer`, `security-reviewer`, `qa-tester`, `uiux-designer`, and `project-recorder`.
+- Record every materially contributing role in `Runs.agents_used`, separated by semicolons. Example: `Codex coordinator; planner; qa-tester`.
+- Do not record a role that was not actually used in that run.
+- If multi-agent tooling is unavailable, write `Codex coordinator (multi-agent unavailable)` in `Runs.agents_used` and explain the reason in `Runs.verification`.
+- Keep delegated write scopes disjoint. Agents must not revert unrelated user changes or other agents' changes.
+
+If no safe dependency-ready task exists in `In Progress`, `Issues`, or `Backlog`, do not invent one implementation task directly. Use a `planner` agent first, create roughly 20-40 small prioritized `Backlog` rows, record that planning run in `Runs` with `planner` in `agents_used`, and let the next automation run select from the newly created checklist.

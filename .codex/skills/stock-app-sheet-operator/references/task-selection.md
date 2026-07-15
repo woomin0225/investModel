@@ -32,4 +32,7 @@ Add new work to `Backlog` before implementation when:
 - no close existing task exists
 - the request expands the project scope
 - the request introduces a new feature, bug, design change, automation, integration, or research item
+# Current Operating Addendum: Empty Queue Planning
+
+If there is no safe dependency-ready task in `In Progress`, `Issues`, or `Backlog`, do not choose an ad hoc implementation item directly. Use a `planner` agent first when multi-agent tooling is available. Ask the planner to inspect recent `Runs`, open `Issues`, completed work, product goals, and harness constraints. Create roughly 20-40 small `Backlog` rows ordered by priority, including dependencies, required harness, assigned agent, acceptance criteria, risk flag, and linked issue ids. Record the planning run in `Runs` and include `planner` in `agents_used`.
 

@@ -115,4 +115,9 @@ Prefer Google Drive / Google Sheets connector tools when available:
 - Read `references/sheet-schema.md` when adding or updating rows.
 - Read `references/automation-prompt.md` when creating a Codex automation prompt.
 - Read `references/task-selection.md` when deciding what to do next.
+# Current Operating Addendum: Multi-Agent Automation
+
+Use multi-agent work when the tool is available for non-trivial automation or development runs. Record the actual roles in `Runs.agents_used`, for example `Codex coordinator; planner; qa-tester`. Do not write only `Codex` when sub-agents were used.
+
+If no safe dependency-ready checklist item exists, use a `planner` agent first to create roughly 20-40 prioritized Backlog rows before implementation. Record that planning run in `Runs` and include `planner` in `agents_used`.
 

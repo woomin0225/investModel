@@ -68,6 +68,26 @@ Pass criteria:
 - no unintended Backlog task marked `in_progress`
 - no local file changes
 
+## Scenario 2A: Empty Backlog Planner Refill
+
+Purpose: confirm automation does not invent a one-off implementation when no safe dependency-ready checklist item exists.
+
+Steps:
+
+1. Confirm `Backlog` and `In Progress` have no safe dependency-ready task.
+2. Spawn a planner-style agent to review recent `Runs`, open `Issues`, `Done`, product goals, and required harness files.
+3. Have the planner produce roughly 20-40 small Backlog candidates ordered P0-P3.
+4. Write the candidate tasks to `Backlog` with area, title, detail, dependencies, required harness, assigned agent, acceptance criteria, risk flag, and issue links.
+5. Do not perform implementation in the same run unless the user explicitly requested it.
+6. Add one `Runs` row whose `agents_used` lists the coordinator plus planner/project-recorder roles.
+
+Pass criteria:
+
+- new tasks are prioritized and dependency-aware
+- risky real-money, order, account, legal, secret, or paid external API work is blocked or linked to Issues
+- `Runs.agents_used` is not just `Codex` when multi-agent tools were available
+- the next automation run can select from the newly written Backlog rows
+
 ## Scenario 3: Documentation Change With Commit
 
 Purpose: confirm a one-file documentation task can be completed safely.

@@ -153,3 +153,8 @@ After work:
 4. Append Done.
 5. Append Runs.
 6. Update Issues only when relevant.
+# Current Operating Addendum: Runs Agents Used
+
+`Runs.agents_used` must list the actual roles used in the run, separated by semicolons. Examples: `Codex coordinator; planner`, `Codex coordinator; frontend-developer; qa-tester`, `Codex coordinator; backend-developer; security-reviewer`, or `Codex coordinator (multi-agent unavailable)`.
+
+Do not write only `Codex` when planner, worker, explorer, reviewer, or QA sub-agents were used. If multi-agent tooling is available and the run is more than a trivial readback, use it and record the concrete roles. If it is unavailable, record the unavailable reason in `verification`.

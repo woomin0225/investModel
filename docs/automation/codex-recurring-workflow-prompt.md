@@ -117,3 +117,8 @@ Use `NOTIFY` only when user attention is needed for secrets, legal/financial rev
 - `BK-148`: sheet state movement and duplicate-detection rules.
 - `BK-149`: verification, commit, and push criteria by work type.
 - `BK-150`: automation dry-run checklist.
+# Current Operating Addendum: Multi-Agent And Empty-Queue Planning
+
+Recurring and manual automation must use multi-agent work when the tool is available. `Runs.agents_used` must list actual roles separated by semicolons, for example `Codex coordinator; planner`, `Codex coordinator; frontend-developer; qa-tester`, or `Codex coordinator; backend-developer; security-reviewer`. Do not write only `Codex` when a planner, worker, explorer, reviewer, QA, or project role contributed. If multi-agent tooling is unavailable, record `Codex coordinator (multi-agent unavailable)` and explain why in `Runs.verification`.
+
+If there is no safe dependency-ready task in `In Progress`, `Issues`, or `Backlog`, do not choose an ad hoc implementation task. Use a `planner` agent to create roughly 20-40 small Backlog candidates first. Each candidate must include status `todo`, priority, area, title, detail, dependencies, required harness, assigned agent, acceptance criteria, risk flag, and issue links. Prioritize mobile/PWA polish, search, notifications, Signals filters/details, Feed details/comments/likes/saves/read/ranking, Portfolio time dashboard, My Page, DB-backed read models, and checklist hygiene. Write the candidates to Backlog, record the planning run in Runs, and stop after planning unless the user explicitly asked to implement in the same run.
