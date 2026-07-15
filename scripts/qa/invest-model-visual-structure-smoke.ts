@@ -382,6 +382,9 @@ const signalRefreshActionSource = readProjectFile(
 const modelSelectionReadStatusSource = readProjectFile(
   'components/invest-model/model-selection-read-status.tsx'
 );
+const modelSelectionCtaSource = readProjectFile(
+  'components/invest-model/model-selection-cta.tsx'
+);
 const signalDetailPageSource = readProjectFile(
   'app/invest-model/signals/[signalId]/page.tsx'
 );
@@ -659,8 +662,15 @@ assertCondition(
     !modelDetailPageSource.includes('detailVisibleBoundaries.map((boundary) => (') &&
     !modelDetailPageSource.includes('selectionVisibleBoundaries.map((boundary) => (') &&
     modelDetailPageSource.includes('Model detail visible safety boundaries') &&
-    modelDetailPageSource.includes('Model selection visible safety boundaries'),
-  'Model Detail must present visible safety boundaries as prose instead of hashtag safety chip groups'
+    modelDetailPageSource.includes('Model selection visible safety boundaries') &&
+    modelSelectionCtaSource.includes('const successMetaLine') &&
+    modelSelectionCtaSource.includes('copy.persistedLabel') &&
+    modelSelectionCtaSource.includes('copy.safetyLabel') &&
+    modelSelectionCtaSource.includes('submitState.selectionPublicId') &&
+    modelSelectionCtaSource.includes(".join(' / ')") &&
+    !modelSelectionCtaSource.includes('RiskBadge') &&
+    !modelSelectionCtaSource.includes('<RiskBadge'),
+  'Model Detail and ModelSelectionCta must present visible safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&

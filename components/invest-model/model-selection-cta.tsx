@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { AlertCircle, CheckCircle2, Loader2, SquareCheckBig } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { investMotionClass, RiskBadge } from '@/components/invest-model/ui';
+import { investMotionClass } from '@/components/invest-model/ui';
 
 type ModelSelectionCtaCopy = {
   confirmLabel: string;
@@ -74,6 +74,14 @@ export function ModelSelectionCta({
   const [submitState, setSubmitState] = useState<SubmitState>({
     status: 'idle'
   });
+  const successMetaLine =
+    submitState.status === 'success'
+      ? [
+          copy.persistedLabel,
+          copy.safetyLabel,
+          submitState.selectionPublicId
+        ].join(' / ')
+      : '';
 
   async function handleSubmit() {
     if (!riskAcknowledged || isSubmitting) {
@@ -213,12 +221,8 @@ export function ModelSelectionCta({
                 {submitState.message}
               </p>
               {submitState.status === 'success' ? (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  <RiskBadge tone="low">{copy.persistedLabel}</RiskBadge>
-                  <RiskBadge tone="blocked">{copy.safetyLabel}</RiskBadge>
-                  <RiskBadge tone="neutral">
-                    {submitState.selectionPublicId}
-                  </RiskBadge>
+                <div className="mt-2 rounded-invest-control bg-invest-bg-soft px-2 py-1.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                  {successMetaLine}
                 </div>
               ) : null}
             </div>
