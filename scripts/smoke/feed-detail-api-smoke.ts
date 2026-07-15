@@ -119,6 +119,10 @@ async function createSessionCookie(userId: number) {
   return `session=${encryptedSession}`;
 }
 
+function containsClientRequestedPublicId(value: unknown) {
+  return JSON.stringify(value).includes('user_other_001');
+}
+
 function detailRequest(
   postId: string,
   search = '?userPublicId=user_demo_001',
@@ -193,23 +197,27 @@ async function main() {
     missingUserResponse.status === 200 &&
       missingUserJson.meta?.userScopeSource === 'demo_fallback' &&
       missingUserJson.meta?.clientUserPublicIdIgnored === undefined,
-    'missing userPublicId falls back to the mock-safe demo scope'
+    'missing userPublicId falls back to the prototype fallback scope'
   );
   assertCondition(
     ignoredUserResponse.status === 200 &&
       ignoredUserJson.data?.userState?.userPublicId === 'user_demo_001' &&
+      ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
-      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined,
-    'client userPublicId is not exposed as compatibility meta for FeedPost detail state'
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsClientRequestedPublicId(ignoredUserJson.data?.userState),
+    'client userPublicId is not exposed as compatibility meta or FeedPost detail user state'
   );
   assertCondition(notFoundResponse.status === 404, 'missing post is 404');
   assertCondition(detailResponse.status === 200, 'feed detail responds');
   assertCondition(
     sessionDetailResponse.status === 200 &&
       sessionDetailJson.data?.userState?.userPublicId === 'user_demo_001' &&
+      sessionDetailJson.meta?.userPublicId === 'user_demo_001' &&
       sessionDetailJson.meta?.userScopeSource === 'session' &&
-      sessionDetailJson.meta?.clientUserPublicIdIgnored === undefined,
-    'session role can read FeedPost detail without role header'
+      sessionDetailJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsClientRequestedPublicId(sessionDetailJson.data?.userState),
+    'session role reads FeedPost detail with the server-resolved user scope'
   );
   assertCondition(
     detailJson.data?.postPublicId === 'feed_mock_001' &&
