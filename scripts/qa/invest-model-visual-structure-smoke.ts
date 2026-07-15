@@ -384,6 +384,9 @@ const signalRefreshActionSource = readProjectFile(
 const modelSelectionReadStatusSource = readProjectFile(
   'components/invest-model/model-selection-read-status.tsx'
 );
+const modelSelectionReadStatusCopySource = readProjectFile(
+  'components/invest-model/model-selection-read-status-copy.ts'
+);
 const modelSelectionCtaSource = readProjectFile(
   'components/invest-model/model-selection-cta.tsx'
 );
@@ -901,6 +904,13 @@ assertCondition(
     modelSelectionReadStatusSource.includes('const boundaryLine') &&
     modelSelectionReadStatusSource.includes('copy.noRealAction') &&
     modelSelectionReadStatusSource.includes(".join(' / ')") &&
+    modelSelectionReadStatusCopySource.includes("empty: '아직 DB에 활성 선택 기록이 없습니다.'") &&
+    modelSelectionReadStatusCopySource.includes("signedOut: '로그인 사용자 공개 ID를 찾지 못했습니다.'") &&
+    modelSelectionReadStatusCopySource.includes("modelLabel: '투자 모델 공개 ID'") &&
+    modelSelectionReadStatusCopySource.includes("versionLabel: '모델 버전 공개 ID'") &&
+    modelSelectionReadStatusCopySource.includes("selectionLabel: '선택 기록 공개 ID'") &&
+    !modelSelectionReadStatusCopySource.includes("active 선택 기록") &&
+    !modelSelectionReadStatusCopySource.includes('사용자 publicId') &&
     !modelSelectionReadStatusSource.includes('RiskBadge') &&
     !modelSelectionReadStatusSource.includes('<RiskBadge') &&
     homePageSource.includes('homeCopy.footerBadges.noLiveOrders') &&
