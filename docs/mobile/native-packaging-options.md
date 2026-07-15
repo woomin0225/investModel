@@ -1,22 +1,23 @@
 <!--
 이 문서는 investModel을 휴대폰 앱처럼 배포하기 위한 PWA, Capacitor, Expo/React Native, Tauri 선택지를 비교하는 모바일 제품 설계 문서입니다.
-초기 구현자가 앱스토어 배포, 푸시 알림, 생체 인증, 금융 연동 가능성을 검토할 때 현재 PWA 우선 원칙과 보안 게이트를 함께 확인할 수 있어야 합니다.
+초기 구현자가 앱스토어 배포, 푸시 알림, 생체 인증, 금융 연동 가능성을 검토할 때 현재 Capacitor-first 내부 테스트 앱 트랙과 보안 게이트를 함께 확인할 수 있어야 합니다.
 -->
 
 # 네이티브 앱 포장 방식 검토
 
 ## 결론
 
-현재 단계의 investModel은 Next.js 모바일 PWA를 유지한다.
+현재 단계의 investModel은 Next.js 모바일 웹/PWA를 공유 런타임으로 유지하고, Capacitor-first 내부 테스트 앱 트랙을 병행한다.
 
 이유는 다음과 같다.
 
 - 현재 제품은 Prototype 단계이며 mock-only 화면, mock portfolio, mock signal/feed 검증이 우선이다.
 - `app/manifest.ts`, 앱 아이콘, standalone display, portrait orientation이 이미 준비되어 있다.
+- Capacitor는 기존 Next.js 모바일 런타임을 Android/iOS WebView shell로 감싸 내부 기기 테스트를 시작하는 가장 작은 네이티브 전환 경로다.
 - 실제 입금, 실제 주문, 브로커 계좌 연결, 네이티브 결제, 외부 유료 API key는 모두 별도 gate 전까지 금지되어 있다.
-- 앱스토어 배포, push notification, biometric unlock이 아직 핵심 MVP 검증을 막지 않는다.
+- 앱스토어/플레이스토어 제출, push notification, biometric unlock, native secure storage는 아직 핵심 MVP 검증을 막지 않으며 별도 gate 없이는 구현하지 않는다.
 
-네이티브 포장은 지금 구현하지 않고, 앱스토어 또는 기기 API가 명확히 필요한 시점에 별도 체크리스트로 전환한다.
+네이티브 포장은 내부 테스트용 Capacitor shell부터 제한적으로 다룬다. 스토어 제출, native permission, 기기 API, 실제 금융 기능은 별도 체크리스트와 보안/법무/운영 검토로 전환한다.
 
 ## 비교 기준
 
@@ -25,9 +26,10 @@
 | 모바일 390px 앱 같은 사용감 | 필요 | PWA로 충분 |
 | 홈 화면 설치 아이콘 | 필요 | PWA로 충분 |
 | 하단 탭, safe area, portrait UX | 필요 | PWA로 충분 |
-| 앱스토어/플레이스토어 배포 | 아직 아님 | 추후 gate |
-| Push notification | 아직 아님 | Capacitor 또는 Expo 검토 후보 |
-| Biometric unlock | 아직 아님 | Capacitor 또는 Expo 검토 후보 |
+| Android/iOS 내부 기기 테스트 shell | 필요 | Capacitor-first |
+| 앱스토어/플레이스토어 제출 | 아직 아님 | 추후 gate |
+| Push notification | 아직 아님 | 별도 privacy/security gate |
+| Biometric unlock | 아직 아님 | 별도 auth/session gate |
 | 네이티브 secure storage | 아직 아님 | 실제 auth/secret 정책 후 검토 |
 | 인앱 결제 | 금지 | 금융/스토어 정책 검토 전 구현 금지 |
 | 브로커/은행 계좌 연결 | 금지 | `financial_operation` gate 필요 |
@@ -37,7 +39,7 @@
 
 ### PWA
 
-현재 기본 선택지다.
+공유 런타임과 빠른 검증 표면으로 유지한다.
 
 장점:
 
@@ -60,12 +62,13 @@
 
 ### Capacitor
 
-Next.js/PWA를 WebView 기반 네이티브 shell로 감쌀 때의 1순위 후보로 둔다.
+Next.js/PWA를 WebView 기반 네이티브 shell로 감쌀 때의 1순위 후보이며, 현재 네이티브 앱 트랙의 기본 선택지다.
 
 장점:
 
 - 현재 웹 UI를 대부분 재사용할 수 있다.
-- 앱스토어/플레이스토어 배포 경로를 만들 수 있다.
+- Android/iOS 내부 테스트 shell을 빠르게 만들 수 있다.
+- 이후 승인이 나면 앱스토어/플레이스토어 배포 경로로 확장할 수 있다.
 - push notification, biometric, secure storage 같은 플러그인 검토가 가능하다.
 - PWA에서 네이티브로 점진 전환하기 쉽다.
 
@@ -77,9 +80,9 @@ Next.js/PWA를 WebView 기반 네이티브 shell로 감쌀 때의 1순위 후보
 
 도입 조건:
 
-- 앱스토어 배포가 Closed Beta 또는 Public Launch의 명시 조건이 된다.
-- push notification 또는 biometric unlock이 핵심 retention/security 요구가 된다.
-- `financial_operation`, `secret_management_review`, `security_review` 범위가 문서화된다.
+- 내부 Android/iOS 기기 테스트가 Next.js 모바일 런타임 품질 검증에 필요하다.
+- 첫 shell은 native permission 없이 시작한다.
+- App Store/Play Store 제출, push notification, biometric unlock, native secure storage, 실제 금융 연동은 각각 별도 `security_review`, `secret_management_review`, `financial_operation`, 법무/운영 gate가 문서화된 뒤에만 추가한다.
 
 ### Expo / React Native
 
@@ -141,11 +144,10 @@ Next.js/PWA를 WebView 기반 네이티브 shell로 감쌀 때의 1순위 후보
 
 ## 권장 로드맵
 
-1. Prototype: Next.js PWA 유지.
-2. Internal Alpha: PWA에 auth/RBAC/audit log를 붙이고 모바일 실기기 QA를 반복한다.
-3. Closed Beta 준비: 앱스토어 배포가 필요한지, push/biometric이 핵심인지 결정한다.
-4. 네이티브 필요 확정 시: Capacitor proof-of-concept를 별도 브랜치와 체크리스트로 만든다.
-5. PWA/WebView 한계가 명확하면: Expo/React Native 재구현 비용을 다시 산정한다.
+1. Prototype: Next.js 모바일 웹/PWA 런타임을 유지하고 Capacitor config를 내부 테스트 트랙으로 정리한다.
+2. Internal Alpha: Capacitor Android/iOS shell을 native permission 없이 만들고 모바일 실기기 QA를 반복한다.
+3. Closed Beta 준비: App Store/Play Store 제출이 필요한지, push/biometric이 핵심인지 별도 gate로 결정한다.
+4. WebView 한계가 명확하면: Expo/React Native 재구현 비용을 다시 산정한다.
 
 ## 체크리스트
 

@@ -7,7 +7,7 @@ AI workers must read this before implementing decision-engine APIs, loaders, tes
 
 ## Scope
 
-This document defines the boundary from AI model analysis to `TradeIntent` creation for the MVP. The pipeline is mock-only and mobile/PWA-first. It must never create, submit, execute, fill, settle, or reconcile a real securities order.
+This document defines the boundary from AI model analysis to `TradeIntent` creation for the MVP. The pipeline is mock-only and mobile/Capacitor-first, with the Next.js PWA kept as the shared runtime. It must never create, submit, execute, fill, settle, or reconcile a real securities order.
 
 `AllocationDecision` is model-generated allocation analysis. `TradeIntent` is a pre-order simulation intent created after policy checks. Both are upstream of any future brokerage integration.
 

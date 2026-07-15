@@ -25,7 +25,8 @@
 ## MVP Boundary
 
 초기 MVP는 화면 구조, 모델 탐색, 모델 상세, mock 포트폴리오, mock 신호, feed, 심사/상태 설계를 검증하는 단계입니다.
-기본 사용 환경은 휴대폰 앱이며, 초기 구현은 모바일 웹/PWA로 검증합니다.
+기본 사용 환경은 모바일입니다. Next.js 모바일 웹/PWA는 공유 런타임과 검증 표면으로 유지하고, Capacitor는 같은 런타임을 내부 테스트용 네이티브 shell로 포장하는 트랙입니다.
+Capacitor 도입은 실제 금융 기능, native permission, push notification, biometric unlock, App Store/Play Store 제출을 자동으로 허용하지 않습니다.
 
 허용:
 

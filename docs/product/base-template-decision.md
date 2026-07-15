@@ -29,7 +29,7 @@ investModel의 첫 베이스 코드는 현재 저장소의 Next.js SaaS starter 
 ## Rejected Starting Points
 
 - From-scratch Next.js: 초기 구조를 직접 만들 수는 있지만 인증, 배포, 기본 UI, 운영 문서 기반을 다시 만드는 비용이 크다.
-- Native-first React Native or Expo: 최종 모바일 앱 가능성은 있지만, 현재는 Figma 기반 화면과 도메인 계약을 빠르게 검증하는 PWA가 더 적합하다.
+- React Native or Expo from scratch: 최종 모바일 앱 가능성은 있지만, 현재는 Figma 기반 화면과 도메인 계약을 빠르게 검증하는 Next.js 모바일 런타임이 더 적합하다. 네이티브 앱 트랙은 이 런타임을 재사용하는 Capacitor-first 내부 테스트 경로로 다룬다.
 - Backend-only prototype: 모델/포트폴리오 도메인을 설계할 수는 있지만 사용자가 보는 모바일 화면의 안전 문구와 UX를 검증하기 어렵다.
 - Finance/brokerage starter: 실제 주문, 계좌 연결, 입금 흐름을 암시할 위험이 있어 현재 MVP의 mock-only 경계와 맞지 않는다.
 
@@ -38,7 +38,7 @@ investModel의 첫 베이스 코드는 현재 저장소의 Next.js SaaS starter 
 - 실제 입금, 실제 주문, 실제 계좌 연결은 이 베이스 선택의 범위에 포함하지 않는다.
 - Stripe 기능은 원본 스타터 잔여 기능으로 취급하며, investModel 자금 기능으로 해석하지 않는다.
 - DB 전환은 MySQL 기준 문서와 `database-harness.md`를 우선한다.
-- 모바일 우선 구현은 `/invest-model` 하위 PWA 화면부터 진행한다.
+- 모바일 우선 구현은 `/invest-model` 하위 Next.js 모바일/PWA 런타임부터 진행하고, Capacitor 패키징은 내부 테스트 shell로 분리한다.
 
 ## Linked Checklist
 

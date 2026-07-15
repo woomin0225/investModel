@@ -32,13 +32,15 @@ investModel은 사용자가 직접 투자성향을 세밀하게 설정하는 로
 ## Platform Direction
 
 investModel의 기본 제품 형태는 데스크톱 앱이 아니라 휴대폰에서 사용하는 모바일 앱입니다.
-초기 개발은 Next.js 모바일 웹/PWA 형태로 빠르게 검증하고, 이후 필요하면 Capacitor 또는 React Native 계열로 네이티브 앱 포장을 검토합니다.
+현재 제품 방향은 Capacitor-first 내부 테스트 앱 트랙입니다. 기존 Next.js 모바일 웹/PWA는 공유 런타임과 빠른 검증 표면으로 유지하고, Capacitor는 같은 런타임을 네이티브 shell로 포장해 Android/iOS 내부 기기 테스트를 준비하는 경로로 둡니다.
+React Native/Expo 재구현은 WebView 기반 품질 한계가 명확해진 뒤 별도 제품/기술 검토로만 다룹니다.
 
 우선순위:
 
-1. 모바일 브라우저에서 390px 기준 화면을 자연스럽게 표시합니다.
-2. PWA 설치, 홈 화면 아이콘, 모바일 safe area, 하단 탭 내비게이션을 준비합니다.
-3. 실제 앱스토어/플레이스토어 배포가 필요해지면 네이티브 포장 방식을 별도 결정합니다.
+1. 모바일 브라우저와 Capacitor WebView에서 390px 기준 화면을 자연스럽게 표시합니다.
+2. PWA manifest, 홈 화면 아이콘, 모바일 safe area, 하단 탭 내비게이션을 공유 런타임 기준으로 유지합니다.
+3. Capacitor 패키징은 내부 테스트용 shell부터 진행하며, 실제 App Store/Play Store 제출은 별도 보안/법무/운영 gate 이후에만 결정합니다.
+4. native permission, push notification, biometric unlock, native secure storage, 실제 금융 연동은 Capacitor 도입만으로 허용되지 않습니다.
 
 ## Core Users
 

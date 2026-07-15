@@ -41,7 +41,7 @@ This document defines how investModel should separate local, CI, staging, and pr
 
 ## Prohibited Runtime Boundaries
 
-The current product remains mock-first and mobile PWA-first. Environment variables must not enable any of the following without a new approved task, explicit user confirmation, and risk review:
+The current product remains mock-first and mobile/Capacitor-first, with the Next.js PWA kept as the shared runtime. Environment variables must not enable any of the following without a new approved task, explicit user confirmation, and risk review:
 
 - Real deposits, withdrawals, or bank transfers.
 - Real broker account linking.

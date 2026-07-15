@@ -6,7 +6,7 @@
 
 # investModel Release Scope Gates
 
-이 문서는 investModel을 `Prototype`, `Internal Alpha`, `Closed Beta`, `Public Launch`로 나누어 단계별 허용 범위와 차단 범위를 정한다. 모든 단계는 모바일 웹/PWA 우선이며, 실제 입금, 실제 주문, 계좌 연결, 법률 판단, 비밀값 입력, 외부 유료 API 키 사용은 별도 승인 전까지 금지한다.
+이 문서는 investModel을 `Prototype`, `Internal Alpha`, `Closed Beta`, `Public Launch`로 나누어 단계별 허용 범위와 차단 범위를 정한다. 모든 단계는 모바일/Capacitor-first 내부 테스트 앱 방향을 따르며, Next.js 모바일 웹/PWA는 공유 런타임과 검증 표면으로 유지한다. 실제 입금, 실제 주문, 계좌 연결, 법률 판단, 비밀값 입력, 외부 유료 API 키 사용은 별도 승인 전까지 금지한다.
 
 관련 기준:
 
@@ -193,4 +193,3 @@ Public Launch는 일반 사용자를 대상으로 공개 운영하는 단계다.
 - `PortfolioMandate`: 모델이 선언한 투자 범위, 지역, 레버리지, 자산군 규칙
 - `TradeIntent`: 실제 주문이 아닌 모델의 투자 의도 기록
 - `MockDeposit`: 실제 입금이 아닌 화면/흐름 검증용 가상 예치금
-
