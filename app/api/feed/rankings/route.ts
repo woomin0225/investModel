@@ -5,7 +5,10 @@ import {
   type FeedRankingWindow
 } from '@/lib/db/feed-ranking-read-model';
 import { canReadFeed } from '@/lib/domain/feed/feed-post';
-import type { AccessRole } from '@/lib/domain/types';
+import {
+  readInvestModelRole,
+  readInvestModelSessionRole
+} from '@/lib/server/invest-model-user-scope';
 
 /**
  * This route exposes FeedPost popularity rankings from tracked seed likes.
@@ -32,22 +35,6 @@ function errorResponse(
   );
 }
 
-function readRole(request: NextRequest): AccessRole {
-  const role = request.headers.get('x-invest-model-role');
-
-  if (
-    role === 'public' ||
-    role === 'user' ||
-    role === 'creator' ||
-    role === 'admin' ||
-    role === 'system'
-  ) {
-    return role;
-  }
-
-  return 'public';
-}
-
 function parseRankingLimit(value: string | null) {
   if (!value) {
     return 5;
@@ -71,7 +58,11 @@ function parseRankingWindow(value: string | null): FeedRankingWindow | null {
 }
 
 export async function GET(request: NextRequest) {
-  const role = readRole(request);
+  const headerRole = readInvestModelRole(request);
+  const role =
+    headerRole === 'public'
+      ? await readInvestModelSessionRole(request)
+      : headerRole;
 
   if (!canReadFeed(role)) {
     return errorResponse(
