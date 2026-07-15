@@ -17,6 +17,10 @@ files. Do not insert sample rows directly in a MySQL console for product work.
 - `003_signal_event_seed.sql` creates the local demo creator, model, model
   version, simulated instrument, and SignalEvent rows needed by Signals
   filter/detail read-model work.
+- `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
+  contract for appending score snapshots after seed application. It covers
+  run id, idempotency, system actor/audit notes, representative read-model
+  verification, and mock-only/observed-only safety boundaries.
 
 ## Planned Seed Order
 
@@ -24,6 +28,8 @@ files. Do not insert sample rows directly in a MySQL console for product work.
 2. InvestmentModel rows, model versions, mandates, risk profiles, disclosures.
 3. SignalEvent rows, score snapshots, and mock ingestion inputs.
    - The first tracked slice is `003_signal_event_seed.sql`.
+   - Use `signal-score-mock-ingestion-job.md` before adding a scheduled or
+     manual snapshot append wrapper.
 4. FeedPost rows, comments, reactions, saves, reads, and ranking examples.
    - The first tracked slice is `002_feed_interaction_seed.sql`.
 5. MockDeposit, portfolio, positions, allocation decisions, and TradeIntent
