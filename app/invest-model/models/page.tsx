@@ -511,13 +511,9 @@ export default async function InvestModelDiscoveryPage({
                   {statusDisplay.isSelectionDisabled ? (
                     <div className="space-y-2">
                       {modelCard}
-                      <div className="flex flex-wrap gap-1.5 rounded-invest-card border border-invest-border bg-invest-surface px-3 py-2 shadow-invest-card">
-                        {visibleBoundaries.map((boundary) => (
-                          <RiskBadge key={boundary} tone="neutral">
-                            {boundary}
-                          </RiskBadge>
-                        ))}
-                      </div>
+                      <p className="px-3 text-xs font-semibold leading-5 text-invest-text-muted">
+                        {visibleBoundaries.join(' / ')}
+                      </p>
                     </div>
                   ) : (
                     <Link
@@ -529,13 +525,9 @@ export default async function InvestModelDiscoveryPage({
                       className="block space-y-2 rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
                     >
                       {modelCard}
-                      <div className="flex flex-wrap gap-1.5 rounded-invest-card border border-invest-border bg-invest-surface px-3 py-2 shadow-invest-card">
-                        {visibleBoundaries.map((boundary) => (
-                          <RiskBadge key={boundary} tone="neutral">
-                            {boundary}
-                          </RiskBadge>
-                        ))}
-                      </div>
+                      <p className="px-3 text-xs font-semibold leading-5 text-invest-text-muted">
+                        {visibleBoundaries.join(' / ')}
+                      </p>
                     </Link>
                   )}
                 </div>
