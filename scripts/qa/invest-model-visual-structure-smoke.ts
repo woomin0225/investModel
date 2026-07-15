@@ -757,7 +757,13 @@ assertCondition(
     !modelsPageSource.includes('visibleBoundaries.map((boundary) => (') &&
     modelsPageSource.includes('riskLabel={model.riskLabel}') &&
     modelsPageSource.includes('performanceLabel={model.performanceLabel}') &&
-    modelsPageSource.includes('footerBadges={['),
+    modelsPageSource.includes('footerBadges={[') &&
+    /footerBadges\.map\(\(badge\) => badge\.label\)\.join\(' \/ '\)/.test(
+      investModelUiSource
+    ) &&
+    !/<RiskBadge\b[\s\S]{0,220}\{badge\.label\}[\s\S]{0,80}<\/RiskBadge>/.test(
+      investModelUiSource
+    ),
   'Discover Models must not start with the top blue SoftBanner or safety chip groups and must preserve no-order/simulated safety context'
 );
 assertCondition(

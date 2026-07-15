@@ -481,17 +481,9 @@ export function ModelCard({
           {hasFooter ? (
             <div className="mt-4 space-y-2.5 border-t border-invest-border pt-3">
               {footerBadges.length > 0 ? (
-                <div className="grid gap-2 min-[360px]:grid-cols-2">
-                  {footerBadges.map((badge) => (
-                    <RiskBadge
-                      key={badge.label}
-                      tone={badge.tone ?? 'neutral'}
-                      className="justify-center text-center"
-                    >
-                      {badge.label}
-                    </RiskBadge>
-                  ))}
-                </div>
+                <p className="text-xs font-semibold leading-5 text-invest-text-muted">
+                  {footerBadges.map((badge) => badge.label).join(' / ')}
+                </p>
               ) : null}
               {actionLabel ? (
                 <div
