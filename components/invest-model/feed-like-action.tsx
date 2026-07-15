@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 
 type FeedLikeActionProps = {
   postPublicId: string;
-  userPublicId: string;
   initialState: FeedReactionStateDto;
   locale: 'ko' | 'en';
 };
@@ -35,7 +34,6 @@ type FeedLikeResponse = {
  */
 export function FeedLikeAction({
   postPublicId,
-  userPublicId,
   initialState,
   locale
 }: FeedLikeActionProps) {
@@ -65,7 +63,6 @@ export function FeedLikeAction({
             'x-invest-model-role': 'user'
           },
           body: JSON.stringify({
-            userPublicId,
             desiredState: !reactionState.liked
           })
         }

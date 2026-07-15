@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 
 type FeedSaveActionProps = {
   postPublicId: string;
-  userPublicId: string;
   initialState: FeedReactionStateDto;
   locale: 'ko' | 'en';
 };
@@ -49,7 +48,6 @@ function formatSavedAt(value: string | undefined, locale: 'ko' | 'en') {
  */
 export function FeedSaveAction({
   postPublicId,
-  userPublicId,
   initialState,
   locale
 }: FeedSaveActionProps) {
@@ -79,7 +77,6 @@ export function FeedSaveAction({
             'x-invest-model-role': 'user'
           },
           body: JSON.stringify({
-            userPublicId,
             desiredState: !reactionState.saved
           })
         }

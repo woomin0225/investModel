@@ -17,7 +17,6 @@ import { cn } from '@/lib/utils';
 
 type FeedCommentActionProps = {
   postPublicId: string;
-  userPublicId: string;
   initialComments: FeedCommentDto[];
   initialState: FeedReactionStateDto;
   locale: 'ko' | 'en';
@@ -76,14 +75,12 @@ function feedCommentVisibleBoundaries(locale: 'ko' | 'en') {
 function CommentItem({
   comment,
   postPublicId,
-  userPublicId,
   locale,
   depth = 0,
   onThreadUpdated
 }: {
   comment: FeedCommentDto;
   postPublicId: string;
-  userPublicId: string;
   locale: 'ko' | 'en';
   depth?: number;
   onThreadUpdated: (detail: FeedPostDetailDto) => void;
@@ -155,7 +152,6 @@ function CommentItem({
             'x-invest-model-role': 'user'
           },
           body: JSON.stringify({
-            userPublicId,
             body: trimmedDraft
           })
         }
@@ -358,7 +354,6 @@ function CommentItem({
               key={reply.commentPublicId}
               comment={reply}
               postPublicId={postPublicId}
-              userPublicId={userPublicId}
               locale={locale}
               depth={depth + 1}
               onThreadUpdated={onThreadUpdated}
@@ -376,7 +371,6 @@ function CommentItem({
  */
 export function FeedCommentAction({
   postPublicId,
-  userPublicId,
   initialComments,
   initialState,
   locale
@@ -451,7 +445,6 @@ export function FeedCommentAction({
             'x-invest-model-role': 'user'
           },
           body: JSON.stringify({
-            userPublicId,
             body: trimmedDraft
           })
         }
@@ -609,7 +602,6 @@ export function FeedCommentAction({
               key={comment.commentPublicId}
               comment={comment}
               postPublicId={postPublicId}
-              userPublicId={userPublicId}
               locale={locale}
               onThreadUpdated={handleThreadUpdated}
             />

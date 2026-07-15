@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 
 type FeedReadActionProps = {
   postPublicId: string;
-  userPublicId: string;
   initialState: FeedReactionStateDto;
   locale: 'ko' | 'en';
 };
@@ -48,7 +47,6 @@ function formatReadAt(value: string | undefined, locale: 'ko' | 'en') {
  */
 export function FeedReadAction({
   postPublicId,
-  userPublicId,
   initialState,
   locale
 }: FeedReadActionProps) {
@@ -79,9 +77,7 @@ export function FeedReadAction({
               'content-type': 'application/json',
               'x-invest-model-role': 'user'
             },
-            body: JSON.stringify({
-              userPublicId
-            }),
+            body: JSON.stringify({}),
             signal: controller.signal
           }
         );
@@ -106,7 +102,7 @@ export function FeedReadAction({
     return () => {
       controller.abort();
     };
-  }, [postPublicId, userPublicId]);
+  }, [postPublicId]);
 
   const isDone = status === 'done' && reactionState.read;
   const isPending = status === 'pending';

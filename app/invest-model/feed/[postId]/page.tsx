@@ -185,7 +185,6 @@ export default async function InvestModelFeedDetailPage({
 
   const currentPath = `/invest-model/feed/${resolvedParams.postId}`;
   const backHref = `/invest-model/feed?lang=${locale}`;
-  const userPublicId = post.userState.userPublicId;
   const stateItems = [
     {
       label: locale === 'ko' ? '댓글' : 'Comments',
@@ -294,7 +293,6 @@ export default async function InvestModelFeedDetailPage({
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <FeedReadAction
             postPublicId={post.postPublicId}
-            userPublicId={userPublicId}
             initialState={post.userState}
             locale={locale}
           />
@@ -320,13 +318,11 @@ export default async function InvestModelFeedDetailPage({
           })}
           <FeedLikeAction
             postPublicId={post.postPublicId}
-            userPublicId={userPublicId}
             initialState={post.userState}
             locale={locale}
           />
           <FeedSaveAction
             postPublicId={post.postPublicId}
-            userPublicId={userPublicId}
             initialState={post.userState}
             locale={locale}
           />
@@ -395,7 +391,6 @@ export default async function InvestModelFeedDetailPage({
         <section id="comments" className="scroll-mt-4">
           <FeedCommentAction
             postPublicId={post.postPublicId}
-            userPublicId={userPublicId}
             initialComments={post.comments}
             initialState={post.userState}
             locale={locale}
