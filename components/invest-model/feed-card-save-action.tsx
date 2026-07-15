@@ -11,6 +11,7 @@ type FeedCardSaveActionProps = {
   postPublicId: string;
   label: string;
   ariaLabel: string;
+  locale: 'ko' | 'en';
 };
 
 type FeedCardSaveResponse = {
@@ -27,11 +28,22 @@ type FeedCardSaveResponse = {
 export function FeedCardSaveAction({
   postPublicId,
   label,
-  ariaLabel
+  ariaLabel,
+  locale
 }: FeedCardSaveActionProps) {
   const [saved, setSaved] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const isKorean = locale === 'ko';
+  const fallbackErrorMessage = isKorean
+    ? '저장 상태를 업데이트하지 못했습니다.'
+    : 'Could not update saved state.';
+  const failureAriaSuffix = isKorean
+    ? '마지막 업데이트에 실패했습니다.'
+    : 'Last update failed.';
+  const savedTitle = isKorean
+    ? '비공개 읽기 바로가기로 저장되었습니다. 모델 선택, 배분, 주문 의도가 아닙니다.'
+    : 'Saved as a private reading shortcut. Not model selection, allocation, or order intent.';
 
   async function handleToggleSave() {
     if (isPending) {
@@ -56,13 +68,13 @@ export function FeedCardSaveAction({
       const body = (await response.json()) as FeedCardSaveResponse;
 
       if (!response.ok || !body.data) {
-        setErrorMessage(body.error?.message ?? 'Could not update saved state.');
+        setErrorMessage(body.error?.message ?? fallbackErrorMessage);
         return;
       }
 
       setSaved(body.data.saved);
     } catch {
-      setErrorMessage('Could not update saved state.');
+      setErrorMessage(fallbackErrorMessage);
     } finally {
       setIsPending(false);
     }
@@ -74,14 +86,10 @@ export function FeedCardSaveAction({
       onClick={handleToggleSave}
       disabled={isPending}
       aria-label={
-        errorMessage ? `${ariaLabel} Last update failed.` : ariaLabel
+        errorMessage ? `${ariaLabel} ${failureAriaSuffix}` : ariaLabel
       }
       aria-pressed={saved}
-      title={
-        saved
-          ? 'Saved as a private reading shortcut. Not model selection, allocation, or order intent.'
-          : ariaLabel
-      }
+      title={saved ? savedTitle : ariaLabel}
       className={cn(
         'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border px-2 text-[12px] font-semibold leading-4 disabled:cursor-wait disabled:opacity-80',
         saved

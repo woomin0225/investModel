@@ -635,6 +635,7 @@ export default async function InvestModelFeedPage({
                                 postPublicId={post.id}
                                 label={action}
                                 ariaLabel={actionAccessibleLabel}
+                                locale={locale}
                               />
                             ) : isCommentAction ? (
                               <Link

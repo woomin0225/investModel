@@ -414,6 +414,13 @@ const feedLikeActionSource = readProjectFile(
   'components/invest-model/feed-like-action.tsx'
 );
 const feedLikeActionNormalizedSource = feedLikeActionSource.replace(/\r\n/g, '\n');
+const feedCardSaveActionSource = readProjectFile(
+  'components/invest-model/feed-card-save-action.tsx'
+);
+const feedCardSaveActionNormalizedSource = feedCardSaveActionSource.replace(
+  /\r\n/g,
+  '\n'
+);
 const adminReportsPageSource = readProjectFile(
   'app/invest-model/admin/reports/page.tsx'
 );
@@ -572,9 +579,10 @@ assertCondition(
 );
 assertCondition(
   feedPageSource.includes('<FeedCardSaveAction') &&
+    feedPageSource.includes('locale={locale}') &&
     feedPageSource.includes('feedDetailSectionHref') &&
     feedPageSource.includes("'comments'"),
-  'Feed cards must wire Save and Comment actions to DB-backed save state and the comment section'
+  'Feed cards must wire Save and Comment actions to DB-backed save state, locale-aware copy, and the comment section'
 );
 assertCondition(
   feedPageSource.includes('parseFeedPostType') &&
@@ -759,6 +767,16 @@ assertCondition(
     feedLikeActionNormalizedSource.includes("isKorean\n      ? '좋아요를 누르지 않았습니다.") &&
     !feedLikeActionNormalizedSource.includes("const actionTitle = reactionState.liked\n    ? 'Liked by you."),
   'Feed like action Korean title copy must not fall back to English'
+);
+assertCondition(
+  feedCardSaveActionNormalizedSource.includes("'저장 상태를 업데이트하지 못했습니다.'") &&
+    feedCardSaveActionNormalizedSource.includes("'마지막 업데이트에 실패했습니다.'") &&
+    feedCardSaveActionNormalizedSource.includes("'비공개 읽기 바로가기로 저장되었습니다. 모델 선택, 배분, 주문 의도가 아닙니다.'") &&
+    feedCardSaveActionNormalizedSource.includes('locale:') &&
+    feedCardSaveActionNormalizedSource.includes("const isKorean = locale === 'ko';") &&
+    !feedCardSaveActionNormalizedSource.includes("setErrorMessage('Could not update saved state.')") &&
+    !feedCardSaveActionNormalizedSource.includes('`${ariaLabel} Last update failed.`'),
+  'Feed card save action Korean fallback, title, and aria copy must not fall back to English'
 );
 assertCondition(
   adminReportsPageSource.includes("t.stateLabels.join(' / ')") &&
