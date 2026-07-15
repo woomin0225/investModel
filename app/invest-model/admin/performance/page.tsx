@@ -196,12 +196,9 @@ function PerformanceSubmissionCard({
         </ul>
       </section>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <RiskBadge tone="blocked">
-          {t.exposure}: {submission.exposureLabel}
-        </RiskBadge>
-        <RiskBadge tone="blocked">{t.disabled}</RiskBadge>
-      </div>
+      <p className="mt-4 text-xs font-medium leading-5 text-invest-danger">
+        {t.exposure}: {submission.exposureLabel}; {t.disabled}
+      </p>
       <p className="mt-2 text-xs leading-5 text-invest-text-muted">
         {submission.blockedActionLabel}
       </p>

@@ -413,6 +413,9 @@ const feedCommentActionSource = readProjectFile(
 const adminReportsPageSource = readProjectFile(
   'app/invest-model/admin/reports/page.tsx'
 );
+const adminPerformancePageSource = readProjectFile(
+  'app/invest-model/admin/performance/page.tsx'
+);
 
 assertCondition(
   mobileShellSource.includes('max-w-[var(--invest-mobile-frame-width)]'),
@@ -641,6 +644,14 @@ assertCondition(
     !adminReportsPageSource.includes('t.stateLabels.map((stateLabel) => (') &&
     !adminReportsPageSource.includes('<RiskBadge tone="blocked">{t.disabledAction}</RiskBadge>'),
   'Admin Reports must present read-only state candidates and disabled actions as prose instead of hashtag status chip groups'
+);
+assertCondition(
+  adminPerformancePageSource.includes(
+    '{t.exposure}: {submission.exposureLabel}; {t.disabled}'
+  ) &&
+    !adminPerformancePageSource.includes('<RiskBadge tone="blocked">\n          {t.exposure}: {submission.exposureLabel}\n        </RiskBadge>') &&
+    !adminPerformancePageSource.includes('<RiskBadge tone="blocked">{t.disabled}</RiskBadge>'),
+  'Admin Performance must present exposure/read-only disabled state as prose instead of hashtag status chip groups'
 );
 assertCondition(
   !homePageSource.includes('<SoftBanner') &&
