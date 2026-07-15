@@ -64,6 +64,7 @@ async function main() {
   const explicitDemoResponse = await readMyPage('?userPublicId=user_demo_001');
   const explicitDemoJson = await explicitDemoResponse.json();
   const invalidUserResponse = await readMyPage('?userPublicId=user_other_001');
+  const invalidUserJson = await invalidUserResponse.json();
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(creatorResponse.status === 403, 'creator role is forbidden');
@@ -93,6 +94,8 @@ async function main() {
   assertCondition(
     summaryJson.meta?.routeStatus === 'db_backed' &&
       summaryJson.meta?.readOnly === true &&
+      summaryJson.meta?.userScopeSource === 'demo_fallback' &&
+      summaryJson.meta?.clientUserPublicIdIgnored === false &&
       summaryJson.meta?.exposesInternalDbIds === false &&
       summaryJson.meta?.realAccountConnection === false &&
       summaryJson.meta?.realDeposit === false &&
@@ -110,8 +113,10 @@ async function main() {
     'explicit demo userPublicId is accepted'
   );
   assertCondition(
-    invalidUserResponse.status === 422,
-    'non-demo userPublicId returns validation error'
+    invalidUserResponse.status === 200 &&
+      invalidUserJson.meta?.userPublicId === 'user_demo_001' &&
+      invalidUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client-provided non-demo userPublicId is ignored'
   );
 
   await client.end();

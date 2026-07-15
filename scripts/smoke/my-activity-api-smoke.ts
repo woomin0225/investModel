@@ -49,6 +49,7 @@ async function main() {
   const invalidUserResponse = await readMyActivity(
     '?userPublicId=user_other_001'
   );
+  const invalidUserJson = await invalidUserResponse.json();
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(creatorResponse.status === 403, 'creator role is forbidden');
@@ -73,6 +74,8 @@ async function main() {
   assertCondition(
     activityJson.meta?.routeStatus === 'db_backed' &&
       activityJson.meta?.readOnly === true &&
+      activityJson.meta?.userScopeSource === 'demo_fallback' &&
+      activityJson.meta?.clientUserPublicIdIgnored === false &&
       activityJson.meta?.sendsRealPush === false &&
       activityJson.meta?.sendsRealEmail === false &&
       activityJson.meta?.sendsRealSms === false &&
@@ -88,8 +91,10 @@ async function main() {
     'explicit demo userPublicId is accepted'
   );
   assertCondition(
-    invalidUserResponse.status === 422,
-    'non-demo userPublicId returns validation error'
+    invalidUserResponse.status === 200 &&
+      invalidUserJson.meta?.userPublicId === 'user_demo_001' &&
+      invalidUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client-provided non-demo userPublicId is ignored'
   );
 
   await client.end();

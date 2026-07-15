@@ -2,6 +2,10 @@ import { NextRequest } from 'next/server';
 
 import { readMyPageSummary } from '@/lib/db/my-page-read-model';
 import type { AccessRole } from '@/lib/domain/types';
+import {
+  readInvestModelRole,
+  resolveInvestModelUserScope
+} from '@/lib/server/invest-model-user-scope';
 
 /**
  * This route aggregates My Page read models for the prototype.
@@ -9,8 +13,6 @@ import type { AccessRole } from '@/lib/domain/types';
  */
 
 type ApiErrorCode = 'forbidden' | 'validation_error' | 'server_error';
-
-const demoUserPublicId = 'user_demo_001';
 
 function errorResponse(
   status: number,
@@ -30,36 +32,12 @@ function errorResponse(
   );
 }
 
-function readRole(request: NextRequest): AccessRole {
-  const role = request.headers.get('x-invest-model-role');
-
-  if (
-    role === 'public' ||
-    role === 'user' ||
-    role === 'creator' ||
-    role === 'admin' ||
-    role === 'system'
-  ) {
-    return role;
-  }
-
-  return 'public';
-}
-
 function canReadMyPage(role: AccessRole) {
   return role === 'user' || role === 'admin';
 }
 
-function parseUserPublicId(value: string | null) {
-  if (!value) {
-    return demoUserPublicId;
-  }
-
-  return value === demoUserPublicId ? value : null;
-}
-
 export async function GET(request: NextRequest) {
-  const role = readRole(request);
+  const role = readInvestModelRole(request);
 
   if (!canReadMyPage(role)) {
     return errorResponse(
@@ -69,20 +47,10 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const userPublicId = parseUserPublicId(
-    request.nextUrl.searchParams.get('userPublicId')
-  );
-
-  if (!userPublicId) {
-    return errorResponse(
-      422,
-      'validation_error',
-      'userPublicId is limited to the demo user in this prototype.'
-    );
-  }
+  const userScope = await resolveInvestModelUserScope(request);
 
   try {
-    const myPageSummary = await readMyPageSummary(userPublicId);
+    const myPageSummary = await readMyPageSummary(userScope.userPublicId);
 
     return Response.json({
       data: myPageSummary,
@@ -99,7 +67,10 @@ export async function GET(request: NextRequest) {
           'feed_post_comments',
           'feed_post_reads'
         ],
-        userPublicId,
+        userPublicId: userScope.userPublicId,
+        userScopeSource: userScope.source,
+        clientUserPublicIdIgnored:
+          userScope.ignoredClientUserPublicId !== undefined,
         readOnly: true,
         exposesInternalDbIds: false,
         realAccountConnection: false,
