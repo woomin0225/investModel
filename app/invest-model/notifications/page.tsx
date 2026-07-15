@@ -46,7 +46,7 @@ const notificationCopy = {
     title: 'Notifications',
     summaryTitle: 'DB-backed notification center',
     summaryDescription:
-      'This first slice derives notification rows from FeedPost read state for user_demo_001. It is not real push, email, SMS, broker, order, or account messaging.',
+      'This first slice derives notification rows from FeedPost read state in the server-resolved member scope. It is not real push, email, SMS, broker, order, or account messaging.',
     unread: 'Unread',
     read: 'Read',
     emptyTitle: 'No DB-backed notifications yet',
@@ -69,7 +69,7 @@ const notificationCopy = {
     title: 'Notifications',
     summaryTitle: 'DB-backed notification center',
     summaryDescription:
-      'This first slice derives notification rows from FeedPost read state for user_demo_001. It is not real push, email, SMS, broker, order, or account messaging.',
+      'This first slice derives notification rows from FeedPost read state in the server-resolved member scope. It is not real push, email, SMS, broker, order, or account messaging.',
     unread: 'Unread',
     read: 'Read',
     emptyTitle: 'No DB-backed notifications yet',
@@ -176,15 +176,12 @@ function notificationEmptyVisibleBoundaries(locale: 'ko' | 'en') {
 
 async function readInvestModelNotifications() {
   const response = await readNotifications(
-    new NextRequest(
-      'http://localhost/api/notifications?userPublicId=user_demo_001',
-      {
-        method: 'GET',
-        headers: {
-          'x-invest-model-role': 'user'
-        }
+    new NextRequest('http://localhost/api/notifications', {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
       }
-    )
+    })
   );
 
   if (!response.ok) {
@@ -205,7 +202,6 @@ async function markAllNotificationsReadAction() {
         'x-invest-model-role': 'user'
       },
       body: JSON.stringify({
-        userPublicId: 'user_demo_001',
         limit: 30
       })
     })
