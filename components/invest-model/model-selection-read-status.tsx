@@ -74,15 +74,12 @@ export function ModelSelectionReadStatus({
           return;
         }
 
-        const response = await fetch(
-          `/api/model-selections?userPublicId=${encodeURIComponent(user.publicId)}`,
-          {
-            headers: {
-              accept: 'application/json',
-              'x-invest-model-role': 'user'
-            }
+        const response = await fetch('/api/model-selections', {
+          headers: {
+            accept: 'application/json',
+            'x-invest-model-role': 'user'
           }
-        );
+        });
         const body = (await response.json()) as ModelSelectionReadResponse;
 
         if (!response.ok) {

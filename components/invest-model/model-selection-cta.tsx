@@ -107,7 +107,6 @@ export function ModelSelectionCta({
           'x-invest-model-role': 'user'
         },
         body: JSON.stringify({
-          userPublicId: user.publicId,
           modelPublicId,
           modelVersionPublicId,
           riskAcknowledgedAt: new Date().toISOString()
