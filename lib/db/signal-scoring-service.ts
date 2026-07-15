@@ -22,6 +22,13 @@ type ScoreInputDraft = {
   sourceLabel: string;
 };
 
+type ScoreInputOverride = {
+  rawValue: number;
+  normalizedScore: number;
+  weight: number;
+  sourceLabel: string;
+};
+
 export type MockSignalScoreResult = {
   signalPublicId: string;
   snapshotId: number;
@@ -78,19 +85,43 @@ function scoreToNumber(value: string | number | null) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function isScoreSourceType(value: string): value is ScoreSourceType {
+  return (
+    value === 'news_traffic' ||
+    value === 'search_traffic' ||
+    value === 'price_trend' ||
+    value === 'ai_attention' ||
+    value === 'model_inclusion'
+  );
+}
+
 function buildScoreInputs(input: {
   baseScore: number;
   signalType: string;
   title: string;
+  seededInputs?: Map<ScoreSourceType, ScoreInputOverride>;
 }): ScoreInputDraft[] {
   const weights = signalTypeWeights[input.signalType] ?? signalTypeWeights.macro;
 
   return Object.entries(weights).map(([sourceType, weight], index) => {
+    const typedSourceType = sourceType as ScoreSourceType;
+    const seededInput = input.seededInputs?.get(typedSourceType);
+
+    if (seededInput) {
+      return {
+        sourceType: typedSourceType,
+        rawValue: seededInput.rawValue,
+        normalizedScore: clampScore(seededInput.normalizedScore),
+        weight: seededInput.weight,
+        sourceLabel: seededInput.sourceLabel
+      };
+    }
+
     const normalizedScore = clampScore(input.baseScore - index * 3 + weight * 10);
     const rawValue = Math.round(normalizedScore * 1000) / 1000;
 
     return {
-      sourceType: sourceType as ScoreSourceType,
+      sourceType: typedSourceType,
       rawValue,
       normalizedScore,
       weight,
@@ -125,6 +156,54 @@ async function readPreviousRank(signalEventId: number) {
   return rows[0]?.rankValue ?? null;
 }
 
+async function readSeededScoreInputs(signalEventId: number) {
+  const inputRows = await db
+    .select({
+      sourceType: signalScoreInputs.sourceType,
+      rawValue: signalScoreInputs.rawValue,
+      normalizedScore: signalScoreInputs.normalizedScore,
+      weight: signalScoreInputs.weight,
+      sourceLabel: signalScoreInputs.sourceLabel
+    })
+    .from(signalScoreInputs)
+    .innerJoin(
+      signalScoreSnapshots,
+      eq(signalScoreInputs.scoreSnapshotId, signalScoreSnapshots.id)
+    )
+    .where(eq(signalScoreSnapshots.signalEventId, signalEventId))
+    .orderBy(desc(signalScoreInputs.capturedAt));
+  const latestOverrides = new Map<ScoreSourceType, ScoreInputOverride>();
+  const seededOverrides = new Map<ScoreSourceType, ScoreInputOverride>();
+
+  for (const inputRow of inputRows) {
+    if (!isScoreSourceType(inputRow.sourceType)) {
+      continue;
+    }
+
+    const override = {
+      rawValue: scoreToNumber(inputRow.rawValue),
+      normalizedScore: scoreToNumber(inputRow.normalizedScore),
+      weight: scoreToNumber(inputRow.weight),
+      sourceLabel:
+        inputRow.sourceLabel ??
+        `Seeded ${inputRow.sourceType} mock score input`
+    };
+
+    if (!latestOverrides.has(inputRow.sourceType)) {
+      latestOverrides.set(inputRow.sourceType, override);
+    }
+
+    if (
+      inputRow.sourceLabel?.startsWith('Seeded ') &&
+      !seededOverrides.has(inputRow.sourceType)
+    ) {
+      seededOverrides.set(inputRow.sourceType, override);
+    }
+  }
+
+  return new Map([...latestOverrides, ...seededOverrides]);
+}
+
 /**
  * Calculates score snapshots from existing seed/mock SignalEvent rows.
  * It does not fetch external data, create TradeIntent rows, place orders, or alter portfolios.
@@ -145,12 +224,14 @@ export async function calculateMockSignalScoreSnapshots({
     .from(modelSignalEvents)
     .orderBy(desc(modelSignalEvents.score), desc(modelSignalEvents.createdAt));
 
-  const scoredRows = signalRows
-    .map((signal) => {
+  const scoredRows = await Promise.all(
+    signalRows.map(async (signal) => {
+      const seededInputs = await readSeededScoreInputs(signal.id);
       const inputs = buildScoreInputs({
         baseScore: scoreToNumber(signal.score),
         signalType: signal.signalType,
-        title: signal.title
+        title: signal.title,
+        seededInputs
       });
 
       return {
@@ -159,7 +240,9 @@ export async function calculateMockSignalScoreSnapshots({
         totalScore: weightedTotal(inputs)
       };
     })
-    .sort((left, right) => right.totalScore - left.totalScore);
+  );
+
+  scoredRows.sort((left, right) => right.totalScore - left.totalScore);
 
   const results: MockSignalScoreResult[] = [];
 

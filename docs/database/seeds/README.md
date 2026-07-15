@@ -9,6 +9,8 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   the currently implemented read models. It creates the demo user, model,
   signals, score snapshots/inputs, feed posts/interactions, notification
   candidates derived from FeedPost read state, and Portfolio mock summary rows.
+  Its seeded `ai_attention` and `model_inclusion` score inputs are reused by
+  the mock-safe signal scoring service as DB-backed score evidence.
 - `002_feed_interaction_seed.sql` is the first focused seed slice. It creates
   the local sample user plus FeedPost, comment, reply, like, save, and read
   rows needed by Feed detail/read-state work.

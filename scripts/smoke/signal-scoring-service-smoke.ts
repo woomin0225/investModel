@@ -1,8 +1,9 @@
 /**
  * This smoke test verifies the mock-safe SignalEvent scoring service.
- * It applies tracked seed data, creates score snapshots and weighted inputs,
- * and confirms the operation does not create TradeIntent rows, orders, broker
- * actions, or external live-data calls.
+ * It applies the tracked app seed, creates score snapshots and weighted inputs,
+ * confirms seeded AI attention/model inclusion inputs are reused by the service,
+ * and verifies the operation does not create orders, broker actions, or external
+ * live-data calls.
  */
 
 import fs from 'fs';
@@ -19,7 +20,7 @@ function assertCondition(condition: unknown, message: string): asserts condition
 
 async function applyTrackedSignalSeed() {
   const seedPath = path.resolve(
-    'docs/database/seeds/003_signal_event_seed.sql'
+    'docs/database/seeds/001_invest_model_domain_seed.sql'
   );
   const sql = fs.readFileSync(seedPath, 'utf8');
   const connection = await mysql.createConnection({
@@ -73,6 +74,29 @@ async function readInputSourceTypes(snapshotIds: number[]) {
   return rows.map((row) => String(row.source_type));
 }
 
+async function readInputLabels(snapshotIds: number[]) {
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL
+  });
+  const placeholders = snapshotIds.map(() => '?').join(',');
+  const [rows] = await connection.query<mysql.RowDataPacket[]>(
+    `
+      SELECT source_type, source_label
+      FROM signal_score_inputs
+      WHERE score_snapshot_id IN (${placeholders})
+      ORDER BY source_type, source_label
+    `,
+    snapshotIds
+  );
+
+  await connection.end();
+
+  return rows.map((row) => ({
+    sourceType: String(row.source_type),
+    sourceLabel: String(row.source_label)
+  }));
+}
+
 async function main() {
   await applyTrackedSignalSeed();
 
@@ -81,6 +105,9 @@ async function main() {
   const results = await calculateMockSignalScoreSnapshots({ capturedAt });
   const after = await readCounts();
   const sourceTypes = await readInputSourceTypes(
+    results.map((result) => result.snapshotId)
+  );
+  const sourceLabels = await readInputLabels(
     results.map((result) => result.snapshotId)
   );
 
@@ -117,6 +144,19 @@ async function main() {
       (sourceTypes.includes('news_traffic') ||
         sourceTypes.includes('price_trend')),
     'score input source types include mock-safe model attention and market context'
+  );
+  assertCondition(
+    sourceLabels.some(
+      (input) =>
+        input.sourceType === 'ai_attention' &&
+        input.sourceLabel.includes('Seeded mock AI model attention')
+    ) &&
+      sourceLabels.some(
+        (input) =>
+          input.sourceType === 'model_inclusion' &&
+          input.sourceLabel.includes('Seeded mock risk model inclusion')
+      ),
+    'scoring service reuses seeded AI attention and model inclusion inputs'
   );
   assertCondition(
     after.trade_intent_count === before.trade_intent_count,
