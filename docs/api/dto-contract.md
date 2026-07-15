@@ -379,6 +379,78 @@ Safety requirements:
 - Ranking rows must not imply recommendation strength, model quality, expected return, suitability, allocation intent, or order intent.
 - The API must not include fields named `recommendation`, `qualityScore`, `expectedReturn`, `tradeAction`, `order`, `execution`, `fill`, `brokerAction`, or `TradeIntent`.
 
+## `SearchResultDto`
+
+Used by `GET /api/search` and the top search surface.
+
+```ts
+interface SearchResultDto {
+  investmentModels: Array<{
+    modelId: string;
+    modelPublicId: string;
+    modelVersionPublicId: string;
+    name: string;
+    summary: string;
+    market: string;
+    riskLabel: string;
+    performanceLabel: string;
+    status: 'approved' | 'live';
+    tags: string[];
+    href: string;
+  }>;
+  feedPosts: Array<FeedPostDto & { href: string }>;
+  signalEvents: Array<SignalEventDto & { href: string }>;
+}
+```
+
+Source tables: `feed_posts`, `investment_models`, `model_creators`, `model_risk_profiles`, `model_performance_snapshots`, `users`, `model_signal_events`, `model_versions`, `market_instruments`.
+
+Safety requirements:
+
+- Search results use public ids and route-safe slugs only; internal numeric ids must not be exposed.
+- `href` values point to existing or planned investModel routes and preserve the surface boundary as read-only navigation.
+- Empty query results are valid empty arrays with `meta.counts`; they must not fall back to paid external search or realtime traffic APIs.
+- The route meta must keep `readOnly: true`, `modelDiscoveryOnly: true`, `realtimeExternalData: false`, `financialAdvice: false`, `modelSelectionCreated: false`, `tradeIntentCreated: false`, `realOrder: false`, and `brokerageConnection: false`.
+- Do not add fields named `recommendation`, `tradeAction`, `order`, `execution`, `brokerAction`, `suitability`, or `expectedReturn`.
+
+## `NotificationCenterDto`
+
+Used by `GET /api/notifications`, `POST /api/notifications/mark-all-read`, My Page notification summary, and the future Notification Center screen.
+
+```ts
+interface NotificationCenterItemDto {
+  notificationPublicId: string;
+  source: 'feed_post';
+  title: string;
+  body: string;
+  status: 'unread' | 'read';
+  eventLabel: string;
+  occurredAt?: string;
+  href: string;
+  feedPost: FeedPostDto;
+  notices: PolicyNoticeDto[];
+}
+
+interface NotificationCenterDto {
+  userPublicId: string;
+  unreadCount: number;
+  items: NotificationCenterItemDto[];
+  dataContext: 'mock' | 'informational_placeholder';
+  notices: PolicyNoticeDto[];
+}
+```
+
+Source tables: `users`, `feed_posts`, `feed_post_reads`, `investment_models`.
+
+Safety requirements:
+
+- Notification ids are public, derived ids for the notification-center DTO; internal numeric ids must not be exposed.
+- Current notification rows are feed-derived informational events, not push/email/SMS delivery records.
+- `status` and `unreadCount` are private read-state UI data for the current demo user only.
+- `POST /api/notifications/mark-all-read` returns `{ notificationCenter, markedCount, readAt }` and mutates only `feed_post_reads`.
+- Route meta must keep `sendsRealPush`, `sendsRealEmail`, `sendsRealSms`, `realOrder`, `brokerageConnection`, and `financialAdvice` false.
+- Do not include bank, broker, account, order, execution, fill, allocation, or personalized advice fields.
+
 ## `MyPageFeedActivitySummaryDto`
 
 Used by `GET /api/my/activity` and the My Page saved/comment activity panels.

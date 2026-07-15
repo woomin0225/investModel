@@ -27,6 +27,8 @@
 | Model Detail | `/invest-model/models/[modelId]` | `GET /api/models/:id`; `POST /api/model-selections` after acknowledgement | `ModelDetailDto`; `ModelSelectionDto` | detail data derived from `lib/mock/invest-model-discovery.ts` and page-local copy | public or signed-in for detail; `user` for selection | selection stores model version only, not user allocation preferences. |
 | Feed Insights | `/invest-model/feed` | `GET /api/feed` | `FeedPostDto[]` | `lib/mock/invest-model-feed.ts` | signed-in | informational model/market/review notes only. |
 | Feed Detail | `/invest-model/feed/[postId]` | `GET /api/feed/:postId`; feed action APIs | `FeedPostDetailDto`; `FeedCommentDto`; `FeedReactionStateDto` | `FeedPostDto` list item plus future detail mock | signed-in | route param uses public id only; informational content only; comments/actions are user-scoped contracts. |
+| Search | `/invest-model/search` | `GET /api/search?q=` | `SearchResultDto` | DB-backed grouped result arrays; empty arrays when no match | signed-in | read-only grouped search; no recommendation, model selection, TradeIntent, external paid search, order, or brokerage action. |
+| Notification Center | `/invest-model/notifications` | `GET /api/notifications`; `POST /api/notifications/mark-all-read` | `NotificationCenterDto` | DB-backed feed-derived notification rows and read state | user | read/unread center only; no push/email/SMS delivery, broker/account connection, order, or advice. |
 
 ## Supporting Screens
 
@@ -199,6 +201,59 @@ Fallback:
 
 - Until the detail API is implemented, detail links may use the list `FeedPostDto` record and a safe placeholder detail section shaped like `FeedPostDetailDto`.
 - Empty/unavailable state should keep the bottom tab shell and safe-area spacing intact on 390px mobile.
+
+### Search
+
+Route contract:
+
+- Screen route: `/invest-model/search`.
+- Top search buttons should navigate to the route while preserving locale query state.
+- `q` is optional, trimmed, and capped at 120 characters by `GET /api/search`.
+- Results are grouped into `investmentModels`, `feedPosts`, and `signalEvents` so UI sections can render empty states independently.
+- Search uses existing DB-backed read models only. It must not call external paid search, realtime traffic, broker, account, or recommendation providers.
+
+Data needs:
+
+- `SearchResultDto.investmentModels` with public model ids, model version public ids, labels, tags, and model detail `href`
+- `SearchResultDto.feedPosts` with `FeedPostDto` fields and Feed Detail `href`
+- `SearchResultDto.signalEvents` with `SignalEventDto` fields and Signal Detail `href`
+- API `meta.counts`, `meta.query`, and mock-safe flags for empty and error copy
+
+API sequence:
+
+1. `GET /api/search?q={query}`
+
+Fallback:
+
+- If the API is unavailable, show an unavailable state rather than inventing live market/search results.
+- Empty groups should say no matching model/feed/signal records were found in the prototype dataset.
+
+### Notification Center
+
+Route contract:
+
+- Screen route: `/invest-model/notifications`.
+- Top notification buttons should navigate to the route while preserving locale query state.
+- `GET /api/notifications` accepts optional `userPublicId` and `limit`; the current prototype limits `userPublicId` to `user_demo_001`.
+- `POST /api/notifications/mark-all-read` updates only the current user's feed read state and returns the refreshed center.
+- The page must label notifications as feed-derived/informational rows, not real push, email, SMS, broker, order, account, or advice alerts.
+
+Data needs:
+
+- `NotificationCenterDto.unreadCount`
+- `NotificationCenterItemDto[]` with title, body, read/unread status, event label, occurred time, `href`, and source feed post
+- API meta flags: `sendsRealPush=false`, `sendsRealEmail=false`, `sendsRealSms=false`, `realOrder=false`, `brokerageConnection=false`, `financialAdvice=false`
+
+API sequence:
+
+1. `GET /api/notifications?limit=12`
+2. `POST /api/notifications/mark-all-read` when the user taps mark all read
+3. Refresh or replace local state from the returned `notificationCenter`
+
+Fallback:
+
+- If the API is unavailable, show a quiet unavailable state and keep unread badge copy conservative.
+- Empty state should say there are no prototype notifications yet, without implying external delivery setup.
 
 ## Public Id And Detail Link Rules
 

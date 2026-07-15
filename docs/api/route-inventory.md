@@ -29,6 +29,9 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `POST` | `/api/feed/:postId/likes` | Toggle or set the signed-in user's like state. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/saves` | Toggle or set the signed-in user's saved state. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/read` | Mark the signed-in user's post as read. | signed-in | action contract defined; implementation pending |
+| `GET` | `/api/search` | Read grouped model, feed, and signal search results. | signed-in | DB-backed read implemented |
+| `GET` | `/api/notifications` | Read user-scoped notification center rows. | user | DB-backed read implemented |
+| `POST` | `/api/notifications/mark-all-read` | Mark notification-center FeedPost read state as read. | user | DB-backed read-state action implemented |
 | `GET` | `/api/my/activity` | Read user-scoped My Page saved/comment activity summary. | user | DB-backed read implemented |
 | `POST` | `/api/model-selections` | Simulate a user selecting a specific model version. | user | mock-backed allowed |
 | `GET` | `/api/portfolio/mock-summary` | Read selected model, mock balance, simulated allocation, and sample positions. | user | mock-backed allowed |
@@ -196,6 +199,48 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Source tables | `feed_post_reads`, `feed_posts`, `users`, plus `feed_post_reactions`, `feed_post_saves`, and `feed_post_comments` for refreshed state. |
 | Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` and DB-backed read model. |
 | Safety notes | Read state is private UI state. It must not expose other users' behavior, imply regulatory review/compliance approval, or act as recommendation, quality, return, allocation, or order signal. |
+
+### `GET /api/search`
+
+| Field | Value |
+| --- | --- |
+| Status | DB-backed grouped read API implemented in `app/api/search/route.ts`. |
+| Purpose | Provide the top search surface with grouped InvestmentModel, FeedPost, and SignalEvent results. |
+| Request | Optional query parameter `q`, trimmed and capped at 120 characters. Empty `q` returns the current grouped discovery set without falling back to external search. |
+| Response DTO | `SearchResultDto` |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
+| Screens | Top search button, future Search screen |
+| Source tables | `feed_posts`, `investment_models`, `model_creators`, `model_risk_profiles`, `model_performance_snapshots`, `users`, `model_signal_events`, `model_versions`, `market_instruments` |
+| Mock source | Existing DB seed/read models; no external realtime search provider while IS-004 is open. |
+| Safety notes | Search is read-only model discovery and information retrieval. It must not create recommendations, model selections, `TradeIntent`, orders, brokerage actions, or paid external API calls. |
+
+### `GET /api/notifications`
+
+| Field | Value |
+| --- | --- |
+| Status | DB-backed notification center read API implemented in `app/api/notifications/route.ts`. |
+| Purpose | Provide the notification button and notification center with unread/read rows derived from user-scoped feed read state. |
+| Request | Optional query parameters `userPublicId` (prototype-limited to `user_demo_001`) and `limit` (1-30, default 12). |
+| Response DTO | `NotificationCenterDto` |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
+| Screens | Top notification button, future Notification Center, My Page notification summary |
+| Source tables | `users`, `feed_posts`, `feed_post_reads`, `investment_models` |
+| Mock source | Existing DB-backed feed rows and read state. Notification delivery providers are not connected. |
+| Safety notes | The route reads notification-like FeedPost rows only. It does not send push, email, SMS, broker, order, account, or advice notifications. |
+
+### `POST /api/notifications/mark-all-read`
+
+| Field | Value |
+| --- | --- |
+| Status | DB-backed read-state action implemented in `app/api/notifications/mark-all-read/route.ts`. |
+| Purpose | Mark the current user's notification-center FeedPost rows as read and return the refreshed notification center. |
+| Request | Optional JSON body `{ userPublicId?: string, limit?: number }`; `userPublicId` is prototype-limited to `user_demo_001`, and `limit` must be 1-30. |
+| Response DTO | `{ notificationCenter: NotificationCenterDto; markedCount: number; readAt: string }` |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
+| Screens | Notification Center mark-all-read action, My Page notification summary refresh |
+| Source tables | `users`, `feed_posts`, `feed_post_reads` |
+| Mock source | Existing DB-backed feed rows and read state. |
+| Safety notes | This mutates only private read state. It does not deliver notifications, expose other users' state, create orders, connect brokers/accounts, or provide financial advice. |
 
 ### `GET /api/my/activity`
 
