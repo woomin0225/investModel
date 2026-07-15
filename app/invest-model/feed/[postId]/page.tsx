@@ -41,8 +41,6 @@ type FeedDetailPageProps = {
 
 type FeedLocale = 'ko' | 'en';
 
-const sampleUserPublicId = 'user_demo_001';
-
 type FeedDetailApiResponse = {
   data: FeedPostDetailDto;
   meta: {
@@ -53,10 +51,6 @@ type FeedDetailApiResponse = {
     financialAdvice: boolean;
   };
 };
-
-function firstSearchParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
 
 function formatPublishedAt(value: string | undefined, locale: FeedLocale) {
   if (!value) {
@@ -142,24 +136,17 @@ function CommentItem({
 }
 
 async function readInvestModelFeedPostDetail({
-  postPublicId,
-  userPublicId
+  postPublicId
 }: {
   postPublicId: string;
-  userPublicId: string;
 }) {
   const response = await readFeedPostDetail(
-    new NextRequest(
-      `http://localhost/api/feed/${postPublicId}?userPublicId=${encodeURIComponent(
-        userPublicId
-      )}`,
-      {
-        method: 'GET',
-        headers: {
-          'x-invest-model-role': 'user'
-        }
+    new NextRequest(`http://localhost/api/feed/${postPublicId}`, {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
       }
-    ),
+    }),
     {
       params: Promise.resolve({
         postId: postPublicId
@@ -185,14 +172,11 @@ export default async function InvestModelFeedDetailPage({
   const resolvedParams = await params;
   const resolvedSearchParams = (await searchParams) ?? {};
   const locale = resolveInvestModelLocale(resolvedSearchParams);
-  const userPublicId =
-    firstSearchParam(resolvedSearchParams.userPublicId) ?? sampleUserPublicId;
   const copy = investModelCopy[locale];
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const feedCopy = copy.feed;
   const post = await readInvestModelFeedPostDetail({
-    postPublicId: resolvedParams.postId,
-    userPublicId
+    postPublicId: resolvedParams.postId
   });
 
   if (!post) {
@@ -201,6 +185,7 @@ export default async function InvestModelFeedDetailPage({
 
   const currentPath = `/invest-model/feed/${resolvedParams.postId}`;
   const backHref = `/invest-model/feed?lang=${locale}`;
+  const userPublicId = post.userState.userPublicId;
   const stateItems = [
     {
       label: locale === 'ko' ? '댓글' : 'Comments',
