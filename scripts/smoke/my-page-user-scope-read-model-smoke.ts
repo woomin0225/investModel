@@ -53,6 +53,10 @@ async function main() {
     userPublicId: missingUserPublicId,
     limit: 3
   });
+  const demoNotificationCenter = await readNotificationCenter({
+    userPublicId: 'user_demo_001',
+    limit: 3
+  });
 
   assertCondition(
     demoSummary.userPublicId === 'user_demo_001' &&
@@ -68,6 +72,34 @@ async function main() {
       demoSummary.notificationSummary.totalCount > 0 &&
       demoSummary.recentNotifications.length > 0,
     'seed member summary includes scoped selection, activity, and notifications'
+  );
+  assertCondition(
+    demoNotificationCenter.userPublicId === 'user_demo_001' &&
+      demoNotificationCenter.items.length > 1,
+    'seed member notification center has multiple DB-backed items for notice isolation'
+  );
+  demoNotificationCenter.items[0]?.notices.push({
+    code: 'mutated_item_notice',
+    severity: 'info',
+    message: 'Mutated item notice should not persist.'
+  } satisfies PolicyNoticeDto);
+  assertCondition(
+    demoNotificationCenter.notices.every(
+      (notice) => notice.code !== 'mutated_item_notice'
+    ) &&
+      demoNotificationCenter.items
+        .slice(1)
+        .every((item) =>
+          item.notices.every((notice) => notice.code !== 'mutated_item_notice')
+        ),
+    'notification center item notices are isolated from sibling items and center notices'
+  );
+  const repeatedDemoSummary = await readMyPageSummary('user_demo_001');
+  assertCondition(
+    repeatedDemoSummary.recentNotifications.every((item) =>
+      item.notices.every((notice) => notice.code !== 'mutated_item_notice')
+    ),
+    'DB-backed my page summary notifications return fresh notices on repeated reads'
   );
 
   assertCondition(

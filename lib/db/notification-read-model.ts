@@ -93,7 +93,6 @@ export async function readNotificationCenter({
     .orderBy(desc(feedPosts.publishedAt), desc(feedPosts.createdAt))
     .limit(limit);
 
-  const notices = notificationPolicyNotices();
   const items = rows.map((row): NotificationCenterItemDto => {
     const feedPost = buildFeedPostDto(row);
     const status = row.readAt ? 'read' : 'unread';
@@ -111,7 +110,7 @@ export async function readNotificationCenter({
       occurredAt: formatNotificationDate(row.publishedAt),
       href: `/invest-model/feed/${feedPost.postPublicId}`,
       feedPost,
-      notices
+      notices: notificationPolicyNotices()
     };
   });
 
@@ -120,7 +119,7 @@ export async function readNotificationCenter({
     unreadCount: items.filter((item) => item.status === 'unread').length,
     items,
     dataContext: 'mock',
-    notices
+    notices: notificationPolicyNotices()
   };
 }
 
