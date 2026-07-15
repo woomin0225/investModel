@@ -107,6 +107,9 @@ const screens: ScreenCheck[] = [
     requiredCopy: [
       'Search',
       'InvestmentModels',
+      '투자 모델',
+      '피드 글',
+      '관찰 신호',
       'Mock discovery model',
       'SignalEvents',
       'DB SignalEvent',
@@ -696,13 +699,18 @@ assertCondition(
     !searchPageSource.includes("searchResultVisibleBoundaries(\n                          locale,\n                          'SignalEvent'\n                        ).map((boundary) => (") &&
     searchPageSource.includes('DB FeedPost') &&
     searchPageSource.includes('DB SignalEvent') &&
+    searchPageSource.includes("searchDbKindDisplayLabel(locale, 'FeedPost')") &&
+    searchPageSource.includes("searchDbKindDisplayLabel(locale, 'SignalEvent')") &&
+    searchPageSource.includes("'DB 피드 글'") &&
+    searchPageSource.includes("'DB 관찰 신호'") &&
     /<RiskBadge\b[^>]*>\s*\{post\.postType\}\s*<\/RiskBadge>/.test(searchPageSource) &&
-    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*DB FeedPost\s*<\/span>/.test(searchPageSource) &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{searchDbKindDisplayLabel\(locale, 'FeedPost'\)\}\s*<\/span>/.test(searchPageSource) &&
     !/<RiskBadge\b[^>]*>\s*DB FeedPost\s*<\/RiskBadge>/.test(searchPageSource) &&
     /<RiskBadge\b[^>]*>\s*\{signal\.signalType\}\s*<\/RiskBadge>/.test(searchPageSource) &&
-    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*DB SignalEvent\s*<\/span>/.test(searchPageSource) &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{searchDbKindDisplayLabel\(locale, 'SignalEvent'\)\}\s*<\/span>/.test(searchPageSource) &&
     !/<RiskBadge\b[^>]*>\s*DB SignalEvent\s*<\/RiskBadge>/.test(searchPageSource) &&
     !searchPageSource.includes("{locale === 'ko' ? 'No advice' : 'No advice'}\n                </RiskBadge>") &&
+    searchPageSource.includes('추천 아님 / 주문 없음') &&
     searchPageSource.includes('No advice / No orders'),
   'Search must present result/empty/footer safety boundaries as prose instead of hashtag safety chip groups'
 );
@@ -710,21 +718,31 @@ assertCondition(
   searchPageSource.includes("eyebrow={locale === 'ko' ? '통합 검색' : 'Search'}") &&
     searchPageSource.includes("title={locale === 'ko' ? '검색' : 'Search'}") &&
     searchPageSource.includes(
-      "locale === 'ko'\n              ? '모델, FeedPost, SignalEvent 검색'"
+      "locale === 'ko'\n              ? '모델, 피드 글, 관찰 신호 검색'"
     ) &&
     searchPageSource.includes("locale === 'ko'\n                  ? '모델, 시장, 위험도, 제목'") &&
     searchPageSource.includes("{locale === 'ko' ? '검색' : 'Search'}") &&
     searchPageSource.includes('추천 아님 / 주문 없음') &&
     searchPageSource.includes('브로커 계좌, 주문, 실시간 외부 피드, 실잔고는 검색하지 않습니다.') &&
-    searchPageSource.includes('이 검색어와 일치하는 InvestmentModel이 없습니다.') &&
-    searchPageSource.includes('이 검색어와 일치하는 DB 기반 FeedPost가 없습니다.') &&
-    searchPageSource.includes('이 검색어와 일치하는 DB 기반 SignalEvent가 없습니다.') &&
+    searchPageSource.includes('이 검색어와 일치하는 투자 모델이 없습니다.') &&
+    searchPageSource.includes('이 검색어와 일치하는 DB 기반 피드 글이 없습니다.') &&
+    searchPageSource.includes('이 검색어와 일치하는 DB 기반 관찰 신호가 없습니다.') &&
     searchPageSource.includes('DB 기반 범위 검색의 빈 상태') &&
-    searchPageSource.includes('DB 기반 읽기 모델 결과') &&
-    searchPageSource.includes('로컬 DB 기반 읽기 모델의 모델 탐색 기록') &&
+    searchPageSource.includes('DB 읽기 결과') &&
+    searchPageSource.includes('로컬 DB 기반 읽기 결과의 모델 탐색 기록') &&
+    searchPageSource.includes('투자 모델 ${filteredModels.length}개') &&
+    searchPageSource.includes('탐색 가능 투자 모델 ${filteredModels.length}개') &&
+    searchPageSource.includes('검색은 탐색 가능한 투자 모델과 DB 기반 피드 글, 관찰 신호만 읽습니다.') &&
+    searchPageSource.includes('검색 안전 경계. 결과는 모델 탐색, 정보성 피드 글, 관찰 신호이며') &&
     !searchPageSource.includes('DB-backed scoped search의 빈 상태') &&
     !searchPageSource.includes('DB-backed read model 결과') &&
     !searchPageSource.includes('로컬 DB-backed read model의 모델 탐색 기록') &&
+    !searchPageSource.includes('모델, FeedPost, SignalEvent 검색') &&
+    !searchPageSource.includes('검색은 탐색 가능한 InvestmentModel과 DB 기반 FeedPost, SignalEvent만 읽습니다.') &&
+    !searchPageSource.includes('이 검색어와 일치하는 InvestmentModel이 없습니다.') &&
+    !searchPageSource.includes('이 검색어와 일치하는 DB 기반 FeedPost가 없습니다.') &&
+    !searchPageSource.includes('이 검색어와 일치하는 DB 기반 SignalEvent가 없습니다.') &&
+    !searchPageSource.includes('검색 안전 경계. 결과는 모델 탐색, 정보성 FeedPost, 관찰 SignalEvent이며') &&
     !searchPageSource.includes("locale === 'ko' ? 'Search' : 'Search'") &&
     !searchPageSource.includes(
       "locale === 'ko'\n              ? 'Search models, FeedPosts, and SignalEvents'"
