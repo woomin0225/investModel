@@ -530,9 +530,12 @@ assertCondition(
 assertCondition(
   !modelsPageSource.includes('<SoftBanner') &&
     modelsPageSource.includes('modelDiscoveryVisibleBoundaries') &&
+    modelsPageSource.includes('modelsFooterSafetyLines.join') &&
     modelsPageSource.includes('modelsCopy.footerBadges.noLiveTrading') &&
-    modelsPageSource.includes('modelsCopy.footerBadges.backtestMock'),
-  'Discover Models must not start with the top blue SoftBanner and must preserve no-order/simulated safety context'
+    modelsPageSource.includes('modelsCopy.footerBadges.backtestMock') &&
+    !modelsPageSource.includes('{modelsCopy.footerBadges.noLiveTrading}\n            </RiskBadge>') &&
+    !modelsPageSource.includes('{modelsCopy.footerBadges.backtestMock}\n            </RiskBadge>'),
+  'Discover Models must not start with the top blue SoftBanner or footer safety chip group and must preserve no-order/simulated safety context'
 );
 assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&

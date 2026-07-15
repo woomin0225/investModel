@@ -260,6 +260,11 @@ export default async function InvestModelDiscoveryPage({
   const searchQuery = normalizeModelSearchQuery(resolvedSearchParams?.q);
   const copy = investModelCopy[locale];
   const modelsCopy = copy.models;
+  const modelsFooterSafetyLines = [
+    modelsCopy.footerBadges.noLiveTrading,
+    modelsCopy.footerBadges.approvedOnly,
+    modelsCopy.footerBadges.backtestMock
+  ];
   const {
     models: discoverableInvestmentModels,
     readFailed: modelReadFailed
@@ -565,15 +570,9 @@ export default async function InvestModelDiscoveryPage({
         </div>
 
         <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
-          <div className="flex flex-wrap gap-2">
-            <RiskBadge tone="blocked">
-              {modelsCopy.footerBadges.noLiveTrading}
-            </RiskBadge>
-            <RiskBadge>{modelsCopy.footerBadges.approvedOnly}</RiskBadge>
-            <RiskBadge tone="medium">
-              {modelsCopy.footerBadges.backtestMock}
-            </RiskBadge>
-          </div>
+          <p className="text-xs font-semibold uppercase leading-5 text-invest-text-muted">
+            {modelsFooterSafetyLines.join(' / ')}
+          </p>
           <p className="mt-3 text-sm leading-6 text-invest-text-muted">
             {modelsCopy.footer}
           </p>
