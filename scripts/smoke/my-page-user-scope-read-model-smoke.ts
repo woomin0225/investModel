@@ -101,6 +101,23 @@ async function main() {
       demoNotificationCenter.items.length > 1,
     'seed member notification center has multiple DB-backed items for notice isolation'
   );
+  assertCondition(
+    demoSummary.notificationSummary.unreadCount ===
+      demoNotificationCenter.unreadCount &&
+      demoSummary.notificationSummary.totalCount ===
+        demoNotificationCenter.items.length &&
+      demoSummary.notificationSummary.latestNotificationTitle ===
+        demoNotificationCenter.items[0]?.title &&
+      demoSummary.notificationSummary.latestNotificationHref ===
+        demoNotificationCenter.items[0]?.href &&
+      demoSummary.recentNotifications
+        .map((item) => item.notificationPublicId)
+        .join('|') ===
+        demoNotificationCenter.items
+          .map((item) => item.notificationPublicId)
+          .join('|'),
+    'seed member summary notifications match the direct member-scoped notification read model'
+  );
   demoNotificationCenter.items[0]?.notices.push({
     code: 'mutated_item_notice',
     severity: 'info',
