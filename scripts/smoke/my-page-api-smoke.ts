@@ -102,10 +102,8 @@ async function main() {
   );
   const summaryResponse = await readMyPage();
   const summaryJson = await summaryResponse.json();
-  const explicitDemoResponse = await readMyPage('?userPublicId=user_demo_001');
-  const explicitDemoJson = await explicitDemoResponse.json();
-  const invalidUserResponse = await readMyPage('?userPublicId=user_other_001');
-  const invalidUserJson = await invalidUserResponse.json();
+  const clientScopedResponse = await readMyPage('?userPublicId=user_other_001');
+  const clientScopedJson = await clientScopedResponse.json();
   const sessionScopedResponse = await readMyPageWithSession(
     '?userPublicId=user_other_001',
     sessionCookie
@@ -141,7 +139,7 @@ async function main() {
     summaryJson.meta?.routeStatus === 'db_backed' &&
       summaryJson.meta?.readOnly === true &&
       summaryJson.meta?.userScopeSource === 'demo_fallback' &&
-      summaryJson.meta?.clientUserPublicIdIgnored === false &&
+      summaryJson.meta?.clientUserPublicIdIgnored === undefined &&
       summaryJson.meta?.exposesInternalDbIds === false &&
       summaryJson.meta?.realAccountConnection === false &&
       summaryJson.meta?.realDeposit === false &&
@@ -154,21 +152,17 @@ async function main() {
     'my page summary keeps mock-safe API meta'
   );
   assertCondition(
-    explicitDemoResponse.status === 200 &&
-      explicitDemoJson.meta?.userPublicId === 'user_demo_001',
-    'explicit demo userPublicId is accepted'
-  );
-  assertCondition(
-    invalidUserResponse.status === 200 &&
-      invalidUserJson.meta?.userPublicId === 'user_demo_001' &&
-      invalidUserJson.meta?.clientUserPublicIdIgnored === true,
-    'client-provided non-demo userPublicId is ignored'
+    clientScopedResponse.status === 200 &&
+      clientScopedJson.meta?.userPublicId === 'user_demo_001' &&
+      clientScopedJson.meta?.userScopeSource === 'demo_fallback' &&
+      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined,
+    'client-provided userPublicId is not exposed as compatibility meta'
   );
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
-      sessionScopedJson.meta?.clientUserPublicIdIgnored === true &&
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001',
     'session role and user scope win over client-provided userPublicId'
   );

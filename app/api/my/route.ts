@@ -52,7 +52,9 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const userScope = await resolveInvestModelUserScope(request);
+  const userScope = await resolveInvestModelUserScope(request, {
+    ignoreClientUserPublicId: true
+  });
 
   try {
     const myPageSummary = await readMyPageSummary(userScope.userPublicId);
@@ -74,8 +76,6 @@ export async function GET(request: NextRequest) {
         ],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        clientUserPublicIdIgnored:
-          userScope.ignoredClientUserPublicId !== undefined,
         readOnly: true,
         exposesInternalDbIds: false,
         realAccountConnection: false,
