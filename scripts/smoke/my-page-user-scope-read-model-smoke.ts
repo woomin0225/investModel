@@ -7,7 +7,9 @@
 import fs from 'fs';
 import path from 'path';
 import mysql from 'mysql2/promise';
+import { NextRequest } from 'next/server';
 
+import { GET as readMyPageRoute } from '../../app/api/my/route';
 import { client } from '../../lib/db/drizzle';
 import {
   readMyPageFeedActivitySummary,
@@ -49,6 +51,19 @@ async function main() {
     await readMyPageFeedActivitySummary('user_demo_001');
   const missingUserPublicId = 'user_scope_empty_001';
   const missingSummary = await readMyPageSummary(missingUserPublicId);
+  const ignoredClientScopeRouteResponse = await readMyPageRoute(
+    new NextRequest(
+      `http://localhost/api/my?userPublicId=${missingUserPublicId}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'user'
+        }
+      }
+    )
+  );
+  const ignoredClientScopeRouteJson =
+    await ignoredClientScopeRouteResponse.json();
   const missingFeedActivity =
     await readMyPageFeedActivitySummary(missingUserPublicId);
   const missingNotificationCenter = await readNotificationCenter({
@@ -147,6 +162,19 @@ async function main() {
       missingSummary.profile.userPublicId === missingUserPublicId &&
       missingSummary.dataContext === 'mock_safe_fallback',
     'missing member summary keeps the requested public id on fallback'
+  );
+  assertCondition(
+    ignoredClientScopeRouteResponse.status === 200 &&
+      ignoredClientScopeRouteJson.data?.userPublicId === 'user_demo_001' &&
+      ignoredClientScopeRouteJson.data?.dataContext === 'db_read_model' &&
+      ignoredClientScopeRouteJson.meta?.userPublicId === 'user_demo_001' &&
+      ignoredClientScopeRouteJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredClientScopeRouteJson.meta?.dataContext ===
+        ignoredClientScopeRouteJson.data?.dataContext &&
+      !JSON.stringify(ignoredClientScopeRouteJson).includes(
+        missingUserPublicId
+      ),
+    'route-level My Page read ignores client userPublicId and keeps meta dataContext aligned with the resolved scope'
   );
   assertCondition(
     missingSummary.activeSelection === null &&
