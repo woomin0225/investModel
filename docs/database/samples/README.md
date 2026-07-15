@@ -20,5 +20,6 @@ sample values without applying them directly to MySQL.
 - `user-1-home-read-model.sample.sql`
 - `signals-score-read-model.sample.sql`
 - `feed-detail-interactions.sample.sql`
+- `user-notifications-sample.sql`
 - `portfolio-timeline-read-model.sample.sql`
 - `my-page-read-model.sample.sql`

@@ -30,8 +30,11 @@ files. Do not insert sample rows directly in a MySQL console for product work.
    simulation rows.
 6. User notifications and My Page activity rows.
    - Current notification center rows are derived from `feed_posts` and
-     `feed_post_reads`; dedicated `user_notifications` seed rows should wait
-     until that canonical table is aligned in ORM/migrations.
+     `feed_post_reads`, and `user_notifications` is now aligned in DBML, MySQL
+     SQL, ORM schema, and migration.
+   - Use `docs/database/samples/user-notifications-sample.sql` as the reviewed
+     whole-file sample before promoting dedicated notification rows into a
+     canonical seed file.
    - Current Portfolio time dashboard rows are derived from `portfolios`,
      `portfolio_positions`, `allocation_decisions`, and `trade_intents`;
      dedicated `portfolio_analysis_snapshots` seed rows should wait until that

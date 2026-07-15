@@ -666,6 +666,43 @@ export const feedPostReads = mysqlTable(
 );
 
 /**
+ * userNotifications store in-app mock notification events for the prototype.
+ * They never send push, email, SMS, broker, order, account, or advice messages.
+ */
+export const userNotifications = mysqlTable(
+  'user_notifications',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    publicId: varchar('public_id', { length: 120 }).notNull(),
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id),
+    sourceType: varchar('source_type', { length: 40 }).notNull(),
+    sourcePublicId: varchar('source_public_id', { length: 120 }).notNull(),
+    title: varchar('title', { length: 220 }).notNull(),
+    body: varchar('body', { length: 700 }),
+    status: varchar('status', { length: 30 }).notNull().default('unread'),
+    deliveryChannel: varchar('delivery_channel', { length: 30 })
+      .notNull()
+      .default('in_app_mock'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    readAt: timestamp('read_at'),
+  },
+  (table) => [
+    uniqueIndex('uq_user_notifications_public_id').on(table.publicId),
+    index('idx_user_notifications_user_status_time').on(
+      table.userId,
+      table.status,
+      table.createdAt
+    ),
+    index('idx_user_notifications_source').on(
+      table.sourceType,
+      table.sourcePublicId
+    ),
+  ]
+);
+
+/**
  * userModelSelections records a user's selected ModelVersion.
  * It is a mock-safe selection record, not a suitability profile or funding instruction.
  */
@@ -890,6 +927,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   feedPostReactions: many(feedPostReactions),
   feedPostSaves: many(feedPostSaves),
   feedPostReads: many(feedPostReads),
+  userNotifications: many(userNotifications),
 }));
 
 export const invitationsRelations = relations(invitations, ({ one }) => ({
@@ -1135,6 +1173,16 @@ export const feedPostReadsRelations = relations(
   })
 );
 
+export const userNotificationsRelations = relations(
+  userNotifications,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userNotifications.userId],
+      references: [users.id],
+    }),
+  })
+);
+
 export const userModelSelectionsRelations = relations(
   userModelSelections,
   ({ one, many }) => ({
@@ -1325,6 +1373,11 @@ export type NewFeedPostSave = typeof feedPostSaves.$inferInsert;
  */
 export type FeedPostRead = typeof feedPostReads.$inferSelect;
 export type NewFeedPostRead = typeof feedPostReads.$inferInsert;
+/**
+ * UserNotification is an in-app mock notification event, not delivery.
+ */
+export type UserNotification = typeof userNotifications.$inferSelect;
+export type NewUserNotification = typeof userNotifications.$inferInsert;
 /**
  * UserModelSelection records selected ModelVersion state without funding or suitability settings.
  */
