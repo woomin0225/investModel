@@ -24,8 +24,8 @@ import {
   resolveInvestModelLocale,
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
-import { GET as readMyActivity } from '@/app/api/my/activity/route';
-import type { MyPageFeedActivitySummary } from '@/lib/domain/my-page/feed-activity';
+import { GET as readMySummary } from '@/app/api/my/route';
+import type { MyPageSummaryDto } from '@/lib/domain/my-page/summary';
 import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
 
@@ -42,9 +42,9 @@ function getActivitySortTime(activityAt?: string) {
   return Number.isNaN(time) ? 0 : time;
 }
 
-async function readMyPageActivityRoute(): Promise<MyPageFeedActivitySummary> {
-  const response = await readMyActivity(
-    new NextRequest('http://localhost/api/my/activity', {
+async function readMyPageSummaryRoute(): Promise<MyPageSummaryDto> {
+  const response = await readMySummary(
+    new NextRequest('http://localhost/api/my', {
       method: 'GET',
       headers: {
         'x-invest-model-role': 'user'
@@ -53,15 +53,15 @@ async function readMyPageActivityRoute(): Promise<MyPageFeedActivitySummary> {
   );
 
   if (!response.ok) {
-    throw new Error('My Page activity route read failed.');
+    throw new Error('My Page summary route read failed.');
   }
 
   const payload = (await response.json()) as {
-    data?: MyPageFeedActivitySummary;
+    data?: MyPageSummaryDto;
   };
 
   if (!payload.data) {
-    throw new Error('My Page activity route returned no data.');
+    throw new Error('My Page summary route returned no data.');
   }
 
   return payload.data;
@@ -248,8 +248,11 @@ export default async function InvestModelMyPage({
 }: InvestModelMyPageProps) {
   const locale = resolveInvestModelLocale(await searchParams);
   const copy = myPageCopy[locale];
-  const activitySummary = await readMyPageActivityRoute();
+  const myPageSummary = await readMyPageSummaryRoute();
+  const activitySummary = myPageSummary.feedActivity;
+  const notificationSummary = myPageSummary.notificationSummary;
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
+  const profileTitle = `${myPageSummary.profile.displayName} · ${myPageSummary.profile.roleLabel}`;
   const savedValue =
     locale === 'ko'
       ? `${activitySummary.savedCount}개`
@@ -267,7 +270,7 @@ export default async function InvestModelMyPage({
     activitySummary.latestCommentPostTitle ??
     (locale === 'ko' ? 'DB 댓글 활동 없음' : 'No comment activity');
   const sourceTrend =
-    activitySummary.sourceLabel === 'db_read_model'
+    myPageSummary.dataContext === 'db_read_model'
       ? 'DB read model'
       : locale === 'ko'
         ? '대기'
@@ -290,6 +293,12 @@ export default async function InvestModelMyPage({
         getActivitySortTime(left.activityAt)
     )
     .slice(0, 4);
+  const noticesValue = `${notificationSummary.unreadCount}/${notificationSummary.totalCount}`;
+  const noticesDescription =
+    notificationSummary.latestNotificationTitle ??
+    (locale === 'ko'
+      ? 'DB notification read-model activity 없음'
+      : 'No DB notification read-model activity');
 
   return (
     <MobileShell
@@ -310,7 +319,7 @@ export default async function InvestModelMyPage({
       <section className="space-y-invest-section-gap">
         <SoftBanner
           eyebrow={copy.bannerEyebrow}
-          title={copy.bannerTitle}
+          title={profileTitle}
           description={copy.bannerDescription}
           icon={UserRound}
         />
@@ -332,8 +341,8 @@ export default async function InvestModelMyPage({
           />
           <MetricCard
             label={copy.summary.notices}
-            value={copy.summary.noticesValue}
-            description={copy.summary.noticesDescription}
+            value={noticesValue}
+            description={noticesDescription}
             trend={locale === 'ko' ? 'mock' : 'mock'}
             tone="risk"
             className="p-3"
