@@ -14,7 +14,10 @@ import {
   type ModelSelectionRequest,
   validateModelSelectionRequest
 } from '@/lib/domain/models/model-selection';
-import type { AccessRole } from '@/lib/domain/types';
+import {
+  readInvestModelRole,
+  resolveInvestModelUserScope
+} from '@/lib/server/invest-model-user-scope';
 
 /**
  * This route records a mock-safe user selection of an InvestmentModel version.
@@ -44,22 +47,6 @@ function errorResponse(
     },
     { status }
   );
-}
-
-function readRole(request: NextRequest): AccessRole {
-  const role = request.headers.get('x-invest-model-role');
-
-  if (
-    role === 'public' ||
-    role === 'user' ||
-    role === 'creator' ||
-    role === 'admin' ||
-    role === 'system'
-  ) {
-    return role;
-  }
-
-  return 'public';
 }
 
 function canSelectModel(model: typeof investmentModels.$inferSelect) {
@@ -99,7 +86,7 @@ function selectionMeta(extra?: Record<string, boolean | string>) {
 }
 
 export async function GET(request: NextRequest) {
-  const role = readRole(request);
+  const role = readInvestModelRole(request);
 
   if (!canCreateModelSelection(role)) {
     return errorResponse(
@@ -109,17 +96,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const userPublicId = request.nextUrl.searchParams
-    .get('userPublicId')
-    ?.trim();
-
-  if (!userPublicId) {
-    return errorResponse(
-      422,
-      'validation_error',
-      'userPublicId query parameter is required to read a mock-safe model selection.'
-    );
-  }
+  const userScope = await resolveInvestModelUserScope(request);
 
   try {
     const [row] = await db
@@ -141,7 +118,7 @@ export async function GET(request: NextRequest) {
       )
       .where(
         and(
-          eq(users.publicId, userPublicId),
+          eq(users.publicId, userScope.userPublicId),
           eq(userModelSelections.status, 'active')
         )
       )
@@ -153,6 +130,10 @@ export async function GET(request: NextRequest) {
         {
           data: null,
           meta: selectionMeta({
+            userPublicId: userScope.userPublicId,
+            userScopeSource: userScope.source,
+            clientUserPublicIdIgnored:
+              userScope.ignoredClientUserPublicId !== undefined,
             activeSelectionFound: false,
             emptyState: 'no_active_model_selection'
           })
@@ -174,6 +155,10 @@ export async function GET(request: NextRequest) {
         row.selection
       ),
       meta: selectionMeta({
+        userPublicId: userScope.userPublicId,
+        userScopeSource: userScope.source,
+        clientUserPublicIdIgnored:
+          userScope.ignoredClientUserPublicId !== undefined,
         activeSelectionFound: true
       })
     });
@@ -187,7 +172,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const role = readRole(request);
+  const role = readInvestModelRole(request);
 
   if (!canCreateModelSelection(role)) {
     return errorResponse(
@@ -209,13 +194,27 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const validation = validateModelSelectionRequest(body);
+  const clientUserPublicId =
+    typeof body === 'object' &&
+    body !== null &&
+    'userPublicId' in body &&
+    typeof body.userPublicId === 'string'
+      ? body.userPublicId.trim()
+      : undefined;
+  const userScope = await resolveInvestModelUserScope(request, {
+    clientUserPublicId
+  });
+  const scopedBody =
+    typeof body === 'object' && body !== null
+      ? { ...body, userPublicId: userScope.userPublicId }
+      : body;
+  const validation = validateModelSelectionRequest(scopedBody);
 
   if (!validation.success) {
     return errorResponse(
       422,
       'validation_error',
-      'Model selection requires userPublicId, modelPublicId, and modelVersionPublicId.',
+      'Model selection requires modelPublicId and modelVersionPublicId. User scope is resolved by the session.',
       validation.error
     );
   }
@@ -294,7 +293,11 @@ export async function POST(request: NextRequest) {
         {
           data: toSelectionDto(validation.data, existingSelection),
           meta: selectionMeta({
-            duplicateActiveSelection: true,
+            userPublicId: userScope.userPublicId,
+            userScopeSource: userScope.source,
+            clientUserPublicIdIgnored:
+              userScope.ignoredClientUserPublicId !== undefined,
+            duplicateActiveSelection: true
           })
         },
         { status: 200 }
@@ -337,7 +340,11 @@ export async function POST(request: NextRequest) {
       {
         data: toSelectionDto(validation.data, createdSelection),
         meta: selectionMeta({
-          duplicateActiveSelection: false,
+          userPublicId: userScope.userPublicId,
+          userScopeSource: userScope.source,
+          clientUserPublicIdIgnored:
+            userScope.ignoredClientUserPublicId !== undefined,
+          duplicateActiveSelection: false
         })
       },
       { status: 201 }

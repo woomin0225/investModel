@@ -22,12 +22,19 @@ function assertCondition(condition: unknown, message: string): asserts condition
 }
 
 const smokeUserPublicId = 'user_model_selection_smoke';
+const demoUserPublicId = 'user_demo_001';
 const smokeModelPublicId = 'model_selection_smoke_model';
 const smokeModelVersionPublicId = 'model_version_selection_smoke_v1';
 const smokeEmail = 'model-selection-smoke@example.test';
 const smokeSlug = 'model-selection-smoke-model';
 
 async function cleanupSmokeRows() {
+  const [demoUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.publicId, demoUserPublicId))
+    .limit(1);
+
   const [smokeUser] = await db
     .select({ id: users.id })
     .from(users)
@@ -45,6 +52,18 @@ async function cleanupSmokeRows() {
     .from(modelVersions)
     .where(eq(modelVersions.publicId, smokeModelVersionPublicId))
     .limit(1);
+
+  if (demoUser && smokeModel && smokeVersion) {
+    await db
+      .delete(userModelSelections)
+      .where(
+        and(
+          eq(userModelSelections.userId, demoUser.id),
+          eq(userModelSelections.modelId, smokeModel.id),
+          eq(userModelSelections.modelVersionId, smokeVersion.id)
+        )
+      );
+  }
 
   if (smokeUser && smokeModel && smokeVersion) {
     await db
@@ -184,6 +203,13 @@ async function readModelSelectionApi() {
 async function main() {
   await cleanupSmokeRows();
   const smokeRows = await createSmokeRows();
+  const [demoUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.publicId, demoUserPublicId))
+    .limit(1);
+
+  assertCondition(Boolean(demoUser), 'demo user must exist for session fallback scope');
 
   const firstResponse = await callModelSelectionApi();
   const firstJson = await firstResponse.json();
@@ -206,12 +232,30 @@ async function main() {
         eq(userModelSelections.status, 'active')
       )
     );
+  const demoPersistedRows = await db
+    .select({
+      publicId: userModelSelections.publicId,
+      status: userModelSelections.status
+    })
+    .from(userModelSelections)
+    .where(
+      and(
+        eq(userModelSelections.userId, demoUser!.id),
+        eq(userModelSelections.modelId, smokeRows.modelId),
+        eq(userModelSelections.modelVersionId, smokeRows.versionId),
+        eq(userModelSelections.status, 'active')
+      )
+    );
 
   assertCondition(firstResponse.status === 201, 'first selection should create');
   assertCondition(secondResponse.status === 200, 'duplicate selection should reuse');
   assertCondition(
-    persistedRows.length === 1,
-    'one active user_model_selections row should be persisted'
+    persistedRows.length === 0,
+    'client-provided smoke user should not receive a selection'
+  );
+  assertCondition(
+    demoPersistedRows.length === 1,
+    'one active demo-scoped user_model_selections row should be persisted'
   );
   assertCondition(
     firstJson.meta?.persistence === 'persisted' &&
@@ -220,8 +264,15 @@ async function main() {
   );
   assertCondition(
     firstJson.meta?.duplicateActiveSelection === false &&
-      secondJson.meta?.duplicateActiveSelection === true,
-    'duplicateActiveSelection should distinguish create and reuse'
+      secondJson.meta?.duplicateActiveSelection === true &&
+      firstJson.meta?.clientUserPublicIdIgnored === true &&
+      secondJson.meta?.clientUserPublicIdIgnored === true,
+    'duplicateActiveSelection should distinguish create and reuse while ignoring client userPublicId'
+  );
+  assertCondition(
+    firstJson.data?.userPublicId === demoUserPublicId &&
+      secondJson.data?.userPublicId === demoUserPublicId,
+    'POST responses should be scoped to the server-resolved demo user'
   );
   assertCondition(
     firstJson.meta?.financialOperationsEnabled === false &&
@@ -233,8 +284,13 @@ async function main() {
   assertCondition(readResponse.status === 200, 'GET selection should respond');
   assertCondition(
     readJson.meta?.activeSelectionFound === true &&
-      readJson.data?.publicId === persistedRows[0]?.publicId,
+      readJson.data?.publicId === demoPersistedRows[0]?.publicId &&
+      readJson.meta?.clientUserPublicIdIgnored === true,
     'GET selection should read the same active DB selection'
+  );
+  assertCondition(
+    readJson.data?.userPublicId === demoUserPublicId,
+    'GET response should be scoped to the server-resolved demo user'
   );
   assertCondition(
     readJson.data?.modelPublicId === smokeModelPublicId &&
@@ -258,9 +314,12 @@ async function main() {
           firstStatus: firstResponse.status,
           secondStatus: secondResponse.status,
           readStatus: readResponse.status,
-          activeSelectionCount: persistedRows.length,
+          activeSelectionCount: demoPersistedRows.length,
+          clientRequestedSelectionCount: persistedRows.length,
           persistence: firstJson.meta?.persistence,
           duplicateActiveSelection: secondJson.meta?.duplicateActiveSelection,
+          clientUserPublicIdIgnored:
+            firstJson.meta?.clientUserPublicIdIgnored,
           readActiveSelectionFound: readJson.meta?.activeSelectionFound,
           readSelectionPublicId: readJson.data?.publicId,
           financialOperationsEnabled:
