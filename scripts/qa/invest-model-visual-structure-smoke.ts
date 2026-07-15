@@ -421,6 +421,20 @@ const feedCardSaveActionNormalizedSource = feedCardSaveActionSource.replace(
   /\r\n/g,
   '\n'
 );
+const feedSaveActionSource = readProjectFile(
+  'components/invest-model/feed-save-action.tsx'
+);
+const feedSaveActionNormalizedSource = feedSaveActionSource.replace(
+  /\r\n/g,
+  '\n'
+);
+const feedReadActionSource = readProjectFile(
+  'components/invest-model/feed-read-action.tsx'
+);
+const feedReadActionNormalizedSource = feedReadActionSource.replace(
+  /\r\n/g,
+  '\n'
+);
 const adminReportsPageSource = readProjectFile(
   'app/invest-model/admin/reports/page.tsx'
 );
@@ -777,6 +791,23 @@ assertCondition(
     !feedCardSaveActionNormalizedSource.includes("setErrorMessage('Could not update saved state.')") &&
     !feedCardSaveActionNormalizedSource.includes('`${ariaLabel} Last update failed.`'),
   'Feed card save action Korean fallback, title, and aria copy must not fall back to English'
+);
+assertCondition(
+  feedSaveActionNormalizedSource.includes("'비공개 읽기 바로가기로 저장되었습니다. 모델 선택, 배분, 주문 의도가 아닙니다.'") &&
+    feedSaveActionNormalizedSource.includes("'저장되지 않았습니다. 저장은 비공개 읽기 바로가기만 만들며 모델 선택, 배분, 주문 의도가 아닙니다.'") &&
+    feedSaveActionNormalizedSource.includes("'개인 읽기 바로가기이며 모델 선택·배분·주문 신호가 아닙니다.'") &&
+    feedSaveActionNormalizedSource.includes('aria-label={actionTitle}') &&
+    !feedSaveActionNormalizedSource.includes("const actionTitle = reactionState.saved\n    ? 'Saved as a private reading shortcut.") &&
+    !feedSaveActionNormalizedSource.includes('개인 읽기 shortcut'),
+  'Feed save action Korean title and visible boundary copy must not fall back to English'
+);
+assertCondition(
+  feedReadActionNormalizedSource.includes("'비공개 읽기 기록으로 표시되었습니다. 조언, 주문, 승인 신호가 아닙니다.'") &&
+    feedReadActionNormalizedSource.includes("'비공개 읽기 기록으로 표시하는 중입니다. 조언, 주문, 승인 신호가 아닙니다.'") &&
+    feedReadActionNormalizedSource.includes("'읽음 기록이 대기 중입니다. 비공개 읽기 기록일 뿐 조언, 주문, 승인 신호가 아닙니다.'") &&
+    feedReadActionNormalizedSource.includes("? '처리 중'") &&
+    !feedReadActionNormalizedSource.includes("const readStateLabel = isDone\n    ? 'Read state marked as private reading history."),
+  'Feed read action Korean aria and title copy must not fall back to English'
 );
 assertCondition(
   adminReportsPageSource.includes("t.stateLabels.join(' / ')") &&

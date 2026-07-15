@@ -107,10 +107,16 @@ export function FeedReadAction({
   const isDone = status === 'done' && reactionState.read;
   const isPending = status === 'pending';
   const readStateLabel = isDone
-    ? 'Read state marked as private reading history. Not advice, order, or approval signal.'
+    ? isKorean
+      ? '비공개 읽기 기록으로 표시되었습니다. 조언, 주문, 승인 신호가 아닙니다.'
+      : 'Read state marked as private reading history. Not advice, order, or approval signal.'
     : isPending
-      ? 'Read state is being marked as private reading history. Not advice, order, or approval signal.'
-      : 'Read state is pending. Private reading history only; not advice, order, or approval signal.';
+      ? isKorean
+        ? '비공개 읽기 기록으로 표시하는 중입니다. 조언, 주문, 승인 신호가 아닙니다.'
+        : 'Read state is being marked as private reading history. Not advice, order, or approval signal.'
+      : isKorean
+        ? '읽음 기록이 대기 중입니다. 비공개 읽기 기록일 뿐 조언, 주문, 승인 신호가 아닙니다.'
+        : 'Read state is pending. Private reading history only; not advice, order, or approval signal.';
 
   return (
     <div
@@ -134,7 +140,7 @@ export function FeedReadAction({
                 : 'Done'
               : isPending
                 ? isKorean
-                  ? '처리중'
+                  ? '처리 중'
                   : 'Marking'
                 : isKorean
                   ? '대기'

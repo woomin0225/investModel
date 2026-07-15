@@ -56,8 +56,12 @@ export function FeedSaveAction({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isKorean = locale === 'ko';
   const actionTitle = reactionState.saved
-    ? 'Saved as a private reading shortcut. Not model selection, allocation, or order intent.'
-    : 'Not saved. Save only creates a private reading shortcut, not model selection, allocation, or order intent.';
+    ? isKorean
+      ? '비공개 읽기 바로가기로 저장되었습니다. 모델 선택, 배분, 주문 의도가 아닙니다.'
+      : 'Saved as a private reading shortcut. Not model selection, allocation, or order intent.'
+    : isKorean
+      ? '저장되지 않았습니다. 저장은 비공개 읽기 바로가기만 만들며 모델 선택, 배분, 주문 의도가 아닙니다.'
+      : 'Not saved. Save only creates a private reading shortcut, not model selection, allocation, or order intent.';
 
   async function handleToggleSave() {
     if (isPending) {
@@ -119,6 +123,7 @@ export function FeedSaveAction({
         onClick={handleToggleSave}
         disabled={isPending}
         aria-pressed={reactionState.saved}
+        aria-label={actionTitle}
         aria-live="polite"
         title={actionTitle}
         className={cn(
@@ -170,7 +175,7 @@ export function FeedSaveAction({
       ) : (
         <p className="mt-2 text-[11px] font-semibold leading-4 text-invest-text-muted">
           {isKorean
-            ? '개인 읽기 shortcut이며 모델 선택·배분·주문 신호가 아닙니다.'
+            ? '개인 읽기 바로가기이며 모델 선택·배분·주문 신호가 아닙니다.'
             : 'A private reading shortcut, not model selection, allocation, or order intent.'}
         </p>
       )}
