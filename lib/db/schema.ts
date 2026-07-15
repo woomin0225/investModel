@@ -437,6 +437,79 @@ export const modelSignalEvents = mysqlTable(
 );
 
 /**
+ * signalScoreSnapshots store mock-safe score history for SignalEvent rows.
+ * They are score evidence snapshots only, not recommendations or TradeIntent instructions.
+ */
+export const signalScoreSnapshots = mysqlTable(
+  'signal_score_snapshots',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    signalEventId: int('signal_event_id').notNull(),
+    totalScore: decimal('total_score', { precision: 8, scale: 4 }).notNull(),
+    rankValue: int('rank_value'),
+    rankDelta: int('rank_delta'),
+    calculationContext: varchar('calculation_context', { length: 40 })
+      .notNull()
+      .default('mock_seed'),
+    capturedAt: timestamp('captured_at').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_signal_score_signal_time').on(
+      table.signalEventId,
+      table.capturedAt
+    ),
+    index('idx_signal_score_rank_time').on(
+      table.rankValue,
+      table.capturedAt
+    ),
+    index('idx_signal_score_context').on(table.calculationContext),
+    foreignKey({
+      name: 'fk_signal_score_signal_id',
+      columns: [table.signalEventId],
+      foreignColumns: [modelSignalEvents.id],
+    }),
+  ]
+);
+
+/**
+ * signalScoreInputs store weighted mock-safe inputs behind each SignalEvent score snapshot.
+ * External paid or live data sources remain blocked until reviewed.
+ */
+export const signalScoreInputs = mysqlTable(
+  'signal_score_inputs',
+  {
+    id: int('id').autoincrement().primaryKey(),
+    scoreSnapshotId: int('score_snapshot_id').notNull(),
+    sourceType: varchar('source_type', { length: 40 }).notNull(),
+    rawValue: decimal('raw_value', { precision: 18, scale: 6 }),
+    normalizedScore: decimal('normalized_score', {
+      precision: 8,
+      scale: 4,
+    }).notNull(),
+    weight: decimal('weight', { precision: 8, scale: 4 }).notNull(),
+    sourceLabel: varchar('source_label', { length: 160 }),
+    capturedAt: timestamp('captured_at').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_signal_score_inputs_snapshot_source').on(
+      table.scoreSnapshotId,
+      table.sourceType
+    ),
+    index('idx_signal_score_inputs_source_time').on(
+      table.sourceType,
+      table.capturedAt
+    ),
+    foreignKey({
+      name: 'fk_score_input_snapshot_id',
+      columns: [table.scoreSnapshotId],
+      foreignColumns: [signalScoreSnapshots.id],
+    }),
+  ]
+);
+
+/**
  * feedPosts store informational commentary for Feed screens.
  * They must not contain investment advice, return guarantees, or trade instructions.
  */
