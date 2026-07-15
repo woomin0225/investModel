@@ -106,6 +106,7 @@ Environment:
 - At least one API 24+ emulator exists.
 - At least one physical Android phone is available for smoke testing.
 - USB debugging is enabled for physical device testing.
+- Current Windows readiness check: `docs/mobile/android-environment-check.md`
 
 Commands:
 
