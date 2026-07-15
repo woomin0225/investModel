@@ -128,7 +128,7 @@ function portfolioBlockedActionsAccessibleLabel(
   portfolio: InvestModelPortfolioSummary
 ) {
   if (locale === 'ko') {
-    return `TradeIntent 차단 상태. ${portfolio.tradeIntent.boundaryLabel}. ${portfolio.tradeIntent.blockedActions.length}개 실제 기능 비활성화. 실제 입금, 실계좌 연결, 주문 실행, 브로커 동작, 투자 조언이 연결되지 않았습니다.`;
+    return `주문 전 의도 차단 상태. ${portfolio.tradeIntent.boundaryLabel}. ${portfolio.tradeIntent.blockedActions.length}개 실제 기능 비활성화. 실제 입금, 실계좌 연결, 주문 실행, 브로커 동작, 투자 조언이 연결되지 않았습니다.`;
   }
 
   return `TradeIntent blocked state. ${portfolio.tradeIntent.boundaryLabel}. ${portfolio.tradeIntent.blockedActions.length} real-world actions disabled. No real deposit, account connection, order execution, brokerage action, or investment advice is connected.`;
@@ -668,12 +668,12 @@ export default async function InvestModelPortfolioPage({
               <p
                 aria-label={
                   locale === 'ko'
-                    ? 'Portfolio mock summary 안전 경계'
+                    ? '포트폴리오 모의 요약 안전 경계'
                     : 'Portfolio mock summary safety boundaries'
                 }
                 title={
                   locale === 'ko'
-                    ? 'Portfolio mock summary 안전 경계'
+                    ? '포트폴리오 모의 요약 안전 경계'
                     : 'Portfolio mock summary safety boundaries'
                 }
                 className="mt-3 rounded-invest-control border border-invest-risk/10 bg-invest-surface px-2 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted"

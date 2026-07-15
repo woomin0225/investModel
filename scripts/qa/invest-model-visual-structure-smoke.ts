@@ -1036,6 +1036,8 @@ assertCondition(
     portfolioPageSource.includes('DB 기반 모의 요약이며 사용자 투자성향 설정') &&
     portfolioPageSource.includes('시뮬레이션 구성 비중이며 실제 보유 종목') &&
     portfolioPageSource.includes('시뮬레이션 전용 결정 파이프라인이며 실제 주문') &&
+    portfolioPageSource.includes('주문 전 의도 차단 상태.') &&
+    portfolioPageSource.includes('포트폴리오 모의 요약 안전 경계') &&
     portfolioPageSource.includes('const timeDashboardSafetyLine') &&
     portfolioPageSource.includes("portfolio.mockDeposit.safetyLabel,\n    copy.preOrderOnly,\n    copy.noBrokerage") &&
     portfolioPageSource.includes('const snapshotSafetyLine') &&
@@ -1055,6 +1057,9 @@ assertCondition(
     !portfolioPageSource.includes('DB-backed mock summary이며') &&
     !portfolioPageSource.includes('시뮬레이션 allocation mix') &&
     !portfolioPageSource.includes('simulation-only 결정 파이프라인') &&
+    !portfolioPageSource.includes('주문 전 의도(TradeIntent) 차단 상태') &&
+    !portfolioPageSource.includes('TradeIntent 차단 상태.') &&
+    !portfolioPageSource.includes('Portfolio mock summary 안전 경계') &&
     !portfolioPageSource.includes('timeDashboardVisibleBoundaries.map((boundary) => (') &&
     !portfolioPageSource.includes('blockedVisibleBoundaries.map((boundary) => (') &&
     !portfolioPageSource.includes('<RiskBadge tone="neutral">\n                {portfolio.mockDeposit.safetyLabel}\n              </RiskBadge>') &&
