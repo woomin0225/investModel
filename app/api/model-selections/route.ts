@@ -132,8 +132,6 @@ export async function GET(request: NextRequest) {
           meta: selectionMeta({
             userPublicId: userScope.userPublicId,
             userScopeSource: userScope.source,
-            clientUserPublicIdIgnored:
-              userScope.ignoredClientUserPublicId !== undefined,
             activeSelectionFound: false,
             emptyState: 'no_active_model_selection'
           })
@@ -157,8 +155,6 @@ export async function GET(request: NextRequest) {
       meta: selectionMeta({
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        clientUserPublicIdIgnored:
-          userScope.ignoredClientUserPublicId !== undefined,
         activeSelectionFound: true
       })
     });
@@ -194,15 +190,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const clientUserPublicId =
-    typeof body === 'object' &&
-    body !== null &&
-    'userPublicId' in body &&
-    typeof body.userPublicId === 'string'
-      ? body.userPublicId.trim()
-      : undefined;
   const userScope = await resolveInvestModelUserScope(request, {
-    clientUserPublicId
+    ignoreClientUserPublicId: true
   });
   const scopedBody =
     typeof body === 'object' && body !== null
@@ -295,8 +284,6 @@ export async function POST(request: NextRequest) {
           meta: selectionMeta({
             userPublicId: userScope.userPublicId,
             userScopeSource: userScope.source,
-            clientUserPublicIdIgnored:
-              userScope.ignoredClientUserPublicId !== undefined,
             duplicateActiveSelection: true
           })
         },
@@ -342,8 +329,6 @@ export async function POST(request: NextRequest) {
         meta: selectionMeta({
           userPublicId: userScope.userPublicId,
           userScopeSource: userScope.source,
-          clientUserPublicIdIgnored:
-            userScope.ignoredClientUserPublicId !== undefined,
           duplicateActiveSelection: false
         })
       },

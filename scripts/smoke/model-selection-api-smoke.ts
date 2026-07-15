@@ -177,7 +177,6 @@ async function callModelSelectionApi() {
         'x-invest-model-role': 'user'
       },
       body: JSON.stringify({
-        userPublicId: smokeUserPublicId,
         modelPublicId: smokeModelPublicId,
         modelVersionPublicId: smokeModelVersionPublicId,
         riskAcknowledgedAt: new Date().toISOString()
@@ -188,15 +187,12 @@ async function callModelSelectionApi() {
 
 async function readModelSelectionApi() {
   return GET(
-    new NextRequest(
-      `http://localhost/api/model-selections?userPublicId=${smokeUserPublicId}`,
-      {
-        method: 'GET',
-        headers: {
-          'x-invest-model-role': 'user'
-        }
+    new NextRequest('http://localhost/api/model-selections', {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
       }
-    )
+    })
   );
 }
 
@@ -265,9 +261,9 @@ async function main() {
   assertCondition(
     firstJson.meta?.duplicateActiveSelection === false &&
       secondJson.meta?.duplicateActiveSelection === true &&
-      firstJson.meta?.clientUserPublicIdIgnored === true &&
-      secondJson.meta?.clientUserPublicIdIgnored === true,
-    'duplicateActiveSelection should distinguish create and reuse while ignoring client userPublicId'
+      firstJson.meta?.clientUserPublicIdIgnored === undefined &&
+      secondJson.meta?.clientUserPublicIdIgnored === undefined,
+    'duplicateActiveSelection should distinguish create and reuse without client userPublicId compatibility metadata'
   );
   assertCondition(
     firstJson.data?.userPublicId === demoUserPublicId &&
@@ -285,7 +281,7 @@ async function main() {
   assertCondition(
     readJson.meta?.activeSelectionFound === true &&
       readJson.data?.publicId === demoPersistedRows[0]?.publicId &&
-      readJson.meta?.clientUserPublicIdIgnored === true,
+      readJson.meta?.clientUserPublicIdIgnored === undefined,
     'GET selection should read the same active DB selection'
   );
   assertCondition(
@@ -318,8 +314,8 @@ async function main() {
           clientRequestedSelectionCount: persistedRows.length,
           persistence: firstJson.meta?.persistence,
           duplicateActiveSelection: secondJson.meta?.duplicateActiveSelection,
-          clientUserPublicIdIgnored:
-            firstJson.meta?.clientUserPublicIdIgnored,
+          clientUserPublicIdCompatibility:
+            firstJson.meta?.clientUserPublicIdIgnored ?? 'not_exposed',
           readActiveSelectionFound: readJson.meta?.activeSelectionFound,
           readSelectionPublicId: readJson.data?.publicId,
           financialOperationsEnabled:
