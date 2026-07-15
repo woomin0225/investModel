@@ -91,7 +91,7 @@ export function FeedCardSaveAction({
       aria-pressed={saved}
       title={saved ? savedTitle : ariaLabel}
       className={cn(
-        'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border px-2 text-[12px] font-semibold leading-4 disabled:cursor-wait disabled:opacity-80',
+        'relative z-20 group inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-invest-control border px-2 text-[12px] font-semibold leading-4 disabled:cursor-wait disabled:opacity-80',
         saved
           ? 'border-invest-primary/20 bg-invest-primary-soft text-invest-primary'
           : 'border-transparent bg-invest-bg-soft text-invest-text-muted hover:text-invest-primary',
@@ -109,7 +109,7 @@ export function FeedCardSaveAction({
           )}
         />
       )}
-      <span className="truncate">{label}</span>
+      <span className="min-w-0 truncate">{label}</span>
     </button>
   );
 }

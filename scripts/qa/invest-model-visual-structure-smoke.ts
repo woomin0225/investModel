@@ -807,6 +807,39 @@ assertCondition(
   'Feed card actions must not describe DB-backed interactions as simulated list state'
 );
 assertCondition(
+  feedPageSource.includes('feedCardVisualCopy') &&
+    feedPageSource.includes("mediaLabel: '모델 메모'") &&
+    feedPageSource.includes("mediaLabel: '시장 맥락'") &&
+    feedPageSource.includes("mediaLabel: '위험 메모'") &&
+    feedPageSource.includes("mediaLabel: '검토 메모'") &&
+    feedPageSource.includes("mediaLabel: 'Model note'") &&
+    feedPageSource.includes("mediaLabel: 'Market context'") &&
+    feedPageSource.includes("sourceContextLabel: '모델 관찰 메모 출처'") &&
+    feedPageSource.includes("sourceContextLabel: '시장 관찰 맥락 출처'") &&
+    feedPageSource.includes("reactionContextLabel: '읽음, 저장, 댓글 상태만 기록'") &&
+    feedPageSource.includes("reactionContextLabel: '정보성 반응 상태만 기록'") &&
+    feedPageSource.includes('h-20 w-16 shrink-0') &&
+    feedPageSource.includes('line-clamp-2 text-[10px]') &&
+    feedPageSource.includes('min-[390px]:grid-cols-[64px_minmax(0,1fr)]') &&
+    feedPageSource.includes('line-clamp-2 break-words text-[17px]') &&
+    feedPageSource.includes('grid grid-cols-2 gap-1.5 rounded-invest-control bg-invest-bg-soft p-1.5') &&
+    feedPageSource.includes('grid-cols-[repeat(3,minmax(0,1fr))]') &&
+    feedPageSource.includes('min-[360px]:grid-cols-2') &&
+    feedPageSource.includes('post.sourceContextLabel') &&
+    feedPageSource.includes('post.reactionContextLabel') &&
+    feedPageSource.includes('<Newspaper') &&
+    feedPageSource.includes('<Activity') &&
+    feedPageSource.includes('FeedCardSaveAction') &&
+    feedCardSaveActionSource.includes('min-h-9 min-w-0') &&
+    feedCardSaveActionSource.includes('<span className="min-w-0 truncate">{label}</span>') &&
+    feedPageSource.includes('feedDetailSectionHref') &&
+    !feedPageSource.includes('real deposit') &&
+    !feedPageSource.includes('brokerage CTA') &&
+    !feedPageSource.includes('Buy now') &&
+    !feedPageSource.includes('Sell now'),
+  'BK-438 Feed cards must expose scan-friendly media/source/reaction structure without trading or brokerage affordances'
+);
+assertCondition(
   feedPageSource.includes("locale === 'ko' ? '연결 모델 없음' : 'No linked model'") &&
     feedPageSource.includes('추적 좋아요 ${ranking.likeCount}개') &&
     feedPageSource.includes("title={locale === 'ko' ? '좋아요 순위' : 'Like ranking'}") &&

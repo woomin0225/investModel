@@ -1,8 +1,10 @@
 import {
+  Activity,
   Bookmark,
   Eye,
   MessageCircle,
   MessageSquareText,
+  Newspaper,
   ShieldCheck,
   Trophy
 } from 'lucide-react';
@@ -73,6 +75,9 @@ type FeedCard = {
   tone: FeedPostTone;
   excerpt: string;
   linkedModelName: string;
+  mediaLabel: string;
+  sourceContextLabel: string;
+  reactionContextLabel: string;
   tags: string[];
 };
 
@@ -122,6 +127,63 @@ const feedPostTypeTags = {
   }
 } as const satisfies Record<FeedLocale, Record<FeedPostType, string[]>>;
 
+const feedCardVisualCopy = {
+  ko: {
+    model_note: {
+      mediaLabel: '모델 메모',
+      sourceContextLabel: '모델 관찰 메모 출처',
+      reactionContextLabel: '읽음, 저장, 댓글 상태만 기록'
+    },
+    market_context: {
+      mediaLabel: '시장 맥락',
+      sourceContextLabel: '시장 관찰 맥락 출처',
+      reactionContextLabel: '정보성 반응 상태만 기록'
+    },
+    risk_note: {
+      mediaLabel: '위험 메모',
+      sourceContextLabel: '위험 관찰 메모 출처',
+      reactionContextLabel: '투자 조언이 아닌 확인 상태'
+    },
+    review_note: {
+      mediaLabel: '검토 메모',
+      sourceContextLabel: '운영 검토 메모 출처',
+      reactionContextLabel: '검토 읽기 바로가기 상태'
+    }
+  },
+  en: {
+    model_note: {
+      mediaLabel: 'Model note',
+      sourceContextLabel: 'Model observation source',
+      reactionContextLabel: 'Read, save, and comment state only'
+    },
+    market_context: {
+      mediaLabel: 'Market context',
+      sourceContextLabel: 'Market observation source',
+      reactionContextLabel: 'Informational reaction state only'
+    },
+    risk_note: {
+      mediaLabel: 'Risk note',
+      sourceContextLabel: 'Risk observation source',
+      reactionContextLabel: 'Review state, not investment advice'
+    },
+    review_note: {
+      mediaLabel: 'Review note',
+      sourceContextLabel: 'Operator review note source',
+      reactionContextLabel: 'Review reading shortcut state'
+    }
+  }
+} as const satisfies Record<
+  FeedLocale,
+  Record<
+    FeedPostType,
+    {
+      mediaLabel: string;
+      sourceContextLabel: string;
+      reactionContextLabel: string;
+    }
+  >
+>;
+
 function firstSearchParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -165,6 +227,7 @@ function formatPublishedAt(value: string | undefined, locale: FeedLocale) {
 
 function toFeedCard(post: FeedPostDto, locale: FeedLocale): FeedCard {
   const body = post.body.trim();
+  const visualCopy = feedCardVisualCopy[locale][post.postType];
 
   return {
     id: post.postPublicId,
@@ -180,13 +243,28 @@ function toFeedCard(post: FeedPostDto, locale: FeedLocale): FeedCard {
     linkedModelName:
       post.linkedModelName ??
       (locale === 'ko' ? '연결 모델 없음' : 'No linked model'),
+    mediaLabel: visualCopy.mediaLabel,
+    sourceContextLabel: visualCopy.sourceContextLabel,
+    reactionContextLabel: visualCopy.reactionContextLabel,
     tags: [...feedPostTypeTags[locale][post.postType]]
   };
 }
 
-function copyPostToFeedCard(post: CopyFeedPost): FeedCard {
+function copyPostToFeedCard(post: CopyFeedPost, locale: FeedLocale): FeedCard {
+  const visualCopy =
+    post.typeLabel === feedPostTypeLabels[locale].market_context
+      ? feedCardVisualCopy[locale].market_context
+      : post.typeLabel === feedPostTypeLabels[locale].risk_note
+        ? feedCardVisualCopy[locale].risk_note
+        : post.typeLabel === feedPostTypeLabels[locale].review_note
+          ? feedCardVisualCopy[locale].review_note
+          : feedCardVisualCopy[locale].model_note;
+
   return {
     ...post,
+    mediaLabel: visualCopy.mediaLabel,
+    sourceContextLabel: visualCopy.sourceContextLabel,
+    reactionContextLabel: visualCopy.reactionContextLabel,
     tags: [...post.tags]
   };
 }
@@ -392,7 +470,7 @@ export default async function InvestModelFeedPage({
     feedReadState === 'db'
       ? dbPosts.map((post) => toFeedCard(post, locale))
       : feedReadState === 'fallback'
-        ? fallbackPosts.map(copyPostToFeedCard)
+        ? fallbackPosts.map((post) => copyPostToFeedCard(post, locale))
         : [];
   const visiblePostCountLabel =
     locale === 'ko' ? `${posts.length}개 표시` : `${posts.length} shown`;
@@ -524,14 +602,17 @@ export default async function InvestModelFeedPage({
                       postToneAccent[post.tone]
                     )}
                   />
-                  <div className="relative z-0 flex items-start gap-3">
+                  <div className="relative z-0 grid gap-3 min-[390px]:grid-cols-[64px_minmax(0,1fr)]">
                     <div
                       className={cn(
-                        'grid size-11 shrink-0 place-items-center rounded-invest-control transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
+                        'grid h-20 w-16 shrink-0 place-items-center rounded-invest-control px-2 py-2 text-center transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100',
                         postToneIcon[post.tone]
                       )}
                     >
                       <MessageSquareText aria-hidden className="size-5" />
+                      <span className="line-clamp-2 text-[10px] font-bold leading-3">
+                        {post.mediaLabel}
+                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
@@ -539,15 +620,11 @@ export default async function InvestModelFeedPage({
                           <p className="truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
                             {post.authorLabel}
                           </p>
-                          <h3 className="mt-1 text-[17px] font-semibold leading-6 text-invest-text">
+                          <h3 className="mt-1 line-clamp-2 break-words text-[17px] font-semibold leading-6 text-invest-text">
                             {post.title}
                           </h3>
-                          <div className="mt-2 grid grid-cols-3 gap-1.5 rounded-invest-control bg-invest-bg-soft p-1.5">
-                            {[
-                              post.sourceLabel,
-                              post.timeLabel,
-                              post.typeLabel
-                            ].map((meta) => (
+                          <div className="mt-2 grid grid-cols-2 gap-1.5 rounded-invest-control bg-invest-bg-soft p-1.5">
+                            {[post.sourceLabel, post.timeLabel].map((meta) => (
                               <span
                                 key={`${post.id}-${meta}`}
                                 className="min-w-0 truncate rounded-invest-badge bg-invest-surface px-2 py-1 text-center text-[10px] font-bold leading-4 text-invest-text-muted transition-[background-color,color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/55 group-hover:text-invest-primary group-active:scale-[0.98] motion-reduce:transition-none motion-reduce:group-active:scale-100"
@@ -555,6 +632,26 @@ export default async function InvestModelFeedPage({
                                 {meta}
                               </span>
                             ))}
+                          </div>
+                          <div className="mt-2 grid gap-1.5 min-[360px]:grid-cols-2">
+                            <p className="flex min-w-0 items-center gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-1.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                              <Newspaper
+                                aria-hidden
+                                className="size-3.5 shrink-0 text-invest-primary"
+                              />
+                              <span className="truncate">
+                                {post.sourceContextLabel}
+                              </span>
+                            </p>
+                            <p className="flex min-w-0 items-center gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-1.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                              <Activity
+                                aria-hidden
+                                className="size-3.5 shrink-0 text-invest-primary"
+                              />
+                              <span className="truncate">
+                                {post.reactionContextLabel}
+                              </span>
+                            </p>
                           </div>
                         </div>
                         <div className="shrink-0 text-right">
@@ -596,7 +693,7 @@ export default async function InvestModelFeedPage({
                           </RiskBadge>
                         ))}
                       </div>
-                      <div className="mt-3 grid grid-cols-3 gap-2 border-t border-invest-border pt-3">
+                      <div className="mt-3 grid grid-cols-[repeat(3,minmax(0,1fr))] gap-2 border-t border-invest-border pt-3">
                         {feedActions.map((action, index) => {
                           const Icon = feedActionIcons[index];
                           const isPrimaryAction = index === 0;
@@ -619,7 +716,7 @@ export default async function InvestModelFeedPage({
                                 aria-pressed="true"
                                 title={actionAccessibleLabel}
                                 className={cn(
-                                  'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border border-invest-primary/20 bg-invest-primary-soft px-2 text-[12px] font-semibold leading-4 text-invest-primary',
+                                  'relative z-20 group inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-invest-control border border-invest-primary/20 bg-invest-primary-soft px-2 text-[12px] font-semibold leading-4 text-invest-primary',
                                   investMotionClass.interactiveControl
                                 )}
                               >
@@ -627,7 +724,9 @@ export default async function InvestModelFeedPage({
                                   aria-hidden
                                   className="size-3.5 fill-invest-primary/10 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
                                 />
-                                <span className="truncate">{action}</span>
+                                <span className="min-w-0 truncate">
+                                  {action}
+                                </span>
                               </Link>
                             ) : isSaveAction ? (
                               <FeedCardSaveAction
@@ -648,7 +747,7 @@ export default async function InvestModelFeedPage({
                                 aria-label={actionAccessibleLabel}
                                 title={actionAccessibleLabel}
                                 className={cn(
-                                  'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border border-transparent bg-invest-bg-soft px-2 text-[12px] font-semibold leading-4 text-invest-text-muted hover:text-invest-primary',
+                                  'relative z-20 group inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-invest-control border border-transparent bg-invest-bg-soft px-2 text-[12px] font-semibold leading-4 text-invest-text-muted hover:text-invest-primary',
                                   investMotionClass.interactiveControl
                                 )}
                               >
@@ -656,7 +755,9 @@ export default async function InvestModelFeedPage({
                                   aria-hidden
                                   className="size-3.5 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
                                 />
-                                <span className="truncate">{action}</span>
+                                <span className="min-w-0 truncate">
+                                  {action}
+                                </span>
                               </Link>
                             ) : (
                               <button
@@ -666,7 +767,7 @@ export default async function InvestModelFeedPage({
                                 aria-pressed="false"
                                 title={actionAccessibleLabel}
                                 className={cn(
-                                  'relative z-20 group inline-flex min-h-9 items-center justify-center gap-1.5 rounded-invest-control border border-transparent bg-invest-bg-soft px-2 text-[12px] font-semibold leading-4 text-invest-text-muted hover:text-invest-primary',
+                                  'relative z-20 group inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-invest-control border border-transparent bg-invest-bg-soft px-2 text-[12px] font-semibold leading-4 text-invest-text-muted hover:text-invest-primary',
                                   investMotionClass.interactiveControl
                                 )}
                               >
@@ -674,7 +775,9 @@ export default async function InvestModelFeedPage({
                                   aria-hidden
                                   className="size-3.5 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-active:scale-100"
                                 />
-                                <span className="truncate">{action}</span>
+                                <span className="min-w-0 truncate">
+                                  {action}
+                                </span>
                               </button>
                             )
                           );
