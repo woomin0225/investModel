@@ -76,6 +76,63 @@ const discoverySummaryCopy = {
   }
 } as const;
 
+const discoverySearchTopicCopy = {
+  ko: {
+    label: '탐색 주제',
+    description: '모델의 시장, 위험, 운용 범위를 빠르게 좁혀 봅니다.',
+    topics: [
+      {
+        id: 'market-us-equity',
+        kind: 'market',
+        label: '미국 주식 범위',
+        query: '미국 주식',
+        helper: '시장 범위'
+      },
+      {
+        id: 'mandate-etf',
+        kind: 'mandate',
+        label: 'ETF 운용 범위',
+        query: 'ETF',
+        helper: '운용 범위'
+      },
+      {
+        id: 'risk-lower',
+        kind: 'risk',
+        label: '낮은 위험 프로필',
+        query: '낮은 위험',
+        helper: '위험 성향'
+      }
+    ]
+  },
+  en: {
+    label: 'Explore topics',
+    description: 'Narrow by model market, risk, and mandate scope.',
+    topics: [
+      {
+        id: 'market-us-equity',
+        kind: 'market',
+        label: 'US equity scope',
+        query: 'US equities',
+        helper: 'Market scope'
+      },
+      {
+        id: 'mandate-etf',
+        kind: 'mandate',
+        label: 'ETF mandate scope',
+        query: 'ETF',
+        helper: 'Mandate scope'
+      },
+      {
+        id: 'risk-lower',
+        kind: 'risk',
+        label: 'Lower-risk profile',
+        query: 'low risk',
+        helper: 'Risk posture'
+      }
+    ]
+  }
+} as const;
+
 const modelReadStateCopy = {
   ko: {
     dbLabel: 'DB 기반 조회',
@@ -283,6 +340,7 @@ export default async function InvestModelDiscoveryPage({
   const selectedFilterLabel =
     modelsCopy.filters[selectedFilterIndex] ?? modelsCopy.filters[0];
   const summaryCopy = discoverySummaryCopy[locale];
+  const searchTopicCopy = discoverySearchTopicCopy[locale];
   const readStateCopy = modelReadStateCopy[locale];
   const modelListLabel =
     locale === 'ko' ? '표시 중인 투자 모델 목록' : 'Shown investment models';
@@ -403,6 +461,40 @@ export default async function InvestModelDiscoveryPage({
                 {locale === 'ko' ? '검색' : 'Search'}
               </button>
             </form>
+            <div
+              aria-label={searchTopicCopy.label}
+              className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-3"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[12px] font-bold leading-5 text-invest-text">
+                    {searchTopicCopy.label}
+                  </p>
+                  <p className="mt-0.5 text-[12px] font-medium leading-5 text-invest-text-muted">
+                    {searchTopicCopy.description}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {searchTopicCopy.topics.map((topic) => (
+                  <Link
+                    key={topic.id}
+                    href={getDiscoveryFilterHref('all', locale, topic.query)}
+                    className={cn(
+                      'inline-flex min-h-invest-touch-target min-w-0 max-w-full basis-[calc(50%-4px)] flex-col justify-center rounded-invest-control border border-invest-border bg-invest-surface px-3 py-2 text-left shadow-invest-card hover:border-invest-primary/30 hover:bg-invest-primary-soft focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg min-[420px]:basis-auto',
+                      investMotionClass.interactiveControl
+                    )}
+                  >
+                    <span className="truncate text-[13px] font-bold leading-5 text-invest-text">
+                      {topic.label}
+                    </span>
+                    <span className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
+                      {topic.helper}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
             <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
               <div className="flex w-max gap-2 pr-invest-screen-x">
                 {investModelDiscoveryFilterIds.map((filterId, index) => {

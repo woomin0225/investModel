@@ -1499,6 +1499,38 @@ assertCondition(
   ),
   'Mock Portfolio lacks no-live-order boundary language'
 );
+assertCondition(
+  modelsPageSource.includes('discoverySearchTopicCopy') &&
+    modelsPageSource.includes("label: '탐색 주제'") &&
+    modelsPageSource.includes("label: 'Explore topics'") &&
+    modelsPageSource.includes("id: 'market-us-equity'") &&
+    modelsPageSource.includes("id: 'mandate-etf'") &&
+    modelsPageSource.includes("id: 'risk-lower'") &&
+    modelsPageSource.includes("kind: 'market'") &&
+    modelsPageSource.includes("kind: 'mandate'") &&
+    modelsPageSource.includes("kind: 'risk'") &&
+    modelsPageSource.includes("label: '미국 주식 범위'") &&
+    modelsPageSource.includes("label: 'ETF 운용 범위'") &&
+    modelsPageSource.includes("label: '낮은 위험 프로필'") &&
+    modelsPageSource.includes("label: 'US equity scope'") &&
+    modelsPageSource.includes("label: 'ETF mandate scope'") &&
+    modelsPageSource.includes("label: 'Lower-risk profile'") &&
+    modelsPageSource.includes('모델의 시장, 위험, 운용 범위') &&
+    modelsPageSource.includes('model market, risk, and mandate scope') &&
+    modelsPageSource.includes('searchTopicCopy.topics.map') &&
+    modelsPageSource.includes('key={topic.id}') &&
+    modelsPageSource.includes('href={getDiscoveryFilterHref(') &&
+    modelsPageSource.includes('flex flex-wrap gap-2') &&
+    modelsPageSource.includes('basis-[calc(50%-4px)]') &&
+    modelsPageSource.includes('min-w-0 max-w-full') &&
+    modelsPageSource.includes('focus:ring-2 focus:ring-invest-primary') &&
+    modelsPageSource.includes('hover:border-invest-primary/30') &&
+    !modelsPageSource.includes('Buy') &&
+    !modelsPageSource.includes('Sell') &&
+    !modelsPageSource.includes('매수') &&
+    !modelsPageSource.includes('매도'),
+  'Discover Models search topic chips must wrap on 390px, keep focus states, and stay limited to model market/risk/mandate exploration'
+);
 
 assertNoLongUnbrokenText('All investModel mobile screens', collectScreenTextValues());
 
