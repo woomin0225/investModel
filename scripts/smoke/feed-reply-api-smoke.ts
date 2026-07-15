@@ -132,6 +132,7 @@ async function main() {
       body: smokeReplyBody
     }
   );
+  const missingUserPublicIdJson = await missingUserPublicIdResponse.json();
   const missingBodyResponse = await replyRequest(
     'feed_mock_001',
     parentCommentPublicId,
@@ -171,7 +172,7 @@ async function main() {
       body: smokeReplyBody
     }
   );
-  const userNotFoundResponse = await replyRequest(
+  const ignoredUserResponse = await replyRequest(
     'feed_mock_001',
     parentCommentPublicId,
     {
@@ -179,6 +180,7 @@ async function main() {
       body: smokeReplyBody
     }
   );
+  const ignoredUserJson = await ignoredUserResponse.json();
   const createResponse = await replyRequest(
     'feed_mock_001',
     parentCommentPublicId,
@@ -195,8 +197,10 @@ async function main() {
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(
-    missingUserPublicIdResponse.status === 422,
-    'userPublicId is required'
+    missingUserPublicIdResponse.status === 201 &&
+      missingUserPublicIdJson.meta?.userScopeSource === 'demo_fallback' &&
+      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === false,
+    'missing userPublicId falls back to the mock-safe demo scope'
   );
   assertCondition(missingBodyResponse.status === 422, 'body is required');
   assertCondition(
@@ -212,7 +216,12 @@ async function main() {
     hiddenParentResponse.status === 404,
     'hidden parent comment is not replyable'
   );
-  assertCondition(userNotFoundResponse.status === 404, 'missing user is 404');
+  assertCondition(
+    ignoredUserResponse.status === 201 &&
+      ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client userPublicId is ignored for reply creation'
+  );
   assertCondition(createResponse.status === 201, 'reply creation responds');
   assertCondition(
     createJson.data?.postPublicId === 'feed_mock_001' &&

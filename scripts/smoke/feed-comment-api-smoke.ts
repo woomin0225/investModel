@@ -85,6 +85,7 @@ async function main() {
   const missingUserPublicIdResponse = await commentRequest('feed_mock_001', {
     body: smokeCommentBody
   });
+  const missingUserPublicIdJson = await missingUserPublicIdResponse.json();
   const missingBodyResponse = await commentRequest('feed_mock_001', {
     userPublicId: 'user_demo_001'
   });
@@ -96,10 +97,11 @@ async function main() {
     userPublicId: 'user_demo_001',
     body: smokeCommentBody
   });
-  const userNotFoundResponse = await commentRequest('feed_mock_001', {
+  const ignoredUserResponse = await commentRequest('feed_mock_001', {
     userPublicId: 'user_missing',
     body: smokeCommentBody
   });
+  const ignoredUserJson = await ignoredUserResponse.json();
   const createResponse = await commentRequest('feed_mock_001', {
     userPublicId: 'user_demo_001',
     body: smokeCommentBody
@@ -108,8 +110,10 @@ async function main() {
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
   assertCondition(
-    missingUserPublicIdResponse.status === 422,
-    'userPublicId is required'
+    missingUserPublicIdResponse.status === 201 &&
+      missingUserPublicIdJson.meta?.userScopeSource === 'demo_fallback' &&
+      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === false,
+    'missing userPublicId falls back to the mock-safe demo scope'
   );
   assertCondition(missingBodyResponse.status === 422, 'body is required');
   assertCondition(
@@ -117,7 +121,12 @@ async function main() {
     'long body returns validation error'
   );
   assertCondition(notFoundResponse.status === 404, 'missing post is 404');
-  assertCondition(userNotFoundResponse.status === 404, 'missing user is 404');
+  assertCondition(
+    ignoredUserResponse.status === 201 &&
+      ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client userPublicId is ignored for comment creation'
+  );
   assertCondition(createResponse.status === 201, 'comment creation responds');
   assertCondition(
     createJson.data?.postPublicId === 'feed_mock_001' &&
