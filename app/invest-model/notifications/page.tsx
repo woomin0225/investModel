@@ -6,6 +6,7 @@ import { Bell, CheckCircle2, Search, ShieldCheck } from 'lucide-react';
 import { POST as markAllNotificationsRead } from '@/app/api/notifications/mark-all-read/route';
 import { GET as readNotifications } from '@/app/api/notifications/route';
 import {
+  EmptyStateCta,
   investMotionClass,
   MobileShell,
   RiskBadge,
@@ -446,6 +447,20 @@ export default async function InvestModelNotificationsPage({
                 <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
                   {notificationEmptyVisibleBoundaries(locale).join(' / ')}
                 </p>
+                <EmptyStateCta
+                  href={withInvestModelLocale('/invest-model/feed', locale)}
+                  label={locale === 'ko' ? '피드 보기' : 'View Feed'}
+                  description={
+                    locale === 'ko'
+                      ? '알림의 출처가 되는 DB 기반 피드 글을 읽어봅니다.'
+                      : 'Browse DB-backed FeedPosts that notification candidates derive from.'
+                  }
+                  ariaLabel={
+                    locale === 'ko'
+                      ? '피드 보기. 알림의 출처가 되는 DB 기반 피드 글을 읽어봅니다. 실제 푸시, 이메일, 문자, 주문, 브로커 동작, 투자 조언이 아닙니다.'
+                      : 'View Feed. Browse DB-backed FeedPosts that notification candidates derive from. Not real push, email, SMS, orders, brokerage action, or investment advice.'
+                  }
+                />
               </div>
             )}
           </div>

@@ -23,6 +23,7 @@ export {
 export {
   InvestmentModelCard,
   InvestmentModelDetail,
+  EmptyStateCta,
   MetricCard,
   ModelCard,
   ModelRiskBadgeGroup,

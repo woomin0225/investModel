@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from 'react';
 import { ArrowRight, ShieldCheck, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 type IconComponent = ComponentType<{
@@ -51,6 +52,14 @@ type MetricCardProps = {
   description?: string;
   trend?: string;
   tone?: 'neutral' | 'positive' | 'risk';
+  className?: string;
+};
+
+type EmptyStateCtaProps = {
+  href: string;
+  label: string;
+  description: string;
+  ariaLabel?: string;
   className?: string;
 };
 
@@ -323,6 +332,43 @@ export function MetricCard({
         </p>
       ) : null}
     </article>
+  );
+}
+
+/**
+ * EmptyStateCta gives empty states one safe navigation action without implying money movement, orders, or advice.
+ */
+export function EmptyStateCta({
+  href,
+  label,
+  description,
+  ariaLabel,
+  className
+}: EmptyStateCtaProps) {
+  return (
+    <Link
+      href={href}
+      aria-label={ariaLabel ?? `${label}. ${description}`}
+      title={ariaLabel ?? `${label}. ${description}`}
+      className={cn(
+        'group mt-4 flex min-h-invest-touch-target min-w-0 items-center justify-between gap-3 rounded-invest-control border border-invest-border bg-invest-bg-soft px-3 py-2.5 text-left shadow-invest-card',
+        investMotionClass.interactiveControl,
+        className
+      )}
+    >
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-bold leading-5 text-invest-primary">
+          {label}
+        </span>
+        <span className="mt-0.5 line-clamp-2 block text-[12px] font-semibold leading-5 text-invest-text-muted">
+          {description}
+        </span>
+      </span>
+      <ArrowRight
+        aria-hidden
+        className="size-4 shrink-0 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-active:scale-100"
+      />
+    </Link>
   );
 }
 

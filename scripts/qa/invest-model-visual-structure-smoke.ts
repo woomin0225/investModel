@@ -650,6 +650,33 @@ assertCondition(
   'Feed filters must use URL postType state, DB-backed /api/feed filtering, active link state, and visible result counts'
 );
 assertCondition(
+  investModelUiSource.includes('export function EmptyStateCta') &&
+    investModelUiSource.includes('min-h-invest-touch-target') &&
+    investModelUiSource.includes('aria-label={ariaLabel ?? `${label}. ${description}`}') &&
+    feedPageSource.includes('<EmptyStateCta') &&
+    feedPageSource.includes(": 'View all FeedPosts'}") &&
+    feedPageSource.includes('Clear the filter and browse DB-backed FeedPosts again.') &&
+    feedPageSource.includes('Not advice, an order, brokerage action, or realtime external data.') &&
+    signalsPageSource.includes('<EmptyStateCta') &&
+    signalsPageSource.includes(": 'View all signals'}") &&
+    signalsPageSource.includes('Clear the filter and return to DB-backed observation signals.') &&
+    signalsPageSource.includes('Not advice, an order, TradeIntent, or realtime external data.') &&
+    notificationsPageSource.includes('<EmptyStateCta') &&
+    notificationsPageSource.includes(": 'View Feed'}") &&
+    notificationsPageSource.includes('Browse DB-backed FeedPosts that notification candidates derive from.') &&
+    notificationsPageSource.includes('Not real push, email, SMS, orders, brokerage action, or investment advice.') &&
+    myPageSource.includes('<EmptyStateCta') &&
+    myPageSource.includes(": 'Browse Feed'}") &&
+    myPageSource.includes('Read DB-backed FeedPosts without creating saved or comment activity.') &&
+    myPageSource.includes('Not advice, orders, real accounts, or notification delivery.') &&
+    !feedPageSource.includes('Deposit now') &&
+    !feedPageSource.includes('Connect brokerage') &&
+    !signalsPageSource.includes('Buy now') &&
+    !notificationsPageSource.includes('Sell now') &&
+    !myPageSource.includes('guarantee returns'),
+  'BK-439 major empty states must provide safe locale-aware read-only CTAs without trading, deposit, brokerage, or return-claim affordances'
+);
+assertCondition(
   feedDetailPageSource.includes('id="comments"') &&
     feedDetailPageSource.includes('<FeedCommentAction'),
   'Feed detail must expose a comments anchor for Feed card comment actions'

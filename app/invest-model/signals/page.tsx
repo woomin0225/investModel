@@ -4,6 +4,7 @@ import { ShieldAlert } from 'lucide-react';
 import { GET as readSignals } from '@/app/api/signals/route';
 import {
   MetricCard,
+  EmptyStateCta,
   MobileShell,
   RiskBadge,
   SectionHeader,
@@ -581,6 +582,20 @@ export default async function InvestModelSignalsPage({
                 {locale === 'ko'
                   ? '선택한 필터에 표시할 DB 신호가 없습니다. 신호는 모의 관찰값 기준으로만 표시됩니다.'
                   : 'No DB signals are available for this filter. Signals remain seed/mock observations only.'}
+                <EmptyStateCta
+                  href={signalFilterHref(locale, 'all')}
+                  label={locale === 'ko' ? '전체 신호 보기' : 'View all signals'}
+                  description={
+                    locale === 'ko'
+                      ? '필터를 해제하고 DB 기반 관찰 신호 목록으로 돌아갑니다.'
+                      : 'Clear the filter and return to DB-backed observation signals.'
+                  }
+                  ariaLabel={
+                    locale === 'ko'
+                      ? '전체 신호 보기. 필터를 해제하고 DB 기반 관찰 신호 목록으로 돌아갑니다. 추천, 주문, TradeIntent, 실시간 외부 데이터가 아닙니다.'
+                      : 'View all signals. Clears the filter and returns to DB-backed observation signals. Not advice, an order, TradeIntent, or realtime external data.'
+                  }
+                />
               </div>
             )}
           </div>

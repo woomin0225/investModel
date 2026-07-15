@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import {
   investMotionClass,
+  EmptyStateCta,
   MetricCard,
   MobileShell,
   ModelSelectionReadStatus,
@@ -584,11 +585,26 @@ export default async function InvestModelMyPage({
                 ))}
               </div>
             ) : (
-              <p className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-sm leading-5 text-invest-text-muted">
+              <div className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-sm leading-5 text-invest-text-muted">
                 {locale === 'ko'
                   ? '표시할 DB 피드 글 활동이 아직 없습니다.'
                   : 'No DB FeedPost activity to show yet.'}
-              </p>
+                <EmptyStateCta
+                  href={withInvestModelLocale('/invest-model/feed', locale)}
+                  label={locale === 'ko' ? '피드 읽기' : 'Browse Feed'}
+                  description={
+                    locale === 'ko'
+                      ? '저장이나 댓글 없이 DB 기반 피드 글을 읽어봅니다.'
+                      : 'Read DB-backed FeedPosts without creating saved or comment activity.'
+                  }
+                  ariaLabel={
+                    locale === 'ko'
+                      ? '피드 읽기. 저장이나 댓글 없이 DB 기반 피드 글을 읽어봅니다. 추천, 주문, 실계좌, 실제 알림 전송과 연결되지 않습니다.'
+                      : 'Browse Feed. Read DB-backed FeedPosts without creating saved or comment activity. Not advice, orders, real accounts, or notification delivery.'
+                  }
+                  className="bg-invest-surface"
+                />
+              </div>
             )}
 
             <p className="mt-3 text-[12px] leading-5 text-invest-text-muted">

@@ -15,6 +15,7 @@ import { GET as readFeedPosts } from '@/app/api/feed/route';
 import { GET as readFeedRankings } from '@/app/api/feed/rankings/route';
 import {
   FeedCardSaveAction,
+  EmptyStateCta,
   investMotionClass,
   MobileShell,
   RiskBadge,
@@ -801,6 +802,20 @@ export default async function InvestModelFeedPage({
                 <p className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
                   {feedEmptyVisibleBoundaries(locale).join(' / ')}
                 </p>
+                <EmptyStateCta
+                  href={filterHref(locale, null)}
+                  label={locale === 'ko' ? '전체 피드 보기' : 'View all FeedPosts'}
+                  description={
+                    locale === 'ko'
+                      ? '필터를 해제하고 DB 기반 피드 글을 다시 탐색합니다.'
+                      : 'Clear the filter and browse DB-backed FeedPosts again.'
+                  }
+                  ariaLabel={
+                    locale === 'ko'
+                      ? '전체 피드 보기. 필터를 해제하고 DB 기반 피드 글을 다시 탐색합니다. 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.'
+                      : 'View all FeedPosts. Clears the filter and browses DB-backed FeedPosts again. Not advice, an order, brokerage action, or realtime external data.'
+                  }
+                />
               </div>
             )}
           </div>
