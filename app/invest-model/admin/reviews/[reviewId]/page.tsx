@@ -145,8 +145,10 @@ export default async function AdminReviewDetailPage({
               {model.riskLabel}
             </RiskBadge>
             <RiskBadge tone="medium">{model.leverageLabel}</RiskBadge>
-            <RiskBadge tone="blocked">{t.actionsDisabled}</RiskBadge>
           </div>
+          <p className="mt-3 text-xs font-medium leading-5 text-invest-danger">
+            {t.actionsDisabled}
+          </p>
         </article>
 
         <DetailSection title={t.summary}>
