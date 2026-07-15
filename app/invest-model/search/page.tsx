@@ -187,9 +187,13 @@ export default async function InvestModelSearchPage({
   const filteredFeedPosts = searchResults.feedPosts;
   const filteredSignals = searchResults.signalEvents;
   const resultLabel =
-    query.length > 0
-      ? `${filteredModels.length} InvestmentModels | ${filteredFeedPosts.length} FeedPosts | ${filteredSignals.length} SignalEvents`
-      : `${filteredModels.length} discoverable InvestmentModels | ${filteredFeedPosts.length} recent FeedPosts | ${filteredSignals.length} recent SignalEvents`;
+    locale === 'ko'
+      ? query.length > 0
+        ? `InvestmentModels ${filteredModels.length}개 | FeedPosts ${filteredFeedPosts.length}개 | SignalEvents ${filteredSignals.length}개`
+        : `탐색 가능 InvestmentModels ${filteredModels.length}개 | 최근 FeedPosts ${filteredFeedPosts.length}개 | 최근 SignalEvents ${filteredSignals.length}개`
+      : query.length > 0
+        ? `${filteredModels.length} InvestmentModels | ${filteredFeedPosts.length} FeedPosts | ${filteredSignals.length} SignalEvents`
+        : `${filteredModels.length} discoverable InvestmentModels | ${filteredFeedPosts.length} recent FeedPosts | ${filteredSignals.length} recent SignalEvents`;
   const searchAccessibleLabel = searchFormAccessibleLabel(
     locale,
     query,
@@ -199,8 +203,8 @@ export default async function InvestModelSearchPage({
   return (
     <MobileShell
       activeTab="home"
-      eyebrow={locale === 'ko' ? 'Search' : 'Search'}
-      title={locale === 'ko' ? 'Search' : 'Search'}
+      eyebrow={locale === 'ko' ? '통합 검색' : 'Search'}
+      title={locale === 'ko' ? '검색' : 'Search'}
       locale={locale}
       currentPath="/invest-model/search"
       trailing={
@@ -225,7 +229,7 @@ export default async function InvestModelSearchPage({
           >
             <Search aria-hidden className="size-4 text-invest-primary" />
             {locale === 'ko'
-              ? 'Search models, FeedPosts, and SignalEvents'
+              ? '모델, FeedPost, SignalEvent 검색'
               : 'Search models, FeedPosts, and SignalEvents'}
           </label>
           <div className="mt-3 flex gap-2">
@@ -237,7 +241,7 @@ export default async function InvestModelSearchPage({
               title={searchAccessibleLabel}
               placeholder={
                 locale === 'ko'
-                  ? 'Model, market, risk, or headline'
+                  ? '모델, 시장, 위험도, 제목'
                   : 'Model, market, risk, or headline'
               }
               className={cn(
@@ -254,12 +258,12 @@ export default async function InvestModelSearchPage({
                 investMotionClass.interactiveControl
               )}
             >
-              {locale === 'ko' ? 'Search' : 'Search'}
+              {locale === 'ko' ? '검색' : 'Search'}
             </button>
           </div>
           <p className="mt-3 text-[12px] font-semibold leading-5 text-invest-text-muted">
             {locale === 'ko'
-              ? 'Search reads discoverable InvestmentModels plus DB-backed FeedPosts and SignalEvents. It does not search broker accounts, orders, realtime external feeds, or real balances.'
+              ? '검색은 탐색 가능한 InvestmentModel과 DB-backed FeedPost, SignalEvent만 읽습니다. 브로커 계좌, 주문, 실시간 외부 피드, 실잔고는 검색하지 않습니다.'
               : 'Search reads discoverable InvestmentModels plus DB-backed FeedPosts and SignalEvents. It does not search broker accounts, orders, realtime external feeds, or real balances.'}
           </p>
         </form>
@@ -268,9 +272,13 @@ export default async function InvestModelSearchPage({
           <SectionHeader
             title={locale === 'ko' ? 'InvestmentModels' : 'InvestmentModels'}
             description={
-              query.length > 0
-                ? `${filteredModels.length} DB read model results`
-                : `${filteredModels.length} DB-backed discoverable models`
+              locale === 'ko'
+                ? query.length > 0
+                  ? `DB read model 결과 ${filteredModels.length}개`
+                  : `DB-backed 탐색 가능 모델 ${filteredModels.length}개`
+                : query.length > 0
+                  ? `${filteredModels.length} DB read model results`
+                  : `${filteredModels.length} DB-backed discoverable models`
             }
           />
           <div
@@ -358,7 +366,11 @@ export default async function InvestModelSearchPage({
               <EmptySearchResultCard
                 locale={locale}
                 kind="InvestmentModel"
-                message="No InvestmentModel matched this search."
+                message={
+                  locale === 'ko'
+                    ? '이 검색어와 일치하는 InvestmentModel이 없습니다.'
+                    : 'No InvestmentModel matched this search.'
+                }
               />
             )}
           </div>
@@ -366,7 +378,7 @@ export default async function InvestModelSearchPage({
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
-            title={locale === 'ko' ? 'Results' : 'Results'}
+            title={locale === 'ko' ? 'FeedPost 결과' : 'Results'}
             description={resultLabel}
           />
           <div
@@ -383,13 +395,19 @@ export default async function InvestModelSearchPage({
                     locale,
                     'FeedPost',
                     post.title,
-                    post.linkedModelName ?? 'Unlinked FeedPost'
+                    post.linkedModelName ??
+                      (locale === 'ko'
+                        ? '연결된 FeedPost 없음'
+                        : 'Unlinked FeedPost')
                   )}
                   title={searchResultAccessibleLabel(
                     locale,
                     'FeedPost',
                     post.title,
-                    post.linkedModelName ?? 'Unlinked FeedPost'
+                    post.linkedModelName ??
+                      (locale === 'ko'
+                        ? '연결된 FeedPost 없음'
+                        : 'Unlinked FeedPost')
                   )}
                   className={cn(
                     'group block rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
@@ -415,7 +433,10 @@ export default async function InvestModelSearchPage({
                       </p>
                       <div className="mt-3 flex items-center justify-between gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2">
                         <span className="min-w-0 truncate text-[12px] font-semibold leading-4 text-invest-text-muted">
-                          {post.linkedModelName ?? 'Unlinked FeedPost'}
+                          {post.linkedModelName ??
+                            (locale === 'ko'
+                              ? '연결된 FeedPost 없음'
+                              : 'Unlinked FeedPost')}
                         </span>
                         <ArrowRight
                           aria-hidden
@@ -436,7 +457,11 @@ export default async function InvestModelSearchPage({
               <EmptySearchResultCard
                 locale={locale}
                 kind="FeedPost"
-                message="No DB-backed FeedPost matched this search."
+                message={
+                  locale === 'ko'
+                    ? '이 검색어와 일치하는 DB-backed FeedPost가 없습니다.'
+                    : 'No DB-backed FeedPost matched this search.'
+                }
               />
             )}
           </div>
@@ -519,7 +544,11 @@ export default async function InvestModelSearchPage({
               <EmptySearchResultCard
                 locale={locale}
                 kind="SignalEvent"
-                message="No DB-backed SignalEvent matched this search."
+                message={
+                  locale === 'ko'
+                    ? '이 검색어와 일치하는 DB-backed SignalEvent가 없습니다.'
+                    : 'No DB-backed SignalEvent matched this search.'
+                }
               />
             )}
           </div>
@@ -545,11 +574,11 @@ export default async function InvestModelSearchPage({
             />
             <div className="min-w-0">
               <p className="text-xs font-semibold leading-5 text-invest-text-muted">
-                No advice / No orders
+                {locale === 'ko' ? '추천 아님 / 주문 없음' : 'No advice / No orders'}
               </p>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {locale === 'ko'
-                  ? 'Search results are model discovery records, informational FeedPost records, and observed SignalEvent rows from the local DB-backed read model. They are not recommendations, model selections, return claims, broker actions, realtime external data, or account data.'
+                  ? '검색 결과는 로컬 DB-backed read model의 모델 탐색 기록, 정보성 FeedPost 기록, 관찰 SignalEvent 행입니다. 추천, 모델 선택, 수익률 주장, 브로커 동작, 실시간 외부 데이터, 계좌 데이터가 아닙니다.'
                   : 'Search results are model discovery records, informational FeedPost records, and observed SignalEvent rows from the local DB-backed read model. They are not recommendations, model selections, return claims, broker actions, realtime external data, or account data.'}
               </p>
             </div>

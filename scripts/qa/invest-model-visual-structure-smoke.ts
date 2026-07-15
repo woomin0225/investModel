@@ -650,6 +650,27 @@ assertCondition(
   'Search must present result/empty/footer safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
+  searchPageSource.includes("eyebrow={locale === 'ko' ? '통합 검색' : 'Search'}") &&
+    searchPageSource.includes("title={locale === 'ko' ? '검색' : 'Search'}") &&
+    searchPageSource.includes(
+      "locale === 'ko'\n              ? '모델, FeedPost, SignalEvent 검색'"
+    ) &&
+    searchPageSource.includes("locale === 'ko'\n                  ? '모델, 시장, 위험도, 제목'") &&
+    searchPageSource.includes("{locale === 'ko' ? '검색' : 'Search'}") &&
+    searchPageSource.includes('추천 아님 / 주문 없음') &&
+    searchPageSource.includes('브로커 계좌, 주문, 실시간 외부 피드, 실잔고는 검색하지 않습니다.') &&
+    searchPageSource.includes('이 검색어와 일치하는 InvestmentModel이 없습니다.') &&
+    searchPageSource.includes('이 검색어와 일치하는 DB-backed FeedPost가 없습니다.') &&
+    searchPageSource.includes('이 검색어와 일치하는 DB-backed SignalEvent가 없습니다.') &&
+    !searchPageSource.includes("locale === 'ko' ? 'Search' : 'Search'") &&
+    !searchPageSource.includes(
+      "locale === 'ko'\n              ? 'Search models, FeedPosts, and SignalEvents'"
+    ) &&
+    !searchPageSource.includes("locale === 'ko'\n                  ? 'Model, market, risk, or headline'") &&
+    !searchPageSource.includes("{locale === 'ko' ? 'No advice / No orders'"),
+  'Search Korean visible form and empty/safety copy must not fall back to English'
+);
+assertCondition(
   notificationsPageSource.includes("notificationSummaryVisibleBoundaries(locale)\n                ].join(' / ')") &&
     notificationsPageSource.includes("notificationActionVisibleBoundaries(locale).join(' / ')") &&
     notificationsPageSource.includes("notificationItemVisibleBoundaries(locale).join(' / ')") &&
@@ -663,6 +684,19 @@ assertCondition(
 assertCondition(
   !feedPageSource.includes('Simulated list action state'),
   'Feed card actions must not describe DB-backed interactions as simulated list state'
+);
+assertCondition(
+  feedPageSource.includes("locale === 'ko' ? '연결 모델 없음' : 'No linked model'") &&
+    feedPageSource.includes('추적 좋아요 ${ranking.likeCount}개') &&
+    feedPageSource.includes("title={locale === 'ko' ? '좋아요 순위' : 'Like ranking'}") &&
+    feedPageSource.includes('DB 기반 관심도 맥락일 뿐이며 모델 품질이나 기대 수익이 아닙니다.') &&
+    feedPageSource.includes("{locale === 'ko' ? '추천 아님' : 'No advice'}") &&
+    feedPageSource.includes('아직 추적된 좋아요 순위 행이 없습니다.') &&
+    !feedPageSource.includes("locale === 'ko' ? 'No linked model' : 'No linked model'") &&
+    !feedPageSource.includes('${ranking.likeCount} tracked likes`\n        : `${ranking.likeCount} tracked likes') &&
+    !feedPageSource.includes("title={locale === 'ko' ? 'Like ranking' : 'Like ranking'}") &&
+    !feedPageSource.includes("? 'No tracked like ranking rows yet.'\n                    : 'No tracked like ranking rows yet.'"),
+  'Feed Korean like ranking copy must not fall back to English'
 );
 assertCondition(
   adminReportsPageSource.includes("t.stateLabels.join(' / ')") &&

@@ -201,10 +201,10 @@ function toRankingCard(
     title: ranking.title,
     linkedModelName:
       ranking.linkedModelName ??
-      (locale === 'ko' ? 'No linked model' : 'No linked model'),
+      (locale === 'ko' ? '연결 모델 없음' : 'No linked model'),
     likeCountLabel:
       locale === 'ko'
-        ? `${ranking.likeCount} tracked likes`
+        ? `추적 좋아요 ${ranking.likeCount}개`
         : `${ranking.likeCount} tracked likes`,
     windowLabel: ranking.windowLabel
   };
@@ -704,10 +704,10 @@ export default async function InvestModelFeedPage({
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
-            title={locale === 'ko' ? 'Like ranking' : 'Like ranking'}
+            title={locale === 'ko' ? '좋아요 순위' : 'Like ranking'}
             description={
               locale === 'ko'
-                ? 'DB-backed popularity context only, not model quality or expected return.'
+                ? 'DB 기반 관심도 맥락일 뿐이며 모델 품질이나 기대 수익이 아닙니다.'
                 : 'DB-backed popularity context only, not model quality or expected return.'
             }
           />
@@ -753,7 +753,7 @@ export default async function InvestModelFeedPage({
                         {ranking.likeCountLabel}
                       </p>
                       <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-text-muted">
-                        No advice
+                        {locale === 'ko' ? '추천 아님' : 'No advice'}
                       </p>
                     </div>
                   </Link>
@@ -761,7 +761,7 @@ export default async function InvestModelFeedPage({
               ) : (
                 <div className="rounded-invest-control border border-dashed border-invest-border bg-invest-bg-soft p-4 text-sm font-semibold leading-6 text-invest-text-muted">
                   {locale === 'ko'
-                    ? 'No tracked like ranking rows yet.'
+                    ? '아직 추적된 좋아요 순위 행이 없습니다.'
                     : 'No tracked like ranking rows yet.'}
                 </div>
               )}
