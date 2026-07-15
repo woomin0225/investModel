@@ -174,7 +174,7 @@ async function main() {
   assertCondition(
     missingUserPublicIdResponse.status === 200 &&
       missingUserPublicIdJson.meta?.userScopeSource === 'demo_fallback' &&
-      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === false,
+      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === undefined,
     'missing userPublicId falls back to the mock-safe demo scope'
   );
   assertCondition(
@@ -185,15 +185,16 @@ async function main() {
   assertCondition(
     ignoredUserResponse.status === 200 &&
       ignoredUserJson.data?.userPublicId === 'user_demo_001' &&
-      ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
-    'client userPublicId is ignored for like state'
+      ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined,
+    'client userPublicId is not exposed as compatibility meta for like state'
   );
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.data?.liked === false &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
-      sessionScopedJson.meta?.clientUserPublicIdIgnored === true,
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined,
     'session role and user scope win for like state'
   );
   assertCondition(unlikeResponse.status === 200, 'unlike responds');

@@ -74,10 +74,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
   const { postId } = await context.params;
   const postPublicId = postId.trim();
   const body = await readBody(request);
-  const clientUserPublicId =
-    typeof body.userPublicId === 'string' ? body.userPublicId.trim() : '';
   const userScope = await resolveInvestModelUserScope(request, {
-    clientUserPublicId
+    ignoreClientUserPublicId: true
   });
   const desiredState =
     typeof body.desiredState === 'boolean' ? body.desiredState : undefined;
@@ -133,8 +131,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
         sourceTables: ['feed_posts', 'feed_post_reactions', 'users'],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        clientUserPublicIdIgnored:
-          userScope.ignoredClientUserPublicId !== undefined,
         informationalOnly: true,
         popularityContextOnly: true,
         recommendationSignal: false,
