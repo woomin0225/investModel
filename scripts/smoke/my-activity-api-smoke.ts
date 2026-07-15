@@ -66,6 +66,13 @@ function containsIgnoredClientUserPublicId(value: unknown) {
   return JSON.stringify(value).includes(ignoredClientUserPublicId);
 }
 
+function assertNoIgnoredClientUserPublicId(value: unknown, context: string) {
+  assertCondition(
+    !containsIgnoredClientUserPublicId(value),
+    `${context} does not expose ignored client userPublicId`
+  );
+}
+
 async function readMyActivity(search = '') {
   return GET(
     new NextRequest(`http://localhost/api/my/activity${search}`, {
@@ -157,18 +164,24 @@ async function main() {
       clientScopedJson.data?.userPublicId === 'user_demo_001' &&
       clientScopedJson.meta?.userPublicId === 'user_demo_001' &&
       clientScopedJson.meta?.userScopeSource === 'demo_fallback' &&
-      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
-      !containsIgnoredClientUserPublicId(clientScopedJson.data),
+      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined,
     'client userPublicId is not exposed as compatibility meta or my activity state'
+  );
+  assertNoIgnoredClientUserPublicId(
+    { data: clientScopedJson.data, meta: clientScopedJson.meta },
+    'my activity client-scoped response'
   );
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
-      sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
-      !containsIgnoredClientUserPublicId(sessionScopedJson.data),
+      sessionScopedJson.meta?.userPublicId === 'user_demo_001',
     'session role and user scope win for my activity'
+  );
+  assertNoIgnoredClientUserPublicId(
+    { data: sessionScopedJson.data, meta: sessionScopedJson.meta },
+    'my activity session-scoped response'
   );
 
   await client.end();
