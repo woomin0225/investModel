@@ -73,6 +73,20 @@ export default function manifest(): MetadataRoute.Manifest {
         description: 'Review mock portfolio performance and holdings.',
         url: '/invest-model/portfolio',
         icons: [{ src: '/icon', sizes: '512x512', type: 'image/png' }]
+      },
+      {
+        name: 'Notifications',
+        short_name: 'Alerts',
+        description: 'Review DB-backed notification read state.',
+        url: '/invest-model/notifications',
+        icons: [{ src: '/icon', sizes: '512x512', type: 'image/png' }]
+      },
+      {
+        name: 'My Page',
+        short_name: 'My',
+        description: 'Open user activity and mock account summary.',
+        url: '/invest-model/my',
+        icons: [{ src: '/icon', sizes: '512x512', type: 'image/png' }]
       }
     ]
   };

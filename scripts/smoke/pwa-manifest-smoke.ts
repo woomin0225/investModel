@@ -28,7 +28,9 @@ for (const expectedUrl of [
   '/invest-model/search',
   '/invest-model/signals',
   '/invest-model/feed',
-  '/invest-model/portfolio'
+  '/invest-model/portfolio',
+  '/invest-model/notifications',
+  '/invest-model/my'
 ]) {
   assert(shortcutUrls.has(expectedUrl), `manifest shortcut missing ${expectedUrl}`);
 }
