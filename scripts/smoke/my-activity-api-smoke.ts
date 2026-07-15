@@ -13,6 +13,8 @@ import { GET } from '../../app/api/my/activity/route';
 import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
+const ignoredClientUserPublicId = 'user_other_001';
+
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
@@ -60,6 +62,10 @@ async function createSessionCookie(userId: number) {
   return `session=${encryptedSession}`;
 }
 
+function containsIgnoredClientUserPublicId(value: unknown) {
+  return JSON.stringify(value).includes(ignoredClientUserPublicId);
+}
+
 async function readMyActivity(search = '') {
   return GET(
     new NextRequest(`http://localhost/api/my/activity${search}`, {
@@ -103,11 +109,11 @@ async function main() {
   const activityResponse = await readMyActivity();
   const activityJson = await activityResponse.json();
   const clientScopedResponse = await readMyActivity(
-    '?userPublicId=user_other_001'
+    `?userPublicId=${ignoredClientUserPublicId}`
   );
   const clientScopedJson = await clientScopedResponse.json();
   const sessionScopedResponse = await readMyActivityWithSession(
-    '?userPublicId=user_other_001',
+    `?userPublicId=${ignoredClientUserPublicId}`,
     sessionCookie
   );
   const sessionScopedJson = await sessionScopedResponse.json();
@@ -148,16 +154,20 @@ async function main() {
   );
   assertCondition(
     clientScopedResponse.status === 200 &&
+      clientScopedJson.data?.userPublicId === 'user_demo_001' &&
       clientScopedJson.meta?.userPublicId === 'user_demo_001' &&
-      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined,
-    'client userPublicId compatibility metadata is not exposed for my activity'
+      clientScopedJson.meta?.userScopeSource === 'demo_fallback' &&
+      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsIgnoredClientUserPublicId(clientScopedJson.data),
+    'client userPublicId is not exposed as compatibility meta or my activity state'
   );
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
-      sessionScopedJson.meta?.userPublicId === 'user_demo_001',
+      sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
+      !containsIgnoredClientUserPublicId(sessionScopedJson.data),
     'session role and user scope win for my activity'
   );
 
