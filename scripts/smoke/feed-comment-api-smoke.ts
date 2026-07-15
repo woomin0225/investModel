@@ -167,7 +167,7 @@ async function main() {
   assertCondition(
     missingUserPublicIdResponse.status === 201 &&
       missingUserPublicIdJson.meta?.userScopeSource === 'demo_fallback' &&
-      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === false,
+      missingUserPublicIdJson.meta?.clientUserPublicIdIgnored === undefined,
     'missing userPublicId falls back to the mock-safe demo scope'
   );
   assertCondition(missingBodyResponse.status === 422, 'body is required');
@@ -179,8 +179,9 @@ async function main() {
   assertCondition(
     ignoredUserResponse.status === 201 &&
       ignoredUserJson.meta?.userPublicId === 'user_demo_001' &&
-      ignoredUserJson.meta?.clientUserPublicIdIgnored === true,
-    'client userPublicId is ignored for comment creation'
+      ignoredUserJson.meta?.userScopeSource === 'demo_fallback' &&
+      ignoredUserJson.meta?.clientUserPublicIdIgnored === undefined,
+    'client userPublicId is not exposed as compatibility meta for comment creation'
   );
   assertCondition(createResponse.status === 201, 'comment creation responds');
   assertCondition(
@@ -208,7 +209,7 @@ async function main() {
     sessionScopedResponse.status === 201 &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
-      sessionScopedJson.meta?.clientUserPublicIdIgnored === true,
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined,
     'session role and user scope win for comment creation'
   );
 
