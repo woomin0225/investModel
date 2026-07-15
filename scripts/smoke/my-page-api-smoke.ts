@@ -146,6 +146,7 @@ async function main() {
   );
   assertCondition(
     summaryJson.meta?.routeStatus === 'db_backed' &&
+      summaryJson.meta?.dataContext === 'db_read_model' &&
       summaryJson.meta?.readOnly === true &&
       summaryJson.meta?.notificationReadModelSource === 'feed_post_reads' &&
       summaryJson.meta?.sourceTables?.includes('feed_post_reads') &&
@@ -164,6 +165,7 @@ async function main() {
   );
   assertCondition(
     clientScopedResponse.status === 200 &&
+      clientScopedJson.meta?.dataContext === 'db_read_model' &&
       clientScopedJson.meta?.userPublicId === 'user_demo_001' &&
       clientScopedJson.meta?.userScopeSource === 'demo_fallback' &&
       clientScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
@@ -176,6 +178,7 @@ async function main() {
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
       sessionScopedJson.data?.feedActivity?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.meta?.dataContext === 'db_read_model' &&
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&

@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
       data: myPageSummary,
       meta: {
         routeStatus: 'db_backed',
+        dataContext: myPageSummary.dataContext,
         persistence: 'persisted_or_mock_safe_fallback',
         sourceTables: [
           'users',
