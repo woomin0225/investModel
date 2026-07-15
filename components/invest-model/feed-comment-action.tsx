@@ -110,13 +110,23 @@ function CommentItem({
     .filter(Boolean)
     .join(' ');
   const replyToggleTitle = isReplyOpen
-    ? 'Close informational reply form. No advice, order, or approval is created.'
-    : 'Open informational reply form. Replies are discussion-only and do not create advice, orders, or approvals.';
+    ? isKorean
+      ? '정보성 답글 폼 닫기. 투자 조언, 주문, 승인을 만들지 않습니다.'
+      : 'Close informational reply form. No advice, order, or approval is created.'
+    : isKorean
+      ? '정보성 답글 폼 열기. 답글은 토론 전용이며 투자 조언, 주문, 승인을 만들지 않습니다.'
+      : 'Open informational reply form. Replies are discussion-only and do not create advice, orders, or approvals.';
   const replySubmitLabel = isReplyPending
-    ? 'Posting informational reply. No order, brokerage action, advice, or approval is created.'
+    ? isKorean
+      ? '정보성 답글을 등록하는 중입니다. 주문, 브로커 동작, 투자 조언, 승인을 만들지 않습니다.'
+      : 'Posting informational reply. No order, brokerage action, advice, or approval is created.'
     : canSubmitReply
-      ? 'Post informational reply. No order, brokerage action, advice, or approval is created.'
-      : 'Enter an informational reply within 600 characters before posting.';
+      ? isKorean
+        ? '정보성 답글 등록. 주문, 브로커 동작, 투자 조언, 승인을 만들지 않습니다.'
+        : 'Post informational reply. No order, brokerage action, advice, or approval is created.'
+      : isKorean
+        ? '600자 이내의 정보성 답글을 입력한 뒤 등록하세요.'
+        : 'Enter an informational reply within 600 characters before posting.';
 
   async function handleReplySubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -130,7 +140,7 @@ function CommentItem({
     if (trimmedDraft.length > maxCommentLength) {
       setReplyErrorMessage(
         isKorean
-          ? 'Reply must be 600 characters or fewer.'
+          ? '답글은 600자 이하여야 합니다.'
           : 'Reply must be 600 characters or fewer.'
       );
       return;
@@ -162,7 +172,7 @@ function CommentItem({
         setReplyErrorMessage(
           body.error?.message ??
             (isKorean
-              ? 'Could not add this informational reply.'
+              ? '정보성 답글을 추가하지 못했습니다.'
               : 'Could not add this informational reply.')
         );
         return;
@@ -173,13 +183,13 @@ function CommentItem({
       setIsReplyOpen(false);
       setReplySuccessMessage(
         isKorean
-          ? 'Reply added to the discussion.'
+          ? '답글이 토론에 추가되었습니다.'
           : 'Reply added to the discussion.'
       );
     } catch {
       setReplyErrorMessage(
         isKorean
-          ? 'Could not add this informational reply.'
+          ? '정보성 답글을 추가하지 못했습니다.'
           : 'Could not add this informational reply.'
       );
     } finally {
@@ -206,7 +216,7 @@ function CommentItem({
         {comment.replyCount > 0 ? (
           <RiskBadge tone="neutral">
             {locale === 'ko'
-              ? `Replies ${comment.replyCount}`
+              ? `답글 ${comment.replyCount}`
               : `${comment.replyCount} replies`}
           </RiskBadge>
         ) : null}
@@ -234,7 +244,7 @@ function CommentItem({
           title={replyToggleTitle}
         >
           <Reply aria-hidden className="size-3.5" />
-          {isKorean ? 'Reply' : 'Reply'}
+          {isKorean ? '답글' : 'Reply'}
         </button>
         {replySuccessMessage ? (
           <span
@@ -267,7 +277,7 @@ function CommentItem({
             maxLength={maxCommentLength + 20}
             placeholder={
               isKorean
-                ? 'Add an informational reply.'
+                ? '정보성 답글을 남겨보세요.'
                 : 'Add an informational reply.'
             }
             className={cn(
@@ -275,10 +285,14 @@ function CommentItem({
               investMotionClass.interactiveControl
             )}
             aria-label={
-              isKorean ? 'Informational reply body' : 'Informational reply body'
+              isKorean ? '정보성 답글 본문' : 'Informational reply body'
             }
             aria-describedby={replyDescriptionIds}
-            title="Informational reply only. This does not create advice, orders, brokerage actions, or approvals."
+            title={
+              isKorean
+                ? '정보성 답글 전용입니다. 투자 조언, 주문, 브로커 동작, 승인을 만들지 않습니다.'
+                : 'Informational reply only. This does not create advice, orders, brokerage actions, or approvals.'
+            }
           />
           <div className="mt-2 flex items-start justify-between gap-3">
             <p
@@ -292,10 +306,10 @@ function CommentItem({
             >
               {replyRemainingCount < 0
                 ? isKorean
-                  ? 'Reply is over the 600 character limit.'
+                  ? '답글이 600자 제한을 초과했습니다.'
                   : 'Reply is over the 600 character limit.'
                 : isKorean
-                  ? 'Informational reply only. No advice, order, or approval is created.'
+                  ? '정보성 답글 전용입니다. 투자 조언, 주문, 승인을 만들지 않습니다.'
                   : 'Informational reply only. No advice, order, or approval is created.'}
             </p>
             <span
@@ -324,7 +338,7 @@ function CommentItem({
             ) : (
               <Send aria-hidden className="size-4" />
             )}
-            {isKorean ? 'Post reply' : 'Post reply'}
+            {isKorean ? '답글 등록' : 'Post reply'}
           </button>
           {replyErrorMessage ? (
             <p

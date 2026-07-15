@@ -730,6 +730,25 @@ assertCondition(
   'Feed comment top-level Korean copy must not fall back to English'
 );
 assertCondition(
+  feedCommentActionSource.includes('정보성 답글 폼 열기') &&
+    feedCommentActionSource.includes('정보성 답글 폼 닫기') &&
+    feedCommentActionSource.includes('정보성 답글을 등록하는 중입니다.') &&
+    feedCommentActionSource.includes('정보성 답글 등록. 주문, 브로커 동작, 투자 조언, 승인을 만들지 않습니다.') &&
+    feedCommentActionSource.includes('600자 이내의 정보성 답글을 입력한 뒤 등록하세요.') &&
+    feedCommentActionSource.includes('정보성 답글을 추가하지 못했습니다.') &&
+    feedCommentActionSource.includes('답글이 토론에 추가되었습니다.') &&
+    feedCommentActionSource.includes('`답글 ${comment.replyCount}`') &&
+    feedCommentActionSource.includes("{isKorean ? '답글' : 'Reply'}") &&
+    feedCommentActionSource.includes('정보성 답글을 남겨보세요.') &&
+    feedCommentActionSource.includes("isKorean ? '정보성 답글 본문' : 'Informational reply body'") &&
+    feedCommentActionSource.includes("{isKorean ? '답글 등록' : 'Post reply'}") &&
+    !feedCommentActionSource.includes("{isKorean ? 'Reply' : 'Reply'}") &&
+    !feedCommentActionSource.includes("{isKorean ? 'Post reply' : 'Post reply'}") &&
+    !feedCommentActionSource.includes("isKorean ? 'Informational reply body' : 'Informational reply body'") &&
+    !feedCommentActionSource.includes("locale === 'ko'\n              ? `Replies ${comment.replyCount}`"),
+  'Feed comment reply Korean copy must not fall back to English'
+);
+assertCondition(
   adminReportsPageSource.includes("t.stateLabels.join(' / ')") &&
     adminReportsPageSource.includes('{t.disabledAction}') &&
     !adminReportsPageSource.includes('t.stateLabels.map((stateLabel) => (') &&
