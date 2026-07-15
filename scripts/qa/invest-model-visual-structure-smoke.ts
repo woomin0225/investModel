@@ -407,6 +407,13 @@ const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
 const portfolioPageSource = readProjectFile(
   'app/invest-model/portfolio/page.tsx'
 );
+const portfolioKoreanLabelMapRequired = [
+  '모의 배정됨',
+  '출처: 모의 데이터',
+  'DB 읽기 모델',
+  '주문 전 시뮬레이션만 가능',
+  '브로커 데이터 없음'
+];
 const feedDetailPageSource = readProjectFile(
   'app/invest-model/feed/[postId]/page.tsx'
 );
@@ -1142,17 +1149,26 @@ assertCondition(
 assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&
     !portfolioPageSource.includes('<MetricCard') &&
-    portfolioPageSource.includes('portfolio.mockDeposit.amountLabel') &&
-    portfolioPageSource.includes('portfolio.allocationDecision.statusLabel') &&
-    portfolioPageSource.includes('portfolio.tradeIntent.statusLabel') &&
+    portfolioPageSource.includes('const displayPortfolio = toPortfolioDisplaySummary(locale, portfolio)') &&
+    portfolioPageSource.includes('displayPortfolio.mockDeposit.amountLabel') &&
+    portfolioPageSource.includes('displayPortfolio.allocationDecision.statusLabel') &&
+    portfolioPageSource.includes('displayPortfolio.tradeIntent.statusLabel') &&
     portfolioPageSource.includes('Portfolio time dashboard read-model trace') &&
-    portfolioPageSource.includes("locale === 'ko' ? '모의 기간 대시보드' : 'Mock time dashboard'") &&
+    /locale === 'ko'\s*\?\s*'모의 기간 대시보드'\s*:\s*'Mock time dashboard'/.test(
+      portfolioPageSource
+    ) &&
     portfolioPageSource.includes('포트폴리오 기간 대시보드 읽기 모델 추적') &&
-    portfolioPageSource.includes("locale === 'ko' ? '읽기 모델 추적' : 'Read-model trace'") &&
+    /locale === 'ko'\s*\?\s*'읽기 모델 추적'\s*:\s*'Read-model trace'/.test(
+      portfolioPageSource
+    ) &&
     portfolioPageSource.includes('DB 기반 포트폴리오 모의 기간 상태') &&
     portfolioPageSource.includes('모의 전용 기준점이며 실제 수익률, 실잔고, 주문, 브로커 데이터가 아닙니다.') &&
-    portfolioPageSource.includes("'DB 스냅샷', '모의 전용 기준점', snapshot.safetyLabel") &&
-    portfolioPageSource.includes("locale === 'ko' ? '모델 버전(ModelVersion)' : 'ModelVersion'") &&
+    /'DB 스냅샷',\s*'모의 전용 기준점',\s*snapshot\.safetyLabel/.test(
+      portfolioPageSource
+    ) &&
+    /locale === 'ko'\s*\?\s*'모델 버전'\s*:\s*'ModelVersion'/.test(
+      portfolioPageSource
+    ) &&
     portfolioPageSource.includes("locale === 'ko' ? '선택 모델 상태' : 'Selected model state'") &&
     portfolioPageSource.includes("locale === 'ko' ? '선택 참조 정보' : 'Selection reference'") &&
     portfolioPageSource.includes('선택된 투자 모델:') &&
@@ -1162,7 +1178,7 @@ assertCondition(
     portfolioPageSource.includes('주문 전 의도 차단 상태.') &&
     portfolioPageSource.includes('포트폴리오 모의 요약 안전 경계') &&
     portfolioPageSource.includes('const timeDashboardSafetyLine') &&
-    portfolioPageSource.includes("portfolio.mockDeposit.safetyLabel,\n    copy.preOrderOnly,\n    copy.noBrokerage") &&
+    portfolioPageSource.includes("displayPortfolio.mockDeposit.safetyLabel,\n    copy.preOrderOnly,\n    copy.noBrokerage") &&
     portfolioPageSource.includes('const snapshotSafetyLine') &&
     portfolioPageSource.includes("'DB snapshot',") &&
     portfolioPageSource.includes("'mock-only checkpoint',") &&
@@ -1176,6 +1192,8 @@ assertCondition(
     !portfolioPageSource.includes("'DB snapshot',\n                'mock-only checkpoint',\n                snapshot.safetyLabel") &&
     !portfolioPageSource.includes('Selected model state\n                    </dt>') &&
     !portfolioPageSource.includes('Selection reference\n                    </dt>') &&
+    !portfolioPageSource.includes('사용자 성향 설정이 아니라 모델이 가진 운용 범위(PortfolioMandate) 기준입니다.') &&
+    !portfolioPageSource.includes("locale === 'ko' ? '모델 버전(ModelVersion)'") &&
     !portfolioPageSource.includes('선택된 InvestmentModel:') &&
     !portfolioPageSource.includes('DB-backed mock summary이며') &&
     !portfolioPageSource.includes('시뮬레이션 allocation mix') &&
@@ -1191,13 +1209,16 @@ assertCondition(
     !portfolioPageSource.includes('<RiskBadge tone="neutral">DB snapshot</RiskBadge>') &&
     !portfolioPageSource.includes('<RiskBadge>mock-only checkpoint</RiskBadge>') &&
     !portfolioPageSource.includes('<RiskBadge tone="blocked">{snapshot.safetyLabel}</RiskBadge>') &&
-    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{portfolio\.allocationDecision\.sourceLabel\}\s*<\/span>/.test(
+    portfolioKoreanLabelMapRequired.every((label) =>
+      portfolioPageSource.includes(label)
+    ) &&
+    /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{displayPortfolio\.allocationDecision\.sourceLabel\}\s*<\/span>/.test(
       portfolioPageSource
     ) &&
-    !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{portfolio\.allocationDecision\.sourceLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
+    !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{displayPortfolio\.allocationDecision\.sourceLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
       portfolioPageSource
     ) &&
-    !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{portfolio\.mockDeposit\.sourceLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
+    !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{displayPortfolio\.mockDeposit\.sourceLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
       portfolioPageSource
     ) &&
     /<span className="text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{position\.sourceLabel\}\s*<\/span>/.test(
@@ -1224,12 +1245,12 @@ assertCondition(
     investModelUiSource.includes(
       '<RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>'
     ) &&
-    portfolioPageSource.includes('portfolio.tradeIntent.blockedActions.map((action) => (') &&
+    portfolioPageSource.includes('displayPortfolio.tradeIntent.blockedActions.map((action) => (') &&
     portfolioPageSource.includes('role="listitem"') &&
     !/<RiskBadge\b[^>]*tone="blocked"[^>]*>[\s\S]{0,240}\{action\}[\s\S]{0,80}<\/RiskBadge>/.test(
       portfolioPageSource
     ) &&
-    portfolioPageSource.includes('portfolio.timeSnapshots.length') &&
+    portfolioPageSource.includes('displayPortfolio.timeSnapshots.length') &&
     portfolioPageSource.includes('position.quantityLabel'),
   'Portfolio must start with the DB-backed time dashboard summary and present safety boundaries as prose instead of top simulation banner/metric cards or hashtag safety chip groups'
 );

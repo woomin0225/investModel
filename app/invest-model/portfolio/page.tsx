@@ -45,7 +45,7 @@ const portfolioCopy = {
     noBrokerage: '브로커 계좌나 주문 실행과 연결되지 않습니다',
     selectedModelTitle: '선택한 투자 모델',
     selectedModelDescription:
-      '사용자 성향 설정이 아니라 모델이 가진 운용 범위(PortfolioMandate) 기준입니다.',
+      '사용자 성향 설정이 아니라 모델이 가진 운용 범위 기준입니다.',
     positionTitle: '구성 비중',
     positionDescription:
       '모든 금액과 비중은 관찰 데이터와 정책 검증 결과로 계산된 시뮬레이션입니다.',
@@ -88,6 +88,145 @@ const portfolioCopy = {
 function parseWeightPercent(weightLabel: string) {
   const parsed = Number.parseInt(weightLabel, 10);
   return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 100) : 0;
+}
+
+function toKoreanPortfolioLabel(label: string) {
+  const exactLabels: Record<string, string> = {
+    'live mock': '모의 운용 중',
+    'High risk': '고위험',
+    'Not a real deposit or cash balance': '실제 입금이나 현금 잔고가 아닙니다',
+    simulated_allocated: '모의 배정됨',
+    mock_safe_fallback: '모의 안전 대체 상태',
+    'sourceType: mock': '출처: 모의 데이터',
+    ready_for_simulation: '시뮬레이션 준비됨',
+    'Mock decision engine': '모의 결정 엔진',
+    'DB read model': 'DB 읽기 모델',
+    approved_for_simulation: '시뮬레이션 승인됨',
+    'pre-order simulation only': '주문 전 시뮬레이션만 가능',
+    'No real P/L': '실제 손익 아님',
+    'No return claim': '수익률 주장 아님',
+    'No brokerage data': '브로커 데이터 없음',
+    'No real deposit': '실제 입금 없음',
+    'No live order': '실주문 없음',
+    'No brokerage account': '브로커 계좌 없음',
+    'simulated position': '모의 포지션',
+    'mock market quote': '모의 시장 시세',
+    'mock policy buffer': '모의 정책 완충 구간',
+    'DB mock position': 'DB 모의 포지션',
+    'Mock volatility guard active': '모의 변동성 안전 한도 활성',
+    'PortfolioMandate guardrails only': '모델 운용 범위 안전 한도만 적용',
+    'DB read model sample window': 'DB 읽기 모델 샘플 기간'
+  };
+
+  if (exactLabels[label]) {
+    return exactLabels[label];
+  }
+
+  return label
+    .replace(/^ModelVersion\s+(.+?)\s+DB mock$/, '모델 버전 $1 DB 모의')
+    .replace(/^ModelVersion\s+(.+?)\s+mock$/, '모델 버전 $1 모의')
+    .replace(/^PortfolioMandate:\s*/, '모델 운용 범위: ')
+    .replace(/US equities/g, '미국 주식')
+    .replace(/leveraged ETF guardrails/g, '레버리지 ETF 안전 한도')
+    .replace(/^selected DB mock:/, 'DB 모의 선택:')
+    .replace(/^selected mock:/, '모의 선택:')
+    .replace(/\bmock checkpoint\b/g, '모의 기준점')
+    .replace(/\bDB checkpoint\b/g, 'DB 기준점')
+    .replace(/\bsample window\b/g, '샘플 기간')
+    .replace(/\bposition snapshot\b/g, '포지션 스냅샷')
+    .replace(/\bsimulated units\b/g, '모의 단위')
+    .replace(/\bsimulated holding\b/g, '모의 보유 항목')
+    .replace(/\bsimulated\b/g, '모의')
+    .replace(/\bmock cash\b/g, '모의 현금')
+    .replace(/\btarget\b/g, '목표')
+    .replace(/\bguardrail\b/g, '안전 한도')
+    .replace(/(\d+) observed SignalEvents/g, '관찰 신호 $1개')
+    .replace(/(\d+) simulated PortfolioPositions/g, '모의 포지션 $1개')
+    .replace(/Current selected model status is live mock; inactive models cannot create simulated TradeIntent records\./g, '현재 선택 모델은 모의 운용 중이며 비활성 모델은 모의 주문 전 의도를 만들 수 없습니다.')
+    .replace(/Current selected model status comes from DB read model; it cannot create real orders or account activity\./g, '현재 선택 모델 상태는 DB 읽기 모델에서 왔으며 실제 주문이나 계좌 활동을 만들 수 없습니다.')
+    .replace(/Mock market and news observations created pre-order simulation TradeIntent records after policy checks\./g, '모의 시장과 뉴스 관찰값이 정책 검증 뒤 주문 전 시뮬레이션 기록을 만들었습니다.')
+    .replace(/No DB AllocationDecision row yet; showing mock-safe fallback state only\./g, 'DB 배분 결정 행이 없어 모의 안전 대체 상태만 표시합니다.')
+    .replace(/\bAllocationDecision\b/g, '배분 결정')
+    .replace(/\bTradeIntent\b/g, '주문 전 의도')
+    .replace(/\bMockDeposit\b/g, '모의 입금')
+    .replace(/\bPortfolioMandate\b/g, '모델 운용 범위')
+    .replace(/\bDB read model\b/g, 'DB 읽기 모델')
+    .replace(/\bmock-safe fallback\b/g, '모의 안전 대체')
+    .replace(/\bfallback\b/g, '대체 상태');
+}
+
+function toPortfolioDisplaySummary(
+  locale: 'ko' | 'en',
+  portfolio: InvestModelPortfolioSummary
+): InvestModelPortfolioSummary {
+  if (locale === 'en') {
+    return portfolio;
+  }
+
+  return {
+    ...portfolio,
+    isMockOnly: true,
+    selectedModel: {
+      ...portfolio.selectedModel,
+      versionLabel: toKoreanPortfolioLabel(
+        portfolio.selectedModel.versionLabel
+      ),
+      mandateLabel: toKoreanPortfolioLabel(
+        portfolio.selectedModel.mandateLabel
+      ),
+      statusLabel: toKoreanPortfolioLabel(portfolio.selectedModel.statusLabel),
+      riskLabel: toKoreanPortfolioLabel(portfolio.selectedModel.riskLabel),
+      selectedAtLabel: toKoreanPortfolioLabel(
+        portfolio.selectedModel.selectedAtLabel
+      ),
+      statusDescription: toKoreanPortfolioLabel(
+        portfolio.selectedModel.statusDescription
+      )
+    },
+    mockDeposit: {
+      ...portfolio.mockDeposit,
+      displayLabel: toKoreanPortfolioLabel(portfolio.mockDeposit.displayLabel),
+      statusLabel: toKoreanPortfolioLabel(portfolio.mockDeposit.statusLabel),
+      sourceLabel: toKoreanPortfolioLabel(portfolio.mockDeposit.sourceLabel),
+      safetyLabel: toKoreanPortfolioLabel(portfolio.mockDeposit.safetyLabel)
+    },
+    allocationDecision: {
+      ...portfolio.allocationDecision,
+      statusLabel: toKoreanPortfolioLabel(
+        portfolio.allocationDecision.statusLabel
+      ),
+      sourceLabel: toKoreanPortfolioLabel(
+        portfolio.allocationDecision.sourceLabel
+      ),
+      rationale: toKoreanPortfolioLabel(portfolio.allocationDecision.rationale)
+    },
+    timeSnapshots: portfolio.timeSnapshots.map((snapshot) => ({
+      ...snapshot,
+      valueLabel: toKoreanPortfolioLabel(snapshot.valueLabel),
+      checkpointLabel: toKoreanPortfolioLabel(snapshot.checkpointLabel),
+      signalLabel: toKoreanPortfolioLabel(snapshot.signalLabel),
+      safetyLabel: toKoreanPortfolioLabel(snapshot.safetyLabel)
+    })),
+    positions: portfolio.positions.map((position) => ({
+      ...position,
+      name: toKoreanPortfolioLabel(position.name),
+      quantityLabel: toKoreanPortfolioLabel(position.quantityLabel),
+      weightLabel: toKoreanPortfolioLabel(position.weightLabel),
+      valueLabel: toKoreanPortfolioLabel(position.valueLabel),
+      stateLabel: toKoreanPortfolioLabel(position.stateLabel),
+      sourceLabel: toKoreanPortfolioLabel(position.sourceLabel)
+    })),
+    tradeIntent: {
+      ...portfolio.tradeIntent,
+      statusLabel: toKoreanPortfolioLabel(portfolio.tradeIntent.statusLabel),
+      boundaryLabel: toKoreanPortfolioLabel(
+        portfolio.tradeIntent.boundaryLabel
+      ),
+      blockedActions: portfolio.tradeIntent.blockedActions.map((action) =>
+        toKoreanPortfolioLabel(action)
+      )
+    }
+  };
 }
 
 function portfolioSelectedModelAccessibleLabel(
@@ -227,23 +366,24 @@ export default async function InvestModelPortfolioPage({
   const copy = portfolioCopy[locale];
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const portfolio = await readPortfolioSummaryRoute();
+  const displayPortfolio = toPortfolioDisplaySummary(locale, portfolio);
   const selectedModelAccessibleLabel = portfolioSelectedModelAccessibleLabel(
     locale,
-    portfolio
+    displayPortfolio
   );
   const decisionAccessibleLabel = portfolioDecisionAccessibleLabel(
     locale,
-    portfolio
+    displayPortfolio
   );
   const blockedActionsAccessibleLabel = portfolioBlockedActionsAccessibleLabel(
     locale,
-    portfolio
+    displayPortfolio
   );
   const blockedVisibleBoundaries = portfolioBlockedVisibleBoundaries(locale);
   const timeDashboardVisibleBoundaries =
     portfolioTimeDashboardVisibleBoundaries(locale);
   const timeDashboardSafetyLine = [
-    portfolio.mockDeposit.safetyLabel,
+    displayPortfolio.mockDeposit.safetyLabel,
     copy.preOrderOnly,
     copy.noBrokerage
   ].join(' / ');
@@ -283,10 +423,10 @@ export default async function InvestModelPortfolioPage({
                   {copy.mockBalance}
                 </p>
                 <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
-                  {portfolio.mockDeposit.amountLabel}
+                  {displayPortfolio.mockDeposit.amountLabel}
                 </p>
                 <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-text-muted">
-                  {portfolio.mockDeposit.statusLabel}
+                  {displayPortfolio.mockDeposit.statusLabel}
                 </p>
               </div>
               <div className="rounded-invest-control bg-invest-bg-soft p-2.5">
@@ -294,10 +434,10 @@ export default async function InvestModelPortfolioPage({
                   {copy.allocationState}
                 </p>
                 <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
-                  {portfolio.allocationDecision.statusLabel}
+                  {displayPortfolio.allocationDecision.statusLabel}
                 </p>
                 <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-text-muted">
-                  {portfolio.allocationDecision.sourceLabel}
+                  {displayPortfolio.allocationDecision.sourceLabel}
                 </p>
               </div>
               <div className="rounded-invest-control bg-invest-risk-soft/55 p-2.5">
@@ -305,10 +445,10 @@ export default async function InvestModelPortfolioPage({
                   {copy.policyState}
                 </p>
                 <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
-                  {portfolio.tradeIntent.statusLabel}
+                  {displayPortfolio.tradeIntent.statusLabel}
                 </p>
                 <p className="mt-1 text-[11px] font-semibold leading-4 text-invest-risk">
-                  {portfolio.tradeIntent.boundaryLabel}
+                  {displayPortfolio.tradeIntent.boundaryLabel}
                 </p>
               </div>
             </div>
@@ -333,16 +473,16 @@ export default async function InvestModelPortfolioPage({
               </p>
               <p className="mt-1 text-sm font-semibold leading-5 text-invest-text">
                 {locale === 'ko'
-                  ? `${portfolio.timeSnapshots.length}개 DB 기반 포트폴리오 모의 기간 상태`
-                  : `${portfolio.timeSnapshots.length} mock time windows from DB-backed Portfolio state`}
+                  ? `${displayPortfolio.timeSnapshots.length}개 DB 기반 포트폴리오 모의 기간 상태`
+                  : `${displayPortfolio.timeSnapshots.length} mock time windows from DB-backed Portfolio state`}
               </p>
             </div>
             <div className="flex flex-wrap items-start gap-1.5 min-[360px]:justify-end">
               <RiskBadge tone="medium">
-                {portfolio.allocationDecision.generatedAtLabel}
+                {displayPortfolio.allocationDecision.generatedAtLabel}
               </RiskBadge>
               <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
-                {portfolio.allocationDecision.sourceLabel}
+                {displayPortfolio.allocationDecision.sourceLabel}
               </span>
             </div>
           </div>
@@ -353,7 +493,7 @@ export default async function InvestModelPortfolioPage({
             }
             className="grid grid-cols-3 gap-2 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
-            {portfolio.timeSnapshots.map((snapshot) => {
+            {displayPortfolio.timeSnapshots.map((snapshot) => {
               const snapshotStateLabel =
                 locale === 'ko'
                   ? `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. 모의 전용 기준점이며 실제 수익률, 실잔고, 주문, 브로커 데이터가 아닙니다.`
@@ -427,46 +567,46 @@ export default async function InvestModelPortfolioPage({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start gap-2">
                   <h2 className="min-w-0 flex-1 text-[18px] font-bold leading-7 text-invest-text">
-                    {portfolio.selectedModel.name}
+                    {displayPortfolio.selectedModel.name}
                   </h2>
                   <RiskBadge tone="low">
-                    {portfolio.selectedModel.statusLabel}
+                    {displayPortfolio.selectedModel.statusLabel}
                   </RiskBadge>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-invest-text-muted">
-                  {portfolio.selectedModel.mandateLabel}
+                  {displayPortfolio.selectedModel.mandateLabel}
                 </p>
                 <dl className="mt-3 grid gap-2 text-xs leading-5 text-invest-text-muted">
                   <div className="grid gap-1 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                     <dt className="font-semibold text-invest-text">
-                      {locale === 'ko' ? '모델 버전(ModelVersion)' : 'ModelVersion'}
+                      {locale === 'ko' ? '모델 버전' : 'ModelVersion'}
                     </dt>
-                    <dd>{portfolio.selectedModel.versionLabel}</dd>
-                    <dd>{portfolio.selectedModel.modelVersionPublicId}</dd>
+                    <dd>{displayPortfolio.selectedModel.versionLabel}</dd>
+                    <dd>{displayPortfolio.selectedModel.modelVersionPublicId}</dd>
                   </div>
                   <div className="grid gap-1 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                     <dt className="font-semibold text-invest-text">
                       {locale === 'ko' ? '선택 모델 상태' : 'Selected model state'}
                     </dt>
-                    <dd>{portfolio.selectedModel.statusLabel}</dd>
-                    <dd>{portfolio.selectedModel.statusDescription}</dd>
+                    <dd>{displayPortfolio.selectedModel.statusLabel}</dd>
+                    <dd>{displayPortfolio.selectedModel.statusDescription}</dd>
                   </div>
                   <div className="grid gap-1 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/60 focus-within:bg-invest-primary-soft/60 active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100">
                     <dt className="font-semibold text-invest-text">
                       {locale === 'ko' ? '선택 참조 정보' : 'Selection reference'}
                     </dt>
-                    <dd>{portfolio.selectedModel.selectionPublicId}</dd>
-                    <dd>{portfolio.selectedModel.modelPublicId}</dd>
-                    <dd>{portfolio.selectedModel.selectedAtLabel}</dd>
+                    <dd>{displayPortfolio.selectedModel.selectionPublicId}</dd>
+                    <dd>{displayPortfolio.selectedModel.modelPublicId}</dd>
+                    <dd>{displayPortfolio.selectedModel.selectedAtLabel}</dd>
                   </div>
                 </dl>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <RiskBadge>{portfolio.selectedModel.versionLabel}</RiskBadge>
+                  <RiskBadge>{displayPortfolio.selectedModel.versionLabel}</RiskBadge>
                   <RiskBadge tone="high">
-                    {portfolio.selectedModel.riskLabel}
+                    {displayPortfolio.selectedModel.riskLabel}
                   </RiskBadge>
                   <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
-                    {portfolio.mockDeposit.sourceLabel}
+                    {displayPortfolio.mockDeposit.sourceLabel}
                   </span>
                 </div>
                 <ModelSelectionReadStatus
@@ -487,7 +627,7 @@ export default async function InvestModelPortfolioPage({
             aria-label={copy.positionTitle}
             className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
-            {portfolio.positions.map((position, index) => {
+            {displayPortfolio.positions.map((position, index) => {
               const positionAccessibleLabel = portfolioPositionAccessibleLabel(
                 locale,
                 position
@@ -586,17 +726,17 @@ export default async function InvestModelPortfolioPage({
               <div className="min-w-0 flex-1">
                 <div className="grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-3">
                   <RiskBadge tone="low">
-                    {portfolio.allocationDecision.statusLabel}
+                    {displayPortfolio.allocationDecision.statusLabel}
                   </RiskBadge>
                   <span className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-[12px] font-semibold leading-5 text-invest-text-muted">
-                    {portfolio.allocationDecision.sourceLabel}
+                    {displayPortfolio.allocationDecision.sourceLabel}
                   </span>
                   <RiskBadge tone="medium">
-                    {portfolio.allocationDecision.generatedAtLabel}
+                    {displayPortfolio.allocationDecision.generatedAtLabel}
                   </RiskBadge>
                 </div>
                 <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-3 py-2.5 text-sm leading-6 text-invest-text-muted">
-                  {portfolio.allocationDecision.rationale}
+                  {displayPortfolio.allocationDecision.rationale}
                 </p>
               </div>
             </div>
@@ -620,7 +760,7 @@ export default async function InvestModelPortfolioPage({
               <p className="flex items-center justify-between gap-3 text-sm font-semibold leading-5 text-invest-text">
                 {copy.blockedActionsTitle}
                 <span className="shrink-0 rounded-full bg-invest-risk-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-risk">
-                  {portfolio.tradeIntent.boundaryLabel}
+                  {displayPortfolio.tradeIntent.boundaryLabel}
                 </span>
               </p>
               <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-2">
@@ -629,7 +769,7 @@ export default async function InvestModelPortfolioPage({
                     {locale === 'ko' ? '차단 상태' : 'Blocked'}
                   </p>
                   <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
-                    {portfolio.tradeIntent.blockedActions.length}
+                    {displayPortfolio.tradeIntent.blockedActions.length}
                     {locale === 'ko' ? '개 기능' : ' actions'}
                   </p>
                 </div>
@@ -638,7 +778,7 @@ export default async function InvestModelPortfolioPage({
                     {locale === 'ko' ? '연결 상태' : 'Connection'}
                   </p>
                   <p className="mt-1 text-sm font-bold leading-5 text-invest-text">
-                    {portfolio.tradeIntent.boundaryLabel}
+                    {displayPortfolio.tradeIntent.boundaryLabel}
                   </p>
                 </div>
               </div>
@@ -648,7 +788,7 @@ export default async function InvestModelPortfolioPage({
                 title={blockedActionsAccessibleLabel}
                 className="mt-3 space-y-1 rounded-invest-control bg-invest-risk-soft/40 p-2 text-[12px] font-semibold leading-5 text-invest-danger"
               >
-                {portfolio.tradeIntent.blockedActions.map((action) => (
+                {displayPortfolio.tradeIntent.blockedActions.map((action) => (
                   <span
                     key={action}
                     role="listitem"
