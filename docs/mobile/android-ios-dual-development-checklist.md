@@ -89,6 +89,7 @@ Do these in small Backlog items, not all at once:
   - local device testing can use a LAN-accessible dev server
   - internal alpha should use an HTTPS staging URL
   - bundled static export is a separate feasibility task because the current app uses Next.js routes and APIs
+  - current decision record: `docs/mobile/native-webview-source-strategy.md`
 - Add `@capacitor/android`.
 - Run `npx cap add android`.
 - Add `@capacitor/ios` on a Mac.
