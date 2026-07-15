@@ -6,15 +6,12 @@ import type { NotificationCenterDto } from '@/lib/domain/notifications/notificat
 export async function readInvestModelNotificationUnreadLabel() {
   try {
     const response = await readNotifications(
-      new NextRequest(
-        'http://localhost/api/notifications?userPublicId=user_demo_001&limit=12',
-        {
-          method: 'GET',
-          headers: {
-            'x-invest-model-role': 'user'
-          }
+      new NextRequest('http://localhost/api/notifications?limit=12', {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'user'
         }
-      )
+      })
     );
 
     if (!response.ok) {

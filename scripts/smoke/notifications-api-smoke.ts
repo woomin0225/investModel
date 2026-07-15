@@ -43,9 +43,10 @@ async function main() {
   const successJson = await successResponse.json();
   const limitedResponse = await readNotifications('?limit=2');
   const limitedJson = await limitedResponse.json();
-  const invalidUserResponse = await readNotifications(
+  const ignoredClientUserResponse = await readNotifications(
     '?userPublicId=user_demo_999'
   );
+  const ignoredClientUserJson = await ignoredClientUserResponse.json();
   const invalidLimitResponse = await readNotifications('?limit=31');
 
   assertCondition(publicResponse.status === 403, 'public role is forbidden');
@@ -74,7 +75,9 @@ async function main() {
       successJson.meta?.sendsRealSms === false &&
       successJson.meta?.realOrder === false &&
       successJson.meta?.brokerageConnection === false &&
-      successJson.meta?.financialAdvice === false,
+      successJson.meta?.financialAdvice === false &&
+      successJson.meta?.userScopeSource === 'demo_fallback' &&
+      successJson.meta?.clientUserPublicIdIgnored === false,
     'notifications keep mock-safe API meta'
   );
   assertCondition(
@@ -82,8 +85,10 @@ async function main() {
     'limit query is honored'
   );
   assertCondition(
-    invalidUserResponse.status === 422,
-    'non-demo userPublicId is rejected'
+    ignoredClientUserResponse.status === 200 &&
+      ignoredClientUserJson.meta?.userPublicId === 'user_demo_001' &&
+      ignoredClientUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client userPublicId is ignored in favor of server-resolved user scope'
   );
   assertCondition(invalidLimitResponse.status === 422, 'invalid limit is rejected');
 

@@ -2,6 +2,10 @@ import { NextRequest } from 'next/server';
 
 import { readNotificationCenter } from '@/lib/db/notification-read-model';
 import type { AccessRole } from '@/lib/domain/types';
+import {
+  readInvestModelRole,
+  resolveInvestModelUserScope
+} from '@/lib/server/invest-model-user-scope';
 
 /**
  * This route exposes DB-backed notification center rows for the prototype.
@@ -9,8 +13,6 @@ import type { AccessRole } from '@/lib/domain/types';
  */
 
 type ApiErrorCode = 'forbidden' | 'validation_error' | 'server_error';
-
-const demoUserPublicId = 'user_demo_001';
 
 function errorResponse(
   status: number,
@@ -30,32 +32,8 @@ function errorResponse(
   );
 }
 
-function readRole(request: NextRequest): AccessRole {
-  const role = request.headers.get('x-invest-model-role');
-
-  if (
-    role === 'public' ||
-    role === 'user' ||
-    role === 'creator' ||
-    role === 'admin' ||
-    role === 'system'
-  ) {
-    return role;
-  }
-
-  return 'public';
-}
-
 function canReadNotifications(role: AccessRole) {
   return role === 'user' || role === 'admin';
-}
-
-function parseUserPublicId(value: string | null) {
-  if (!value) {
-    return demoUserPublicId;
-  }
-
-  return value === demoUserPublicId ? value : null;
 }
 
 function parseLimit(value: string | null) {
@@ -73,25 +51,13 @@ function parseLimit(value: string | null) {
 }
 
 export async function GET(request: NextRequest) {
-  const role = readRole(request);
+  const role = readInvestModelRole(request);
 
   if (!canReadNotifications(role)) {
     return errorResponse(
       403,
       'forbidden',
       'Only signed-in user or admin roles can read investModel notifications.'
-    );
-  }
-
-  const userPublicId = parseUserPublicId(
-    request.nextUrl.searchParams.get('userPublicId')
-  );
-
-  if (!userPublicId) {
-    return errorResponse(
-      422,
-      'validation_error',
-      'userPublicId is limited to the demo user in this prototype.'
     );
   }
 
@@ -106,8 +72,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const userScope = await resolveInvestModelUserScope(request);
     const notificationCenter = await readNotificationCenter({
-      userPublicId,
+      userPublicId: userScope.userPublicId,
       limit
     });
 
@@ -122,7 +89,9 @@ export async function GET(request: NextRequest) {
           'feed_post_reads',
           'investment_models'
         ],
-        userPublicId,
+        userPublicId: userScope.userPublicId,
+        userScopeSource: userScope.source,
+        clientUserPublicIdIgnored: Boolean(userScope.ignoredClientUserPublicId),
         limit,
         readOnly: true,
         sendsRealPush: false,

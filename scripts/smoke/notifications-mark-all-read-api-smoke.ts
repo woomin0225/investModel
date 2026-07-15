@@ -69,9 +69,10 @@ async function main() {
       body: JSON.stringify({ userPublicId: 'user_demo_001' })
     })
   );
-  const invalidUserResponse = await markAllRead({
+  const ignoredClientUserResponse = await markAllRead({
     userPublicId: 'user_demo_999'
   });
+  const ignoredClientUserJson = await ignoredClientUserResponse.json();
   const invalidLimitResponse = await markAllRead({
     userPublicId: 'user_demo_001',
     limit: 31
@@ -92,7 +93,12 @@ async function main() {
   const repeatJson = await repeatResponse.json();
 
   assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
-  assertCondition(invalidUserResponse.status === 422, 'non-demo user is rejected');
+  assertCondition(
+    ignoredClientUserResponse.status === 200 &&
+      ignoredClientUserJson.meta?.userPublicId === 'user_demo_001' &&
+      ignoredClientUserJson.meta?.clientUserPublicIdIgnored === true,
+    'client userPublicId is ignored in favor of server-resolved user scope'
+  );
   assertCondition(invalidLimitResponse.status === 422, 'invalid limit is rejected');
   assertCondition(beforeResponse.status === 200, 'notifications can be read before mark');
   assertCondition(markResponse.status === 200, 'mark all read responds');
@@ -122,7 +128,9 @@ async function main() {
       markJson.meta?.sendsRealSms === false &&
       markJson.meta?.realOrder === false &&
       markJson.meta?.brokerageConnection === false &&
-      markJson.meta?.financialAdvice === false,
+      markJson.meta?.financialAdvice === false &&
+      markJson.meta?.userScopeSource === 'demo_fallback' &&
+      markJson.meta?.clientUserPublicIdIgnored === false,
     'mark all read keeps mock-safe meta'
   );
 

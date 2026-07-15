@@ -2,6 +2,10 @@ import { NextRequest } from 'next/server';
 
 import { markNotificationCenterRead } from '@/lib/db/notification-read-model';
 import type { AccessRole } from '@/lib/domain/types';
+import {
+  readInvestModelRole,
+  resolveInvestModelUserScope
+} from '@/lib/server/invest-model-user-scope';
 
 /**
  * This route mutates only private FeedPost read state behind notification rows.
@@ -14,8 +18,6 @@ type MarkAllReadRequestBody = {
   userPublicId?: unknown;
   limit?: unknown;
 };
-
-const demoUserPublicId = 'user_demo_001';
 
 function errorResponse(
   status: number,
@@ -35,22 +37,6 @@ function errorResponse(
   );
 }
 
-function readRole(request: NextRequest): AccessRole {
-  const role = request.headers.get('x-invest-model-role');
-
-  if (
-    role === 'public' ||
-    role === 'user' ||
-    role === 'creator' ||
-    role === 'admin' ||
-    role === 'system'
-  ) {
-    return role;
-  }
-
-  return 'public';
-}
-
 function canMarkNotificationsRead(role: AccessRole) {
   return role === 'user' || role === 'admin';
 }
@@ -63,14 +49,12 @@ async function readBody(request: NextRequest): Promise<MarkAllReadRequestBody> {
   }
 }
 
-function parseUserPublicId(value: unknown) {
+function readClientUserPublicId(value: unknown) {
   if (typeof value !== 'string' || value.trim() === '') {
-    return demoUserPublicId;
+    return undefined;
   }
 
-  const trimmed = value.trim();
-
-  return trimmed === demoUserPublicId ? trimmed : null;
+  return value.trim();
 }
 
 function parseLimit(value: unknown) {
@@ -88,7 +72,7 @@ function parseLimit(value: unknown) {
 }
 
 export async function POST(request: NextRequest) {
-  const role = readRole(request);
+  const role = readInvestModelRole(request);
 
   if (!canMarkNotificationsRead(role)) {
     return errorResponse(
@@ -99,15 +83,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await readBody(request);
-  const userPublicId = parseUserPublicId(body.userPublicId);
-
-  if (!userPublicId) {
-    return errorResponse(
-      422,
-      'validation_error',
-      'userPublicId is limited to the demo user in this prototype.'
-    );
-  }
+  const clientUserPublicId = readClientUserPublicId(body.userPublicId);
 
   const limit = parseLimit(body.limit);
 
@@ -120,8 +96,11 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const userScope = await resolveInvestModelUserScope(request, {
+      clientUserPublicId
+    });
     const result = await markNotificationCenterRead({
-      userPublicId,
+      userPublicId: userScope.userPublicId,
       limit
     });
 
@@ -144,7 +123,9 @@ export async function POST(request: NextRequest) {
         persistence: 'persisted_feed_read_state',
         action: 'mark_all_notifications_read',
         sourceTables: ['users', 'feed_posts', 'feed_post_reads'],
-        userPublicId,
+        userPublicId: userScope.userPublicId,
+        userScopeSource: userScope.source,
+        clientUserPublicIdIgnored: Boolean(userScope.ignoredClientUserPublicId),
         limit,
         readStateOnly: true,
         sendsRealPush: false,
