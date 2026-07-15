@@ -518,6 +518,13 @@ assertCondition(
   'Feed detail must expose a comments anchor for Feed card comment actions'
 );
 assertCondition(
+  feedDetailPageSource.includes("feedActionVisibleBoundaries(locale).join(' / ')") &&
+    !feedDetailPageSource.includes('feedActionVisibleBoundaries(locale).map((boundary) => (') &&
+    !feedDetailPageSource.includes('{feedCopy.footerBadges.noAdvice}\n                </RiskBadge>') &&
+    feedDetailPageSource.includes("{feedCopy.footerBadges.noAdvice} /{' '}"),
+  'Feed detail must present action/footer safety boundaries as prose instead of hashtag safety chip groups'
+);
+assertCondition(
   !feedPageSource.includes('Simulated list action state'),
   'Feed card actions must not describe DB-backed interactions as simulated list state'
 );

@@ -328,17 +328,13 @@ export default async function InvestModelFeedDetailPage({
           />
         </div>
 
-        <div
-          className="flex flex-wrap gap-1.5 rounded-invest-control bg-invest-surface-muted px-2 py-2"
+        <p
+          className="rounded-invest-control bg-invest-surface-muted px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted"
           aria-label={feedActionBoundaryLabel(locale)}
           title={feedActionBoundaryLabel(locale)}
         >
-          {feedActionVisibleBoundaries(locale).map((boundary) => (
-            <RiskBadge key={boundary} tone="neutral">
-              {boundary}
-            </RiskBadge>
-          ))}
-        </div>
+          {feedActionVisibleBoundaries(locale).join(' / ')}
+        </p>
 
         {post.recentLikeRanking ? (
           <section className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
@@ -404,14 +400,10 @@ export default async function InvestModelFeedDetailPage({
               className="mt-0.5 size-5 shrink-0 text-invest-primary"
             />
             <div className="min-w-0">
-              <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="blocked">
-                  {feedCopy.footerBadges.noAdvice}
-                </RiskBadge>
-                <RiskBadge tone="medium">
-                  {locale === 'ko' ? '읽기 전용' : 'Read-only'}
-                </RiskBadge>
-              </div>
+              <p className="text-xs font-semibold leading-5 text-invest-text-muted">
+                {feedCopy.footerBadges.noAdvice} /{' '}
+                {locale === 'ko' ? '읽기 전용' : 'Read-only'}
+              </p>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {locale === 'ko'
                   ? '이 상세 화면은 정보성 피드와 사용자별 읽기 상태를 보여주며, 실제 주문·브로커 연결·투자 조언을 생성하지 않습니다.'
