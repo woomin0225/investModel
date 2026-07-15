@@ -72,6 +72,7 @@ export async function GET(request: NextRequest) {
           'feed_post_comments',
           'feed_post_reads'
         ],
+        notificationReadModelSource: 'feed_post_reads',
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
         readOnly: true,

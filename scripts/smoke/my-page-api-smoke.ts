@@ -124,6 +124,7 @@ async function main() {
   assertCondition(
     summaryJson.data?.userPublicId === 'user_demo_001' &&
       summaryJson.data?.profile?.userPublicId === 'user_demo_001' &&
+      summaryJson.data?.dataContext === 'db_read_model' &&
       typeof summaryJson.data?.profile?.displayName === 'string' &&
       summaryJson.data?.activeSelection?.safetyBoundary?.noRealOrder === true &&
       typeof summaryJson.data?.feedActivity?.savedCount === 'number' &&
@@ -146,6 +147,8 @@ async function main() {
   assertCondition(
     summaryJson.meta?.routeStatus === 'db_backed' &&
       summaryJson.meta?.readOnly === true &&
+      summaryJson.meta?.notificationReadModelSource === 'feed_post_reads' &&
+      summaryJson.meta?.sourceTables?.includes('feed_post_reads') &&
       summaryJson.meta?.userScopeSource === 'demo_fallback' &&
       summaryJson.meta?.clientUserPublicIdIgnored === undefined &&
       summaryJson.meta?.exposesInternalDbIds === false &&
