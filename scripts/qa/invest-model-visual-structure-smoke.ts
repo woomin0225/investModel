@@ -699,6 +699,37 @@ assertCondition(
   'Feed Korean like ranking copy must not fall back to English'
 );
 assertCondition(
+  feedDetailPageSource.includes("eyebrow={locale === 'ko' ? '피드 상세' : 'Feed Detail'}") &&
+    feedDetailPageSource.includes("locale === 'ko' ? '관련 SignalEvents' : 'Related SignalEvents'") &&
+    feedDetailPageSource.includes('관련 DB-backed SignalEvent') &&
+    feedDetailPageSource.includes('아직 연결된 DB-backed SignalEvent가 없습니다.') &&
+    feedDetailPageSource.includes("locale === 'ko' ? '참여 맥락 전용' : 'Engagement only'") &&
+    feedDetailPageSource.includes("locale === 'ko'\n                    ? '최근 좋아요 순위'") &&
+    feedDetailPageSource.includes('좋아요 순위는 DB-backed 읽기 신호입니다.') &&
+    feedDetailPageSource.includes("locale === 'ko' ? '순위' : 'Rank'") &&
+    feedDetailPageSource.includes("locale === 'ko' ? '좋아요' : 'Likes'") &&
+    !feedDetailPageSource.includes("eyebrow={locale === 'ko' ? 'Feed Detail' : 'Feed Detail'}") &&
+    !feedDetailPageSource.includes("locale === 'ko'\n                    ? 'Recent like ranking'") &&
+    !feedDetailPageSource.includes("locale === 'ko' ? 'Rank' : 'Rank'") &&
+    !feedDetailPageSource.includes("locale === 'ko' ? 'Likes' : 'Likes'"),
+  'Feed Detail Korean visible copy must not fall back to English'
+);
+assertCondition(
+  feedCommentActionSource.includes("title={isKorean ? '댓글' : 'Comments'}") &&
+    feedCommentActionSource.includes('DB-backed 토론 댓글 ${reactionState.commentCount}개') &&
+    feedCommentActionSource.includes("{isKorean ? '댓글 추가' : 'Add comment'}") &&
+    feedCommentActionSource.includes('정보성 시장 또는 모델 메모를 남겨보세요.') &&
+    feedCommentActionSource.includes('정보성 토론 전용입니다. 투자 조언, 주문, 승인을 만들지 않습니다.') &&
+    feedCommentActionSource.includes("{isKorean ? '댓글 등록' : 'Post comment'}") &&
+    feedCommentActionSource.includes('아직 댓글이 없습니다.') &&
+    feedCommentActionSource.includes('정보성 댓글을 추가하지 못했습니다.') &&
+    !feedCommentActionSource.includes("title={isKorean ? 'Comments' : 'Comments'}") &&
+    !feedCommentActionSource.includes("{isKorean ? 'Add comment' : 'Add comment'}") &&
+    !feedCommentActionSource.includes("{isKorean ? 'Post comment' : 'Post comment'}") &&
+    !feedCommentActionSource.includes("{isKorean ? 'No comments yet.' : 'There are no comments yet.'}"),
+  'Feed comment top-level Korean copy must not fall back to English'
+);
+assertCondition(
   adminReportsPageSource.includes("t.stateLabels.join(' / ')") &&
     adminReportsPageSource.includes('{t.disabledAction}') &&
     !adminReportsPageSource.includes('t.stateLabels.map((stateLabel) => (') &&

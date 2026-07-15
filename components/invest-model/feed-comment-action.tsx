@@ -388,20 +388,26 @@ export function FeedCommentAction({
     .filter(Boolean)
     .join(' ');
   const commentSubmitLabel = isPending
-    ? 'Posting informational comment. No order, brokerage action, advice, or approval is created.'
+    ? isKorean
+      ? '정보성 댓글을 등록하는 중입니다. 주문, 브로커 동작, 투자 조언, 승인을 만들지 않습니다.'
+      : 'Posting informational comment. No order, brokerage action, advice, or approval is created.'
     : canSubmit
-      ? 'Post informational comment. No order, brokerage action, advice, or approval is created.'
-      : 'Enter an informational comment within 600 characters before posting.';
+      ? isKorean
+        ? '정보성 댓글 등록. 주문, 브로커 동작, 투자 조언, 승인을 만들지 않습니다.'
+        : 'Post informational comment. No order, brokerage action, advice, or approval is created.'
+      : isKorean
+        ? '600자 이내의 정보성 댓글을 입력한 뒤 등록하세요.'
+        : 'Enter an informational comment within 600 characters before posting.';
 
   const helperText = useMemo(() => {
     if (remainingCount < 0) {
       return isKorean
-        ? 'Comment is over the 600 character limit.'
+        ? '댓글이 600자 제한을 초과했습니다.'
         : 'Comment is over the 600 character limit.';
     }
 
     return isKorean
-      ? 'Informational discussion only. No advice, order, or approval is created.'
+      ? '정보성 토론 전용입니다. 투자 조언, 주문, 승인을 만들지 않습니다.'
       : 'Informational discussion only. No advice, order, or approval is created.';
   }, [isKorean, remainingCount]);
 
@@ -417,7 +423,7 @@ export function FeedCommentAction({
     if (trimmedDraft.length > maxCommentLength) {
       setErrorMessage(
         isKorean
-          ? 'Comment must be 600 characters or fewer.'
+          ? '댓글은 600자 이하여야 합니다.'
           : 'Comment must be 600 characters or fewer.'
       );
       return;
@@ -447,7 +453,7 @@ export function FeedCommentAction({
         setErrorMessage(
           body.error?.message ??
             (isKorean
-              ? 'Could not add this informational comment.'
+              ? '정보성 댓글을 추가하지 못했습니다.'
               : 'Could not add this informational comment.')
         );
         return;
@@ -458,13 +464,13 @@ export function FeedCommentAction({
       setDraft('');
       setSuccessMessage(
         isKorean
-          ? 'Comment added to the discussion.'
+          ? '댓글이 토론에 추가되었습니다.'
           : 'Comment added to the discussion.'
       );
     } catch {
       setErrorMessage(
         isKorean
-          ? 'Could not add this informational comment.'
+          ? '정보성 댓글을 추가하지 못했습니다.'
           : 'Could not add this informational comment.'
       );
     } finally {
@@ -480,10 +486,10 @@ export function FeedCommentAction({
   return (
     <div className="space-y-invest-card-gap">
       <SectionHeader
-        title={isKorean ? 'Comments' : 'Comments'}
+        title={isKorean ? '댓글' : 'Comments'}
         description={
           isKorean
-            ? `${reactionState.commentCount} DB-backed discussion comments.`
+            ? `DB-backed 토론 댓글 ${reactionState.commentCount}개`
             : `${reactionState.commentCount} DB-backed discussion comments.`
         }
       />
@@ -497,7 +503,7 @@ export function FeedCommentAction({
           className="flex items-center gap-2 text-[12px] font-bold leading-4 text-invest-text"
         >
           <MessageCircle aria-hidden className="size-4 text-invest-primary" />
-          {isKorean ? 'Add comment' : 'Add comment'}
+          {isKorean ? '댓글 추가' : 'Add comment'}
         </label>
         <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
           {feedCommentVisibleBoundaries(locale).join(' / ')}
@@ -515,7 +521,7 @@ export function FeedCommentAction({
           maxLength={maxCommentLength + 20}
           placeholder={
             isKorean
-              ? 'Share an informational market or model note.'
+              ? '정보성 시장 또는 모델 메모를 남겨보세요.'
               : 'Share an informational market or model note.'
           }
           className={cn(
@@ -523,7 +529,11 @@ export function FeedCommentAction({
             investMotionClass.interactiveControl
           )}
           aria-describedby={commentDescriptionIds}
-          title="Informational discussion only. This does not create advice, orders, brokerage actions, or approvals."
+          title={
+            isKorean
+              ? '정보성 토론 전용입니다. 투자 조언, 주문, 브로커 동작, 승인을 만들지 않습니다.'
+              : 'Informational discussion only. This does not create advice, orders, brokerage actions, or approvals.'
+          }
         />
         <div className="mt-2 flex items-start justify-between gap-3">
           <p
@@ -559,7 +569,7 @@ export function FeedCommentAction({
           ) : (
             <Send aria-hidden className="size-4" />
           )}
-          {isKorean ? 'Post comment' : 'Post comment'}
+          {isKorean ? '댓글 등록' : 'Post comment'}
         </button>
 
         {errorMessage ? (
@@ -596,7 +606,7 @@ export function FeedCommentAction({
           ))
         ) : (
           <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted">
-            {isKorean ? 'No comments yet.' : 'There are no comments yet.'}
+            {isKorean ? '아직 댓글이 없습니다.' : 'There are no comments yet.'}
           </div>
         )}
       </div>

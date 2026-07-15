@@ -196,7 +196,7 @@ export default async function InvestModelFeedDetailPage({
   return (
     <MobileShell
       activeTab="feed"
-      eyebrow={locale === 'ko' ? 'Feed Detail' : 'Feed Detail'}
+      eyebrow={locale === 'ko' ? '피드 상세' : 'Feed Detail'}
       title={locale === 'ko' ? '피드 상세' : 'Feed Detail'}
       locale={locale}
       currentPath={currentPath}
@@ -259,7 +259,7 @@ export default async function InvestModelFeedDetailPage({
           <div className="mt-3 rounded-invest-card bg-invest-bg-soft p-3">
             <div className="flex items-center justify-between gap-2">
               <p className="text-[12px] font-bold leading-4 text-invest-text">
-                Related SignalEvents
+                {locale === 'ko' ? '관련 SignalEvents' : 'Related SignalEvents'}
               </p>
               <RadioTower
                 aria-hidden
@@ -276,7 +276,11 @@ export default async function InvestModelFeedDetailPage({
                       'inline-flex min-h-9 items-center rounded-invest-control border border-invest-border bg-invest-surface px-3 text-[12px] font-bold text-invest-text-muted',
                       investMotionClass.interactiveControl
                     )}
-                    aria-label={`Open related DB-backed SignalEvent ${signalPublicId}. Informational context only, not advice or an order.`}
+                    aria-label={
+                      locale === 'ko'
+                        ? `관련 DB-backed SignalEvent ${signalPublicId} 열기. 정보성 맥락일 뿐 추천이나 주문이 아닙니다.`
+                        : `Open related DB-backed SignalEvent ${signalPublicId}. Informational context only, not advice or an order.`
+                    }
                   >
                     {signalPublicId}
                   </Link>
@@ -284,7 +288,9 @@ export default async function InvestModelFeedDetailPage({
               </div>
             ) : (
               <p className="mt-1 text-sm font-semibold leading-6 text-invest-text-muted">
-                No DB-backed SignalEvent links yet.
+                {locale === 'ko'
+                  ? '아직 연결된 DB-backed SignalEvent가 없습니다.'
+                  : 'No DB-backed SignalEvent links yet.'}
               </p>
             )}
           </div>
@@ -345,17 +351,17 @@ export default async function InvestModelFeedDetailPage({
                     {post.recentLikeRanking.windowLabel}
                   </RiskBadge>
                   <RiskBadge tone="low">
-                    {locale === 'ko' ? 'Engagement only' : 'Engagement only'}
+                    {locale === 'ko' ? '참여 맥락 전용' : 'Engagement only'}
                   </RiskBadge>
                 </div>
                 <h2 className="mt-3 text-[20px] font-bold leading-7 text-invest-text">
                   {locale === 'ko'
-                    ? 'Recent like ranking'
+                    ? '최근 좋아요 순위'
                     : 'Recent like ranking'}
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-invest-text-muted">
                   {locale === 'ko'
-                    ? 'Like ranking is a DB-backed reading signal. It is not model quality, advice, return, or order intent.'
+                    ? '좋아요 순위는 DB-backed 읽기 신호입니다. 모델 품질, 추천, 수익, 주문 의도가 아닙니다.'
                     : 'Like ranking is a DB-backed reading signal. It is not model quality, advice, return, or order intent.'}
                 </p>
               </div>
@@ -366,7 +372,7 @@ export default async function InvestModelFeedDetailPage({
             <div className="mt-4 grid grid-cols-2 gap-2 rounded-invest-card bg-invest-bg-soft p-2">
               <div className="rounded-invest-control bg-invest-surface p-3">
                 <p className="text-[11px] font-bold leading-4 text-invest-text-muted">
-                  {locale === 'ko' ? 'Rank' : 'Rank'}
+                  {locale === 'ko' ? '순위' : 'Rank'}
                 </p>
                 <p className="mt-1 text-[24px] font-bold leading-8 text-invest-text tabular-nums">
                   #{post.recentLikeRanking.rank}
@@ -374,7 +380,7 @@ export default async function InvestModelFeedDetailPage({
               </div>
               <div className="rounded-invest-control bg-invest-surface p-3">
                 <p className="text-[11px] font-bold leading-4 text-invest-text-muted">
-                  {locale === 'ko' ? 'Likes' : 'Likes'}
+                  {locale === 'ko' ? '좋아요' : 'Likes'}
                 </p>
                 <p className="mt-1 text-[24px] font-bold leading-8 text-invest-primary tabular-nums">
                   {post.recentLikeRanking.likeCount}
