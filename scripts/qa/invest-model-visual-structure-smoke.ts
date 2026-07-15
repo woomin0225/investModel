@@ -519,10 +519,20 @@ assertCondition(
     signalDetailPageSource.includes("signalScoreSnapshotVisibleBoundaries(locale).join(' / ')") &&
     signalDetailPageSource.includes("signalEvidenceVisibleBoundaries(locale).join(' / ')") &&
     signalDetailPageSource.includes("signalRelatedVisibleBoundaries(locale).join(' / ')") &&
+    signalDetailPageSource.includes('const signalSafetyLine') &&
+    signalDetailPageSource.includes('const relatedFeedMetaLine') &&
+    signalDetailPageSource.includes("'DB FeedPost',") &&
+    signalDetailPageSource.includes("'Reference only'") &&
     !signalDetailPageSource.includes('signalDetailVisibleBoundaries(locale).map((boundary) => (') &&
     !signalDetailPageSource.includes('signalScoreSnapshotVisibleBoundaries(locale).map((boundary) => (') &&
     !signalDetailPageSource.includes('signalEvidenceVisibleBoundaries(locale).map((boundary) => (') &&
-    !signalDetailPageSource.includes('signalRelatedVisibleBoundaries(locale).map((boundary) => ('),
+    !signalDetailPageSource.includes('signalRelatedVisibleBoundaries(locale).map((boundary) => (') &&
+    !signalDetailPageSource.includes("<RiskBadge tone=\"blocked\">\n                  {locale === 'ko' ? '異붿쿇 ?꾨떂' : 'No recommendation'}\n                </RiskBadge>") &&
+    !signalDetailPageSource.includes("<RiskBadge tone=\"medium\">\n                  {locale === 'ko' ? '二쇰Ц ?놁쓬' : 'No order'}\n                </RiskBadge>") &&
+    !signalDetailPageSource.includes("'No recommendation'}\n                </RiskBadge>") &&
+    !signalDetailPageSource.includes("'No order'}\n                </RiskBadge>") &&
+    !signalDetailPageSource.includes('<RiskBadge tone="neutral">DB FeedPost</RiskBadge>') &&
+    !signalDetailPageSource.includes("'Reference only'}\n                </RiskBadge>"),
   'Signal detail must present safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(

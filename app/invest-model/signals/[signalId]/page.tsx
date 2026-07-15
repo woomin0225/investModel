@@ -306,6 +306,14 @@ export default async function InvestModelSignalDetailPage({
     signal
   );
   const safetyAccessibleLabel = signalSafetyDescription(locale, signal);
+  const signalSafetyLine = [
+    locale === 'ko' ? '\uCD94\uCC9C \uC544\uB2D8' : 'No recommendation',
+    locale === 'ko' ? '\uC8FC\uBB38 \uC5C6\uC74C' : 'No order'
+  ].join(' / ');
+  const relatedFeedMetaLine = [
+    'DB FeedPost',
+    locale === 'ko' ? '\uCC38\uACE0\uC6A9' : 'Reference only'
+  ].join(' / ');
   const sourceRows = [
     {
       label: locale === 'ko' ? '관찰 유형' : 'Observation type',
@@ -552,13 +560,8 @@ export default async function InvestModelSignalDetailPage({
               className="mt-0.5 size-5 shrink-0 text-invest-risk"
             />
             <div className="min-w-0">
-              <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="blocked">
-                  {locale === 'ko' ? '추천 아님' : 'No recommendation'}
-                </RiskBadge>
-                <RiskBadge tone="medium">
-                  {locale === 'ko' ? '주문 없음' : 'No order'}
-                </RiskBadge>
+              <div className="rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                {signalSafetyLine}
               </div>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {safetyAccessibleLabel}
@@ -581,11 +584,8 @@ export default async function InvestModelSignalDetailPage({
               <Search aria-hidden className="size-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap gap-2">
-                <RiskBadge tone="neutral">DB FeedPost</RiskBadge>
-                <RiskBadge tone="medium">
-                  {locale === 'ko' ? '참고용' : 'Reference only'}
-                </RiskBadge>
+              <div className="rounded-invest-control bg-invest-bg-soft px-2 py-1.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                {relatedFeedMetaLine}
               </div>
               <p className="mt-2 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
                 {signalRelatedVisibleBoundaries(locale).join(' / ')}
