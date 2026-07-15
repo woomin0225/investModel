@@ -536,6 +536,8 @@ assertCondition(
     modelsPageSource.includes('modelsCopy.footerBadges.backtestMock') &&
     !modelsPageSource.includes('{modelsCopy.footerBadges.noLiveTrading}\n            </RiskBadge>') &&
     !modelsPageSource.includes('{modelsCopy.footerBadges.backtestMock}\n            </RiskBadge>') &&
+    !modelsPageSource.includes('{readStateCopy.dbLabel}\n                  </RiskBadge>') &&
+    !modelsPageSource.includes('{modelsCopy.footerBadges.backtestMock}\n                  </RiskBadge>') &&
     !modelsPageSource.includes('visibleBoundaries.map((boundary) => (') &&
     modelsPageSource.includes('riskLabel={model.riskLabel}') &&
     modelsPageSource.includes('performanceLabel={model.performanceLabel}') &&

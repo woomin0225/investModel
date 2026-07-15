@@ -538,14 +538,15 @@ export default async function InvestModelDiscoveryPage({
                 role="listitem"
                 className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
               >
-                <div className="flex flex-wrap gap-1.5">
-                  <RiskBadge tone={modelReadFailed ? 'blocked' : 'neutral'}>
-                    {readStateCopy.dbLabel}
-                  </RiskBadge>
-                  <RiskBadge tone="medium">
-                    {modelsCopy.footerBadges.backtestMock}
-                  </RiskBadge>
-                </div>
+                <p
+                  className={`text-xs font-semibold leading-5 ${
+                    modelReadFailed
+                      ? 'text-invest-danger'
+                      : 'text-invest-text-muted'
+                  }`}
+                >
+                  {readStateCopy.dbLabel} / {modelsCopy.footerBadges.backtestMock}
+                </p>
                 <h2 className="mt-3 text-[16px] font-bold leading-6 text-invest-text">
                   {modelReadFailed
                     ? readStateCopy.unavailableTitle
