@@ -396,6 +396,7 @@ const modelSelectionCtaSource = readProjectFile(
 const creatorModelDraftFormSource = readProjectFile(
   'components/invest-model/creator-model-draft-form.tsx'
 );
+const creatorPageSource = readProjectFile('app/invest-model/creator/page.tsx');
 const signalDetailPageSource = readProjectFile(
   'app/invest-model/signals/[signalId]/page.tsx'
 );
@@ -555,9 +556,10 @@ assertCondition(
     signalRefreshActionSource.includes('router.refresh()') &&
     signalRefreshActionSource.includes('Auto refresh 60s') &&
     signalRefreshActionSource.includes('DB 점수 스냅샷만 새로고침합니다. 외부 실시간 데이터, 투자 조언, 주문이 아닙니다.') &&
-    signalRefreshActionSource.includes('DB 읽기 모델 새로고침') &&
+    signalRefreshActionSource.includes('DB 기반 조회 새로고침') &&
     signalRefreshActionSource.includes("].join(' / ')") &&
     signalRefreshActionSource.includes("'점수 스냅샷 테이블'") &&
+    !signalRefreshActionSource.includes('DB 읽기 모델 새로고침') &&
     !signalRefreshActionSource.includes("locale === 'ko'\n      ? 'DB score snapshots only.") &&
     !signalRefreshActionSource.includes("'DB read model refresh',\n    'signal_score_snapshots'") &&
     !signalRefreshActionSource.includes("'DB 읽기 모델 새로고침',\n    'signal_score_snapshots'") &&
@@ -812,7 +814,7 @@ assertCondition(
     feedPageSource.includes("{locale === 'ko' ? '추천 아님' : 'No advice'}") &&
     feedPageSource.includes('아직 추적된 좋아요 순위 행이 없습니다.') &&
     feedPageSource.includes('${label} 피드 글 필터.') &&
-    feedPageSource.includes('DB 기반 피드 읽기 모델만 필터링하며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
+    feedPageSource.includes('DB 기반 피드 조회만 필터링하며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
     feedPageSource.includes('피드 글: ${post.title}.') &&
     feedPageSource.includes('정보성 DB 기반 조회 글이며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
     feedPageSource.includes('피드 상세를 열고 읽음 상태를 기록합니다.') &&
@@ -820,7 +822,7 @@ assertCondition(
     feedPageSource.includes('피드 좋아요 순위 ${ranking.rank}위') &&
     feedPageSource.includes('DB 기반 추적 좋아요 순위이며 모델 품질, 기대 수익, 추천, 주문 근거가 아닙니다.') &&
     feedPageSource.includes("'DB 기반 관심도 순위'") &&
-    feedPageSource.includes('피드 빈 상태입니다. DB 기반 피드 읽기 모델 범위만 표시하며 정보성 상태일 뿐 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
+    feedPageSource.includes('피드 빈 상태입니다. DB 기반 피드 조회 범위만 표시하며 정보성 상태일 뿐 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
     feedPageSource.includes("'DB 피드 빈 상태'") &&
     feedPageSource.includes("'실시간 외부 데이터 없음'") &&
     feedPageSource.includes('피드 글과 좋아요 순위는 정보성 DB 기반 조회이며 추천, 주문, 수익률 보장, 브로커 동작, 실시간 외부 데이터 또는 실계좌 데이터가 아닙니다.') &&
@@ -829,6 +831,7 @@ assertCondition(
     !feedPageSource.includes("title={locale === 'ko' ? 'Like ranking' : 'Like ranking'}") &&
     !feedPageSource.includes("? 'No tracked like ranking rows yet.'\n                    : 'No tracked like ranking rows yet.'") &&
     !feedPageSource.includes('DB-backed FeedPost read model만 필터링') &&
+    !feedPageSource.includes('DB 기반 피드 읽기 모델') &&
     !feedPageSource.includes('FeedPost 상세를 열고 읽음 상태를 기록합니다.') &&
     !feedPageSource.includes('정보성 DB 읽기 모델 글이며') &&
     !feedPageSource.includes('피드 글과 좋아요 순위는 정보성 DB 읽기 모델이며') &&
@@ -972,10 +975,16 @@ assertCondition(
     modelSelectionReadStatusSource.includes('copy.noRealAction') &&
     modelSelectionReadStatusSource.includes(".join(' / ')") &&
     modelSelectionReadStatusCopySource.includes("empty: '아직 DB에 활성 선택 기록이 없습니다.'") &&
-    modelSelectionReadStatusCopySource.includes("signedOut: '로그인 사용자 공개 ID를 찾지 못했습니다.'") &&
-    modelSelectionReadStatusCopySource.includes("modelLabel: '투자 모델 공개 ID'") &&
-    modelSelectionReadStatusCopySource.includes("versionLabel: '모델 버전 공개 ID'") &&
-    modelSelectionReadStatusCopySource.includes("selectionLabel: '선택 기록 공개 ID'") &&
+    modelSelectionReadStatusCopySource.includes("title: '저장된 선택 기록'") &&
+    modelSelectionReadStatusCopySource.includes("signedOut: '로그인 사용자 식별자를 찾지 못했습니다.'") &&
+    modelSelectionReadStatusCopySource.includes("modelLabel: '투자 모델 식별자'") &&
+    modelSelectionReadStatusCopySource.includes("versionLabel: '모델 버전 식별자'") &&
+    modelSelectionReadStatusCopySource.includes("selectionLabel: '선택 기록 식별자'") &&
+    !modelSelectionReadStatusCopySource.includes('공개 ID') &&
+    !signalsPageSource.includes('초기/모의') &&
+    !signalDetailPageSource.includes('초기/모의') &&
+    !creatorPageSource.includes('공개 ID') &&
+    !modelDetailPageSource.includes('공개 ID') &&
     !modelSelectionReadStatusCopySource.includes("active 선택 기록") &&
     !modelSelectionReadStatusCopySource.includes('사용자 publicId') &&
     !modelSelectionReadStatusSource.includes('RiskBadge') &&
@@ -1002,16 +1011,20 @@ assertCondition(
   'My Page safety boundaries must use prose instead of hashtag safety chip groups'
 );
 assertCondition(
-  myPageSource.includes('내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 기반 조회 또는 프로토타입 대체 상태를 구분합니다.') &&
-    myPageSource.includes('회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 기반 조회 또는 프로토타입 대체 상태만 표시합니다.') &&
-    myPageSource.includes('DB 사용자 읽기 모델') &&
+  myPageSource.includes('내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 기반 조회 또는 프로토타입 보조 상태를 구분합니다.') &&
+    myPageSource.includes('회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 기반 조회 또는 프로토타입 보조 상태만 표시합니다.') &&
+    myPageSource.includes('DB 사용자 조회 상태') &&
     myPageSource.includes('로컬 프로필 요약') &&
+    myPageSource.includes('활동 조회 상태') &&
     myPageSource.includes('현재 회원의 저장/댓글 바로가기를 DB 기반 조회에서 최신순으로 표시합니다.') &&
     myPageSource.includes('최근 피드 글 활동. 현재 회원의 저장 및 댓글 DB 기반 조회 바로가기입니다.') &&
     myPageSource.includes('저장/댓글 활동은 정보성 읽기 바로가기이며 추천, 주문, 실계좌, 실제 알림 전송과 연결되지 않습니다.') &&
     !myPageSource.includes('My Page DB read model 또는 mock-safe') &&
     !myPageSource.includes('user-scoped DB read model') &&
     !myPageSource.includes('프로토타입 fallback') &&
+    !myPageSource.includes('프로토타입 대체 상태') &&
+    !myPageSource.includes('활동 읽기 모델') &&
+    !myPageSource.includes('DB 사용자 읽기 모델') &&
     !myPageSource.includes('활동 read model') &&
     !myPageSource.includes('사용자 publicId') &&
     !myPageSource.includes('DB 사용자 read model') &&

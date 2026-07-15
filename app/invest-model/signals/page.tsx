@@ -113,7 +113,7 @@ function signalFilterTitle(
 ) {
   const safeBoundary =
     locale === 'ko'
-      ? 'DB 초기/모의 관찰값만 필터링합니다. 추천, 주문, 주문 전 의도 또는 실시간 외부 데이터 연결이 아닙니다.'
+      ? 'DB 모의 관찰값만 필터링합니다. 추천, 주문, 주문 전 의도 또는 실시간 외부 데이터 연결이 아닙니다.'
       : 'Filters DB seed/mock observations only. This is not a recommendation, order, TradeIntent, or realtime external data connection.';
   const stateLabel =
     locale === 'ko'
@@ -579,7 +579,7 @@ export default async function InvestModelSignalsPage({
                 className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-invest-card-padding text-sm font-semibold leading-6 text-invest-text-muted"
               >
                 {locale === 'ko'
-                  ? '선택한 필터에 표시할 DB 신호가 없습니다. 신호는 초기/모의 관찰값 기준으로만 표시됩니다.'
+                  ? '선택한 필터에 표시할 DB 신호가 없습니다. 신호는 모의 관찰값 기준으로만 표시됩니다.'
                   : 'No DB signals are available for this filter. Signals remain seed/mock observations only.'}
               </div>
             )}

@@ -53,7 +53,7 @@ const homeMetricSummaryCopy = {
 
 function homeSafetyBoundaryCopy(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? '이 홈 화면은 DB/모의 읽기 모델과 선택 모델 맥락, 모의 자금을 읽어 보여주는 시뮬레이션 화면입니다. 실계좌, 주문, 브로커 연결, 투자조언으로 동작하지 않습니다.'
+    ? '이 홈 화면은 DB와 모의 데이터를 기반으로 선택 모델 맥락과 모의 자금을 읽어 보여주는 시뮬레이션 화면입니다. 실계좌, 주문, 브로커 연결, 투자조언으로 동작하지 않습니다.'
     : 'This home screen reads DB/mock read models, selected model context, and MockDeposit funds for simulation only. It is not a real account, order, brokerage connection, or financial advice.';
 }
 

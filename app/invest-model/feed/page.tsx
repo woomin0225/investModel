@@ -217,7 +217,7 @@ function feedFilterAccessibleLabel(
   visiblePostCountLabel: string
 ) {
   return locale === 'ko'
-    ? `${label} 피드 글 필터. ${isActive ? '현재 선택됨' : '선택 가능'}. ${visiblePostCountLabel}. DB 기반 피드 읽기 모델만 필터링하며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.`
+    ? `${label} 피드 글 필터. ${isActive ? '현재 선택됨' : '선택 가능'}. DB 기반 피드 조회만 필터링하며 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다. ${visiblePostCountLabel}.`
     : `${label} FeedPost filter. ${isActive ? 'Currently selected' : 'Available'}. ${visiblePostCountLabel}. Filters only the DB-backed FeedPost read model, not recommendations, orders, brokerage actions, or realtime external data.`;
 }
 
@@ -266,7 +266,7 @@ function feedRankingVisibleBoundaries(locale: FeedLocale) {
 
 function feedEmptyAccessibleLabel(locale: FeedLocale) {
   return locale === 'ko'
-    ? '피드 빈 상태입니다. DB 기반 피드 읽기 모델 범위만 표시하며 정보성 상태일 뿐 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.'
+    ? '피드 빈 상태입니다. DB 기반 피드 조회 범위만 표시하며 정보성 상태일 뿐 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.'
     : 'FeedPost empty state. DB-backed FeedPost read model scope only; informational only, not a recommendation, order, brokerage action, or realtime external data.';
 }
 

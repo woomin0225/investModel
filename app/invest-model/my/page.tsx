@@ -136,7 +136,7 @@ function myPageRecentActivityVisibleBoundaries(locale: 'ko' | 'en') {
 function myPageSummaryVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
     ? [
-        'DB 사용자 읽기 모델',
+        'DB 사용자 조회 상태',
         '로컬 프로필 요약',
         '실계좌 없음',
         '브로커 미연결',
@@ -164,7 +164,7 @@ function myPageScopeBadgeLabel(
   }
 
   return locale === 'ko'
-    ? '프로토타입 대체 범위'
+    ? '프로토타입 보조 범위'
     : 'Prototype fallback scope';
 }
 
@@ -175,7 +175,7 @@ function myPageScopeAccessibleLabel(
   const scopeLabel = myPageScopeBadgeLabel(locale, meta);
 
   return locale === 'ko'
-    ? `${scopeLabel}. 내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 기반 조회 또는 프로토타입 대체 상태를 구분합니다. 클라이언트가 보낸 사용자 공개 ID로 회원 범위를 바꾸지 않습니다.`
+    ? `${scopeLabel}. 내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 기반 조회 또는 프로토타입 보조 상태를 구분합니다. 클라이언트가 보낸 사용자 식별자로 회원 범위를 바꾸지 않습니다.`
     : `${scopeLabel}. My Page distinguishes current member DB read model state from prototype fallback through the API userScopeSource. Client-provided userPublicId does not change the member scope.`;
 }
 
@@ -202,7 +202,7 @@ const myPageCopy = {
     selectedSectionTitle: '선택한 투자 모델',
     selectedSectionDescription:
       'DB에 저장된 활성 모델 선택 기록을 읽습니다. 투자 성향이나 주문 설정이 아닙니다.',
-    activityTitle: '활동 읽기 모델',
+    activityTitle: '활동 조회 상태',
     activityDescription:
       '내 정보는 앞으로 저장, 댓글, 알림 상태를 DB 기반 조회로 묶어 보여줍니다.',
     activityItems: [
@@ -229,7 +229,7 @@ const myPageCopy = {
       }
     ],
     footer:
-      '내 정보의 모든 값은 현재 회원의 앱 내 읽기 모델 또는 준비 중인 모의 안전 상태입니다. 실제 계좌 잔고, 은행 연결, 브로커 주문, 법률 판단을 표시하지 않습니다.'
+      '내 정보의 모든 값은 현재 회원의 앱 내 조회 상태 또는 준비 중인 모의 안전 상태입니다. 실제 계좌 잔고, 은행 연결, 브로커 주문, 법률 판단을 표시하지 않습니다.'
   },
   en: {
     eyebrow: 'Member',
@@ -417,7 +417,7 @@ export default async function InvestModelMyPage({
           className="text-[12px] leading-5 text-invest-text-muted"
         >
           {locale === 'ko'
-            ? '회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 기반 조회 또는 프로토타입 대체 상태만 표시합니다.'
+            ? '회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 기반 조회 또는 프로토타입 보조 상태만 표시합니다.'
             : 'Member scope is confirmed through the API userScopeSource, and this screen shows only current member DB read models or prototype fallback state.'}
         </p>
         <p className="text-[12px] leading-5 text-invest-text-muted">

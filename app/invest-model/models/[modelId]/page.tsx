@@ -115,7 +115,7 @@ export default async function InvestModelDetailPage({
           duplicateTitle: '이미 저장된 선택 기록입니다',
           errorTitle: '선택 기록을 저장하지 못했습니다',
           signedOutMessage:
-            '로그인된 사용자 공개 ID를 찾지 못했습니다. 샘플 사용자 데이터 또는 로그인이 필요합니다.',
+            '로그인된 사용자 식별자를 찾지 못했습니다. 샘플 사용자 데이터 또는 로그인이 필요합니다.',
           safetyLabel: '실입금/실주문 아님',
           persistedLabel: 'DB 저장됨',
           noLiveTradingLabel: copy.noLiveTradingLabel

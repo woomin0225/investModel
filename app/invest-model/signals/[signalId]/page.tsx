@@ -115,13 +115,13 @@ function signalDetailAccessibleLabel(
   signalTypeText: string
 ) {
   return locale === 'ko'
-    ? `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB 초기/모의 관찰 입력 상세입니다. 추천, 주문, 주문 전 의도 또는 실시간 외부 데이터 연결이 아닙니다.`
+    ? `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB 모의 관찰 입력 상세입니다. 추천, 주문, 주문 전 의도 또는 실시간 외부 데이터 연결이 아닙니다.`
     : `${signal.title}. ${signalTypeText}. ${signal.scoreDisplay}. DB seed/mock observation detail. This is not a recommendation, order, TradeIntent, or realtime external data connection.`;
 }
 
 function signalBackAccessibleLabel(locale: SignalLocale) {
   return locale === 'ko'
-    ? 'DB 초기/모의 신호 목록으로 돌아가기'
+    ? 'DB 모의 신호 목록으로 돌아가기'
     : 'Back to the DB seed/mock signal list';
 }
 
@@ -169,7 +169,7 @@ function signalScoreSnapshotVisibleBoundaries(locale: SignalLocale) {
     ? [
         '점수 스냅샷',
         'DB 관찰 신호',
-        '초기/모의 관찰',
+        '모의 관찰',
         '외부 실시간 미연결',
         '주문 아님'
       ]
@@ -226,7 +226,7 @@ function signalEvidenceVisibleBoundaries(locale: SignalLocale) {
     ? [
         'DB 원천 행',
         '관찰 시점 표시',
-        '초기/모의 근거',
+        '모의 근거',
         '추천 근거 아님',
         '주문 근거 아님'
       ]
@@ -358,7 +358,7 @@ export default async function InvestModelSignalDetailPage({
         signal.signalType === 'news_traffic'
           ? signal.sourceLabel
           : locale === 'ko'
-            ? '트래픽 값은 초기/모의 관찰 범위에서만 표시됩니다.'
+            ? '트래픽 값은 모의 관찰 범위에서만 표시됩니다.'
             : 'Traffic values are shown only within seed/mock observation scope.'
     },
     {
@@ -412,7 +412,7 @@ export default async function InvestModelSignalDetailPage({
             label={locale === 'ko' ? '관찰 점수' : 'Observation score'}
             value={signal.scoreDisplay}
             description={
-              locale === 'ko' ? 'DB 초기/모의 기반' : 'DB seed/mock based'
+              locale === 'ko' ? 'DB 모의 관찰 기반' : 'DB seed/mock based'
             }
             trend={locale === 'ko' ? '관찰값' : 'Observed'}
             tone={scoreTone === 'high' ? 'risk' : undefined}
@@ -422,7 +422,7 @@ export default async function InvestModelSignalDetailPage({
             value={locale === 'ko' ? '미연결' : 'Not connected'}
             description={
               locale === 'ko'
-                ? 'IS-004 해결 전까지 초기/모의 데이터만 사용'
+                ? 'IS-004 해결 전까지 모의 데이터만 사용'
                 : 'Seed/mock only until IS-004 is resolved'
             }
             trend={locale === 'ko' ? '안전 경계' : 'Safety boundary'}
@@ -451,7 +451,7 @@ export default async function InvestModelSignalDetailPage({
                 <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
                   {signal.dataContext === 'mock'
                     ? locale === 'ko'
-                      ? '초기/모의 관찰'
+                      ? '모의 관찰'
                       : 'Seed/mock'
                     : signal.dataContext}
                 </span>
@@ -615,7 +615,7 @@ export default async function InvestModelSignalDetailPage({
             </span>
             <p className="text-sm font-semibold leading-6 text-invest-text-muted">
               {locale === 'ko'
-                ? '이 상세 화면은 DB에 저장된 관찰 신호 공개 ID를 읽어 표시합니다. 실시간 검색량, 브라우저 트래픽, 유료 외부 데이터는 아직 연결하지 않았습니다.'
+                ? '이 상세 화면은 DB에 저장된 관찰 신호 식별자를 읽어 표시합니다. 실시간 검색량, 브라우저 트래픽, 유료 외부 데이터는 아직 연결하지 않았습니다.'
                 : 'This detail screen reads a stored SignalEvent public id from the DB. Realtime search volume, browser traffic, and paid external sources are not connected yet.'}
             </p>
           </div>
