@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle2, Database, Loader2 } from 'lucide-react';
-import { investMotionClass, RiskBadge } from '@/components/invest-model/ui';
+import { investMotionClass } from '@/components/invest-model/ui';
 import type { ModelSelectionReadStatusCopy } from './model-selection-read-status-copy';
 import { cn } from '@/lib/utils';
 
@@ -126,6 +126,9 @@ export function ModelSelectionReadStatus({
   }, [copy]);
 
   const isReady = readState.status === 'ready';
+  const boundaryLine = [isReady ? copy.persisted : null, copy.noRealAction]
+    .filter((item): item is string => Boolean(item))
+    .join(' / ');
 
   return (
     <aside
@@ -188,9 +191,8 @@ export function ModelSelectionReadStatus({
             </dl>
           ) : null}
 
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {isReady ? <RiskBadge tone="low">{copy.persisted}</RiskBadge> : null}
-            <RiskBadge tone="blocked">{copy.noRealAction}</RiskBadge>
+          <div className="mt-2 rounded-invest-control bg-invest-surface/75 px-2 py-1.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
+            {boundaryLine}
           </div>
         </div>
       </div>

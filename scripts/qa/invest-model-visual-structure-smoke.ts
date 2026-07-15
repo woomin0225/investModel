@@ -379,6 +379,9 @@ const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
 const signalRefreshActionSource = readProjectFile(
   'components/invest-model/signal-refresh-action.tsx'
 );
+const modelSelectionReadStatusSource = readProjectFile(
+  'components/invest-model/model-selection-read-status.tsx'
+);
 const signalDetailPageSource = readProjectFile(
   'app/invest-model/signals/[signalId]/page.tsx'
 );
@@ -603,9 +606,14 @@ assertCondition(
     homePageSource.includes('homeSafetyBoundaryCopy') &&
     !homePageSource.includes('RiskBadge') &&
     homePageSource.includes('ModelSelectionReadStatus') &&
+    modelSelectionReadStatusSource.includes('const boundaryLine') &&
+    modelSelectionReadStatusSource.includes('copy.noRealAction') &&
+    modelSelectionReadStatusSource.includes(".join(' / ')") &&
+    !modelSelectionReadStatusSource.includes('RiskBadge') &&
+    !modelSelectionReadStatusSource.includes('<RiskBadge') &&
     homePageSource.includes('homeCopy.footerBadges.noLiveOrders') &&
     homePageSource.includes('financial advice'),
-  'Home must not start with the top blue SoftBanner or hashtag safety chip group and must preserve mock/no-order safety context'
+  'Home and model selection read status must not start with the top blue SoftBanner or hashtag safety chip group and must preserve mock/no-order safety context'
 );
 assertCondition(
   myPageSource.includes('No real account / No real orders / DB read model') &&
