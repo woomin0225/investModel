@@ -1,7 +1,6 @@
 import { and, desc, eq, isNull } from 'drizzle-orm';
 
 import { investModelPortfolioMock } from '@/lib/mock/invest-model-portfolio';
-import { db } from '@/lib/db/drizzle';
 import {
   allocationDecisions,
   investmentModels,
@@ -20,7 +19,10 @@ import {
   formatMockMoney,
   formatSimulatedQuantity
 } from '@/lib/domain/formatting/invest-model-number';
-import type { InvestModelPortfolioSummary } from '@/lib/domain/portfolio/portfolio-summary';
+import {
+  portfolioMockSafetyMeta,
+  type InvestModelPortfolioSummary
+} from '@/lib/domain/portfolio/portfolio-summary';
 
 const fallbackPortfolio: InvestModelPortfolioSummary = {
   ...investModelPortfolioMock,
@@ -71,7 +73,13 @@ function toBlockedActions(rows: Array<{ status: string; blockedReason: string | 
 export async function readInvestModelPortfolioSummary(
   userPublicId = 'user_demo_001'
 ): Promise<InvestModelPortfolioSummary> {
+  if (!process.env.MYSQL_URL) {
+    return fallbackPortfolio;
+  }
+
   try {
+    const { db } = await import('@/lib/db/drizzle');
+
     const [user] = await db
       .select({ id: users.id })
       .from(users)
@@ -172,6 +180,7 @@ export async function readInvestModelPortfolioSummary(
 
     return {
       isMockOnly: true,
+      safetyMeta: portfolioMockSafetyMeta,
       selectedModel: {
         selectionPublicId: portfolioRow.selectionPublicId,
         modelPublicId: portfolioRow.modelPublicId,

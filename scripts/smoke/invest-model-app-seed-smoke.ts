@@ -86,15 +86,24 @@ async function main() {
   assertCondition(
     portfolioResponse.status === 200 &&
       portfolioJson.data?.isMockOnly === true &&
+      portfolioJson.data?.safetyMeta?.mockOnly === true &&
+      portfolioJson.data?.safetyMeta?.realDeposit === false &&
+      portfolioJson.data?.safetyMeta?.realBalance === false &&
+      portfolioJson.data?.safetyMeta?.realOrder === false &&
+      portfolioJson.data?.safetyMeta?.brokerageConnection === false &&
+      portfolioJson.data?.safetyMeta?.financialAdvice === false &&
       portfolioJson.data?.selectedModel?.selectionPublicId ===
         'selection_demo_signal_001' &&
       portfolioJson.data?.mockDeposit?.safetyLabel ===
         'Not a real deposit or cash balance' &&
       portfolioJson.data?.tradeIntent?.boundaryLabel ===
         'pre-order simulation only' &&
+      portfolioJson.meta?.mockOnly === true &&
       portfolioJson.meta?.realDeposit === false &&
+      portfolioJson.meta?.realBalance === false &&
       portfolioJson.meta?.realOrder === false &&
-      portfolioJson.meta?.brokerageConnection === false,
+      portfolioJson.meta?.brokerageConnection === false &&
+      portfolioJson.meta?.financialAdvice === false,
     'seed creates mock-safe portfolio summary rows'
   );
 

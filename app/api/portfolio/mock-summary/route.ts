@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 
 import { readInvestModelPortfolioSummary } from '@/lib/db/portfolio-read-model';
+import { portfolioMockSafetyMeta } from '@/lib/domain/portfolio/portfolio-summary';
 import type { AccessRole } from '@/lib/domain/types';
 import {
   readInvestModelRole,
@@ -69,12 +70,7 @@ export async function GET(request: NextRequest) {
         ],
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
-        mockOnly: true,
-        realDeposit: false,
-        realBalance: false,
-        realOrder: false,
-        brokerageConnection: false,
-        financialAdvice: false
+        ...portfolioMockSafetyMeta
       }
     });
   } catch {

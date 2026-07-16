@@ -1930,6 +1930,16 @@ assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&
     !portfolioPageSource.includes('<MetricCard') &&
     portfolioPageSource.includes('const displayPortfolio = toPortfolioDisplaySummary(locale, portfolio)') &&
+    portfolioPageSource.includes(
+      'const safetyMetaLine = portfolioSafetyMetaLine('
+    ) &&
+    portfolioPageSource.includes('displayPortfolio.safetyMeta') &&
+    portfolioPageSource.includes('mockOnly=') &&
+    portfolioPageSource.includes('realDeposit=') &&
+    portfolioPageSource.includes('realBalance=') &&
+    portfolioPageSource.includes('realOrder=') &&
+    portfolioPageSource.includes('brokerageConnection=') &&
+    portfolioPageSource.includes('financialAdvice=') &&
     portfolioPageSource.includes('displayPortfolio.mockDeposit.amountLabel') &&
     portfolioPageSource.includes('displayPortfolio.allocationDecision.statusLabel') &&
     portfolioPageSource.includes('displayPortfolio.tradeIntent.statusLabel') &&
@@ -1976,12 +1986,12 @@ assertCondition(
     portfolioPageSource.includes('주문 전 의도 차단 상태.') &&
     portfolioPageSource.includes('포트폴리오 모의 요약 안전 경계') &&
     portfolioPageSource.includes('const timeDashboardSafetyLine') &&
-    portfolioPageSource.includes("displayPortfolio.mockDeposit.safetyLabel,\n    copy.preOrderOnly,\n    copy.noBrokerage") &&
+    portfolioPageSource.includes("displayPortfolio.mockDeposit.safetyLabel,\n    copy.preOrderOnly,\n    copy.noBrokerage,\n    safetyMetaLine") &&
     portfolioPageSource.includes('const snapshotSafetyLine') &&
     portfolioPageSource.includes("'DB snapshot',") &&
     portfolioPageSource.includes("'mock-only checkpoint',") &&
     portfolioPageSource.includes("timeDashboardVisibleBoundaries.join(' / ')") &&
-    portfolioPageSource.includes("blockedVisibleBoundaries.join(' / ')") &&
+    portfolioPageSource.includes("[...blockedVisibleBoundaries, safetyMetaLine].join(' / ')") &&
     !portfolioPageSource.includes("locale === 'ko' ? 'Mock time dashboard' : 'Mock time dashboard'") &&
     !portfolioPageSource.includes('aria-label="Portfolio time dashboard read-model trace"') &&
     !portfolioPageSource.includes('>Read-model trace<') &&
@@ -2250,6 +2260,15 @@ assertCondition(
 assertCondition(
   investModelPortfolioMock.isMockOnly === true,
   'Mock Portfolio must be explicitly mock-only'
+);
+assertCondition(
+  investModelPortfolioMock.safetyMeta.mockOnly === true &&
+    investModelPortfolioMock.safetyMeta.realDeposit === false &&
+    investModelPortfolioMock.safetyMeta.realBalance === false &&
+    investModelPortfolioMock.safetyMeta.realOrder === false &&
+    investModelPortfolioMock.safetyMeta.brokerageConnection === false &&
+    investModelPortfolioMock.safetyMeta.financialAdvice === false,
+  'Mock Portfolio safetyMeta must keep all real-world operations disabled'
 );
 assertCondition(
   investModelPortfolioMock.mockDeposit.safetyLabel

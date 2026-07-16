@@ -73,11 +73,17 @@ async function main() {
   );
   assertCondition(
     summaryJson.data?.isMockOnly === true &&
+      summaryJson.data?.safetyMeta?.mockOnly === true &&
+      summaryJson.data?.safetyMeta?.realDeposit === false &&
+      summaryJson.data?.safetyMeta?.realBalance === false &&
+      summaryJson.data?.safetyMeta?.realOrder === false &&
+      summaryJson.data?.safetyMeta?.brokerageConnection === false &&
+      summaryJson.data?.safetyMeta?.financialAdvice === false &&
       summaryJson.data?.mockDeposit?.safetyLabel ===
         'Not a real deposit or cash balance' &&
       summaryJson.data?.tradeIntent?.boundaryLabel ===
         'pre-order simulation only',
-    'portfolio summary keeps mock-safe DTO boundaries'
+    'portfolio summary keeps mock-safe DTO boundaries and safety meta'
   );
   assertCondition(
     Array.isArray(summaryJson.data?.timeSnapshots) &&
@@ -127,6 +133,8 @@ async function main() {
       summaryJson.meta?.realOrder === false &&
       summaryJson.meta?.brokerageConnection === false &&
       summaryJson.meta?.financialAdvice === false &&
+      summaryJson.meta?.fallbackLabel ===
+        summaryJson.data?.safetyMeta?.fallbackLabel &&
       summaryJson.meta?.userScopeSource === 'demo_fallback' &&
       summaryJson.meta?.clientUserPublicIdIgnored === undefined,
     'portfolio summary keeps mock-safe API meta'

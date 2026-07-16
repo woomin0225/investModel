@@ -2,8 +2,11 @@
  * Portfolio mock data is UI-only sample state.
  * It must not be treated as a real cash balance, brokerage account, order, or investment result.
  */
+import { portfolioMockSafetyMeta } from '@/lib/domain/portfolio/portfolio-summary';
+
 export const investModelPortfolioMock = {
   isMockOnly: true,
+  safetyMeta: portfolioMockSafetyMeta,
   selectedModel: {
     selectionPublicId: 'selection_mock_001',
     modelPublicId: 'model_quant_us_alpha',

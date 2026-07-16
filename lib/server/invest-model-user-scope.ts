@@ -2,8 +2,6 @@ import { NextRequest } from 'next/server';
 import { and, eq, isNull } from 'drizzle-orm';
 
 import { verifyToken } from '@/lib/auth/session';
-import { db } from '@/lib/db/drizzle';
-import { getUser } from '@/lib/db/queries';
 import { users } from '@/lib/db/schema';
 import type { AccessRole } from '@/lib/domain/types';
 
@@ -43,6 +41,10 @@ function mapStoredUserRoleToAccessRole(role: string | null): AccessRole {
 }
 
 async function readUserFromRequestCookie(request: NextRequest) {
+  if (!process.env.MYSQL_URL) {
+    return null;
+  }
+
   const sessionCookie = request.cookies.get('session')?.value;
 
   if (!sessionCookie) {
@@ -60,6 +62,7 @@ async function readUserFromRequestCookie(request: NextRequest) {
     return null;
   }
 
+  const { db } = await import('@/lib/db/drizzle');
   const [user] = await db
     .select()
     .from(users)
@@ -73,6 +76,11 @@ export async function readInvestModelSessionRole(
   request: NextRequest
 ): Promise<AccessRole> {
   try {
+    if (!process.env.MYSQL_URL) {
+      throw new Error('MYSQL_URL unavailable for session role lookup.');
+    }
+
+    const { getUser } = await import('@/lib/db/queries');
     const user = await getUser();
 
     if (user) {
@@ -99,6 +107,11 @@ export async function resolveInvestModelUserScope(
   request: NextRequest
 ): Promise<InvestModelUserScope> {
   try {
+    if (!process.env.MYSQL_URL) {
+      throw new Error('MYSQL_URL unavailable for user scope lookup.');
+    }
+
+    const { getUser } = await import('@/lib/db/queries');
     const user = await getUser();
 
     if (user?.publicId) {

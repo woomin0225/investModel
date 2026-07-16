@@ -1,5 +1,14 @@
 export type InvestModelPortfolioSummary = {
   isMockOnly: true;
+  safetyMeta: {
+    mockOnly: true;
+    realDeposit: false;
+    realBalance: false;
+    realOrder: false;
+    brokerageConnection: false;
+    financialAdvice: false;
+    fallbackLabel: string;
+  };
   selectedModel: {
     selectionPublicId: string;
     modelPublicId: string;
@@ -46,4 +55,15 @@ export type InvestModelPortfolioSummary = {
     boundaryLabel: string;
     blockedActions: string[];
   };
+};
+
+export const portfolioMockSafetyMeta: InvestModelPortfolioSummary['safetyMeta'] = {
+  mockOnly: true,
+  realDeposit: false,
+  realBalance: false,
+  realOrder: false,
+  brokerageConnection: false,
+  financialAdvice: false,
+  fallbackLabel:
+    'Mock-safe PortfolioSummary only; no real deposit, balance, order, brokerage connection, or financial advice.'
 };

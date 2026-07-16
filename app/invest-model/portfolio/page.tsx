@@ -180,6 +180,26 @@ function toKoreanPortfolioLabel(label: string) {
     .replace(/\bfallback\b/g, '대체 상태');
 }
 
+function portfolioSafetyMetaLine(
+  locale: 'ko' | 'en',
+  safetyMeta: InvestModelPortfolioSummary['safetyMeta']
+) {
+  const flagLine = [
+    `mockOnly=${String(safetyMeta.mockOnly)}`,
+    `realDeposit=${String(safetyMeta.realDeposit)}`,
+    `realBalance=${String(safetyMeta.realBalance)}`,
+    `realOrder=${String(safetyMeta.realOrder)}`,
+    `brokerageConnection=${String(safetyMeta.brokerageConnection)}`,
+    `financialAdvice=${String(safetyMeta.financialAdvice)}`
+  ].join(' / ');
+
+  if (locale === 'ko') {
+    return `${flagLine} / 모의 안전 대체 상태`;
+  }
+
+  return `${flagLine} / ${safetyMeta.fallbackLabel}`;
+}
+
 function toPortfolioDisplaySummary(
   locale: 'ko' | 'en',
   portfolio: InvestModelPortfolioSummary
@@ -588,10 +608,15 @@ export default async function InvestModelPortfolioPage({
   const blockedVisibleBoundaries = portfolioBlockedVisibleBoundaries(locale);
   const timeDashboardVisibleBoundaries =
     portfolioTimeDashboardVisibleBoundaries(locale);
+  const safetyMetaLine = portfolioSafetyMetaLine(
+    locale,
+    displayPortfolio.safetyMeta
+  );
   const timeDashboardSafetyLine = [
     displayPortfolio.mockDeposit.safetyLabel,
     copy.preOrderOnly,
-    copy.noBrokerage
+    copy.noBrokerage,
+    safetyMetaLine
   ].join(' / ');
 
   return (
@@ -1121,7 +1146,7 @@ export default async function InvestModelPortfolioPage({
                 }
                 className="mt-3 rounded-invest-control border border-invest-risk/10 bg-invest-surface px-2 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted"
               >
-                {blockedVisibleBoundaries.join(' / ')}
+                {[...blockedVisibleBoundaries, safetyMetaLine].join(' / ')}
               </p>
               <p className="mt-3 text-sm leading-6 text-invest-text-muted">
                 {copy.footer}
