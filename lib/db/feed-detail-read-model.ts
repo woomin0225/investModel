@@ -15,6 +15,7 @@ import {
 } from '@/lib/db/schema';
 import {
   buildFeedPostDto,
+  feedSafeActionContracts,
   feedPolicyNotices,
   type FeedCommentDto,
   type FeedPostDetailDto,
@@ -293,7 +294,7 @@ export async function readFeedPostDetailDto({
       ...basePost,
       relatedSignalPublicIds,
       sourceAttribution: {
-        sourceLabel: 'tracked seed feed_posts',
+        sourceLabel: 'tracked seed feed_posts + feed detail read model',
         reviewedBy: 'investModel mock operator',
         reviewState: 'review_placeholder'
       },
@@ -310,6 +311,7 @@ export async function readFeedPostDetailDto({
         updatedAt,
         dataContext: 'mock'
       },
+      safeActionContracts: feedSafeActionContracts(basePost.postPublicId),
       comments: buildCommentTree(postRow.postPublicId, commentRows),
       recentLikeRanking: {
         rank: 1,

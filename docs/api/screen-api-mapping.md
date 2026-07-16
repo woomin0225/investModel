@@ -26,7 +26,7 @@
 | Signal Detail | `/invest-model/signals/[signalId]` | future `GET /api/signals/:signalId` | `SignalDetailDto` | `SignalEventDto` list item plus future detail mock | signed-in | route param uses public id only; observed context only; no buy/sell/hold advice. |
 | Model Detail | `/invest-model/models/[modelId]` | `GET /api/models/:id`; `POST /api/model-selections` after acknowledgement | `ModelDetailDto`; `ModelSelectionDto` | DB read model first; `legacy_mock_fallback` for comparison mocks and `db_unavailable_mock_fallback` only when the detail route is unavailable | public or signed-in for detail; `user` for selection | selection stores reviewed model version only, not user allocation preferences, allocation settings, orders, deposits, brokerage links, or advice. |
 | Feed Insights | `/invest-model/feed` | `GET /api/feed` | `FeedPostDto[]` | `lib/mock/invest-model-feed.ts` | signed-in | informational model/market/review notes only. |
-| Feed Detail | `/invest-model/feed/[postId]` | `GET /api/feed/:postId`; feed action APIs | `FeedPostDetailDto`; `FeedCommentDto`; `FeedReactionStateDto` | `FeedPostDto` list item plus future detail mock | signed-in | route param uses public id only; informational content only; comments/actions are user-scoped contracts. |
+| Feed Detail | `/invest-model/feed/[postId]` | `GET /api/feed/:postId`; feed action APIs | `FeedPostDetailDto`; `FeedCommentDto`; `FeedReactionStateDto` | DB-backed FeedPost detail read model; safe empty/not-found state when unavailable | signed-in | route param uses public id only; informational content only; comments/actions are user-scoped contracts. |
 | Search | `/invest-model/search` | `GET /api/search?q=` | `SearchResultDto` | DB-backed grouped result arrays; empty arrays when no match or non-OK route response | `user`/`admin` prototype header | read-only grouped search; no recommendation, model selection, TradeIntent, external paid search, order, or brokerage action. |
 | Notification Center | `/invest-model/notifications` | `GET /api/notifications`; `POST /api/notifications/mark-all-read` | `NotificationCenterDto` | DB-backed feed-derived notification rows and read state; page throws to app error boundary on route failure | `user`/`admin`; GET may use session fallback, POST uses prototype header | read/unread center only; no push/email/SMS delivery, broker/account connection, order, or advice. |
 | My Page | `/invest-model/my` | `GET /api/my`; supporting `GET /api/my/activity` | `MyPageSummaryDto`; `MyPageFeedActivitySummaryDto` | DB-backed user read model with mock-safe fallback labels | user | profile, selected model, saved/comment activity, notification summary, and recent notification rows only. No real account, balance, deposit, order, broker, push/email/SMS delivery, or advice. |
@@ -236,6 +236,7 @@ Data needs:
 - post title, body, type, tags, author/display source, published time
 - linked InvestmentModel and related SignalEvent references when available
 - comment tree, reaction state, bookmark state, read state, and ranking context from `FeedPostDetailDto`
+- `safeActionContracts` for read, like, save, comment, and reply controls; all contract flags must stay false for external delivery, recommendations, order intent, real orders, brokerage connections, and financial advice
 - policy notices that this is informational commentary, not investment advice
 
 API sequence:
@@ -245,11 +246,11 @@ API sequence:
 3. `POST /api/feed/:postId/comments/:commentId/replies`
 4. `POST /api/feed/:postId/likes`
 5. `POST /api/feed/:postId/saves`
-6. `POST /api/feed/:postId/read`
+6. `POST /api/feed/:postId/reads`
 
 Fallback:
 
-- Until the detail API is implemented, detail links may use the list `FeedPostDto` record and a safe placeholder detail section shaped like `FeedPostDetailDto`.
+- If the DB-backed detail API is unavailable, render the safe not-found/unavailable state rather than synthesizing private or live-market detail.
 - Empty/unavailable state should keep the bottom tab shell and safe-area spacing intact on 390px mobile.
 
 ### Search

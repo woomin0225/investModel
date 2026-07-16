@@ -112,6 +112,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
         userScopeSource: userScope.source,
         dataContext: result.data.userState.dataContext,
         informationalOnly: true,
+        safeActionContract: 'feed_detail_mock_engagement_only',
+        safeActionContractCodes: result.data.safeActionContracts.map(
+          (contract) => contract.code
+        ),
+        externalDelivery: false,
+        recommendationSignal: false,
+        orderIntentSignal: false,
         realOrder: false,
         brokerageConnection: false,
         financialAdvice: false

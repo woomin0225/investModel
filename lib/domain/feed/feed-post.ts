@@ -56,6 +56,29 @@ export interface FeedReactionStateDto {
   dataContext: 'mock' | 'informational_placeholder';
 }
 
+export type FeedSafeActionCode =
+  | 'read_feed_post'
+  | 'like_feed_post'
+  | 'save_feed_post'
+  | 'comment_feed_post'
+  | 'reply_feed_comment';
+
+export interface FeedSafeActionContractDto {
+  code: FeedSafeActionCode;
+  label: string;
+  method: 'GET' | 'POST';
+  routeTemplate: string;
+  persistence: 'read_only' | 'user_scoped_mock_state';
+  dataContext: 'mock' | 'informational_placeholder';
+  requiresUserScope: boolean;
+  externalDelivery: false;
+  recommendationSignal: false;
+  orderIntentSignal: false;
+  realOrder: false;
+  brokerageConnection: false;
+  financialAdvice: false;
+}
+
 export interface FeedPostDetailDto extends FeedPostDto {
   relatedSignalPublicIds: DomainPublicId[];
   sourceAttribution: {
@@ -65,6 +88,7 @@ export interface FeedPostDetailDto extends FeedPostDto {
     reviewState: 'mock_reviewed' | 'review_placeholder' | 'requires_review';
   };
   userState: FeedReactionStateDto;
+  safeActionContracts: FeedSafeActionContractDto[];
   comments: FeedCommentDto[];
   recentLikeRanking?: {
     rank: number;
@@ -142,6 +166,65 @@ export function feedPolicyNotices(): PolicyNoticeDto[] {
       severity: 'warning',
       message:
         'This API does not create orders, broker actions, or portfolio allocations.'
+    }
+  ];
+}
+
+export function feedSafeActionContracts(
+  postPublicId: DomainPublicId
+): FeedSafeActionContractDto[] {
+  const detailRoute = `/api/feed/${postPublicId}`;
+  const common = {
+    dataContext: 'mock' as const,
+    requiresUserScope: true,
+    externalDelivery: false as const,
+    recommendationSignal: false as const,
+    orderIntentSignal: false as const,
+    realOrder: false as const,
+    brokerageConnection: false as const,
+    financialAdvice: false as const
+  };
+
+  return [
+    {
+      code: 'read_feed_post',
+      label: 'Read informational FeedPost detail',
+      method: 'GET',
+      routeTemplate: detailRoute,
+      persistence: 'read_only',
+      ...common
+    },
+    {
+      code: 'like_feed_post',
+      label: 'Toggle user-scoped mock like state',
+      method: 'POST',
+      routeTemplate: `${detailRoute}/likes`,
+      persistence: 'user_scoped_mock_state',
+      ...common
+    },
+    {
+      code: 'save_feed_post',
+      label: 'Toggle user-scoped mock saved state',
+      method: 'POST',
+      routeTemplate: `${detailRoute}/saves`,
+      persistence: 'user_scoped_mock_state',
+      ...common
+    },
+    {
+      code: 'comment_feed_post',
+      label: 'Create informational mock comment state',
+      method: 'POST',
+      routeTemplate: `${detailRoute}/comments`,
+      persistence: 'user_scoped_mock_state',
+      ...common
+    },
+    {
+      code: 'reply_feed_comment',
+      label: 'Create informational mock reply state',
+      method: 'POST',
+      routeTemplate: `${detailRoute}/comments/{commentPublicId}/replies`,
+      persistence: 'user_scoped_mock_state',
+      ...common
     }
   ];
 }

@@ -336,6 +336,26 @@ interface FeedPostDetailDto {
     reviewState: 'mock_reviewed' | 'review_placeholder' | 'requires_review';
   };
   userState: FeedReactionStateDto;
+  safeActionContracts: Array<{
+    code:
+      | 'read_feed_post'
+      | 'like_feed_post'
+      | 'save_feed_post'
+      | 'comment_feed_post'
+      | 'reply_feed_comment';
+    label: string;
+    method: 'GET' | 'POST';
+    routeTemplate: string;
+    persistence: 'read_only' | 'user_scoped_mock_state';
+    dataContext: 'mock' | 'informational_placeholder';
+    requiresUserScope: boolean;
+    externalDelivery: false;
+    recommendationSignal: false;
+    orderIntentSignal: false;
+    realOrder: false;
+    brokerageConnection: false;
+    financialAdvice: false;
+  }>;
   comments: FeedCommentDto[];
   recentLikeRanking?: {
     rank: number;
@@ -352,6 +372,7 @@ Source tables: `feed_posts`, `investment_models`, `users`, `model_disclosures`, 
 Safety requirements:
 
 - Detail content is informational commentary, not investment advice.
+- `safeActionContracts` may describe only read/detail and user-scoped mock engagement state. It must not expose external delivery, recommendation, order-intent, real-order, brokerage, or advice actions.
 - `recentLikeRanking` is a popularity/context indicator only; it must not imply better model quality or expected return.
 - `sourceUrl` is optional and must never require external paid API keys during seed/mock ingestion.
 - Missing, hidden, unpublished, admin-only, or inaccessible posts use not-found/unavailable behavior and do not reveal private record existence.

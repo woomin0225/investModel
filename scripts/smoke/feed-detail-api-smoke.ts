@@ -267,9 +267,42 @@ async function main() {
     'feed detail returns DB-backed related SignalEvent public ids'
   );
   assertCondition(
+    Array.isArray(detailJson.data?.safeActionContracts) &&
+      detailJson.data.safeActionContracts.length === 5 &&
+      detailJson.data.safeActionContracts.every(
+        (contract: {
+          code?: string;
+          routeTemplate?: string;
+          requiresUserScope?: boolean;
+          externalDelivery?: boolean;
+          recommendationSignal?: boolean;
+          orderIntentSignal?: boolean;
+          realOrder?: boolean;
+          brokerageConnection?: boolean;
+          financialAdvice?: boolean;
+        }) =>
+          typeof contract.code === 'string' &&
+          contract.routeTemplate?.startsWith('/api/feed/feed_mock_001') &&
+          contract.requiresUserScope === true &&
+          contract.externalDelivery === false &&
+          contract.recommendationSignal === false &&
+          contract.orderIntentSignal === false &&
+          contract.realOrder === false &&
+          contract.brokerageConnection === false &&
+          contract.financialAdvice === false
+      ),
+    'feed detail exposes mock-safe action contract stubs'
+  );
+  assertCondition(
     detailJson.meta?.routeStatus === 'db_backed' &&
       detailJson.meta?.dataContext === detailJson.data?.userState?.dataContext &&
       detailJson.meta?.sourceTables?.includes('model_signal_events') &&
+      detailJson.meta?.safeActionContract ===
+        'feed_detail_mock_engagement_only' &&
+      detailJson.meta?.safeActionContractCodes?.includes('read_feed_post') &&
+      detailJson.meta?.externalDelivery === false &&
+      detailJson.meta?.recommendationSignal === false &&
+      detailJson.meta?.orderIntentSignal === false &&
       detailJson.meta?.realOrder === false &&
       detailJson.meta?.brokerageConnection === false &&
       detailJson.meta?.financialAdvice === false,
