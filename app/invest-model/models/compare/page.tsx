@@ -1,55 +1,80 @@
 import { BarChart3 } from 'lucide-react';
+
 import {
   DetailBackLink,
   MobileShell,
   RiskBadge,
   SectionHeader,
-  SoftBanner
+  SoftBanner,
+  investCardClass,
+  investMotionClass
 } from '@/components/invest-model';
+import { readModelCompareSeedFixture } from '@/lib/db/model-compare-read-model';
+import type { ModelCompareItem } from '@/lib/db/model-compare-read-model';
 import {
   resolveInvestModelLocale,
   withInvestModelLocale,
   type InvestModelLocale
 } from '@/lib/i18n/invest-model';
+import { cn } from '@/lib/utils';
 
-type ComparisonModel = {
-  id: string;
-  name: string;
-  market: string;
-  mandate: string;
-  risk: string;
-  riskTone: 'low' | 'medium' | 'high';
-  backtestReturn: string;
-  volatility: string;
-  drawdown: string;
-  leverage: string;
-  reviewState: string;
-  caution: string;
+type CompareMetricTone = 'neutral' | 'positive' | 'risk';
+type CompareRiskTone = 'neutral' | 'low' | 'medium' | 'high' | 'blocked';
+
+type ModelComparePageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
+
+const defaultComparePublicIds = [
+  'model_compare_quant_us_leverage_alpha',
+  'model_compare_macro_etf_balance',
+  'model_compare_defensive_income_rotation'
+] as const;
 
 const comparisonCopy = {
   ko: {
     eyebrow: '비교',
     title: '모델 비교',
     bannerEyebrow: '모의 비교표',
-    bannerTitle: '성과와 위험을 함께 보기',
+    bannerTitle: '성과는 위험과 함께 봅니다',
     bannerDescription:
-      '이 화면은 승인된 모의 모델의 시장, 위험, 변동성, 손실 구간을 나란히 보여줍니다. 수익률은 백테스트 임시 값이며 실제 투자 조언이나 주문 실행이 아닙니다.',
-    sectionTitle: '승인 모델 3개',
-    sectionDescription: '모바일 390px에서 가로 스크롤 없이 핵심 지표를 세로로 비교합니다.',
-    tableTitle: '핵심 지표',
+      '승인 또는 공개 상태의 모의 모델만 비교합니다. 수익률은 백테스트 참고 값이며 조언, 모델 선택, 주문 실행으로 이어지지 않습니다.',
+    sectionTitle: '검토된 모델 비교',
+    sectionDescription:
+      '위험, 운용 범위, 공시 검토, 백테스트 맥락을 390px 모바일 화면에서 세로 카드로 확인합니다.',
     labels: {
-      market: '시장',
-      mandate: '운용 범위',
-      return: '백테스트',
+      creator: '운영자',
+      status: '공개 상태',
+      return: '백테스트 수익',
       volatility: '변동성',
       drawdown: '최대 손실',
+      benchmark: '기준 지표',
+      period: '측정 구간',
+      risk: '위험',
+      mandate: '운용 범위',
+      disclosure: '공시 검토',
+      allowedMarkets: '시장',
+      allowedAssets: '자산군',
+      forbiddenAssets: '제외 자산',
+      cash: '최소 현금',
+      maxPosition: '단일 비중 한도',
       leverage: '레버리지',
-      review: '심사 상태'
+      rebalance: '리밸런싱',
+      review: '검토 상태',
+      source: '데이터 출처'
     },
-    safetyLine: '모의 비교 / 백테스트 참고 / 추천 아님 / 실제 주문 없음 / 브로커 미연결',
+    status: {
+      approved: '검토 완료',
+      live: '공개 중'
+    },
+    disclosureReviewRequired: '검토 필요',
+    disclosureEmpty: '공시 항목 없음',
+    sourceLine:
+      'InvestmentModel / ModelVersion / ModelRiskProfile / PortfolioMandate / ModelDisclosure / ModelPerformanceSnapshot',
+    safetyLine:
+      '모의 비교 / 백테스트 참고 / 조언 아님 / 모델 선택 생성 없음 / 주문 없음 / 브로커 미연결',
     footer:
-      '비교표는 모의 모델 메타데이터와 위험 맥락만 요약합니다. 투자 조언을 제공하거나 실제 계좌, 입금, 주문, 브로커 연결을 만들지 않습니다.',
+      '이 화면은 seed/mock 기반 읽기 전용 비교입니다. 실제 계좌 연결, 입금, 주문, 외부 유료 데이터 호출을 만들지 않습니다.',
     backToModels: '모델 목록으로'
   },
   en: {
@@ -58,143 +83,46 @@ const comparisonCopy = {
     bannerEyebrow: 'Mock comparison',
     bannerTitle: 'Returns stay next to risk',
     bannerDescription:
-      'This view compares market, risk, volatility, and drawdown context for approved mock models. Return figures are backtest placeholders, not investment advice or order execution.',
-    sectionTitle: '3 approved models',
-    sectionDescription: 'Core model metrics are stacked for a 390px mobile viewport.',
-    tableTitle: 'Core metrics',
+      'Only approved or live mock models are compared. Return figures are backtest placeholders and do not create advice, model selection, or order execution.',
+    sectionTitle: 'Reviewed model comparison',
+    sectionDescription:
+      'Risk, mandate, disclosure review, and backtest context are stacked for a 390px mobile viewport.',
     labels: {
-      market: 'Market',
-      mandate: 'Mandate',
-      return: 'Backtest',
+      creator: 'Operator',
+      status: 'Visibility',
+      return: 'Backtest return',
       volatility: 'Volatility',
       drawdown: 'Max drawdown',
+      benchmark: 'Benchmark',
+      period: 'Measured period',
+      risk: 'Risk',
+      mandate: 'Mandate',
+      disclosure: 'Disclosure review',
+      allowedMarkets: 'Markets',
+      allowedAssets: 'Asset classes',
+      forbiddenAssets: 'Excluded assets',
+      cash: 'Minimum cash',
+      maxPosition: 'Single-position cap',
       leverage: 'Leverage',
-      review: 'Review state'
+      rebalance: 'Rebalance',
+      review: 'Review state',
+      source: 'Data source'
     },
+    status: {
+      approved: 'Reviewed',
+      live: 'Live'
+    },
+    disclosureReviewRequired: 'Review required',
+    disclosureEmpty: 'No disclosures',
+    sourceLine:
+      'InvestmentModel / ModelVersion / ModelRiskProfile / PortfolioMandate / ModelDisclosure / ModelPerformanceSnapshot',
     safetyLine:
-      'Mock comparison / Backtest placeholder / Not investment advice / No real order / No brokerage',
+      'Mock comparison / Backtest placeholder / Not advice / No model selection created / No order / No brokerage',
     footer:
-      'The comparison table only summarizes mock model metadata and risk context. It does not provide investment advice or connect real accounts, deposits, orders, or brokerage.',
+      'This is a seed/mock read-only comparison. It creates no account connection, funding, orders, or external paid data calls.',
     backToModels: 'Back to models'
   }
 } as const;
-
-const comparisonModels: Record<InvestModelLocale, ComparisonModel[]> = {
-  ko: [
-    {
-      id: 'quant-us-leverage-alpha',
-      name: 'Quant US Leverage Alpha',
-      market: '미국 주식',
-      mandate: '레버리지 ETF 포함',
-      risk: '고위험',
-      riskTone: 'high',
-      backtestReturn: '+18.4%',
-      volatility: '높음',
-      drawdown: '-24.1%',
-      leverage: '허용',
-      reviewState: '승인 mock',
-      caution: '큰 손실 구간과 높은 회전율을 함께 확인해야 합니다.'
-    },
-    {
-      id: 'macro-etf-balance',
-      name: 'Macro ETF Balance',
-      market: '글로벌 ETF',
-      mandate: '주식/채권 혼합',
-      risk: '중위험',
-      riskTone: 'medium',
-      backtestReturn: '+9.7%',
-      volatility: '중간',
-      drawdown: '-11.8%',
-      leverage: '비허용',
-      reviewState: '승인 mock',
-      caution: '매크로 입력과 리밸런싱 주기가 성과보다 먼저 검토됩니다.'
-    },
-    {
-      id: 'defensive-income-rotation',
-      name: 'Defensive Income Rotation',
-      market: '미국 인컴',
-      mandate: '배당/단기채 중심',
-      risk: '저위험',
-      riskTone: 'low',
-      backtestReturn: '+5.2%',
-      volatility: '낮음',
-      drawdown: '-6.4%',
-      leverage: '비허용',
-      reviewState: '승인 mock',
-      caution: '낮은 변동성 모델도 손실 가능성이 사라지지 않습니다.'
-    }
-  ],
-  en: [
-    {
-      id: 'quant-us-leverage-alpha',
-      name: 'Quant US Leverage Alpha',
-      market: 'US equities',
-      mandate: 'Leveraged ETF allowed',
-      risk: 'High risk',
-      riskTone: 'high',
-      backtestReturn: '+18.4%',
-      volatility: 'High',
-      drawdown: '-24.1%',
-      leverage: 'Allowed',
-      reviewState: 'Approved mock',
-      caution: 'High turnover and large drawdown windows must be reviewed together.'
-    },
-    {
-      id: 'macro-etf-balance',
-      name: 'Macro ETF Balance',
-      market: 'Global ETF',
-      mandate: 'Stock/Bond mix',
-      risk: 'Medium risk',
-      riskTone: 'medium',
-      backtestReturn: '+9.7%',
-      volatility: 'Medium',
-      drawdown: '-11.8%',
-      leverage: 'Not allowed',
-      reviewState: 'Approved mock',
-      caution: 'Macro inputs and rebalance cadence sit next to performance.'
-    },
-    {
-      id: 'defensive-income-rotation',
-      name: 'Defensive Income Rotation',
-      market: 'US income',
-      mandate: 'Dividend and short bond tilt',
-      risk: 'Low risk',
-      riskTone: 'low',
-      backtestReturn: '+5.2%',
-      volatility: 'Low',
-      drawdown: '-6.4%',
-      leverage: 'Not allowed',
-      reviewState: 'Approved mock',
-      caution: 'Lower volatility does not remove the possibility of losses.'
-    }
-  ]
-};
-
-function modelCompareVisibleBoundaries(locale: InvestModelLocale) {
-  return locale === 'ko'
-    ? [
-        '승인된 모의 비교',
-        '모델 버전 맥락',
-        '모델 위험 프로필',
-        '백테스트 참고',
-        '추천 아님',
-        '주문 아님',
-        '브로커 미연결'
-      ]
-    : [
-        'approved mock comparison',
-        'ModelVersion context',
-        'ModelRiskProfile',
-        'backtest placeholder',
-        'not advice',
-        'not an order',
-        'no brokerage'
-      ];
-}
-
-type ModelComparePageProps = {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-};
 
 export default async function ModelComparePage({
   searchParams
@@ -202,8 +130,11 @@ export default async function ModelComparePage({
   const resolvedSearchParams = await searchParams;
   const locale = resolveInvestModelLocale(resolvedSearchParams);
   const copy = comparisonCopy[locale];
-  const models = comparisonModels[locale];
-  const visibleBoundaries = modelCompareVisibleBoundaries(locale);
+  const selectedPublicIds = parseSelectedPublicIds(resolvedSearchParams?.ids);
+  const models = selectCompareModels(
+    await readModelCompareSeedFixture(),
+    selectedPublicIds
+  );
   const safetyFooterLabel = `${copy.safetyLine}. ${copy.footer}`;
 
   return (
@@ -237,61 +168,204 @@ export default async function ModelComparePage({
 
           <div className="space-y-invest-card-gap">
             {models.map((model) => (
-              <article
-                key={model.id}
-                className="group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-invest-primary/30 hover:shadow-invest-nav active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-[18px] font-bold leading-7 text-invest-text">
-                      {model.name}
-                    </h2>
-                    <p className="mt-1 text-sm leading-5 text-invest-text-muted">
-                      {model.caution}
-                    </p>
-                  </div>
-                  <RiskBadge tone={model.riskTone}>{model.risk}</RiskBadge>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <Metric label={copy.labels.return} value={model.backtestReturn} tone="positive" />
-                  <Metric label={copy.labels.drawdown} value={model.drawdown} tone="risk" />
-                  <Metric label={copy.labels.volatility} value={model.volatility} />
-                  <Metric label={copy.labels.market} value={model.market} />
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <RiskBadge>{model.mandate}</RiskBadge>
-                  <RiskBadge tone={model.leverage === '허용' || model.leverage === 'Allowed' ? 'medium' : 'neutral'}>
-                    {copy.labels.leverage}: {model.leverage}
-                  </RiskBadge>
-                  <RiskBadge tone="low">
-                    {copy.labels.review}: {model.reviewState}
-                  </RiskBadge>
-                </div>
-
-                <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted">
-                  {visibleBoundaries.join(' / ')}
-                </p>
-              </article>
+              <CompareModelCard
+                key={model.modelPublicId}
+                model={model}
+                locale={locale}
+              />
             ))}
           </div>
         </div>
 
         <div
-          className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding"
+          className={cn(investCardClass.mutedPanel, 'min-w-0')}
           aria-label={safetyFooterLabel}
           title={safetyFooterLabel}
         >
-          <p className="break-words text-xs font-semibold leading-5 text-invest-text-muted">
+          <p className="break-words text-xs font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
             {copy.safetyLine}
           </p>
-          <p className="mt-3 break-words text-sm leading-6 text-invest-text-muted">
+          <p className="mt-3 break-words text-sm leading-6 text-invest-text-muted [overflow-wrap:anywhere]">
             {copy.footer}
           </p>
         </div>
       </section>
     </MobileShell>
+  );
+}
+
+function CompareModelCard({
+  model,
+  locale
+}: {
+  model: ModelCompareItem;
+  locale: InvestModelLocale;
+}) {
+  const copy = comparisonCopy[locale];
+  const riskTone = mapCompareRiskTone(model.risk.tone);
+  const statusTone = model.status === 'live' ? 'low' : 'medium';
+  const disclosureTitles = model.disclosures.map((disclosure) => {
+    const reviewLabel = disclosure.requiresLegalReview
+      ? copy.disclosureReviewRequired
+      : disclosure.reviewState;
+
+    return `${disclosure.title} (${reviewLabel})`;
+  });
+  const mandateRows = [
+    {
+      label: copy.labels.allowedMarkets,
+      value: joinList(model.mandate.allowedMarkets)
+    },
+    {
+      label: copy.labels.allowedAssets,
+      value: joinList(model.mandate.allowedAssetClasses)
+    },
+    {
+      label: copy.labels.forbiddenAssets,
+      value: model.mandate.forbiddenAssets ?? '-'
+    },
+    {
+      label: copy.labels.cash,
+      value: formatPercentValue(model.mandate.minCashPct)
+    },
+    {
+      label: copy.labels.maxPosition,
+      value: formatPercentValue(model.mandate.maxSinglePositionPct)
+    },
+    {
+      label: copy.labels.leverage,
+      value: model.mandate.leveragePolicy ?? '-'
+    },
+    {
+      label: copy.labels.rebalance,
+      value: model.mandate.rebalancePolicy ?? '-'
+    }
+  ];
+
+  return (
+    <article
+      className={cn(
+        'group min-w-0',
+        investCardClass.surface,
+        investMotionClass.interactiveCard
+      )}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="break-words text-[18px] font-bold leading-7 text-invest-text [overflow-wrap:anywhere]">
+            {model.name}
+          </h2>
+          <p className="mt-1 break-words text-sm leading-6 text-invest-text-muted [overflow-wrap:anywhere]">
+            {model.strategySummary}
+          </p>
+        </div>
+        <RiskBadge tone={statusTone}>{copy.status[model.status]}</RiskBadge>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <RiskBadge tone={riskTone}>{model.risk.label}</RiskBadge>
+        <RiskBadge>{model.creatorName}</RiskBadge>
+        <RiskBadge tone="neutral">{model.modelVersionPublicId}</RiskBadge>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Metric
+          label={copy.labels.return}
+          value={model.backtestContext.cumulativeReturn.display}
+          tone="positive"
+        />
+        <Metric
+          label={copy.labels.drawdown}
+          value={model.backtestContext.maxDrawdown.display}
+          tone="risk"
+        />
+        <Metric
+          label={copy.labels.volatility}
+          value={model.backtestContext.volatility.display}
+        />
+        <Metric
+          label={copy.labels.benchmark}
+          value={model.backtestContext.benchmarkSymbol}
+        />
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        <CompareColumn
+          title={copy.labels.risk}
+          rows={[
+            { label: copy.labels.risk, value: model.risk.summary ?? model.risk.label },
+            {
+              label: copy.labels.leverage,
+              value: model.risk.leverageAllowed ? 'allowed' : 'not allowed'
+            },
+            {
+              label: 'Derivatives',
+              value: model.risk.derivativeAllowed ? 'allowed' : 'not allowed'
+            },
+            {
+              label: 'Short selling',
+              value: model.risk.shortSellingAllowed ? 'allowed' : 'not allowed'
+            }
+          ]}
+        />
+        <CompareColumn title={copy.labels.mandate} rows={mandateRows} />
+        <CompareColumn
+          title={copy.labels.disclosure}
+          rows={[
+            {
+              label: copy.labels.review,
+              value:
+                disclosureTitles.length > 0
+                  ? disclosureTitles.join(' / ')
+                  : copy.disclosureEmpty
+            },
+            {
+              label: copy.labels.period,
+              value: model.backtestContext.periodLabel
+            },
+            {
+              label: copy.labels.source,
+              value: copy.sourceLine
+            }
+          ]}
+        />
+      </div>
+
+      <p className="mt-4 break-words rounded-invest-control bg-invest-surface-muted px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
+        {model.safetyLabel}
+      </p>
+    </article>
+  );
+}
+
+function CompareColumn({
+  title,
+  rows
+}: {
+  title: string;
+  rows: Array<{ label: string; value: string }>;
+}) {
+  return (
+    <section className="min-w-0 rounded-invest-control bg-invest-bg-soft p-3">
+      <h3 className="break-words text-[13px] font-bold leading-5 text-invest-text [overflow-wrap:anywhere]">
+        {title}
+      </h3>
+      <dl className="mt-2 grid gap-2">
+        {rows.map((row) => (
+          <div
+            key={`${title}-${row.label}`}
+            className="grid min-w-0 grid-cols-[6.5rem_minmax(0,1fr)] gap-2"
+          >
+            <dt className="break-words text-[11px] font-semibold leading-4 text-invest-text-muted [overflow-wrap:anywhere]">
+              {row.label}
+            </dt>
+            <dd className="min-w-0 break-words text-[12px] font-semibold leading-5 text-invest-text [overflow-wrap:anywhere]">
+              {row.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }
 
@@ -302,7 +376,7 @@ function Metric({
 }: {
   label: string;
   value: string;
-  tone?: 'neutral' | 'positive' | 'risk';
+  tone?: CompareMetricTone;
 }) {
   const toneClass =
     tone === 'positive'
@@ -312,13 +386,73 @@ function Metric({
         : 'text-invest-text';
 
   return (
-    <div className="min-h-24 rounded-invest-control bg-invest-surface-muted p-3 transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/60 group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-active:scale-100">
-      <p className="text-[11px] font-semibold leading-4 text-invest-text-muted">
+    <div className="min-h-24 min-w-0 rounded-invest-control bg-invest-surface-muted p-3 transition-[background-color,transform] duration-200 ease-out group-hover:bg-invest-primary-soft/60 group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:group-active:scale-100">
+      <p className="break-words text-[11px] font-semibold leading-4 text-invest-text-muted [overflow-wrap:anywhere]">
         {label}
       </p>
-      <p className={`mt-2 break-words text-[18px] font-bold leading-6 ${toneClass}`}>
+      <p
+        className={cn(
+          'mt-2 break-words text-[18px] font-bold leading-6 [overflow-wrap:anywhere]',
+          toneClass
+        )}
+      >
         {value}
       </p>
     </div>
   );
+}
+
+function parseSelectedPublicIds(value?: string | string[]) {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+
+  if (!rawValue) {
+    return [...defaultComparePublicIds];
+  }
+
+  return Array.from(
+    new Set(
+      rawValue
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .slice(0, 5)
+    )
+  );
+}
+
+function selectCompareModels(
+  models: ModelCompareItem[],
+  selectedPublicIds: string[]
+) {
+  const visibleModels = models.filter(
+    (model) => model.status === 'approved' || model.status === 'live'
+  );
+  const modelByPublicId = new Map(
+    visibleModels.map((model) => [model.modelPublicId, model])
+  );
+  const selectedModels = selectedPublicIds
+    .map((publicId) => modelByPublicId.get(publicId))
+    .filter((model): model is ModelCompareItem => Boolean(model));
+
+  return selectedModels.length > 0 ? selectedModels : visibleModels.slice(0, 3);
+}
+
+function mapCompareRiskTone(tone: string): CompareRiskTone {
+  if (tone === 'low' || tone === 'medium' || tone === 'high') {
+    return tone;
+  }
+
+  if (tone === 'danger') {
+    return 'high';
+  }
+
+  return 'neutral';
+}
+
+function joinList(values: string[]) {
+  return values.length > 0 ? values.join(' / ') : '-';
+}
+
+function formatPercentValue(value: number | null) {
+  return value === null ? '-' : `${value}%`;
 }

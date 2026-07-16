@@ -35,6 +35,7 @@
     "test:market-data": "npx tsx scripts/smoke/market-data-provider-smoke.ts",
     "test:model-api": "npx tsx scripts/smoke/model-api-smoke.ts",
     "test:model-compare-api": "npx tsx scripts/smoke/model-compare-api-smoke.ts",
+    "test:model-compare-mobile-screen": "npx tsx scripts/qa/model-compare-mobile-screen-smoke.ts",
     "test:model-compare-read-model": "npx tsx scripts/smoke/model-compare-read-model-smoke.ts",
     "test:model-review-calendar-api": "npx tsx scripts/smoke/model-review-calendar-api-smoke.ts",
     "test:model-review-calendar-read-model": "npx tsx scripts/smoke/model-review-calendar-read-model-smoke.ts",

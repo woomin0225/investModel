@@ -44,5 +44,6 @@ export {
   RiskBadge,
   SectionHeader,
   SoftBanner,
+  investCardClass,
   investMotionClass
 } from './ui';

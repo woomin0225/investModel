@@ -1968,20 +1968,37 @@ assertCondition(
   'BK-455 seed/mock data labels must use DB sample wording on visible cards and empty states'
 );
 assertCondition(
-  modelComparePageSource.includes("visibleBoundaries.join(' / ')") &&
+  modelComparePageSource.includes('readModelCompareSeedFixture') &&
+    modelComparePageSource.includes('defaultComparePublicIds') &&
+    modelComparePageSource.includes('model.backtestContext.cumulativeReturn.display') &&
+    modelComparePageSource.includes('model.backtestContext.maxDrawdown.display') &&
+    modelComparePageSource.includes('model.backtestContext.volatility.display') &&
+    modelComparePageSource.includes('model.mandate.allowedMarkets') &&
+    modelComparePageSource.includes('model.mandate.allowedAssetClasses') &&
+    modelComparePageSource.includes('model.disclosures.map') &&
+    modelComparePageSource.includes('model.safetyLabel') &&
+    modelComparePageSource.includes('ModelRiskProfile') &&
+    modelComparePageSource.includes('PortfolioMandate') &&
+    modelComparePageSource.includes('ModelDisclosure') &&
+    modelComparePageSource.includes('ModelPerformanceSnapshot') &&
+    modelComparePageSource.includes('grid-cols-[6.5rem_minmax(0,1fr)]') &&
+    modelComparePageSource.includes('[overflow-wrap:anywhere]') &&
+    modelComparePageSource.includes('min-w-0') &&
+    modelComparePageSource.includes('break-words') &&
+    !modelComparePageSource.includes('<table') &&
+    !modelComparePageSource.includes('overflow-x-auto') &&
+    !modelComparePageSource.includes('w-max') &&
     !modelComparePageSource.includes('visibleBoundaries.map((boundary) => (') &&
     !modelComparePageSource.includes('<RiskBadge tone="blocked">No live orders</RiskBadge>') &&
+    modelComparePageSource.includes('safetyLine:') &&
     modelComparePageSource.includes(
-      "safetyLine: '모의 비교 / 백테스트 참고 / 추천 아님 / 실제 주문 없음 / 브로커 미연결'"
+      'Mock comparison / Backtest placeholder / Not advice / No model selection created / No order / No brokerage'
     ) &&
     modelComparePageSource.includes(
-      'Mock comparison / Backtest placeholder / Not investment advice / No real order / No brokerage'
+      'This is a seed/mock read-only comparison.'
     ) &&
     modelComparePageSource.includes(
-      '투자 조언을 제공하거나 실제 계좌, 입금, 주문, 브로커 연결을 만들지 않습니다.'
-    ) &&
-    modelComparePageSource.includes(
-      'does not provide investment advice or connect real accounts, deposits, orders, or brokerage.'
+      'creates no account connection, funding, orders, or external paid data calls.'
     ) &&
     modelComparePageSource.includes(
       'const safetyFooterLabel = `${copy.safetyLine}. ${copy.footer}`'
