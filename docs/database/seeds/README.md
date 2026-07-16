@@ -25,6 +25,11 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   deterministic `portfolio_positions` rows for mobile holdings/allocation UI
   work. It keeps the simulated holdings total aligned with the seeded
   PortfolioSummary total and never represents broker-confirmed holdings.
+- `006_portfolio_allocation_split_seed.sql` is a verification-only fixture
+  guard for BK-508. It derives sector and asset-class allocation buckets from
+  the `005` holdings rows, checks the 78000 USD simulated total, and adds no
+  user-directed preference fields, broker/bank links, orders, fills, or live
+  data dependencies.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -53,6 +58,9 @@ files. Do not insert sample rows directly in a MySQL console for product work.
      `005_portfolio_holdings_seed.sql`.
    - Use `docs/database/samples/portfolio-holdings-read-model.sample.sql` as
      the representative projection before adding holdings API/UI work.
+   - Use `006_portfolio_allocation_split_seed.sql` and
+     `docs/database/samples/portfolio-allocation-split-read-model.sample.sql`
+     before adding allocation split API/UI work.
 7. User notifications and My Page activity rows.
    - Current notification center rows are derived from `feed_posts` and
      `feed_post_reads`, and `user_notifications` is now aligned in DBML, MySQL
