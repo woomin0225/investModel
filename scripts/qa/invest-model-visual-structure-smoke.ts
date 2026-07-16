@@ -500,7 +500,11 @@ assertCondition(
     mobileShellSource.includes('title={accessibleLabel}') &&
     mobileShellSource.includes('current screen') &&
     mobileShellSource.includes('현재 화면') &&
-    mobileShellSource.includes('min-w-0 flex-col'),
+    mobileShellSource.includes('data-touch-target="44px"') &&
+    mobileShellSource.includes('min-h-invest-touch-target') &&
+    mobileShellSource.includes('w-full min-w-invest-touch-target') &&
+    mobileShellSource.includes('overflow-hidden rounded-invest-control') &&
+    mobileShellSource.includes('min-w-0 max-w-full truncate'),
   'BottomNav tabs must expose locale-aware labels, current-screen context, title text, and shrink-safe 390px layout'
 );
 assertCondition(
@@ -657,9 +661,10 @@ assertCondition(
 assertCondition(
   modelsPageSource.includes('name="q"') &&
     modelsPageSource.includes('searchQuery') &&
+    modelsPageSource.includes('inline-flex min-h-invest-touch-target shrink-0') &&
     modelsPageSource.includes("params.set('q', searchQuery)") &&
     modelsPageSource.includes('getDiscoveryFilterHref('),
-  'Discover Models must wire search input to the DB-backed /api/models q filter and preserve it across filters'
+  'Discover Models must wire search input to the DB-backed /api/models q filter, keep the search CTA at the shared 44px touch target, and preserve it across filters'
 );
 assertCondition(
   feedPageSource.includes('<FeedCardSaveAction') &&

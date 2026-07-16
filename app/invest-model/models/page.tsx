@@ -454,7 +454,7 @@ export default async function InvestModelDiscoveryPage({
               <button
                 type="submit"
                 className={cn(
-                  'inline-flex min-h-9 shrink-0 items-center justify-center rounded-invest-control bg-invest-primary px-3 text-xs font-bold text-white shadow-invest-card',
+                  'inline-flex min-h-invest-touch-target shrink-0 items-center justify-center rounded-invest-control bg-invest-primary px-3 text-xs font-bold text-white shadow-invest-card',
                   investMotionClass.interactiveControl
                 )}
               >
