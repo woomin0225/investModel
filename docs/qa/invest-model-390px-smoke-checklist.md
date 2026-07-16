@@ -43,7 +43,7 @@ Before marking a mobile UI task done, confirm:
 | Text fit | Korean and English titles, badges, buttons, and safety lines wrap or clamp without clipping outside their parent. | Smoke pass for long-token checks and targeted source review for changed copy. |
 | Card hierarchy | Repeated lists use a rail/grouping treatment rather than card-looking wrappers around card children. | Smoke pass for `investCardClass.listRail` or targeted `rg` for list rail classes. |
 | Safety copy | `MockDeposit`, `AllocationDecision`, `SignalEvent`, and `TradeIntent` remain visibly mock, simulated, observational, or pre-order-only. | Targeted `rg` for mock/simulated/no real/order/broker copy in changed files. |
-| Forbidden implications | No CTA or card copy implies real deposit, withdrawal, order execution, broker/account linking, guaranteed return, or legal approval. | Targeted forbidden-word scan and manual source review of changed copy. |
+| Forbidden implications | No CTA, card copy, empty state, error state, or status label implies real deposit, withdrawal, order execution, broker/account linking, guaranteed return, or legal approval. The visual-structure smoke covers Home, Models, Signals, Feed, Portfolio, Search, Notifications, and My Page app sources, while docs/policy text is reviewed separately to avoid false positives. | `invest-model-visual-structure-smoke` pass plus targeted forbidden-word scan and manual source review of changed copy. |
 | Empty/error states | Empty, loading, unavailable, and error states keep the same mobile shell and do not ask for real account, broker, deposit, or order actions. | Smoke pass or targeted source check for changed state components. |
 | Locale paths | Language toggle and detail back links keep route context and do not strand users outside the tab flow. | Smoke pass or targeted source check for changed routes. |
 
@@ -52,12 +52,12 @@ Before marking a mobile UI task done, confirm:
 Use these scans when a run touches the relevant area:
 
 ```powershell
-rg -n "real deposit|withdraw|cash available|order placed|executed|filled|broker|connect account|guaranteed|risk free|legally approved|suitability approved" app/invest-model components/invest-model docs
+rg -n "real deposit|deposit now|withdraw|cash available|order placed|order executed|filled order|connect brokerage|connect broker|link brokerage|link account|guaranteed return|risk free|legally approved|suitability approved|buy now|sell now|place order|execute trade|start trading|invest now" app/invest-model components/invest-model
 rg -n "min-h-invest-touch-target|size-invest-touch-target|active:|focus-visible|focus:ring|motion-reduce" app/invest-model components/invest-model
 rg -n "rounded-invest-card bg-invest-bg-soft p-1.5|space-y-2.5 rounded-invest-card bg-invest-bg-soft" app/invest-model components/invest-model
 ```
 
-The first scan can return allowed explanatory policy text, but any new user-facing CTA or state label must be reviewed carefully. Real-money, real-order, account-linking, guaranteed-return, or legal-approval wording must not be introduced by automation.
+The first scan intentionally excludes `docs` so policy explanations do not mask app copy regressions. Any new user-facing CTA, card copy, empty state, error state, or status label must be reviewed carefully. Real-money, real-order, account-linking, guaranteed-return, or legal-approval wording must not be introduced by automation.
 
 ## Completion Rule
 

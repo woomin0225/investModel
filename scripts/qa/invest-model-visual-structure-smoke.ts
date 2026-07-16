@@ -289,6 +289,49 @@ function assertNoUnsafeInteractiveCta(
   );
 }
 
+const forbiddenScreenImplicationPatterns = [
+  /\b(real deposit|deposit now|withdraw|withdrawal|cash available|settled cash|real balance)\b/gi,
+  /\b(order placed|order executed|executed order|filled order|trade executed|broker order)\b/gi,
+  /\b(connect brokerage|connect broker|link brokerage|link account|open account)\b/gi,
+  /\b(guaranteed return|guaranteed profit|guaranteed performance|risk free|no loss)\b/gi,
+  /\b(legally approved|suitability approved|compliant by default)\b/gi,
+  /\b(buy now|sell now|submit order|place order|execute trade|start trading|invest now)\b/gi,
+  /\b(live payment flow|real payment flow|brokerage account setup)\b/gi
+];
+
+function assertNoForbiddenScreenImplications(label: string, source: string) {
+  const matches = forbiddenScreenImplicationPatterns.flatMap((pattern) => {
+    pattern.lastIndex = 0;
+    return [...source.matchAll(pattern)]
+      .filter((match) => {
+        const matchIndex = match.index ?? 0;
+        const leadingContext = source
+          .slice(Math.max(0, matchIndex - 48), matchIndex)
+          .toLowerCase();
+        const lineStart = source.lastIndexOf('\n', matchIndex) + 1;
+        const lineEnd = source.indexOf('\n', matchIndex);
+        const lineContext = source
+          .slice(lineStart, lineEnd === -1 ? source.length : lineEnd)
+          .toLowerCase();
+
+        return !(
+          /(no |not |without |does not |do not |must not |is not |are not |never )$/.test(
+            leadingContext
+          ) ||
+          /\b(no real|not a real|not real|without real|no .*order|not .*order|no .*broker|not .*broker)\b/.test(
+            lineContext
+          )
+        );
+      })
+      .map((match) => match[0]);
+  });
+
+  assertCondition(
+    matches.length === 0,
+    `${label}: forbidden real-money/order/account/guarantee wording regressed: ${matches.join(', ')}`
+  );
+}
+
 function assertNoLongUnbrokenText(label: string, values: string[]) {
   const maxUnbrokenLength = 42;
   const longTokens = values
@@ -518,6 +561,27 @@ assertCondition(
 const portfolioPageSource = readProjectFile(
   'app/invest-model/portfolio/page.tsx'
 );
+const mobileForbiddenCopyScanScopes = [
+  ['Home', homePageSource],
+  ['Models', [modelsPageSource, modelDetailPageSource, modelComparePageSource].join('\n')],
+  ['Signals', [signalsPageSource, signalDetailPageSource].join('\n')],
+  ['Feed', feedPageSource],
+  ['Portfolio', portfolioPageSource],
+  ['Search', searchPageSource],
+  ['Notifications', notificationsPageSource],
+  ['My Page', myPageSource]
+] as const;
+
+mobileForbiddenCopyScanScopes.forEach(([label, source]) =>
+  assertNoForbiddenScreenImplications(label, source)
+);
+
+assertCondition(
+  mobileForbiddenCopyScanScopes.map(([label]) => label).join('|') ===
+    'Home|Models|Signals|Feed|Portfolio|Search|Notifications|My Page',
+  'BK-467 forbidden wording scan must cover Home, Models, Signals, Feed, Portfolio, Search, Notifications, and My Page'
+);
+
 const cardRailSources = [
   ['Feed Insights', feedPageSource],
   ['Discover Models', modelsPageSource],
