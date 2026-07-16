@@ -10,30 +10,26 @@ import { investMotionClass } from './ui';
 type SignalRefreshActionProps = {
   locale: 'ko' | 'en';
   lastUpdatedLabel: string;
-  disabled?: boolean;
+  autoRefreshDisabled?: boolean;
 };
 
 export function SignalRefreshAction({
   locale,
   lastUpdatedLabel,
-  disabled = false
+  autoRefreshDisabled = false
 }: SignalRefreshActionProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
 
   function refreshSignals() {
-    if (disabled) {
-      return;
-    }
-
     startTransition(() => {
       router.refresh();
     });
   }
 
   useEffect(() => {
-    if (!autoRefreshEnabled || disabled) {
+    if (!autoRefreshEnabled || autoRefreshDisabled) {
       return undefined;
     }
 
@@ -44,7 +40,7 @@ export function SignalRefreshAction({
     }, 60000);
 
     return () => window.clearInterval(intervalId);
-  }, [autoRefreshEnabled, disabled, router]);
+  }, [autoRefreshEnabled, autoRefreshDisabled, router]);
 
   const refreshLabel =
     locale === 'ko' ? 'DB 스냅샷 새로고침' : 'Refresh DB snapshot';
@@ -75,7 +71,7 @@ export function SignalRefreshAction({
         <button
           type="button"
           onClick={refreshSignals}
-          disabled={disabled || isPending}
+          disabled={isPending}
           aria-label={refreshAccessibleLabel}
           title={refreshAccessibleLabel}
           className={cn(
@@ -99,7 +95,7 @@ export function SignalRefreshAction({
         <input
           type="checkbox"
           checked={autoRefreshEnabled}
-          disabled={disabled}
+          disabled={autoRefreshDisabled}
           onChange={(event) => setAutoRefreshEnabled(event.target.checked)}
           aria-label={`${autoLabel}. ${safeBoundary}`}
           title={`${autoLabel}. ${safeBoundary}`}

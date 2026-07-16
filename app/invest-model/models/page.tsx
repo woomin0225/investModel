@@ -161,6 +161,19 @@ const modelReadStateCopy = {
   }
 } as const;
 
+const modelReadRetryCopy = {
+  ko: {
+    label: 'DB 샘플 다시 읽기',
+    description:
+      '로컬 DB 샘플 조회만 다시 시도합니다. 실제 계좌, 브로커, 주문, 외부 실시간 데이터 연결은 만들지 않습니다.'
+  },
+  en: {
+    label: 'Retry DB sample read',
+    description:
+      'Retries only the local DB sample read model. It does not connect a real account, brokerage, orders, or realtime external data.'
+  }
+} as const;
+
 function modelDiscoveryVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
     ? [
@@ -343,6 +356,12 @@ export default async function InvestModelDiscoveryPage({
   const summaryCopy = discoverySummaryCopy[locale];
   const searchTopicCopy = discoverySearchTopicCopy[locale];
   const readStateCopy = modelReadStateCopy[locale];
+  const modelReadRetry = modelReadRetryCopy[locale];
+  const modelReadRetryHref = getDiscoveryFilterHref(
+    selectedFilter,
+    locale,
+    searchQuery
+  );
   const modelListLabel =
     locale === 'ko' ? '표시 중인 투자 모델 목록' : 'Shown investment models';
   const discoverySummaryItems = [
@@ -662,6 +681,19 @@ export default async function InvestModelDiscoveryPage({
                     ? readStateCopy.unavailableDescription
                     : readStateCopy.emptyDescription}
                 </p>
+                {modelReadFailed ? (
+                  <Link
+                    href={modelReadRetryHref}
+                    aria-label={`${modelReadRetry.label}. ${modelReadRetry.description}`}
+                    title={`${modelReadRetry.label}. ${modelReadRetry.description}`}
+                    className={cn(
+                      'mt-4 inline-flex min-h-invest-touch-target w-full items-center justify-center rounded-invest-control border border-invest-border bg-invest-bg-soft px-3 text-center text-sm font-bold text-invest-primary focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
+                      investMotionClass.interactiveControl
+                    )}
+                  >
+                    {modelReadRetry.label}
+                  </Link>
+                ) : null}
               </div>
             ) : null}
           </div>

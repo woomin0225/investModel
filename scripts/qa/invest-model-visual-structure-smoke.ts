@@ -389,6 +389,7 @@ const topIconBarSource = readProjectFile(
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const homePageSource = readProjectFile('app/invest-model/page.tsx');
 const homeLoadingSource = readProjectFile('app/invest-model/loading.tsx');
+const investModelErrorSource = readProjectFile('app/invest-model/error.tsx');
 const myPageSource = readProjectFile('app/invest-model/my/page.tsx');
 const notificationsPageSource = readProjectFile(
   'app/invest-model/notifications/page.tsx'
@@ -422,6 +423,20 @@ const modelDetailPageSource = readProjectFile(
   'app/invest-model/models/[modelId]/page.tsx'
 );
 const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
+assertCondition(
+  investModelErrorSource.includes("'use client'") &&
+    investModelErrorSource.includes('reset: () => void') &&
+    investModelErrorSource.includes('role="alert"') &&
+    investModelErrorSource.includes('aria-live="assertive"') &&
+    investModelErrorSource.includes('min-h-invest-touch-target') &&
+    investModelErrorSource.includes('focus:outline-none focus:ring-2 focus:ring-invest-primary') &&
+    investModelErrorSource.includes('Retries only local DB samples and mock state') &&
+    investModelErrorSource.includes('does not connect a real account, brokerage, deposit, orders, or realtime external data') &&
+    !/Connect brokerage|Place order|Open account|Link account|Submit order/.test(
+      investModelErrorSource
+    ),
+  'Invest Model segment error boundary must provide a safe retry-only mock/read failure state'
+);
 assertCondition(
   feedPageSource.includes(
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary'
@@ -695,10 +710,19 @@ assertCondition(
 assertCondition(
   signalsPageSource.includes('<SignalRefreshAction') &&
     signalsPageSource.includes('latestScoreSnapshotLabel') &&
-    signalsPageSource.includes('DB 신호 새로고침 사용 불가') &&
+    signalsPageSource.includes('DB 신호 샘플 재시도 가능') &&
+    signalsPageSource.includes('DB Signals sample retry available') &&
+    signalsPageSource.includes('autoRefreshDisabled={signalReadState === \'fallback\'}') &&
+    signalsPageSource.includes('Retry DB signal sample read') &&
+    signalsPageSource.includes('does not connect a real account, brokerage, orders, or realtime external data') &&
+    !signalsPageSource.includes('disabled={signalReadState === \'fallback\'}') &&
     signalsPageSource.includes('DB 점수 스냅샷 없음') &&
     signalsPageSource.includes('최신 DB 스냅샷') &&
     signalRefreshActionSource.includes('router.refresh()') &&
+    signalRefreshActionSource.includes('autoRefreshDisabled?: boolean') &&
+    signalRefreshActionSource.includes('disabled={isPending}') &&
+    signalRefreshActionSource.includes('disabled={autoRefreshDisabled}') &&
+    !signalRefreshActionSource.includes('if (disabled)') &&
     signalRefreshActionSource.includes('Auto refresh 60s') &&
     signalRefreshActionSource.includes('DB 점수 스냅샷만 새로고침합니다. 외부 실시간 데이터, 투자 조언, 주문이 아닙니다.') &&
     signalRefreshActionSource.includes('const refreshAccessibleLabel = `${refreshLabel}. ${safeBoundary}`') &&
@@ -1418,6 +1442,15 @@ assertCondition(
     modelsPageSource.includes("emptyTitle: 'DB 샘플 공개 투자 모델 없음'") &&
     modelsPageSource.includes("dbLabel: 'DB sample read model'") &&
     modelsPageSource.includes("unavailableTitle: 'DB sample read model unavailable'") &&
+    modelsPageSource.includes('const modelReadRetryCopy') &&
+    modelsPageSource.includes("label: 'Retry DB sample read'") &&
+    modelsPageSource.includes('Retries only the local DB sample read model') &&
+    modelsPageSource.includes('does not connect a real account, brokerage, orders, or realtime external data') &&
+    modelsPageSource.includes('const modelReadRetryHref = getDiscoveryFilterHref') &&
+    modelsPageSource.includes('href={modelReadRetryHref}') &&
+    modelsPageSource.includes('aria-label={`${modelReadRetry.label}. ${modelReadRetry.description}`}') &&
+    modelsPageSource.includes('min-h-invest-touch-target w-full') &&
+    modelsPageSource.includes('focus:outline-none focus:ring-2 focus:ring-invest-primary') &&
     modelsPageSource.includes("emptyTitle: 'No DB sample InvestmentModels'") &&
     modelsPageSource.includes(
       "'현재 필터에 표시할 공개 투자 모델 데이터가 없습니다. 실제 주문이나 모델 선택은 생성되지 않았습니다.'"

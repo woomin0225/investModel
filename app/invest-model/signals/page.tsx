@@ -182,8 +182,8 @@ function latestScoreSnapshotLabel(
 ) {
   if (readState === 'fallback') {
     return locale === 'ko'
-      ? 'DB 신호 새로고침 사용 불가'
-      : 'DB Signals refresh unavailable';
+      ? 'DB 신호 샘플 재시도 가능'
+      : 'DB Signals sample retry available';
   }
 
   const latestSnapshotTime = signals
@@ -428,8 +428,31 @@ export default async function InvestModelSignalsPage({
               dbSignals,
               signalReadState
             )}
-            disabled={signalReadState === 'fallback'}
+            autoRefreshDisabled={signalReadState === 'fallback'}
           />
+          {signalReadState === 'fallback' ? (
+            <Link
+              href={signalFilterHref(locale, selectedFilterId)}
+              aria-label={
+                locale === 'ko'
+                  ? 'DB 신호 샘플 다시 읽기. 로컬 샘플 관찰값만 재시도하며 실제 계좌, 브로커, 주문, 외부 실시간 데이터 연결은 만들지 않습니다.'
+                  : 'Retry DB signal sample read. Retries local sample observations only and does not connect a real account, brokerage, orders, or realtime external data.'
+              }
+              title={
+                locale === 'ko'
+                  ? 'DB 신호 샘플 다시 읽기. 로컬 샘플 관찰값만 재시도하며 실제 계좌, 브로커, 주문, 외부 실시간 데이터 연결은 만들지 않습니다.'
+                  : 'Retry DB signal sample read. Retries local sample observations only and does not connect a real account, brokerage, orders, or realtime external data.'
+              }
+              className={cn(
+                'inline-flex min-h-invest-touch-target w-full items-center justify-center rounded-invest-control border border-invest-border bg-invest-bg-soft px-3 text-center text-sm font-bold text-invest-primary focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg',
+                investMotionClass.interactiveControl
+              )}
+            >
+              {locale === 'ko'
+                ? 'DB 신호 샘플 다시 읽기'
+                : 'Retry DB signal sample'}
+            </Link>
+          ) : null}
 
           <MobileFilterRail
             ariaLabel={locale === 'ko' ? '신호 필터' : 'Signal filters'}
