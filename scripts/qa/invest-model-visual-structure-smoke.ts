@@ -416,6 +416,30 @@ const modelDetailPageSource = readProjectFile(
   'app/invest-model/models/[modelId]/page.tsx'
 );
 const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
+assertCondition(
+  feedPageSource.includes(
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary'
+  ) &&
+    feedPageSource.includes('active:bg-invest-primary-soft/55') &&
+    feedPageSource.includes('min-[400px]:grid-cols-[auto_minmax(0,1fr)]') &&
+    !feedPageSource.includes(
+      'min-[360px]:grid-cols-[auto_minmax(0,1fr)_auto]'
+    ) &&
+    feedPageSource.includes(
+      '<RiskBadge tone="medium" className="min-w-0">'
+    ) &&
+    feedPageSource.includes(
+      'min-h-6 min-w-0 max-w-full rounded-invest-badge'
+    ) &&
+    feedPageSource.includes('<span className="block truncate">') &&
+    feedPageSource.includes(
+      'line-clamp-2 break-words text-[15px] font-bold'
+    ) &&
+    feedPageSource.includes(
+      'line-clamp-1 break-words text-[12px] font-semibold'
+    ),
+  'BK-449 Feed ranking/watchlist cards must keep long labels, status chips, and like-count badges 390px-safe with focus and active states'
+);
 const portfolioPageSource = readProjectFile(
   'app/invest-model/portfolio/page.tsx'
 );
