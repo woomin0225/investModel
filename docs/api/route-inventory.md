@@ -37,6 +37,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `GET` | `/api/model-selections` | Read the current user's active mock-safe model selection. | user | DB-backed read implemented |
 | `POST` | `/api/model-selections` | Persist a mock-safe selection of a specific model version. | user | DB-backed action implemented |
 | `GET` | `/api/portfolio/mock-summary` | Read selected model, mock deposit, simulated allocation, time dashboard snapshots, positions, and blocked TradeIntent state. | user | DB-backed read implemented with mock-safe fallback |
+| `GET` | `/api/price-history` | Read a bounded seeded price-history series for prototype mini charts. | user | Fixture-backed read implemented |
 | `POST` | `/api/model-reports` | Record a user concern for operator review without legal or compensation decisions. | user | mock-backed, not persisted; design-gated |
 | `POST` | `/api/creator/models` | Create a creator model draft. | creator | mock-backed, not persisted; design-gated |
 | `POST` | `/api/creator/models/:id/description-revisions` | Request a reviewed description revision plan. | creator | mock-backed, not persisted; design-gated |
@@ -308,6 +309,20 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Source tables | `users`, `user_model_selections`, `investment_models`, `model_versions`, `mock_deposits`, `portfolios`, `portfolio_positions`, `market_instruments`, `allocation_decisions`, `trade_intents` |
 | Mock source | `lib/mock/invest-model-portfolio.ts` is used only as a mock-safe fallback when DB state is unavailable. |
 | Safety notes | Must use mock/simulated labels. This route must not connect payments, bank accounts, brokerage accounts, real balances, real deposits, real orders, executions, fills, settlements, or investment advice. `TradeIntent` rows are displayed only as pre-order simulation or blocked state. |
+
+### `GET /api/price-history`
+
+| Field | Value |
+| --- | --- |
+| Status | Fixture-backed read API implemented in `app/api/price-history/route.ts`; smoke-covered by `scripts/smoke/price-history-api-smoke.ts`. |
+| Purpose | Provide seeded, bounded price-history points for prototype mini charts without live market data. |
+| Request | Optional query parameters: `symbol` defaults to `SAMPLE_AI_BASKET`; `limit` must be an integer from 1 to 48. Unsupported symbols return `unsupported_symbol`. |
+| Response DTO | `PriceHistoryMiniChartDto` |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
+| Screens | Future Home, Model Detail, and Portfolio mini chart modules. |
+| Source tables | Future read-model source mirrors seeded `market_instruments` and `market_price_snapshots` context from `BK-501`; current route reads `lib/db/price-history-read-model.ts` only. |
+| Mock source | BK-501 deterministic seed fixture, not an external provider. |
+| Safety notes | Must expose `mockOnly`, `simulated`, `sampleBacktestWindow`, `liveMarketData=false`, `realTimeQuotes=false`, `externalPaidApi=false`, `brokerageConnection=false`, `tradeInstruction=false`, `realOrder=false`, and `financialAdvice=false`. |
 
 ### `POST /api/creator/models`
 
