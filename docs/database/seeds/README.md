@@ -53,6 +53,10 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   using existing InvestmentModel, ModelVersion, risk, mandate, disclosure, and
   backtest tables. It stays mock/backtest-only and does not add account action,
   TradeIntent, broker/bank, deposit, paid external API, or final legal fields.
+- `012_notification_unavailable_read_model_seed.sql` creates notification
+  center fallback rows for empty and unavailable states. It keeps
+  `delivery_channel = 'in_app_mock'` and does not add push, email, SMS,
+  account, broker, order, external provider, secret, or advice delivery.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -111,6 +115,9 @@ files. Do not insert sample rows directly in a MySQL console for product work.
    - Use `docs/database/samples/user-notifications-sample.sql` as the reviewed
      whole-file sample before promoting dedicated notification rows into a
      canonical seed file.
+   - Use `012_notification_unavailable_read_model_seed.sql` and
+     `../samples/notification-unavailable-read-model.sample.sql` when a screen
+     or API needs explicit empty and unavailable notification fallback rows.
    - Current Portfolio insight rows can use
      `008_portfolio_insight_seed.sql` as the first dedicated
      `portfolio_analysis_snapshots` SQL seed slice; API code should still wait
