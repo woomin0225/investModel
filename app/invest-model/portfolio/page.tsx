@@ -15,6 +15,7 @@ import {
   modelSelectionReadStatusCopy,
   PortfolioCompactSummaryCard,
   PortfolioHoldingsListCard,
+  PortfolioMarketContextTiles,
   RiskBadge,
   SectionHeader,
   SeededPriceMiniChartCard,
@@ -642,6 +643,8 @@ export default async function InvestModelPortfolioPage({
         <PortfolioCompactSummaryCard locale={locale} />
 
         <PortfolioHoldingsListCard locale={locale} />
+
+        <PortfolioMarketContextTiles locale={locale} />
 
         <SeededPriceMiniChartCard locale={locale} />
 
