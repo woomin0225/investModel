@@ -1,5 +1,5 @@
 /**
- * Verifies the BK-552 model compare mobile screen.
+ * Verifies the BK-553 model compare 390px mobile smoke coverage.
  * The screen must stay 390px-safe, read-only, and backed by the compare read model.
  */
 
@@ -47,6 +47,7 @@ async function main() {
   const routeSource = readText('app/api/models/compare/route.ts');
   const readModelSource = readText('lib/db/model-compare-read-model.ts');
   const mobileShellSource = readText('components/invest-model/mobile-shell.tsx');
+  const uiSource = readText('components/invest-model/ui.tsx');
   const packageJson = readText('package.json');
   const compareItems = await readModelCompareSeedFixture();
 
@@ -54,6 +55,7 @@ async function main() {
     '<MobileShell',
     'activeTab="models"',
     'currentPath="/invest-model/models/compare"',
+    'DetailBackLink',
     'readModelCompareSeedFixture',
     'defaultComparePublicIds',
     'model.backtestContext.cumulativeReturn.display',
@@ -77,6 +79,7 @@ async function main() {
     '[overflow-wrap:anywhere]',
     'min-w-0',
     'break-words',
+    'investMotionClass.interactiveCard',
     'group-active:scale-[0.99]',
     'hover:bg-invest-primary-soft/60'
   ].forEach((needle) => {
@@ -89,8 +92,10 @@ async function main() {
     'overflow-x-scroll',
     'w-screen',
     'min-w-screen',
+    'max-w-screen',
     'w-max',
     'min-w-[720px]',
+    'min-w-[640px]',
     '100vw'
   ].forEach((needle) => {
     assertNotIncludes(pageSource, needle, `model compare page avoids ${needle}`);
@@ -156,9 +161,27 @@ async function main() {
     'env(safe-area-inset-bottom)',
     'var(--invest-bottom-nav-height)',
     'overflow-x-clip',
-    'min-h-invest-touch-target'
+    'min-h-invest-touch-target',
+    'focus-visible:outline-none',
+    'focus-visible:ring-2'
   ].forEach((needle) => {
     assertIncludes(mobileShellSource, needle, `MobileShell includes ${needle}`);
+  });
+
+  [
+    'investMotionClass',
+    'interactiveCard',
+    'interactiveControl',
+    'min-h-invest-touch-target',
+    'focus:outline-none',
+    'focus:ring-2',
+    'active:scale-95',
+    'motion-reduce:transition-none',
+    'motion-reduce:active:scale-100',
+    'data-navigation-affordance="detail-back"',
+    '[overflow-wrap:anywhere]'
+  ].forEach((needle) => {
+    assertIncludes(uiSource, needle, `investModel UI helpers include ${needle}`);
   });
 
   assertNoForbiddenPattern('model compare page', pageSource, [
@@ -204,11 +227,17 @@ async function main() {
     'package script exposes model compare mobile smoke'
   );
 
+  assertIncludes(
+    packageJson,
+    '"test:model-compare-api": "npx tsx scripts/smoke/model-compare-api-smoke.ts"',
+    'package script keeps compare API smoke available'
+  );
+
   console.log(
     JSON.stringify(
       {
         status: 'pass',
-        scope: 'BK-552 model compare mobile screen',
+        scope: 'BK-553 model compare 390px mobile smoke',
         viewportAssumption: '390px mobile frame with fixed bottom navigation',
         dataSource: 'model compare read-model seed/DB projection',
         returnedModels: compareItems.length
