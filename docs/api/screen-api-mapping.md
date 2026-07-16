@@ -96,7 +96,8 @@ Data needs:
 
 - `MyPageSummaryDto.profile` with public user id, display name, and role label
 - `MyPageSummaryDto.activeSelection` with the currently selected `InvestmentModel` and `ModelVersion` public ids when available
-- `MyPageSummaryDto.feedActivity` with saved/comment counts, recent saved posts, and recent commented posts
+- `MyPageSummaryDto.feedActivity` with saved/comment counts, recent saved posts, recent commented posts, and optional saved/comment/notification activity rows
+- `GET /api/my/activity` compact activity summary with server-side `userScopeSource`, saved/comment/notification counts, latest activity shortcut, and `clientUserPublicIdOverride='ignored'`
 - `MyPageSummaryDto.notificationSummary` with unread/total count and latest notification shortcut
 - `MyPageSummaryDto.recentNotifications` as feed-derived in-app notification rows
 - `PolicyNoticeDto[]` for DB read-model only, no real financial account, and no notification delivery boundaries
@@ -109,7 +110,7 @@ API sequence:
 Fallback:
 
 - The API may return `dataContext='mock_safe_fallback'` or `sourceLabel='mock_safe_fallback'` for unavailable prototype rows.
-- `GET /api/my` and `GET /api/my/activity` resolve user scope server-side and expose `userScopeSource='session'` or `userScopeSource='demo_fallback'`; do not document or depend on a client-provided `userPublicId` query override.
+- `GET /api/my` and `GET /api/my/activity` resolve user scope server-side and expose `userScopeSource='session'` or `userScopeSource='demo_fallback'`; `/api/my/activity` also exposes `scopeResolution='server_side'` and `clientUserPublicIdOverride` without echoing the ignored client id. Do not document or depend on a client-provided `userPublicId` query override.
 - Empty activity/notification lists should render as private in-app empty states, not as account setup, funding, brokerage connection, or notification-delivery prompts.
 - The screen must not call or merge the starter `/api/user` route for investModel-specific selected model, saved FeedPost, comment, notification, portfolio, or financial state.
 

@@ -607,6 +607,8 @@ interface MyPageFeedActivitySummaryDto {
   latestCommentPostTitle?: string;
   recentSavedPosts: MyPageFeedActivityItemDto[];
   recentCommentPosts: MyPageFeedActivityItemDto[];
+  activityRows?: MyPageActivityRowDto[];
+  compactActivitySummary?: MyPageCompactActivitySummaryDto;
   sourceLabel: 'db_read_model' | 'mock_safe_fallback';
 }
 
@@ -616,15 +618,61 @@ interface MyPageFeedActivityItemDto {
   activityAt?: string;
   activityLabel: 'saved' | 'commented';
 }
+
+interface MyPageActivityRowDto {
+  activityPublicId: string;
+  userPublicId: string;
+  activityType: 'saved_feed' | 'comment' | 'notification';
+  sourcePublicId: string;
+  title: string;
+  bodyPreview?: string;
+  activityAt: string;
+  sourceLabel: 'db_seed_projection' | 'deterministic_fixture';
+  sourceMeta: {
+    sourceTables: string[];
+    userScoped: true;
+    inAppReadModelOnly: true;
+    accountLinkage: false;
+    realDeposit: false;
+    realOrder: false;
+    brokerageConnection: false;
+    externalDelivery: false;
+    paidExternalApi: false;
+    financialAdvice: false;
+  };
+}
+
+interface MyPageCompactActivitySummaryDto {
+  userPublicId: string;
+  userScopeSource: 'session' | 'demo_fallback';
+  savedCount: number;
+  commentCount: number;
+  notificationCount: number;
+  totalActivityCount: number;
+  latestActivityAt?: string;
+  latestActivityTitle?: string;
+  latestActivityType?: 'saved_feed' | 'comment' | 'notification';
+  readModelSource: 'db_read_model' | 'mock_safe_fallback';
+  readOnly: true;
+  serverScoped: true;
+  clientUserPublicIdOverride: 'ignored';
+  realAccountConnection: false;
+  realOrder: false;
+  brokerageConnection: false;
+  externalDelivery: false;
+  financialAdvice: false;
+}
 ```
 
-Source tables: `users`, `feed_posts`, `feed_post_saves`, `feed_post_comments`.
+Source tables: `users`, `feed_posts`, `feed_post_saves`, `feed_post_comments`, `user_notifications`.
 
 Safety requirements:
 
 - Activity rows are private reading shortcuts only.
+- `GET /api/my/activity` resolves user scope server-side and reports `userScopeSource`, `scopeResolution='server_side'`, and `clientUserPublicIdOverride`; client-provided `userPublicId` must not select or leak another user's rows.
 - Do not expose internal numeric ids.
-- Do not include fields that imply push delivery, real account connection, brokerage action, order intent, allocation intent, or financial advice.
+- Notification activity rows are `in_app_mock` read-model state only, not push/email/SMS delivery.
+- Do not include fields that imply push delivery, real account connection, brokerage action, order intent, allocation intent, paid external API use, or financial advice.
 
 ## `MyPageSummaryDto`
 

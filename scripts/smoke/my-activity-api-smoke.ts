@@ -26,6 +26,18 @@ async function applyTrackedAppSeed() {
     'docs/database/seeds/001_invest_model_domain_seed.sql'
   );
   const sql = fs.readFileSync(seedPath, 'utf8');
+  await runSql(sql);
+}
+
+async function applyMyPageActivitySeed() {
+  const seedPath = path.resolve(
+    'docs/database/seeds/015_my_page_activity_read_model_seed.sql'
+  );
+  const sql = fs.readFileSync(seedPath, 'utf8');
+  await runSql(sql);
+}
+
+async function runSql(sql: string) {
   const connection = await mysql.createConnection({
     uri: process.env.MYSQL_URL,
     multipleStatements: true
@@ -33,6 +45,30 @@ async function applyTrackedAppSeed() {
 
   await connection.query(sql);
   await connection.end();
+}
+
+async function ensureUserNotificationsTable() {
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+  const [rows] = await connection.query<mysql.RowDataPacket[]>(
+    "SELECT COUNT(*) AS value FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'user_notifications'"
+  );
+  const tableExists = Number(rows[0]?.value ?? 0) > 0;
+  await connection.end();
+
+  if (tableExists) {
+    return;
+  }
+
+  const migrationSql = fs
+    .readFileSync(
+      path.resolve('lib/db/migrations/0011_user_notifications.sql'),
+      'utf8'
+    )
+    .replaceAll('--> statement-breakpoint', '');
+  await runSql(migrationSql);
 }
 
 async function readSeedUserId() {
@@ -96,7 +132,9 @@ async function readMyActivityWithSession(search: string, sessionCookie: string) 
 }
 
 async function main() {
+  await ensureUserNotificationsTable();
   await applyTrackedAppSeed();
+  await applyMyPageActivitySeed();
   const seedUserId = await readSeedUserId();
   const sessionCookie = await createSessionCookie(seedUserId);
 
@@ -134,8 +172,33 @@ async function main() {
       typeof activityJson.data?.savedCount === 'number' &&
       typeof activityJson.data?.commentCount === 'number' &&
       Array.isArray(activityJson.data?.recentSavedPosts) &&
-      Array.isArray(activityJson.data?.recentCommentPosts),
+      Array.isArray(activityJson.data?.recentCommentPosts) &&
+      Array.isArray(activityJson.data?.activityRows),
     'my activity returns activity summary DTO'
+  );
+  assertCondition(
+    activityJson.data?.compactActivitySummary?.userPublicId ===
+      'user_demo_001' &&
+      activityJson.data?.compactActivitySummary?.userScopeSource ===
+        'demo_fallback' &&
+      activityJson.data?.compactActivitySummary?.serverScoped === true &&
+      activityJson.data?.compactActivitySummary?.clientUserPublicIdOverride ===
+        'ignored' &&
+      activityJson.data?.compactActivitySummary?.savedCount ===
+        activityJson.data?.savedCount &&
+      activityJson.data?.compactActivitySummary?.commentCount ===
+        activityJson.data?.commentCount &&
+      activityJson.data?.compactActivitySummary?.notificationCount > 0 &&
+      activityJson.data?.compactActivitySummary?.totalActivityCount ===
+        activityJson.data?.activityRows?.length &&
+      activityJson.data?.compactActivitySummary?.readOnly === true &&
+      activityJson.data?.compactActivitySummary?.realAccountConnection ===
+        false &&
+      activityJson.data?.compactActivitySummary?.realOrder === false &&
+      activityJson.data?.compactActivitySummary?.brokerageConnection === false &&
+      activityJson.data?.compactActivitySummary?.externalDelivery === false &&
+      activityJson.data?.compactActivitySummary?.financialAdvice === false,
+    'my activity returns server-scoped compact activity summary'
   );
   assertCondition(
     !activityJson.data?.recentSavedPosts?.some(
@@ -156,6 +219,8 @@ async function main() {
       activityJson.meta?.sourceTables?.includes('feed_post_comments') &&
       activityJson.meta?.sourceTables?.includes('user_notifications') &&
       activityJson.meta?.userScopeSource === 'demo_fallback' &&
+      activityJson.meta?.scopeResolution === 'server_side' &&
+      activityJson.meta?.clientUserPublicIdOverride === 'not_provided' &&
       activityJson.meta?.clientUserPublicIdIgnored === undefined &&
       activityJson.meta?.sendsRealPush === false &&
       activityJson.meta?.sendsRealEmail === false &&
@@ -174,6 +239,8 @@ async function main() {
       clientScopedJson.meta?.userScopeSource === 'demo_fallback' &&
       clientScopedJson.meta?.dataContext ===
         clientScopedJson.data?.sourceLabel &&
+      clientScopedJson.meta?.scopeResolution === 'server_side' &&
+      clientScopedJson.meta?.clientUserPublicIdOverride === 'ignored' &&
       clientScopedJson.meta?.clientUserPublicIdIgnored === undefined,
     'client userPublicId is not exposed as compatibility meta or my activity state'
   );
@@ -188,6 +255,12 @@ async function main() {
       sessionScopedJson.meta?.userScopeSource === 'session' &&
       sessionScopedJson.meta?.dataContext ===
         sessionScopedJson.data?.sourceLabel &&
+      sessionScopedJson.data?.compactActivitySummary?.userScopeSource ===
+        'session' &&
+      sessionScopedJson.data?.compactActivitySummary
+        ?.clientUserPublicIdOverride === 'ignored' &&
+      sessionScopedJson.meta?.scopeResolution === 'server_side' &&
+      sessionScopedJson.meta?.clientUserPublicIdOverride === 'ignored' &&
       sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
       sessionScopedJson.meta?.userPublicId === 'user_demo_001',
     'session role and user scope win for my activity'

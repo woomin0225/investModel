@@ -1,11 +1,13 @@
 import { NextRequest } from 'next/server';
 
 import { readMyPageFeedActivitySummary } from '@/lib/db/my-page-read-model';
+import type { MyPageFeedActivitySummary } from '@/lib/domain/my-page/feed-activity';
 import type { AccessRole } from '@/lib/domain/types';
 import {
   readInvestModelRole,
   readInvestModelSessionRole,
-  resolveInvestModelUserScope
+  resolveInvestModelUserScope,
+  type InvestModelUserScope
 } from '@/lib/server/invest-model-user-scope';
 
 /**
@@ -37,6 +39,46 @@ function canReadMyActivity(role: AccessRole) {
   return role === 'user' || role === 'admin';
 }
 
+function buildCompactActivitySummary(
+  activitySummary: MyPageFeedActivitySummary,
+  userScope: InvestModelUserScope
+) {
+  const activityRows = activitySummary.activityRows ?? [];
+  const latestActivity = activityRows[0];
+  const notificationCount = activityRows.filter(
+    (row) => row.activityType === 'notification'
+  ).length;
+
+  return {
+    userPublicId: userScope.userPublicId,
+    userScopeSource: userScope.source,
+    savedCount: activitySummary.savedCount,
+    commentCount: activitySummary.commentCount,
+    notificationCount,
+    totalActivityCount:
+      activityRows.length ||
+      activitySummary.savedCount + activitySummary.commentCount,
+    latestActivityAt:
+      latestActivity?.activityAt ??
+      activitySummary.latestSavedAt ??
+      activitySummary.latestCommentAt,
+    latestActivityTitle:
+      latestActivity?.title ??
+      activitySummary.latestSavedPostTitle ??
+      activitySummary.latestCommentPostTitle,
+    latestActivityType: latestActivity?.activityType,
+    readModelSource: activitySummary.sourceLabel,
+    readOnly: true,
+    serverScoped: true,
+    clientUserPublicIdOverride: 'ignored',
+    realAccountConnection: false,
+    realOrder: false,
+    brokerageConnection: false,
+    externalDelivery: false,
+    financialAdvice: false
+  };
+}
+
 export async function GET(request: NextRequest) {
   const headerRole = readInvestModelRole(request);
   const role =
@@ -58,9 +100,16 @@ export async function GET(request: NextRequest) {
     const activitySummary = await readMyPageFeedActivitySummary(
       userScope.userPublicId
     );
+    const compactActivitySummary = buildCompactActivitySummary(
+      activitySummary,
+      userScope
+    );
 
     return Response.json({
-      data: activitySummary,
+      data: {
+        ...activitySummary,
+        compactActivitySummary
+      },
       meta: {
         routeStatus: 'db_backed',
         persistence: 'persisted_or_mock_safe_fallback',
@@ -76,6 +125,12 @@ export async function GET(request: NextRequest) {
         dataContext: activitySummary.sourceLabel,
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,
+        scopeResolution: 'server_side',
+        clientUserPublicIdOverride: request.nextUrl.searchParams.has(
+          'userPublicId'
+        )
+          ? 'ignored'
+          : 'not_provided',
         readOnly: true,
         sendsRealPush: false,
         sendsRealEmail: false,

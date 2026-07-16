@@ -304,14 +304,14 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Field | Value |
 | --- | --- |
 | Status | DB-backed read API implemented in `app/api/my/activity/route.ts`. |
-| Purpose | Provide My Page with user-scoped saved/comment FeedPost activity counts and recent activity shortcuts. |
-| Request | Client-provided `userPublicId` is ignored by route-level callers; server-side read-model helpers accept explicit public ids only for local verification and isolated fallback tests. |
+| Purpose | Provide My Page with server-scoped saved FeedPost, visible comment, and in-app mock notification activity counts, recent activity shortcuts, and compact activity summary. |
+| Request | Client-provided `userPublicId` is ignored by route-level callers; route meta reports `scopeResolution='server_side'` and `clientUserPublicIdOverride` without echoing the ignored client id. Server-side read-model helpers accept explicit public ids only for local verification and isolated fallback tests. |
 | Response DTO | `MyPageFeedActivitySummaryDto` |
 | Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
 | Screens | My Page |
-| Source tables | `users`, `feed_posts`, `feed_post_saves`, `feed_post_comments` |
+| Source tables | `users`, `feed_posts`, `feed_post_saves`, `feed_post_comments`, `user_notifications` |
 | Mock source | Existing DB-backed feed interaction rows; unavailable DB/user state returns mock-safe fallback counts. |
-| Safety notes | Activity is a private reading shortcut only. It must not expose internal ids, send real push/email/SMS, connect accounts, create orders, imply brokerage actions, or provide financial advice. |
+| Safety notes | Activity is a private in-app read model only. It must not expose internal ids or ignored client user ids, send real push/email/SMS, connect accounts, create orders, imply brokerage actions, use paid external APIs, or provide financial advice. |
 
 ### `GET/POST /api/model-selections`
 
