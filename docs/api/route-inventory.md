@@ -37,6 +37,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `GET` | `/api/model-selections` | Read the current user's active mock-safe model selection. | user | DB-backed read implemented |
 | `POST` | `/api/model-selections` | Persist a mock-safe selection of a specific model version. | user | DB-backed action implemented |
 | `GET` | `/api/portfolio/mock-summary` | Read selected model, mock deposit, simulated allocation, time dashboard snapshots, positions, and blocked TradeIntent state. | user | DB-backed read implemented with mock-safe fallback |
+| `GET` | `/api/portfolio/holdings` | Read simulated PortfolioPosition holdings and allocation labels for mobile Portfolio UI. | user | DB-backed read implemented with mock-safe fallback |
 | `GET` | `/api/price-history` | Read a bounded seeded price-history series for prototype mini charts. | user | Fixture-backed read implemented |
 | `POST` | `/api/model-reports` | Record a user concern for operator review without legal or compensation decisions. | user | mock-backed, not persisted; design-gated |
 | `POST` | `/api/creator/models` | Create a creator model draft. | creator | mock-backed, not persisted; design-gated |
@@ -310,6 +311,20 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Mock source | `lib/mock/invest-model-portfolio.ts` is used only as a mock-safe fallback when DB state is unavailable. |
 | Safety notes | Must use mock/simulated labels. This route must not connect payments, bank accounts, brokerage accounts, real balances, real deposits, real orders, executions, fills, settlements, or investment advice. `TradeIntent` rows are displayed only as pre-order simulation or blocked state. |
 
+### `GET /api/portfolio/holdings`
+
+| Field | Value |
+| --- | --- |
+| Status | DB-backed read API implemented in `app/api/portfolio/holdings/route.ts`; smoke-covered by `scripts/smoke/portfolio-holdings-api-smoke.ts`. |
+| Purpose | Provide Portfolio holdings and allocation UI with simulated `PortfolioPosition` rows sourced from the BK-505 holdings read model. |
+| Request | No request body. Client-provided `userPublicId` is ignored; the server resolves the current prototype scope from session or `user_demo_001` demo fallback. |
+| Response DTO | `PortfolioHoldingsDto` |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
+| Screens | Portfolio holdings list and future allocation split modules. |
+| Source tables | `users`, `user_model_selections`, `portfolios`, `portfolio_positions`, `market_instruments`, `mock_deposits` |
+| Mock source | `lib/db/portfolio-holdings-read-model.ts` reads DB state or mock-safe fallback from the PortfolioSummary read model. |
+| Safety notes | Must expose `mockOnly`, `simulated`, `brokerConfirmed=false`, `brokerConfirmedHoldings=false`, `realHolding=false`, `orderExecution=false`, `tradeFill=false`, `settlement=false`, `accountLinking=false`, `externalPaidApi=false`, `realOrder=false`, and `financialAdvice=false`. No real holdings, broker account, order, fill, settlement, account link, or recommendation is created. |
+
 ### `GET /api/price-history`
 
 | Field | Value |
@@ -403,7 +418,7 @@ The current route inventory is checked against these local smoke scripts:
 | Models | `scripts/smoke/model-api-smoke.ts`, `scripts/smoke/model-selection-api-smoke.ts` |
 | Signals | `scripts/smoke/signal-api-smoke.ts`, `scripts/smoke/signal-detail-api-smoke.ts`, `scripts/smoke/mock-ingestion-boundary-smoke.ts` |
 | Feed | `scripts/smoke/feed-api-smoke.ts`, `scripts/smoke/feed-detail-api-smoke.ts`, `scripts/smoke/feed-comment-api-smoke.ts`, `scripts/smoke/feed-reply-api-smoke.ts`, `scripts/smoke/feed-like-api-smoke.ts`, `scripts/smoke/feed-save-api-smoke.ts`, `scripts/smoke/feed-read-api-smoke.ts`, `scripts/smoke/feed-ranking-api-smoke.ts` |
-| Search, notifications, My Page, portfolio | `scripts/smoke/search-api-smoke.ts`, `scripts/smoke/search-read-model-projection-smoke.ts`, `scripts/smoke/notifications-api-smoke.ts`, `scripts/smoke/notifications-mark-all-read-api-smoke.ts`, `scripts/smoke/my-page-api-smoke.ts`, `scripts/smoke/my-activity-api-smoke.ts`, `scripts/smoke/portfolio-mock-summary-api-smoke.ts` |
+| Search, notifications, My Page, portfolio | `scripts/smoke/search-api-smoke.ts`, `scripts/smoke/search-read-model-projection-smoke.ts`, `scripts/smoke/notifications-api-smoke.ts`, `scripts/smoke/notifications-mark-all-read-api-smoke.ts`, `scripts/smoke/my-page-api-smoke.ts`, `scripts/smoke/my-activity-api-smoke.ts`, `scripts/smoke/portfolio-mock-summary-api-smoke.ts`, `scripts/smoke/portfolio-holdings-api-smoke.ts` |
 | Creator/admin/review contracts | `scripts/smoke/creator-draft-validation-smoke.ts`, `scripts/smoke/admin-force-stop-smoke.ts`, `scripts/smoke/rbac-access-smoke.ts`, `scripts/smoke/operator-review-manual-smoke.ts`, `scripts/smoke/review-result-notification-smoke.ts`, `scripts/smoke/model-status-notification-smoke.ts`, `scripts/qa/invest-model-admin-review-flow-smoke.ts`, `scripts/qa/invest-model-model-report-smoke.ts` |
 
 ## Error And Policy Notes
