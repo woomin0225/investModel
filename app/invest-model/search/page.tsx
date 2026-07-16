@@ -69,12 +69,64 @@ type SearchSuggestionChip = {
   href: string;
 };
 
+type SearchNoResultCategory = 'model' | 'feed' | 'signal';
+
+type SearchNoResultGroup = {
+  groupPublicId: string;
+  category: SearchNoResultCategory;
+  title: string;
+  emptyMessage: string;
+  suggestedKeywords: string[];
+  suggestedSearches: {
+    query: string;
+    href: string;
+  }[];
+  helper: string;
+  tone: SearchSuggestionTone;
+  safetyLabel: string;
+  sourceMeta?: {
+    localReadModelOnly?: boolean;
+    emptyStateOnly?: boolean;
+    realtimeExternalData?: boolean;
+    externalSearchProvider?: boolean;
+    liveQuoteLookup?: boolean;
+    externalPaidApi?: boolean;
+    financialAdvice?: boolean;
+    tradeIntentCreated?: boolean;
+    realOrder?: boolean;
+    realDeposit?: boolean;
+    brokerageConnection?: boolean;
+    accountData?: boolean;
+  };
+};
+
 type InvestModelSearchSuggestions = {
   suggestions: SearchSuggestionChip[];
   recentMockTerms: string[];
+  noResultGroups: SearchNoResultGroup[];
+  groupedEmptyState: {
+    query: string;
+    groups: SearchNoResultGroup[];
+    safetyMeta: {
+      emptyStateOnly?: boolean;
+      localReadModelOnly?: boolean;
+      externalSearchProvider?: boolean;
+      liveQuoteLookup?: boolean;
+      externalPaidApi?: boolean;
+      financialAdvice?: boolean;
+      tradeIntentCreated?: boolean;
+      realOrder?: boolean;
+      realDeposit?: boolean;
+      brokerageConnection?: boolean;
+      accountData?: boolean;
+    };
+  } | null;
   emptyState: {
     title: string;
     message: string;
+    groupedSuggestionCount?: number;
+    safeFallbackKeywords?: string[];
+    safetyLabel?: string;
   } | null;
   safetySummary: string;
   readState: 'loaded' | 'empty' | 'error_fallback';
@@ -205,6 +257,29 @@ function suggestionToneClass(tone: SearchSuggestionTone) {
   return 'border-invest-border bg-invest-surface text-invest-text';
 }
 
+function noResultCategoryLabel(
+  locale: 'ko' | 'en',
+  category: SearchNoResultCategory
+) {
+  if (locale === 'en') {
+    return category === 'model'
+      ? 'InvestmentModel'
+      : category === 'feed'
+        ? 'FeedPost'
+        : 'SignalEvent';
+  }
+
+  if (category === 'model') {
+    return 'InvestmentModel';
+  }
+
+  if (category === 'feed') {
+    return 'FeedPost';
+  }
+
+  return 'SignalEvent';
+}
+
 function suggestionAccessibleLabel(
   locale: 'ko' | 'en',
   suggestion: SearchSuggestionChip
@@ -212,6 +287,141 @@ function suggestionAccessibleLabel(
   return locale === 'ko'
     ? `${suggestion.label}. ${suggestionKindLabel(locale, suggestion.kind)}. ${suggestion.helper}. Seed/mock suggestion chip only; live quote lookup, external search, advice, order, TradeIntent, or brokerage action is not connected.`
     : `${suggestion.label}. ${suggestionKindLabel(locale, suggestion.kind)}. ${suggestion.helper}. Seed/mock suggestion chip only; no live quote lookup, external search, advice, order, TradeIntent, or brokerage action.`;
+}
+
+function noResultGroupAccessibleLabel(
+  locale: 'ko' | 'en',
+  group: SearchNoResultGroup
+) {
+  return locale === 'ko'
+    ? `${group.title}. ${noResultCategoryLabel(locale, group.category)} empty-state group. ${group.emptyMessage}. Local seed/read-model only; no live quote lookup, external search provider, paid API, advice, order, TradeIntent, deposit action, account data, or brokerage action.`
+    : `${group.title}. ${noResultCategoryLabel(locale, group.category)} empty-state group. ${group.emptyMessage}. Local seed/read-model only; no live quote lookup, external search provider, paid API, advice, order, TradeIntent, deposit action, account data, or brokerage action.`;
+}
+
+function GroupedSearchEmptyState({
+  locale,
+  groups,
+  emptyState
+}: {
+  locale: 'ko' | 'en';
+  groups: SearchNoResultGroup[];
+  emptyState: InvestModelSearchSuggestions['emptyState'];
+}) {
+  if (groups.length === 0) {
+    return null;
+  }
+
+  const label =
+    locale === 'ko'
+      ? '검색 빈 상태 로컬 제안 그룹. seed/read-model 기반이며 live quote lookup, external search, advice, order, TradeIntent, brokerage, account data, deposit action, paid API는 연결하지 않습니다.'
+      : 'Search empty-state local suggestion groups. Seed/read-model based only; no live quote lookup, external search, advice, order, TradeIntent, brokerage, account data, deposit action, or paid API.';
+
+  return (
+    <section
+      aria-label={label}
+      title={label}
+      data-search-no-result-groups="local-seed-read-model-only"
+      className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <SectionHeader
+          title={
+            locale === 'ko'
+              ? '빈 검색 로컬 제안'
+              : 'Local suggestions for empty search'
+          }
+          description={
+            emptyState?.safetyLabel ??
+            'Grouped empty-state suggestions come from local seed/read-model rows only; no live quote lookup, external search provider, paid API, advice, order, deposit, or brokerage action is connected.'
+          }
+        />
+        <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+          <Search aria-hidden className="size-5" />
+        </div>
+      </div>
+
+      <div
+        role="list"
+        aria-label="Grouped empty-state suggestion cards"
+        className="mt-4 grid grid-cols-1 gap-2.5"
+      >
+        {groups.map((group) => {
+          const groupLabel = noResultGroupAccessibleLabel(locale, group);
+
+          return (
+            <article
+              key={group.groupPublicId}
+              role="listitem"
+              aria-label={groupLabel}
+              title={groupLabel}
+              className="rounded-invest-card border border-invest-border bg-invest-bg-soft p-3 min-[390px]:p-4"
+            >
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="grid size-9 shrink-0 place-items-center rounded-invest-control bg-invest-surface text-invest-primary">
+                  {group.category === 'signal' ? (
+                    <Activity aria-hidden className="size-4" />
+                  ) : (
+                    <Database aria-hidden className="size-4" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap gap-2">
+                    <RiskBadge tone="neutral">
+                      {noResultCategoryLabel(locale, group.category)}
+                    </RiskBadge>
+                    <RiskBadge tone={group.tone === 'risk' ? 'high' : 'medium'}>
+                      {locale === 'ko' ? 'Local seed' : 'Local seed'}
+                    </RiskBadge>
+                  </div>
+                  <h2 className="mt-2 text-[15px] font-bold leading-6 text-invest-text [overflow-wrap:anywhere]">
+                    {group.title}
+                  </h2>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-invest-text-muted [overflow-wrap:anywhere]">
+                    {group.emptyMessage}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {group.suggestedSearches.map((searchItem) => {
+                  const href = withInvestModelLocale(searchItem.href, locale);
+                  const searchLabel =
+                    locale === 'ko'
+                      ? `${searchItem.query} 로컬 seed 검색. live quote lookup, external search, advice, order, TradeIntent, brokerage action 없음.`
+                      : `${searchItem.query} local seed search. No live quote lookup, external search, advice, order, TradeIntent, or brokerage action.`;
+
+                  return (
+                    <Link
+                      key={`${group.groupPublicId}-${searchItem.query}`}
+                      href={href}
+                      aria-label={searchLabel}
+                      title={searchLabel}
+                      className={cn(
+                        'inline-flex min-h-invest-touch-target min-w-0 flex-1 basis-full items-center justify-between gap-2 rounded-invest-control border border-invest-border bg-invest-surface px-3 py-2 text-left text-[13px] font-bold leading-5 text-invest-text outline-none focus-visible:ring-2 focus-visible:ring-invest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-invest-bg active:scale-[0.98] min-[390px]:basis-[calc(50%-4px)]',
+                        investMotionClass.interactiveControl
+                      )}
+                    >
+                      <span className="min-w-0 [overflow-wrap:anywhere]">
+                        {searchItem.query}
+                      </span>
+                      <ArrowRight aria-hidden className="size-4 shrink-0" />
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-3 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
+                {group.helper} {group.safetyLabel} Local read model only / no
+                live quote lookup / no external search / no advice / no orders /
+                no brokerage / no deposit action / no account data / no paid
+                API.
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function EmptySearchResultCard({
@@ -311,6 +521,8 @@ async function readInvestModelSearchSuggestions(
     return {
       suggestions: [],
       recentMockTerms: [],
+      noResultGroups: [],
+      groupedEmptyState: null,
       emptyState: {
         title: 'Search suggestion error state',
         message:
@@ -326,10 +538,16 @@ async function readInvestModelSearchSuggestions(
     data?: Omit<InvestModelSearchSuggestions, 'readState'>;
   };
   const suggestions = payload.data?.suggestions ?? [];
+  const noResultGroups =
+    payload.data?.groupedEmptyState?.groups ??
+    payload.data?.noResultGroups ??
+    [];
 
   return {
     suggestions,
     recentMockTerms: payload.data?.recentMockTerms ?? [],
+    noResultGroups,
+    groupedEmptyState: payload.data?.groupedEmptyState ?? null,
     emptyState:
       payload.data?.emptyState ??
       (suggestions.length === 0
@@ -533,6 +751,12 @@ export default async function InvestModelSearchPage({
             </p>
           </div>
         </section>
+
+        <GroupedSearchEmptyState
+          locale={locale}
+          groups={searchSuggestions.noResultGroups}
+          emptyState={searchSuggestions.emptyState}
+        />
 
         <div className="space-y-invest-card-gap">
           <SectionHeader

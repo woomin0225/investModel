@@ -1,8 +1,9 @@
 /**
- * Focused source smoke for BK-532/BK-533.
+ * Focused source smoke for BK-532/BK-533/BK-569.
  * Guards Search suggestion chips wiring, 390px mobile wrapping, touch/focus/pressed
- * states, bottom-tab clearance, and seed/mock safety language without calling
- * live quote, external search, advice, order, TradeIntent, or brokerage paths.
+ * states, grouped empty-state no-result suggestions, bottom-tab clearance, and
+ * seed/mock safety language without calling live quote, external search, advice,
+ * order, TradeIntent, brokerage, account-data, real-deposit, or paid-API paths.
  */
 
 import { readFileSync } from 'fs';
@@ -49,12 +50,28 @@ const suggestionSection = searchPageSource.slice(
   suggestionSectionStart,
   suggestionSectionEnd
 );
+const groupedEmptySectionStart = searchPageSource.indexOf(
+  'data-search-no-result-groups="local-seed-read-model-only"'
+);
+const groupedEmptySectionEnd = searchPageSource.indexOf(
+  'function EmptySearchResultCard'
+);
+const groupedEmptySection = searchPageSource.slice(
+  groupedEmptySectionStart,
+  groupedEmptySectionEnd
+);
 
 assertCondition(
   suggestionSectionStart >= 0 &&
     suggestionSectionEnd > suggestionSectionStart &&
     suggestionSection.length > 0,
   'Search suggestion chips source range must be discoverable'
+);
+assertCondition(
+  groupedEmptySectionStart >= 0 &&
+    groupedEmptySectionEnd > groupedEmptySectionStart &&
+    groupedEmptySection.length > 0,
+  'Grouped empty-state source range must be discoverable'
 );
 
 [
@@ -63,8 +80,15 @@ assertCondition(
   'readInvestModelSearchSuggestions',
   'InvestModelSearchSuggestions',
   'SearchSuggestionChip',
+  'SearchNoResultGroup',
+  'noResultGroups',
+  'groupedEmptyState',
+  'GroupedSearchEmptyState',
+  'searchSuggestions.noResultGroups',
   "'x-invest-model-role': 'user'",
   'payload.data?.suggestions',
+  'payload.data?.groupedEmptyState?.groups',
+  'payload.data?.noResultGroups',
   "readState: 'loaded'",
   "suggestions.length > 0 ? 'loaded' : 'empty'",
   "readState: 'error_fallback'",
@@ -88,6 +112,30 @@ assertCondition(
   'brokerage action'
 ].forEach((needle) =>
   assertIncludes(suggestionSection, needle, 'Search suggestion visible safety copy')
+);
+
+[
+  'data-search-no-result-groups="local-seed-read-model-only"',
+  'Local suggestions for empty search',
+  'Grouped empty-state suggestion cards',
+  'suggestedSearches.map',
+  'withInvestModelLocale(searchItem.href, locale)',
+  'Local read model only / no',
+  'live quote lookup / no external search / no advice / no orders /',
+  'no brokerage / no deposit action / no account data / no paid',
+  'API.',
+  'deposit action',
+  'account data',
+  'paid API',
+  'noResultGroupAccessibleLabel',
+  'group.safetyLabel',
+  'Local seed'
+].forEach((needle) =>
+  assertIncludes(
+    groupedEmptySection,
+    needle,
+    'Grouped empty-state visible safety copy'
+  )
 );
 
 [
@@ -118,6 +166,29 @@ assertCondition(
 );
 
 [
+  'grid grid-cols-1 gap-2.5',
+  'min-[390px]:p-4',
+  'flex flex-wrap gap-2',
+  'min-h-invest-touch-target',
+  'basis-full',
+  'min-[390px]:basis-[calc(50%-4px)]',
+  '[overflow-wrap:anywhere]',
+  'focus-visible:ring-2',
+  'focus-visible:ring-invest-primary',
+  'focus-visible:ring-offset-2',
+  'focus-visible:ring-offset-invest-bg',
+  'active:scale-[0.98]',
+  'min-w-0',
+  'investMotionClass.interactiveControl'
+].forEach((needle) =>
+  assertIncludes(
+    groupedEmptySection,
+    needle,
+    'Grouped empty-state 390px/touch states'
+  )
+);
+
+[
   'env(safe-area-inset-bottom)',
   'pb-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom)+24px)]',
   'BottomNav',
@@ -138,8 +209,18 @@ assertCondition(
   ),
   'Search suggestion chips must stay in normal flow and avoid horizontal-scroll layout'
 );
+assertCondition(
+  !/\b(?:fixed|sticky|w-screen|min-w-screen|max-w-screen|overflow-x-auto|overflow-x-scroll)\b|100vw/.test(
+    groupedEmptySection
+  ),
+  'Grouped empty-state suggestions must stay in normal flow and avoid horizontal-scroll layout'
+);
 
 assertNoUnsafeInteractiveCta('Search suggestion chips', suggestionSection);
+assertNoUnsafeInteractiveCta(
+  'Grouped empty-state suggestions',
+  groupedEmptySection
+);
 
 [
   'Deposit now',
@@ -155,8 +236,6 @@ assertNoUnsafeInteractiveCta('Search suggestion chips', suggestionSection);
   'Invest now',
   'Start trading',
   'Trade now',
-  'liveQuoteLookup',
-  'externalSearchProvider',
   'externalApiKey',
   'brokerageAccountId',
   'brokerOrder',
