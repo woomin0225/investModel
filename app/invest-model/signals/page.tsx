@@ -116,7 +116,7 @@ function signalFilterTitle(
   const safeBoundary =
     locale === 'ko'
       ? 'DB 모의 관찰값만 필터링합니다. 추천, 주문, 주문 전 의도 또는 실시간 외부 데이터 연결이 아닙니다.'
-      : 'Filters DB seed/mock observations only. This is not a recommendation, order, TradeIntent, or realtime external data connection.';
+      : 'Filters DB sample/mock observations only. This is not a recommendation, order, TradeIntent, or realtime external data connection.';
   const stateLabel =
     locale === 'ko'
       ? isSelected
@@ -365,12 +365,12 @@ export default async function InvestModelSignalsPage({
   const signalDataStateLabel =
     signalReadState === 'db'
       ? locale === 'ko'
-        ? 'DB 기반 관찰값'
-        : 'DB-backed observations'
+        ? 'DB 샘플 관찰값'
+        : 'DB sample observations'
       : signalReadState === 'empty'
         ? locale === 'ko'
-          ? 'DB 신호 없음'
-          : 'No DB signals'
+          ? 'DB 샘플 신호 없음'
+          : 'No DB sample signals'
         : locale === 'ko'
           ? '샘플 대체 표시'
           : 'Sample fallback shown';
@@ -560,7 +560,7 @@ export default async function InvestModelSignalsPage({
                           <p>
                             {locale === 'ko'
                               ? 'DB 점수 스냅샷 순위일 뿐 조언이나 주문이 아닙니다'
-                              : 'DB score snapshot rank only, not advice or order'}
+                              : 'DB sample score snapshot rank only, not advice or order'}
                             {' · '}
                             {signal.rankSnapshot.capturedAtLabel}
                           </p>
@@ -579,20 +579,20 @@ export default async function InvestModelSignalsPage({
                 className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-invest-card-padding text-sm font-semibold leading-6 text-invest-text-muted"
               >
                 {locale === 'ko'
-                  ? '선택한 필터에 표시할 DB 신호가 없습니다. 신호는 모의 관찰값 기준으로만 표시됩니다.'
-                  : 'No DB signals are available for this filter. Signals remain seed/mock observations only.'}
+                  ? '선택한 필터에 표시할 DB 샘플 신호가 없습니다. 신호는 모의 관찰값 기준으로만 표시됩니다.'
+                  : 'No DB sample signals are available for this filter. Signals remain sample/mock observations only.'}
                 <EmptyStateCta
                   href={signalFilterHref(locale, 'all')}
                   label={locale === 'ko' ? '전체 신호 보기' : 'View all signals'}
                   description={
                     locale === 'ko'
-                      ? '필터를 해제하고 DB 기반 관찰 신호 목록으로 돌아갑니다.'
-                      : 'Clear the filter and return to DB-backed observation signals.'
+                      ? '필터를 해제하고 DB 샘플 관찰 신호 목록으로 돌아갑니다.'
+                      : 'Clear the filter and return to DB sample observation signals.'
                   }
                   ariaLabel={
                     locale === 'ko'
-                      ? '전체 신호 보기. 필터를 해제하고 DB 기반 관찰 신호 목록으로 돌아갑니다. 추천, 주문, TradeIntent, 실시간 외부 데이터가 아닙니다.'
-                      : 'View all signals. Clears the filter and returns to DB-backed observation signals. Not advice, an order, TradeIntent, or realtime external data.'
+                      ? '전체 신호 보기. 필터를 해제하고 DB 샘플 관찰 신호 목록으로 돌아갑니다. 추천, 주문, TradeIntent, 실시간 외부 데이터가 아닙니다.'
+                      : 'View all signals. Clears the filter and returns to DB sample observation signals. Not advice, an order, TradeIntent, or realtime external data.'
                   }
                 />
               </div>

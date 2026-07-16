@@ -238,7 +238,7 @@ function toFeedCard(post: FeedPostDto, locale: FeedLocale): FeedCard {
       (locale === 'ko' ? '모델 인사이트' : 'Model insight'),
     title: post.title,
     typeLabel: feedPostTypeLabels[locale][post.postType],
-    sourceLabel: locale === 'ko' ? 'DB 피드' : 'DB feed',
+    sourceLabel: locale === 'ko' ? 'DB 샘플 피드' : 'DB sample feed',
     timeLabel: formatPublishedAt(post.publishedAt, locale),
     tone: feedPostToneByType[post.postType],
     excerpt: body.length > 112 ? `${body.slice(0, 112)}...` : body,
@@ -481,12 +481,12 @@ export default async function InvestModelFeedPage({
   const dataStateLabel =
     feedReadState === 'db'
       ? locale === 'ko'
-        ? 'DB 기반'
-        : 'DB backed'
+        ? 'DB 샘플'
+        : 'DB sample'
       : feedReadState === 'empty'
         ? locale === 'ko'
-          ? '표시할 DB 피드 없음'
-          : 'No DB feed rows'
+          ? '표시할 DB 샘플 피드 없음'
+          : 'No DB sample feed rows'
         : locale === 'ko'
           ? '샘플 표시'
           : 'Sample fallback';
@@ -797,8 +797,8 @@ export default async function InvestModelFeedPage({
               >
                 <p>
                   {locale === 'ko'
-                    ? '선택한 필터에 표시할 DB 피드가 아직 없습니다.'
-                    : 'There are no DB feed rows for this filter yet.'}
+                    ? '선택한 필터에 표시할 DB 샘플 피드가 아직 없습니다.'
+                    : 'There are no DB sample feed rows for this filter yet.'}
                 </p>
                 <p className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
                   {feedEmptyVisibleBoundaries(locale).join(' / ')}

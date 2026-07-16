@@ -779,7 +779,7 @@ assertCondition(
     feedPageSource.includes('Not advice, an order, brokerage action, or realtime external data.') &&
     signalsPageSource.includes('<EmptyStateCta') &&
     signalsPageSource.includes(": 'View all signals'}") &&
-    signalsPageSource.includes('Clear the filter and return to DB-backed observation signals.') &&
+    signalsPageSource.includes('Clear the filter and return to DB sample observation signals.') &&
     signalsPageSource.includes('Not advice, an order, TradeIntent, or realtime external data.') &&
     notificationsPageSource.includes('<EmptyStateCta') &&
     notificationsPageSource.includes(": 'View Feed'}") &&
@@ -1322,9 +1322,12 @@ assertCondition(
   'Discover Models Korean search form copy must not fall back to English'
 );
 assertCondition(
-  modelsPageSource.includes("dbLabel: 'DB 기반 조회'") &&
-    modelsPageSource.includes("unavailableTitle: 'DB 기반 조회 사용 불가'") &&
-    modelsPageSource.includes("emptyTitle: 'DB 기반 공개 투자 모델 없음'") &&
+  modelsPageSource.includes("dbLabel: 'DB 샘플 조회'") &&
+    modelsPageSource.includes("unavailableTitle: 'DB 샘플 조회 사용 불가'") &&
+    modelsPageSource.includes("emptyTitle: 'DB 샘플 공개 투자 모델 없음'") &&
+    modelsPageSource.includes("dbLabel: 'DB sample read model'") &&
+    modelsPageSource.includes("unavailableTitle: 'DB sample read model unavailable'") &&
+    modelsPageSource.includes("emptyTitle: 'No DB sample InvestmentModels'") &&
     modelsPageSource.includes(
       "'현재 필터에 표시할 공개 투자 모델 데이터가 없습니다. 실제 주문이나 모델 선택은 생성되지 않았습니다.'"
     ) &&
@@ -1352,9 +1355,31 @@ assertCondition(
     ) &&
     !modelsPageSource.includes("'백테스트 placeholder'") &&
     !modelsPageSource.includes("card.leverageAllowed ? 'leverage allowed'") &&
+    !modelsPageSource.includes("dbLabel: 'DB 기반 조회'") &&
+    !modelsPageSource.includes("dbLabel: 'DB read model'") &&
     !modelsPageSource.includes("emptyTitle: 'DB 기반 공개 InvestmentModel 없음'") &&
     !modelsPageSource.includes('InvestmentModel 목록을 읽지 못했습니다'),
   'Discover Models Korean read-model copy must not fall back to English'
+);
+assertCondition(
+  feedPageSource.includes("sourceLabel: locale === 'ko' ? 'DB 샘플 피드' : 'DB sample feed'") &&
+    feedPageSource.includes("? 'DB 샘플'") &&
+    feedPageSource.includes(": 'DB sample'") &&
+    feedPageSource.includes("? '표시할 DB 샘플 피드 없음'") &&
+    feedPageSource.includes(": 'No DB sample feed rows'") &&
+    signalsPageSource.includes('Filters DB sample/mock observations only.') &&
+    signalsPageSource.includes("? 'DB 샘플 관찰값'") &&
+    signalsPageSource.includes(": 'DB sample observations'") &&
+    signalsPageSource.includes("? 'DB 샘플 신호 없음'") &&
+    signalsPageSource.includes(": 'No DB sample signals'") &&
+    signalsPageSource.includes('DB sample score snapshot rank only, not advice or order') &&
+    signalsPageSource.includes('DB sample observation signals') &&
+    !feedPageSource.includes("sourceLabel: locale === 'ko' ? 'DB 피드' : 'DB feed'") &&
+    !feedPageSource.includes(": 'DB backed'") &&
+    !signalsPageSource.includes('Filters DB seed/mock observations only.') &&
+    !signalsPageSource.includes(": 'DB-backed observations'") &&
+    !signalsPageSource.includes('DB-backed observation signals'),
+  'BK-455 seed/mock data labels must use DB sample wording on visible cards and empty states'
 );
 assertCondition(
   modelComparePageSource.includes("visibleBoundaries.join(' / ')") &&

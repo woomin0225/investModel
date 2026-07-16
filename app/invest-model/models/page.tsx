@@ -136,11 +136,11 @@ const discoverySearchTopicCopy = {
 
 const modelReadStateCopy = {
   ko: {
-    dbLabel: 'DB 기반 조회',
-    unavailableTitle: 'DB 기반 조회 사용 불가',
+    dbLabel: 'DB 샘플 조회',
+    unavailableTitle: 'DB 샘플 조회 사용 불가',
     unavailableDescription:
       '투자 모델 목록을 읽지 못했습니다. 추천, 주문, 브로커 연결은 생성되지 않았습니다.',
-    emptyTitle: 'DB 기반 공개 투자 모델 없음',
+    emptyTitle: 'DB 샘플 공개 투자 모델 없음',
     emptyDescription:
       '현재 필터에 표시할 공개 투자 모델 데이터가 없습니다. 실제 주문이나 모델 선택은 생성되지 않았습니다.',
     marketplaceFallback: '마켓플레이스 모델',
@@ -148,11 +148,11 @@ const modelReadStateCopy = {
     backtestSuffix: '백테스트'
   },
   en: {
-    dbLabel: 'DB read model',
-    unavailableTitle: 'DB read model unavailable',
+    dbLabel: 'DB sample read model',
+    unavailableTitle: 'DB sample read model unavailable',
     unavailableDescription:
       'InvestmentModel rows could not be read. No recommendation, order, or brokerage action was created.',
-    emptyTitle: 'No DB-backed InvestmentModels',
+    emptyTitle: 'No DB sample InvestmentModels',
     emptyDescription:
       'There are no public InvestmentModel DTOs for this filter. No order or model selection was created.',
     marketplaceFallback: 'Marketplace model',
