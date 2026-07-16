@@ -1,8 +1,8 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ClipboardCheck, FileWarning } from 'lucide-react';
 import {
+  DetailBackLink,
   MobileShell,
   RiskBadge,
   SectionHeader,
@@ -112,12 +112,11 @@ export default async function AdminReviewDetailPage({
       currentPath={`/invest-model/admin/reviews/${model.id}`}
     >
       <section className="space-y-invest-section-gap">
-        <Link
+        <DetailBackLink
           href={withInvestModelLocale('/invest-model/admin/reviews', locale)}
-          className="inline-flex min-h-invest-touch-target items-center rounded-invest-control px-1 text-sm font-bold text-invest-primary"
-        >
-          {t.back}
-        </Link>
+          label={t.back}
+          className="text-invest-primary"
+        />
 
         <SoftBanner
           eyebrow={locale === 'ko' ? '심사 대기' : 'pending_review'}

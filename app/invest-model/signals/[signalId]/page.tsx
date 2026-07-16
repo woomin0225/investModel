@@ -1,10 +1,11 @@
-import { ArrowLeft, Activity, Search, ShieldAlert } from 'lucide-react';
+import { Activity, Search, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { NextRequest } from 'next/server';
 
 import { GET as readSignalDetail } from '@/app/api/signals/[signalId]/route';
 import {
+  DetailBackLink,
   MetricCard,
   MobileShell,
   NotificationAction,
@@ -394,18 +395,11 @@ export default async function InvestModelSignalDetailPage({
       }
     >
       <section className="space-y-invest-section-gap">
-        <Link
+        <DetailBackLink
           href={backHref}
-          aria-label={backAccessibleLabel}
-          title={backAccessibleLabel}
-          className={cn(
-            'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-bold text-invest-text shadow-invest-card',
-            investMotionClass.interactiveControl
-          )}
-        >
-          <ArrowLeft aria-hidden className="size-4" />
-          {locale === 'ko' ? '신호 목록으로 돌아가기' : 'Back to signals'}
-        </Link>
+          label={locale === 'ko' ? '신호 목록으로 돌아가기' : 'Back to signals'}
+          ariaLabel={backAccessibleLabel}
+        />
 
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard

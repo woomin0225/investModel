@@ -23,6 +23,7 @@ export {
 export {
   InvestmentModelCard,
   InvestmentModelDetail,
+  DetailBackLink,
   EmptyStateCta,
   MetricCard,
   ModelCard,

@@ -493,6 +493,53 @@ const adminReviewsPageSource = readProjectFile(
 const adminReviewDetailPageSource = readProjectFile(
   'app/invest-model/admin/reviews/[reviewId]/page.tsx'
 );
+const detailBackPageSources = [
+  modelDetailPageSource,
+  modelComparePageSource,
+  signalDetailPageSource,
+  feedDetailPageSource,
+  adminReviewDetailPageSource
+];
+
+assertCondition(
+  investModelUiSource.includes('export function DetailBackLink') &&
+    investModelUiSource.includes('ariaLabel?: string') &&
+    investModelUiSource.includes('const accessibleLabel = ariaLabel ?? label') &&
+    investModelUiSource.includes('data-navigation-affordance="detail-back"') &&
+    investModelUiSource.includes("variant === 'icon'") &&
+    investModelUiSource.includes('size-invest-touch-target') &&
+    investModelUiSource.includes('min-h-invest-touch-target') &&
+    investModelUiSource.includes('investMotionClass.interactiveControl') &&
+    investModelUiSource.includes('<span className="min-w-0 truncate">{label}</span>') &&
+    detailBackPageSources.every((source) => source.includes('<DetailBackLink')),
+  'BK-451 detail and comparison screens must use the shared 44px-safe DetailBackLink affordance'
+);
+assertCondition(
+  modelDetailPageSource.includes(
+    "href={withInvestModelLocale('/invest-model/models', locale)}"
+  ) &&
+    modelComparePageSource.includes(
+      "href={withInvestModelLocale('/invest-model/models', locale)}"
+    ) &&
+    adminReviewDetailPageSource.includes(
+      "href={withInvestModelLocale('/invest-model/admin/reviews', locale)}"
+    ) &&
+    signalDetailPageSource.includes(
+      'const backHref = `/invest-model/signals?lang=${locale}`;'
+    ) &&
+    feedDetailPageSource.includes(
+      'const backHref = `/invest-model/feed?lang=${locale}`;'
+    ),
+  'BK-451 detail back links must preserve locale-aware return paths'
+);
+assertCondition(
+  !modelDetailPageSource.includes('<ArrowLeft') &&
+    !modelComparePageSource.includes('Scale') &&
+    !signalDetailPageSource.includes('<ArrowLeft') &&
+    !feedDetailPageSource.includes('<ArrowLeft') &&
+    !adminReviewDetailPageSource.includes('<ArrowLeft'),
+  'BK-451 detail screens must not keep hand-rolled or misleading back icons'
+);
 
 assertCondition(
   mobileShellSource.includes('max-w-[var(--invest-mobile-frame-width)]'),

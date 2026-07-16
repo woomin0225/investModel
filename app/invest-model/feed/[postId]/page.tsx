@@ -1,5 +1,4 @@
 import {
-  ArrowLeft,
   MessageCircle,
   MessageSquareText,
   RadioTower,
@@ -12,6 +11,7 @@ import { NextRequest } from 'next/server';
 
 import { GET as readFeedPostDetail } from '@/app/api/feed/[postId]/route';
 import {
+  DetailBackLink,
   FeedCommentAction,
   FeedLikeAction,
   FeedReadAction,
@@ -209,16 +209,10 @@ export default async function InvestModelFeedDetailPage({
       }
     >
       <section className="space-y-invest-section-gap">
-        <Link
+        <DetailBackLink
           href={backHref}
-          className={cn(
-            'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-bold text-invest-text shadow-invest-card',
-            investMotionClass.interactiveControl
-          )}
-        >
-          <ArrowLeft aria-hidden className="size-4" />
-          {locale === 'ko' ? '피드로 돌아가기' : 'Back to feed'}
-        </Link>
+          label={locale === 'ko' ? '피드로 돌아가기' : 'Back to feed'}
+        />
 
         <article className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
           <div className="flex items-start gap-3">

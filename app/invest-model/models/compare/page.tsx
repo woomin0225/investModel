@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { BarChart3, Scale } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import {
+  DetailBackLink,
   MobileShell,
   RiskBadge,
   SectionHeader,
@@ -210,13 +210,11 @@ export default async function ModelComparePage({
       locale={locale}
       currentPath="/invest-model/models/compare"
       trailing={
-        <Link
+        <DetailBackLink
           href={withInvestModelLocale('/invest-model/models', locale)}
-          aria-label={copy.backToModels}
-          className="grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card"
-        >
-          <Scale aria-hidden className="size-5" />
-        </Link>
+          label={copy.backToModels}
+          variant="icon"
+        />
       }
     >
       <section className="space-y-invest-section-gap">

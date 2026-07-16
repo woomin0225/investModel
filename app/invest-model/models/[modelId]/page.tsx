@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { NextRequest } from 'next/server';
 import {
-  ArrowLeft,
   CalendarCheck,
   FileText,
   ShieldAlert,
@@ -9,6 +8,7 @@ import {
 } from 'lucide-react';
 import { GET as readModelDetail } from '@/app/api/models/[modelId]/route';
 import {
+  DetailBackLink,
   investMotionClass,
   MobileShell,
   ModelSelectionCta,
@@ -231,16 +231,11 @@ export default async function InvestModelDetailPage({
             title={copy.notFoundTitle}
             description={copy.notFoundDescription}
           />
-          <Link
+          <DetailBackLink
             href={withInvestModelLocale('/invest-model/models', locale)}
-            className={cn(
-              'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control px-2 text-sm font-semibold text-invest-primary',
-              investMotionClass.interactiveControl
-            )}
-          >
-            <ArrowLeft aria-hidden className="size-4" />
-            {copy.backLabel}
-          </Link>
+            label={copy.backLabel}
+            className="text-invest-primary"
+          />
         </section>
       </MobileShell>
     );
@@ -256,21 +251,11 @@ export default async function InvestModelDetailPage({
       locale={locale}
       currentPath={currentPath}
       trailing={
-        <Link
+        <DetailBackLink
           href={withInvestModelLocale('/invest-model/models', locale)}
-          aria-label={copy.backLabel}
-          className={cn(
-            'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/25',
-            investMotionClass.interactiveControl
-          )}
-        >
-          <span className="absolute inset-1 rounded-[10px] border border-transparent transition-colors duration-200 ease-out group-hover:border-invest-primary/15 group-active:border-invest-primary/30 motion-reduce:transition-none" />
-          <ArrowLeft
-            aria-hidden
-            className="size-5 transition-transform duration-200 ease-out group-hover:-translate-x-0.5 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-active:scale-100"
-          />
-          <span className="absolute inset-x-3 bottom-1 h-0.5 origin-center scale-x-50 rounded-full bg-invest-text-muted/40 opacity-80 transition-[background-color,transform] duration-200 ease-out group-hover:scale-x-100 group-hover:bg-invest-primary/70 group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-hover:scale-x-50 motion-reduce:group-active:scale-x-50" />
-        </Link>
+          label={copy.backLabel}
+          variant="icon"
+        />
       }
     >
       <section className="space-y-invest-section-gap">

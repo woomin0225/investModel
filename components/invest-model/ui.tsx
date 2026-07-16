@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from 'react';
-import { ArrowRight, ShieldCheck, TrendingUp } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -60,6 +60,14 @@ type EmptyStateCtaProps = {
   label: string;
   description: string;
   ariaLabel?: string;
+  className?: string;
+};
+
+type DetailBackLinkProps = {
+  href: string;
+  label: string;
+  ariaLabel?: string;
+  variant?: 'inline' | 'icon';
   className?: string;
 };
 
@@ -368,6 +376,55 @@ export function EmptyStateCta({
         aria-hidden
         className="size-4 shrink-0 text-invest-primary transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-active:scale-100"
       />
+    </Link>
+  );
+}
+
+export function DetailBackLink({
+  href,
+  label,
+  ariaLabel,
+  variant = 'inline',
+  className
+}: DetailBackLinkProps) {
+  const accessibleLabel = ariaLabel ?? label;
+
+  if (variant === 'icon') {
+    return (
+      <Link
+        href={href}
+        aria-label={accessibleLabel}
+        title={accessibleLabel}
+        data-navigation-affordance="detail-back"
+        className={cn(
+          'group relative grid size-invest-touch-target place-items-center overflow-hidden rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+          investMotionClass.interactiveControl,
+          className
+        )}
+      >
+        <ArrowLeft
+          aria-hidden
+          className="size-5 shrink-0 transition-transform duration-200 ease-out group-hover:-translate-x-0.5 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-active:scale-100"
+        />
+        <span className="sr-only">{label}</span>
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      aria-label={accessibleLabel}
+      title={accessibleLabel}
+      data-navigation-affordance="detail-back"
+      className={cn(
+        'inline-flex min-h-invest-touch-target max-w-full items-center gap-2 rounded-invest-control border border-invest-border bg-invest-surface px-3 text-sm font-bold leading-5 text-invest-text shadow-invest-card',
+        investMotionClass.interactiveControl,
+        className
+      )}
+    >
+      <ArrowLeft aria-hidden className="size-4 shrink-0" />
+      <span className="min-w-0 truncate">{label}</span>
     </Link>
   );
 }
