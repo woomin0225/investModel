@@ -1177,6 +1177,12 @@ assertCondition(
     !searchPageSource.includes("searchResultVisibleBoundaries(\n                          locale,\n                          'SignalEvent'\n                        ).map((boundary) => (") &&
     searchPageSource.includes('DB FeedPost') &&
     searchPageSource.includes('DB SignalEvent') &&
+    searchPageSource.includes('data-search-empty-kind={kind}') &&
+    searchPageSource.includes("kind === 'SignalEvent' ? (") &&
+    searchPageSource.includes('[overflow-wrap:anywhere]') &&
+    searchPageSource.includes(
+      'Local DB only. No external search, realtime traffic, recommendations, orders, deposits, broker connections, or financial advice.'
+    ) &&
     searchPageSource.includes("searchDbKindDisplayLabel(locale, 'FeedPost')") &&
     searchPageSource.includes("searchDbKindDisplayLabel(locale, 'SignalEvent')") &&
     searchPageSource.includes("'DB 피드 글'") &&

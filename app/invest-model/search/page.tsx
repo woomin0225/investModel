@@ -163,10 +163,32 @@ function EmptySearchResultCard({
     <div
       aria-label={emptyAccessibleLabel}
       title={emptyAccessibleLabel}
-      className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted"
+      data-search-empty-kind={kind}
+      className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-4 text-sm font-semibold leading-6 text-invest-text-muted min-[390px]:p-5"
     >
-      <p>{message}</p>
-      <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted">
+      <div className="flex min-w-0 items-start gap-3">
+        <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+          {kind === 'SignalEvent' ? (
+            <Activity aria-hidden className="size-5" />
+          ) : (
+            <Database aria-hidden className="size-5" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[13px] font-bold leading-5 text-invest-text [overflow-wrap:anywhere]">
+            {searchKindDisplayLabel(locale, kind)}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-invest-text-muted [overflow-wrap:anywhere]">
+            {message}
+          </p>
+          <p className="mt-2 text-[12px] font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
+            {locale === 'ko'
+              ? '濡쒖뺄 DB留??뺤씤?⑸땲?? ?몃? 寃?? ?ㅼ떆媛??몃옒?? 異붿쿨, 二쇰Ц, ?낃툑, 釉뚮줈而??곌껐, 湲덉쑖 議곗뼵???꾨떃?덈떎.'
+              : 'Local DB only. No external search, realtime traffic, recommendations, orders, deposits, broker connections, or financial advice.'}
+          </p>
+        </div>
+      </div>
+      <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
         {searchResultVisibleBoundaries(locale, kind).join(' / ')}
       </p>
     </div>
