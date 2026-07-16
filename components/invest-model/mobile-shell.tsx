@@ -94,10 +94,10 @@ export function MobileShell({
   className
 }: MobileShellProps) {
   return (
-    <main className="min-h-dvh bg-invest-bg text-invest-text">
+    <main className="min-h-dvh overflow-x-clip bg-invest-bg text-invest-text">
       <div
         className={cn(
-          'mx-auto flex min-h-dvh w-full max-w-[var(--invest-mobile-frame-width)] flex-col bg-invest-bg',
+          'mx-auto flex min-h-dvh w-full min-w-0 max-w-[var(--invest-mobile-frame-width)] flex-col overflow-x-clip bg-invest-bg',
           className
         )}
       >
@@ -118,7 +118,7 @@ export function MobileShell({
           <LanguageToggle locale={locale} currentPath={currentPath} />
         </header>
 
-        <div className="invest-view-enter flex-1 px-invest-screen-x pb-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom)+24px)] pt-invest-section-gap">
+        <div className="invest-view-enter min-w-0 flex-1 overflow-x-clip px-invest-screen-x pb-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom)+24px)] pt-invest-section-gap">
           {children}
         </div>
 
@@ -146,9 +146,9 @@ export function BottomNav({
   return (
     <nav
       aria-label={navigationLabel}
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-invest-border bg-invest-surface/95 shadow-invest-nav backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-30 overflow-x-clip border-t border-invest-border bg-invest-surface/95 shadow-invest-nav backdrop-blur"
     >
-      <div className="mx-auto grid h-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom))] max-w-[var(--invest-mobile-frame-width)] grid-cols-5 px-2 pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto grid h-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom))] w-full max-w-[var(--invest-mobile-frame-width)] grid-cols-5 overflow-x-clip px-2 pb-[env(safe-area-inset-bottom)]">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = item.key === activeTab;

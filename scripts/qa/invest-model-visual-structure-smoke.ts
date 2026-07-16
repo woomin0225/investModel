@@ -604,6 +604,38 @@ const adminReviewsPageSource = readProjectFile(
 const adminReviewDetailPageSource = readProjectFile(
   'app/invest-model/admin/reviews/[reviewId]/page.tsx'
 );
+const horizontalOverflowGuardSources = [
+  ['MobileShell', mobileShellSource],
+  ['Home', homePageSource],
+  ['Home Loading', homeLoadingSource],
+  ['Segment Error', investModelErrorSource],
+  ['My Page', myPageSource],
+  ['Notifications', notificationsPageSource],
+  ['Search', searchPageSource],
+  ['Signals', signalsPageSource],
+  ['Signal Detail', signalDetailPageSource],
+  ['Discover Models', modelsPageSource],
+  ['Model Compare', modelComparePageSource],
+  ['Model Detail', modelDetailPageSource],
+  ['Feed', feedPageSource],
+  ['Feed Detail', feedDetailPageSource],
+  ['Portfolio', portfolioPageSource],
+  ['Admin Reports', adminReportsPageSource],
+  ['Admin Performance', adminPerformancePageSource],
+  ['Admin Reviews', adminReviewsPageSource],
+  ['Admin Review Detail', adminReviewDetailPageSource],
+  ['Top Icon Bar', topIconBarSource],
+  ['Invest Model UI', investModelUiSource],
+  ['Signal Refresh Action', signalRefreshActionSource],
+  ['Model Selection Read Status', modelSelectionReadStatusSource],
+  ['Model Selection CTA', modelSelectionCtaSource],
+  ['Creator Model Draft Form', creatorModelDraftFormSource],
+  ['Feed Comment Action', feedCommentActionSource],
+  ['Feed Like Action', feedLikeActionSource],
+  ['Feed Card Save Action', feedCardSaveActionSource],
+  ['Feed Save Action', feedSaveActionSource],
+  ['Feed Read Action', feedReadActionSource]
+] as const;
 
 const unsafeExecutionCtaPhrases = [
   'Buy now',
@@ -700,6 +732,32 @@ assertCondition(
   mobileShellSource.includes('max-w-[var(--invest-mobile-frame-width)]'),
   'MobileShell does not constrain the mobile frame width'
 );
+assertCondition(
+  mobileShellSource.includes(
+    '<main className="min-h-dvh overflow-x-clip bg-invest-bg text-invest-text">'
+  ) &&
+    mobileShellSource.includes(
+      'mx-auto flex min-h-dvh w-full min-w-0 max-w-[var(--invest-mobile-frame-width)] flex-col overflow-x-clip bg-invest-bg'
+    ) &&
+    mobileShellSource.includes(
+      'invest-view-enter min-w-0 flex-1 overflow-x-clip'
+    ) &&
+    mobileShellSource.includes(
+      'fixed inset-x-0 bottom-0 z-30 overflow-x-clip'
+    ) &&
+    mobileShellSource.includes(
+      'w-full max-w-[var(--invest-mobile-frame-width)] grid-cols-5 overflow-x-clip'
+    ),
+  'BK-464 MobileShell must clip horizontal overflow and keep frame/content/nav min-width safe at 390px'
+);
+horizontalOverflowGuardSources.forEach(([label, source]) => {
+  assertCondition(
+    !/\b(?:w-screen|min-w-screen|max-w-screen|overflow-x-auto|overflow-x-scroll)\b|100vw/.test(
+      source
+    ),
+    `${label}: BK-464 must not reintroduce viewport-width or horizontal-scroll classes that can cause 390px body overflow`
+  );
+});
 assertCondition(
   mobileShellSource.includes('env(safe-area-inset-bottom)'),
   'MobileShell or BottomNav does not reserve bottom safe-area space'
