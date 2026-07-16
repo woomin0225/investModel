@@ -32,13 +32,18 @@ import type { ModelDetailDto } from '@/lib/domain/models/model-read-model';
 import { cn } from '@/lib/utils';
 
 type InvestmentModelDetailView = MockInvestmentModelDetail & {
-  dataContext: 'db_read_model' | 'mock_fallback';
+  dataContext:
+    | 'db_read_model'
+    | 'legacy_mock_fallback'
+    | 'db_unavailable_mock_fallback';
 };
 
 const detailReadModelCopy = {
   ko: {
     dbDetailLabel: 'DB 조회 모델 상세',
     mockFallbackLabel: '모의 상세 대체 데이터',
+    legacyMockFallbackLabel: '기존 비교 링크 모의 상세',
+    dbUnavailableFallbackLabel: 'DB 조회 불가 - 모의 상세 대체',
     leverageAllowed: '레버리지 허용',
     noLeverageFlag: '레버리지 없음',
     derivativeAllowed: '파생상품 허용',
@@ -64,6 +69,8 @@ const detailReadModelCopy = {
   en: {
     dbDetailLabel: 'DB read model detail',
     mockFallbackLabel: 'Mock detail fallback',
+    legacyMockFallbackLabel: 'Legacy comparison mock detail',
+    dbUnavailableFallbackLabel: 'DB unavailable - mock detail fallback',
     leverageAllowed: 'Leverage allowed',
     noLeverageFlag: 'No leverage flag',
     derivativeAllowed: 'Derivatives allowed',
@@ -260,11 +267,7 @@ export default async function InvestModelDetailPage({
     >
       <section className="space-y-invest-section-gap">
         <SoftBanner
-          eyebrow={
-            model.dataContext === 'db_read_model'
-              ? detailReadModelCopy[locale].dbDetailLabel
-              : copy.mockOnlyLabel
-          }
+          eyebrow={modelDetailDataContextLabel(locale, model.dataContext)}
           icon={FileText}
           title={model.mandateLabel}
           description={model.summary}
@@ -463,13 +466,11 @@ export default async function InvestModelDetailPage({
               </div>
             </div>
           ) : null}
-          <div className="mt-4 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-2">
-            <p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-[12px] font-semibold leading-5 text-invest-text-muted">
-              {model.dataContext === 'db_read_model'
-                ? detailReadModelCopy[locale].dbDetailLabel
-                : copy.reviewPlaceholderLabel}
+          <div className="mt-4 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[480px]:grid-cols-2">
+            <p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-[12px] font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
+              {modelDetailDataContextLabel(locale, model.dataContext)}
             </p>
-            <p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-[12px] font-semibold leading-5 text-invest-text-muted">
+            <p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-[12px] font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
               {copy.noLiveTradingLabel}
             </p>
           </div>
@@ -575,9 +576,8 @@ function modelDetailReviewScheduleItems(
     {
       ...copy.disclosure,
       statusLabel:
-        model.dataContext === 'db_read_model'
-          ? detailReadModelCopy[locale].dbDetailLabel
-          : copy.disclosure.statusLabel
+        modelDetailDataContextLabel(locale, model.dataContext) ||
+        copy.disclosure.statusLabel
     }
   ];
 }
@@ -613,6 +613,9 @@ async function readInvestmentModelDetailView(
   locale: 'ko' | 'en',
   modelId: string
 ): Promise<InvestmentModelDetailView | undefined> {
+  let fallbackContext: InvestmentModelDetailView['dataContext'] =
+    'legacy_mock_fallback';
+
   try {
     const response = await readModelDetail(
       new NextRequest(`http://localhost/api/models/${modelId}`, {
@@ -637,9 +640,12 @@ async function readInvestmentModelDetailView(
         return toInvestmentModelDetailView(payload.data, locale);
       }
     }
+
+    if (response.status >= 500) {
+      fallbackContext = 'db_unavailable_mock_fallback';
+    }
   } catch {
-    // Fall through to the legacy mock detail so old comparison links remain visible
-    // when a local DB is unavailable.
+    fallbackContext = 'db_unavailable_mock_fallback';
   }
 
   const mockModel = findMockInvestmentModelDetail(locale, modelId);
@@ -647,9 +653,26 @@ async function readInvestmentModelDetailView(
   return mockModel
     ? {
         ...mockModel,
-        dataContext: 'mock_fallback'
+        dataContext: fallbackContext
       }
     : undefined;
+}
+
+function modelDetailDataContextLabel(
+  locale: 'ko' | 'en',
+  dataContext: InvestmentModelDetailView['dataContext']
+) {
+  const readCopy = detailReadModelCopy[locale];
+
+  if (dataContext === 'db_read_model') {
+    return readCopy.dbDetailLabel;
+  }
+
+  if (dataContext === 'db_unavailable_mock_fallback') {
+    return readCopy.dbUnavailableFallbackLabel;
+  }
+
+  return readCopy.legacyMockFallbackLabel;
 }
 
 function toInvestmentModelDetailView(

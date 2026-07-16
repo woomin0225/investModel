@@ -1761,7 +1761,13 @@ assertCondition(
     !/<RiskBadge\b[^>]*>[\s\S]{0,160}\{copy\.noLiveTradingLabel\}[\s\S]{0,80}<\/RiskBadge>/.test(
       modelDetailPageSource
     ) &&
-    /<p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-\[12px\] font-semibold leading-5 text-invest-text-muted">\s*\{model\.dataContext === 'db_read_model'[\s\S]{0,160}: copy\.reviewPlaceholderLabel\}\s*<\/p>/.test(
+    modelDetailPageSource.includes(
+      'mt-4 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[480px]:grid-cols-2'
+    ) &&
+    !modelDetailPageSource.includes(
+      'mt-4 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-2'
+    ) &&
+    /<p className="rounded-invest-control bg-invest-surface px-2 py-1 text-center text-\[12px\] font-semibold leading-5 text-invest-text-muted \[overflow-wrap:anywhere\]">\s*\{modelDetailDataContextLabel\(locale, model\.dataContext\)\}\s*<\/p>/.test(
       modelDetailPageSource
     ) &&
     !/<RiskBadge\b[^>]*tone="neutral"[^>]*[\s\S]{0,160}\{model\.dataContext === 'db_read_model'[\s\S]{0,120}<\/RiskBadge>/.test(
@@ -1813,6 +1819,12 @@ assertCondition(
       "'추천 아님', '실주문 없음', '브로커 연결 없음', '투자 조언 아님'"
     ) &&
     modelDetailPageSource.includes("dbDetailLabel: 'DB read model detail'") &&
+    modelDetailPageSource.includes("legacyMockFallbackLabel: 'Legacy comparison mock detail'") &&
+    modelDetailPageSource.includes("dbUnavailableFallbackLabel: 'DB unavailable - mock detail fallback'") &&
+    modelDetailPageSource.includes("'legacy_mock_fallback'") &&
+    modelDetailPageSource.includes("'db_unavailable_mock_fallback'") &&
+    modelDetailPageSource.includes('function modelDetailDataContextLabel') &&
+    modelDetailPageSource.includes("fallbackContext = 'db_unavailable_mock_fallback'") &&
     modelDetailPageSource.includes("backtestLabel: 'Backtest'") &&
     modelDetailPageSource.includes('label: readCopy.backtestLabel') &&
     modelDetailPageSource.includes('label: readCopy.maxDrawdownLabel') &&
