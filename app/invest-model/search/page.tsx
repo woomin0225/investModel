@@ -1,5 +1,12 @@
 import Link from 'next/link';
-import { Activity, ArrowRight, Database, Search, ShieldCheck } from 'lucide-react';
+import {
+  Activity,
+  ArrowRight,
+  Database,
+  Search,
+  ShieldCheck,
+  Sparkles
+} from 'lucide-react';
 import { NextRequest } from 'next/server';
 
 import {
@@ -10,6 +17,7 @@ import {
   SectionHeader
 } from '@/components/invest-model';
 import { GET as readSearchResults } from '@/app/api/search/route';
+import { GET as readSearchSuggestions } from '@/app/api/search/suggestions/route';
 import type { FeedPostDto } from '@/lib/domain/feed/feed-post';
 import type { SignalEventDto } from '@/lib/domain/signals/signal-event';
 import {
@@ -47,6 +55,30 @@ type InvestModelSearchResults = {
 };
 
 type SearchResultKind = 'InvestmentModel' | 'FeedPost' | 'SignalEvent';
+
+type SearchSuggestionTone = 'neutral' | 'attention' | 'risk';
+
+type SearchSuggestionChip = {
+  suggestionPublicId: string;
+  kind: 'topic' | 'model' | 'signal';
+  label: string;
+  query: string;
+  helper: string;
+  tone: SearchSuggestionTone;
+  safetyLabel: string;
+  href: string;
+};
+
+type InvestModelSearchSuggestions = {
+  suggestions: SearchSuggestionChip[];
+  recentMockTerms: string[];
+  emptyState: {
+    title: string;
+    message: string;
+  } | null;
+  safetySummary: string;
+  readState: 'loaded' | 'empty' | 'error_fallback';
+};
 
 function firstSearchParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -145,6 +177,43 @@ function searchResultVisibleBoundaries(
   return ['DB SignalEvent', 'observed input', 'no realtime external data'];
 }
 
+function suggestionKindLabel(locale: 'ko' | 'en', kind: SearchSuggestionChip['kind']) {
+  if (locale === 'en') {
+    return kind === 'topic' ? 'Topic' : kind === 'model' ? 'Model' : 'Signal';
+  }
+
+  if (kind === 'topic') {
+    return 'Seed topic';
+  }
+
+  if (kind === 'model') {
+    return 'Seed model';
+  }
+
+  return 'Seed signal';
+}
+
+function suggestionToneClass(tone: SearchSuggestionTone) {
+  if (tone === 'attention') {
+    return 'border-invest-primary/40 bg-invest-primary-soft text-invest-primary';
+  }
+
+  if (tone === 'risk') {
+    return 'border-invest-danger/35 bg-invest-danger-soft text-invest-danger';
+  }
+
+  return 'border-invest-border bg-invest-surface text-invest-text';
+}
+
+function suggestionAccessibleLabel(
+  locale: 'ko' | 'en',
+  suggestion: SearchSuggestionChip
+) {
+  return locale === 'ko'
+    ? `${suggestion.label}. ${suggestionKindLabel(locale, suggestion.kind)}. ${suggestion.helper}. Seed/mock suggestion chip only; live quote lookup, external search, advice, order, TradeIntent, or brokerage action is not connected.`
+    : `${suggestion.label}. ${suggestionKindLabel(locale, suggestion.kind)}. ${suggestion.helper}. Seed/mock suggestion chip only; no live quote lookup, external search, advice, order, TradeIntent, or brokerage action.`;
+}
+
 function EmptySearchResultCard({
   locale,
   kind,
@@ -225,6 +294,58 @@ async function readInvestModelSearchResults(
   };
 }
 
+async function readInvestModelSearchSuggestions(
+  query: string
+): Promise<InvestModelSearchSuggestions> {
+  const search = query ? `?q=${encodeURIComponent(query)}` : '';
+  const response = await readSearchSuggestions(
+    new NextRequest(`http://localhost/api/search/suggestions${search}`, {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+
+  if (!response.ok) {
+    return {
+      suggestions: [],
+      recentMockTerms: [],
+      emptyState: {
+        title: 'Search suggestion error state',
+        message:
+          'Seed suggestion chips could not be read. This fallback does not connect live quotes, external search, orders, or brokerage actions.'
+      },
+      safetySummary:
+        'Search suggestion error state. Seed/mock chips only; no live quote lookup, advice, orders, TradeIntent, or brokerage.',
+      readState: 'error_fallback'
+    };
+  }
+
+  const payload = (await response.json()) as {
+    data?: Omit<InvestModelSearchSuggestions, 'readState'>;
+  };
+  const suggestions = payload.data?.suggestions ?? [];
+
+  return {
+    suggestions,
+    recentMockTerms: payload.data?.recentMockTerms ?? [],
+    emptyState:
+      payload.data?.emptyState ??
+      (suggestions.length === 0
+        ? {
+            title: 'Search suggestion empty state',
+            message:
+              'No seed suggestion chips matched. Live quote lookup and external search providers remain disconnected.'
+          }
+        : null),
+    safetySummary:
+      payload.data?.safetySummary ??
+      'Seed suggestion chips are read-only discovery shortcuts.',
+    readState: suggestions.length > 0 ? 'loaded' : 'empty'
+  };
+}
+
 export default async function InvestModelSearchPage({
   searchParams
 }: InvestModelSearchPageProps) {
@@ -234,7 +355,10 @@ export default async function InvestModelSearchPage({
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
   const rawQuery = firstSearchParam(resolvedSearchParams.q) ?? '';
   const query = rawQuery.trim();
-  const searchResults = await readInvestModelSearchResults(query);
+  const [searchResults, searchSuggestions] = await Promise.all([
+    readInvestModelSearchResults(query),
+    readInvestModelSearchSuggestions(query)
+  ]);
   const filteredModels = searchResults.investmentModels;
   const filteredFeedPosts = searchResults.feedPosts;
   const filteredSignals = searchResults.signalEvents;
@@ -319,6 +443,96 @@ export default async function InvestModelSearchPage({
               : 'Search reads discoverable InvestmentModels plus DB-backed FeedPosts and SignalEvents. It does not search broker accounts, orders, realtime external feeds, or real balances.'}
           </p>
         </form>
+
+        <section
+          aria-label={
+            locale === 'ko'
+              ? 'Search suggestion chips. Seed/mock shortcuts only; no live quote lookup, external search, advice, order, TradeIntent, or brokerage action.'
+              : 'Search suggestion chips. Seed/mock shortcuts only; no live quote lookup, external search, advice, order, TradeIntent, or brokerage action.'
+          }
+          title={
+            locale === 'ko'
+              ? 'Search suggestion chips. Seed/mock shortcuts only; no live quote lookup, external search, advice, order, TradeIntent, or brokerage action.'
+              : 'Search suggestion chips. Seed/mock shortcuts only; no live quote lookup, external search, advice, order, TradeIntent, or brokerage action.'
+          }
+          className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <SectionHeader
+              title={
+                locale === 'ko'
+                  ? 'Seed suggestion chips'
+                  : 'Seed suggestion chips'
+              }
+              description={
+                locale === 'ko'
+                  ? 'BK-531 read-only API loaded. Search suggestion chips wrap on 390px and only open local seed/mock search context.'
+                  : 'BK-531 read-only API loaded. Search suggestion chips wrap on 390px and only open local seed/mock search context.'
+              }
+            />
+            <div className="grid size-10 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+              <Sparkles aria-hidden className="size-5" />
+            </div>
+          </div>
+
+          {searchSuggestions.readState === 'loaded' ? (
+            <div
+              aria-label="Search suggestion chips loaded state"
+              className="mt-4 flex flex-wrap gap-2"
+            >
+              {searchSuggestions.suggestions.map((suggestion) => {
+                const href = withInvestModelLocale(suggestion.href, locale);
+                const label = suggestionAccessibleLabel(locale, suggestion);
+
+                return (
+                  <Link
+                    key={suggestion.suggestionPublicId}
+                    href={href}
+                    aria-label={label}
+                    title={label}
+                    className={cn(
+                      'inline-flex min-h-invest-touch-target basis-full items-center justify-between gap-2 rounded-invest-control border px-3 py-2 text-left text-sm font-bold leading-5 outline-none focus-visible:ring-2 focus-visible:ring-invest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-invest-bg active:scale-[0.98] min-[360px]:basis-[calc(50%-4px)]',
+                      suggestionToneClass(suggestion.tone),
+                      investMotionClass.interactiveControl
+                    )}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate">{suggestion.label}</span>
+                      <span className="mt-0.5 block truncate text-[11px] font-semibold opacity-75">
+                        {suggestionKindLabel(locale, suggestion.kind)}
+                      </span>
+                    </span>
+                    <ArrowRight aria-hidden className="size-4 shrink-0" />
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-4 rounded-invest-card border border-dashed border-invest-border bg-invest-bg-soft p-4">
+              <p className="text-[13px] font-bold leading-5 text-invest-text">
+                {searchSuggestions.emptyState?.title ??
+                  'Search suggestion empty state'}
+              </p>
+              <p className="mt-1 text-sm font-semibold leading-6 text-invest-text-muted">
+                {searchSuggestions.emptyState?.message ??
+                  'Seed suggestion chips are empty. This is not a live search provider, quote lookup, order, or brokerage action.'}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-4 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+            <p>
+              {searchSuggestions.safetySummary} No live quote lookup / no
+              external search / no advice / no orders / no brokerage.
+            </p>
+            <p className="mt-1">
+              Recent mock terms:{' '}
+              {searchSuggestions.recentMockTerms.length > 0
+                ? searchSuggestions.recentMockTerms.join(' · ')
+                : 'Search suggestion empty state'}
+            </p>
+          </div>
+        </section>
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
