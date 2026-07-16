@@ -16,6 +16,7 @@ import {
   PortfolioCompactSummaryCard,
   RiskBadge,
   SectionHeader,
+  SeededPriceMiniChartCard,
   SearchAndNotificationActions
 } from '@/components/invest-model';
 import {
@@ -638,6 +639,8 @@ export default async function InvestModelPortfolioPage({
     >
       <section className="space-y-invest-section-gap">
         <PortfolioCompactSummaryCard locale={locale} />
+
+        <SeededPriceMiniChartCard locale={locale} />
 
         <div className="space-y-invest-card-gap">
           <SectionHeader
