@@ -3,8 +3,15 @@ import { NextRequest } from 'next/server';
 import { markNotificationCenterRead } from '@/lib/db/notification-read-model';
 import type { AccessRole } from '@/lib/domain/types';
 import {
+  buildNotificationSafetyMeta,
+  createNotificationRequestId,
+  notificationErrorResponse
+} from '@/lib/domain/notifications/notification-api-meta';
+import {
   readInvestModelRole,
-  resolveInvestModelUserScope
+  readInvestModelSessionRole,
+  resolveInvestModelUserScope,
+  type InvestModelUserScope
 } from '@/lib/server/invest-model-user-scope';
 
 /**
@@ -12,29 +19,9 @@ import {
  * It never sends push, email, SMS, broker, order, or account notifications.
  */
 
-type ApiErrorCode = 'forbidden' | 'validation_error' | 'not_found' | 'server_error';
-
 type MarkAllReadRequestBody = {
   limit?: unknown;
 };
-
-function errorResponse(
-  status: number,
-  code: ApiErrorCode,
-  message: string,
-  details?: unknown
-) {
-  return Response.json(
-    {
-      error: {
-        code,
-        message,
-        details
-      }
-    },
-    { status }
-  );
-}
 
 function canMarkNotificationsRead(role: AccessRole) {
   return role === 'user' || role === 'admin';
@@ -63,49 +50,87 @@ function parseLimit(value: unknown) {
 }
 
 export async function POST(request: NextRequest) {
-  const role = readInvestModelRole(request);
+  const requestId = createNotificationRequestId();
+  const headerRole = readInvestModelRole(request);
+  const role =
+    headerRole === 'public'
+      ? await readInvestModelSessionRole(request)
+      : headerRole;
 
   if (!canMarkNotificationsRead(role)) {
-    return errorResponse(
-      403,
-      'forbidden',
-      'Only signed-in user or admin roles can update investModel notification read state.'
-    );
+    const isUnauthenticated = headerRole === 'public' && role === 'public';
+
+    return notificationErrorResponse({
+      status: isUnauthenticated ? 401 : 403,
+      code: isUnauthenticated ? 'unauthenticated' : 'forbidden',
+      message: isUnauthenticated
+        ? 'Sign in as a user or admin to update investModel notification read state.'
+        : 'Only signed-in user or admin roles can update investModel notification read state.',
+      requestId,
+      action: 'mark_all_notifications_read',
+      routeStatus: isUnauthenticated ? 'unauthenticated' : 'forbidden',
+      userScopeSource: 'not_resolved_auth_error',
+      reason: isUnauthenticated ? 'session_required' : 'role_not_allowed'
+    });
   }
 
   const body = await readBody(request);
   const limit = parseLimit(body.limit);
 
   if (!limit) {
-    return errorResponse(
-      422,
-      'validation_error',
-      'limit must be an integer between 1 and 30.'
-    );
+    return notificationErrorResponse({
+      status: 422,
+      code: 'validation_error',
+      message: 'limit must be an integer between 1 and 30.',
+      requestId,
+      action: 'mark_all_notifications_read',
+      routeStatus: 'validation_error',
+      userScopeSource: 'not_resolved_validation_error',
+      fieldErrors: {
+        limit: ['limit must be an integer between 1 and 30.']
+      }
+    });
   }
 
+  let userScope: InvestModelUserScope | undefined;
+
   try {
-    const userScope = await resolveInvestModelUserScope(request);
+    userScope = await resolveInvestModelUserScope(request);
     const result = await markNotificationCenterRead({
       userPublicId: userScope.userPublicId,
       limit
     });
 
     if (result.status === 'user_not_found') {
-      return errorResponse(
-        404,
-        'not_found',
-        'User public id was not found for notification read state.'
-      );
+      return notificationErrorResponse({
+        status: 404,
+        code: 'not_found',
+        message: 'User public id was not found for notification read state.',
+        requestId,
+        action: 'mark_all_notifications_read',
+        routeStatus: 'user_not_found',
+        limit,
+        userScope,
+        reason: 'server_resolved_user_scope_missing'
+      });
     }
 
     return Response.json({
+      ok: true,
       data: {
         notificationCenter: result.data,
         markedCount: result.markedCount,
         readAt: result.readAt
       },
       meta: {
+        ...buildNotificationSafetyMeta({
+          requestId,
+          action: 'mark_all_notifications_read',
+          routeStatus: 'db_backed',
+          userScope,
+          dataContext: result.data.dataContext,
+          limit
+        }),
         routeStatus: 'db_backed',
         persistence: 'persisted_feed_read_state',
         action: 'mark_all_notifications_read',
@@ -138,10 +163,19 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch {
-    return errorResponse(
-      500,
-      'server_error',
-      'Notification read state could not be updated. No push, email, SMS, orders, brokerage actions, or advice were created.'
-    );
+    return notificationErrorResponse({
+      status: 503,
+      code: 'internal_error',
+      message:
+        'Notification read state could not be updated. No push, email, SMS, orders, brokerage actions, account messages, or advice were sent.',
+      requestId,
+      action: 'mark_all_notifications_read',
+      routeStatus: 'read_state_unavailable',
+      limit,
+      dataContext: 'mock',
+      userScope,
+      userScopeSource: userScope?.source,
+      reason: 'notification_read_state_unavailable'
+    });
   }
 }

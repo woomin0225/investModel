@@ -11,6 +11,7 @@ import { NextRequest } from 'next/server';
 
 import { GET } from '../../app/api/notifications/route';
 import { POST } from '../../app/api/notifications/mark-all-read/route';
+import { signToken } from '../../lib/auth/session';
 import { client } from '../../lib/db/drizzle';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
@@ -31,6 +32,33 @@ async function applyTrackedFeedSeed() {
 
   await connection.query(sql);
   await connection.end();
+}
+
+async function readSeedUserId() {
+  const connection = await mysql.createConnection({
+    uri: process.env.MYSQL_URL,
+    multipleStatements: true
+  });
+  const [rows] = await connection.query<mysql.RowDataPacket[]>(
+    "SELECT id FROM users WHERE public_id = 'user_demo_001' LIMIT 1"
+  );
+  await connection.end();
+
+  const userId = rows[0]?.id;
+  assertCondition(
+    typeof userId === 'number',
+    'seed user id exists for mark all read session scope smoke'
+  );
+  return userId;
+}
+
+async function createSessionCookie(userId: number) {
+  const encryptedSession = await signToken({
+    user: { id: userId },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  return `session=${encryptedSession}`;
 }
 
 function readNotifications() {
@@ -57,8 +85,23 @@ function markAllRead(body: unknown, role = 'user') {
   );
 }
 
+function markAllReadWithSession(body: unknown, sessionCookie: string) {
+  return POST(
+    new NextRequest('http://localhost/api/notifications/mark-all-read', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        cookie: sessionCookie
+      },
+      body: JSON.stringify(body)
+    })
+  );
+}
+
 async function main() {
   await applyTrackedFeedSeed();
+  const seedUserId = await readSeedUserId();
+  const sessionCookie = await createSessionCookie(seedUserId);
 
   const forbiddenResponse = await POST(
     new NextRequest('http://localhost/api/notifications/mark-all-read', {
@@ -69,6 +112,9 @@ async function main() {
       body: JSON.stringify({ userPublicId: 'user_demo_001' })
     })
   );
+  const forbiddenJson = await forbiddenResponse.json();
+  const creatorResponse = await markAllRead({ userPublicId: 'user_demo_001' }, 'creator');
+  const creatorJson = await creatorResponse.json();
   const ignoredClientUserResponse = await markAllRead({
     userPublicId: 'user_demo_999'
   });
@@ -77,6 +123,15 @@ async function main() {
     userPublicId: 'user_demo_001',
     limit: 31
   });
+  const invalidLimitJson = await invalidLimitResponse.json();
+  const sessionScopedResponse = await markAllReadWithSession(
+    {
+      userPublicId: 'user_demo_999',
+      limit: 30
+    },
+    sessionCookie
+  );
+  const sessionScopedJson = await sessionScopedResponse.json();
   const beforeResponse = await readNotifications();
   const beforeJson = await beforeResponse.json();
   const markResponse = await markAllRead({
@@ -92,16 +147,64 @@ async function main() {
   });
   const repeatJson = await repeatResponse.json();
 
-  assertCondition(forbiddenResponse.status === 403, 'public role is forbidden');
+  assertCondition(forbiddenResponse.status === 401, 'public role is unauthenticated');
+  assertCondition(creatorResponse.status === 403, 'creator role is forbidden');
+  assertCondition(
+    forbiddenJson.ok === false &&
+      forbiddenJson.error?.code === 'unauthenticated' &&
+      typeof forbiddenJson.error?.requestId === 'string' &&
+      forbiddenJson.error?.resource === 'notifications' &&
+      forbiddenJson.error?.action === 'mark_all_notifications_read' &&
+      forbiddenJson.meta?.routeStatus === 'unauthenticated' &&
+      forbiddenJson.meta?.userScopeSource === 'not_resolved_auth_error' &&
+      forbiddenJson.meta?.deliveryProvider === 'none' &&
+      forbiddenJson.meta?.externalDeliveryBlocked === true &&
+      forbiddenJson.meta?.sendsRealPush === false &&
+      forbiddenJson.meta?.sendsRealEmail === false &&
+      forbiddenJson.meta?.sendsRealSms === false &&
+      forbiddenJson.meta?.brokerageConnection === false &&
+      forbiddenJson.meta?.realOrder === false &&
+      forbiddenJson.meta?.financialAdvice === false &&
+      forbiddenJson.meta?.userPublicId === undefined,
+    'public mark all read error keeps normalized safe notification meta'
+  );
+  assertCondition(
+    creatorJson.ok === false &&
+      creatorJson.error?.code === 'forbidden' &&
+      creatorJson.meta?.routeStatus === 'forbidden' &&
+      creatorJson.meta?.deliveryProvider === 'none' &&
+      creatorJson.meta?.externalDeliveryBlocked === true,
+    'creator mark all read error keeps normalized safe notification meta'
+  );
   assertCondition(
     ignoredClientUserResponse.status === 200 &&
+      ignoredClientUserJson.ok === true &&
       ignoredClientUserJson.meta?.userPublicId === 'user_demo_001' &&
       ignoredClientUserJson.meta?.dataContext ===
         ignoredClientUserJson.data?.notificationCenter?.dataContext &&
       ignoredClientUserJson.meta?.clientUserPublicIdIgnored === undefined,
     'client userPublicId is not exposed and server-resolved user scope is used'
   );
-  assertCondition(invalidLimitResponse.status === 422, 'invalid limit is rejected');
+  assertCondition(
+    invalidLimitResponse.status === 422 &&
+      invalidLimitJson.ok === false &&
+      invalidLimitJson.error?.code === 'validation_error' &&
+      invalidLimitJson.error?.fieldErrors?.limit?.[0] ===
+        'limit must be an integer between 1 and 30.' &&
+      invalidLimitJson.meta?.routeStatus === 'validation_error' &&
+      invalidLimitJson.meta?.deliveryProvider === 'none' &&
+      invalidLimitJson.meta?.externalDeliveryBlocked === true &&
+      invalidLimitJson.meta?.userPublicId === undefined,
+    'invalid limit is rejected with normalized safe notification meta'
+  );
+  assertCondition(
+    sessionScopedResponse.status === 200 &&
+      sessionScopedJson.ok === true &&
+      sessionScopedJson.meta?.userScopeSource === 'session' &&
+      sessionScopedJson.meta?.userPublicId === 'user_demo_001' &&
+      sessionScopedJson.meta?.clientUserPublicIdIgnored === undefined,
+    'session role and user scope win for mark all read notifications'
+  );
   assertCondition(beforeResponse.status === 200, 'notifications can be read before mark');
   assertCondition(markResponse.status === 200, 'mark all read responds');
   assertCondition(afterResponse.status === 200, 'notifications can be read after mark');

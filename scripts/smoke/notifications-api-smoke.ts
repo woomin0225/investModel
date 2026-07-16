@@ -111,16 +111,48 @@ async function main() {
   );
   const ignoredClientUserJson = await ignoredClientUserResponse.json();
   const invalidLimitResponse = await readNotifications('?limit=31');
+  const publicJson = await publicResponse.json();
+  const creatorJson = await creatorResponse.json();
+  const invalidLimitJson = await invalidLimitResponse.json();
   const sessionScopedResponse = await readNotificationsWithSession(
     '?userPublicId=user_demo_999',
     sessionCookie
   );
   const sessionScopedJson = await sessionScopedResponse.json();
 
-  assertCondition(publicResponse.status === 403, 'public role is forbidden');
+  assertCondition(publicResponse.status === 401, 'public role is unauthenticated');
   assertCondition(creatorResponse.status === 403, 'creator role is forbidden');
+  assertCondition(
+    publicJson.ok === false &&
+      publicJson.error?.code === 'unauthenticated' &&
+      typeof publicJson.error?.requestId === 'string' &&
+      publicJson.error?.resource === 'notifications' &&
+      publicJson.error?.action === 'read_notifications' &&
+      publicJson.meta?.routeStatus === 'unauthenticated' &&
+      publicJson.meta?.userScopeSource === 'not_resolved_auth_error' &&
+      publicJson.meta?.deliveryProvider === 'none' &&
+      publicJson.meta?.externalDeliveryBlocked === true &&
+      publicJson.meta?.sendsRealPush === false &&
+      publicJson.meta?.sendsRealEmail === false &&
+      publicJson.meta?.sendsRealSms === false &&
+      publicJson.meta?.brokerageConnection === false &&
+      publicJson.meta?.realOrder === false &&
+      publicJson.meta?.financialAdvice === false &&
+      publicJson.meta?.userPublicId === undefined,
+    'public error keeps normalized safe notification meta'
+  );
+  assertCondition(
+    creatorJson.ok === false &&
+      creatorJson.error?.code === 'forbidden' &&
+      creatorJson.meta?.routeStatus === 'forbidden' &&
+      creatorJson.meta?.userScopeSource === 'not_resolved_auth_error' &&
+      creatorJson.meta?.deliveryProvider === 'none' &&
+      creatorJson.meta?.externalDeliveryBlocked === true,
+    'creator error keeps normalized safe notification meta'
+  );
   assertCondition(successResponse.status === 200, 'user role can read notifications');
   assertCondition(
+    successJson.ok === true &&
     successJson.data?.userPublicId === 'user_demo_001' &&
       Array.isArray(successJson.data?.items) &&
       typeof successJson.data?.unreadCount === 'number',
@@ -177,7 +209,18 @@ async function main() {
       ignoredClientUserJson.meta?.clientUserPublicIdIgnored === undefined,
     'client userPublicId compatibility metadata is not exposed for notifications'
   );
-  assertCondition(invalidLimitResponse.status === 422, 'invalid limit is rejected');
+  assertCondition(
+    invalidLimitResponse.status === 422 &&
+      invalidLimitJson.ok === false &&
+      invalidLimitJson.error?.code === 'validation_error' &&
+      invalidLimitJson.error?.fieldErrors?.limit?.[0] ===
+        'limit must be an integer between 1 and 30.' &&
+      invalidLimitJson.meta?.routeStatus === 'validation_error' &&
+      invalidLimitJson.meta?.deliveryProvider === 'none' &&
+      invalidLimitJson.meta?.externalDeliveryBlocked === true &&
+      invalidLimitJson.meta?.userPublicId === undefined,
+    'invalid limit is rejected with normalized safe notification meta'
+  );
   assertCondition(
     sessionScopedResponse.status === 200 &&
       sessionScopedJson.data?.userPublicId === 'user_demo_001' &&
