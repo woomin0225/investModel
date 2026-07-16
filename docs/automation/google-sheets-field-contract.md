@@ -119,7 +119,7 @@ Every heartbeat or manual execution writes one Runs row:
 | `selected_task_id` | yes | selected Backlog id, Issue id, or `none` |
 | `agents_used` | yes | semicolon-separated agent roles |
 | `summary` | yes | concise Korean summary |
-| `verification` | yes | commands/checks and pass/fail/skipped reason |
+| `verification` | yes | commands/checks and pass/fail/skipped reason; follow `docs/automation/verification-commit-push-rules.md` Runs verification templates and avoid vague `검증 완료` wording |
 | `commit_hash` | conditional | short hash when files changed and push succeeded |
 | `next_action` | yes | next likely checklist item or user-needed blocker |
 

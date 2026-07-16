@@ -78,6 +78,21 @@ Every Backlog id whose number is a multiple of 10, such as `BK-10`, `BK-20`, `BK
 - Do not require Android Studio, iOS tooling, real brokerage/account setup, external paid APIs, or secrets for this checkpoint.
 - Suitable verification examples include checking the listening port, local HTTP response, LAN IP URL, firewall/network notes, and 390px mobile browser access when a device is available.
 
+## Runs Verification Evidence Rule
+
+`Runs.verification` must name the exact evidence collected for the selected work type. Use `docs/automation/verification-commit-push-rules.md` as the canonical template source before marking a run done.
+
+- Mark each touched evidence category as `PASS: ...`, `SKIP: ...`, or `BLOCKED: ...` in concise Korean or mixed command text.
+- Frontend UI runs should record typecheck, visual/source smoke, 390px mobile checks, safety-copy scans, and push result.
+- API/backend runs should record typecheck, route or smoke command, RBAC/user-scope or policy guard check, forbidden real-finance side-effect check, and push result.
+- DB/read-model runs should record DBML/SQL/schema or seed comparison, focused DB/read-model smoke, known local DB/Docker blocker when relevant, and no secret/payment/broker field check.
+- Documentation, harness, and automation runs should record `git diff --check`, targeted `rg` terms, skipped runtime-check reason, and push result.
+- Server checkpoint runs should record listening port, local HTTP response, LAN IP URL, same-Wi-Fi mobile reachability, or the Issue-backed reason it could not be checked.
+- Sheet-only runs should record Backlog/In Progress/Done/Runs readback, duplicate/stale status check, `commit_hash` blank reason, and no-file-change status.
+- Failure or blocked runs should record the failing command, whether a retry happened, linked Issue id, final task status, and why `done` was not used.
+
+Do not write only `검증 완료`, `테스트 완료`, or `pass`. If a check is skipped, state the exact reason and whether it is covered by an existing Issue.
+
 ## Design Sample Refill Rule
 
 If the checklist has no safe dependency-ready UI task, or if the user asks to improve mobile securities-app UX, use the design sample workflow before inventing implementation work.

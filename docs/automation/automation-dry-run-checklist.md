@@ -212,6 +212,26 @@ Pass criteria:
 - mock/simulated labels remain visible
 - no real trading/deposit wording appears
 
+## Scenario 9: Cross-Surface Runs Verification
+
+Purpose: confirm mixed UI, API, and DB/read-model work is recorded with enough evidence in one `Runs.verification` cell.
+
+Reference checklist: `docs/automation/verification-commit-push-rules.md`.
+
+Steps:
+
+1. Pick or simulate one task that touches UI copy/state, an API/backend guard, and a DB/read-model or seed contract.
+2. Draft a single `Runs.verification` sentence that names each touched surface.
+3. Include server checkpoint evidence when the selected Backlog id is divisible by 10, or explicitly record why it was not required.
+4. Include open Issue handling when a check is skipped because of `IS-001`, `IS-004`, `IS-007`, secrets, legal review, or unavailable external infrastructure.
+
+Pass criteria:
+
+- the sentence includes `PASS:`, `SKIP:`, or `BLOCKED:` evidence for UI, API/backend, DB/read-model, server checkpoint, and failure/Issue handling when relevant
+- exact commands or readback checks are named
+- no vague `검증 완료`, `테스트 완료`, or `pass`-only wording is used
+- `commit_hash` is blank only for sheet-only/planning-only/no-file runs and the reason is stated
+
 ## Final Dry Run Sign-Off
 
 The automation loop is ready for longer unattended use only when these scenarios have passed or have an explicit follow-up task:
@@ -224,6 +244,7 @@ The automation loop is ready for longer unattended use only when these scenarios
 - blocked requirement
 - stale duplicate row
 - mobile UI verification
+- cross-surface Runs verification
 
 If any scenario fails, create a small Backlog item for that failure instead of expanding the current run.
 

@@ -112,6 +112,22 @@ Examples:
 
 Do not write only `검증 완료` or `테스트 완료`.
 
+## Runs Verification Templates
+
+Use these templates as the minimum evidence style for recurring heartbeat runs. Replace command names with the exact commands that were run.
+
+| Work type | Required `Runs.verification` evidence |
+| --- | --- |
+| Frontend UI | `npx tsc --noEmit` result; visual or source smoke such as `npx tsx scripts/qa/invest-model-visual-structure-smoke.ts`; 390px/safe-area/bottom-tab/touch/focus check result; targeted `rg` for changed safety copy; push result when files changed |
+| API/backend | `npx tsc --noEmit` result; targeted smoke such as `npm run test:model-selection`, `npm run test:feed-api`, or route-specific script; request/response guard and RBAC/user-scope check; no real order/deposit/brokerage side effect check; push result |
+| DB/read-model | `npx tsc --noEmit` when TypeScript changed; `npm run test:db-schema-drift` or focused DB/read-model smoke; DBML/SQL/schema/seed file comparison; no secret/payment/broker field check; note when local DB/Docker is not required or is blocked by a known Issue |
+| Documentation/product/risk | `git diff --check -- <changed files>`; targeted `rg` for required canonical terms, checklist ids, and forbidden claims; note that build/typecheck was skipped because no runtime code changed; push result |
+| Automation/sheet-only | Backlog/In Progress/Done/Runs readback; duplicate/stale status check; `commit_hash` blank reason when no files changed; no file changes or sheet-only statement |
+| Server checkpoint BK-10n | listening port check; local HTTP response; LAN IP URL and same-Wi-Fi mobile reachability if a device is available; skipped/blocked reason and linked Issue when unavailable |
+| Failure or blocked run | failing command and first relevant error; retry count if repeated; whether the task was left `blocked` or `review`; Issue id created or updated; no done/commit hash claim unless a push actually succeeded |
+
+When a run touches more than one work type, include the evidence for each affected type in one concise sentence. For example, UI plus API work should mention the TypeScript check, the UI smoke, the API smoke, and the push hash.
+
 ## Blocked Or Review Outcomes
 
 Use `blocked` when:

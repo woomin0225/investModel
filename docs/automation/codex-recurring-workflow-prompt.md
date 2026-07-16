@@ -68,6 +68,8 @@ Dependency-ready means all listed prerequisite tasks are done or the work is a p
 
 ## Verification Matrix
 
+Use `docs/automation/verification-commit-push-rules.md` for the canonical `Runs.verification` evidence templates. Record exact commands, pass/fail/skipped reasons, server checkpoint status when relevant, and push result when files changed.
+
 | Work type | Minimum verification |
 | --- | --- |
 | Markdown/documentation | `git diff --check -- <file>` and `rg` for key terms or forbidden claims. |
