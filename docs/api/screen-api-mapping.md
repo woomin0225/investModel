@@ -24,13 +24,13 @@
 | Discover Models | `/invest-model/models` | `GET /api/models` | `ModelCardDto[]` | `lib/mock/invest-model-discovery.ts` | `public` or signed-in | only approved/live models; pending_review excluded. |
 | Realtime Signals | `/invest-model/signals` | `GET /api/signals` | `SignalEventDto[]` | `lib/mock/invest-model-signals.ts` | signed-in | observed inputs only; no recommendation/order language. |
 | Signal Detail | `/invest-model/signals/[signalId]` | future `GET /api/signals/:signalId` | `SignalDetailDto` | `SignalEventDto` list item plus future detail mock | signed-in | route param uses public id only; observed context only; no buy/sell/hold advice. |
-| Model Detail | `/invest-model/models/[modelId]` | `GET /api/models/:id`; `POST /api/model-selections` after acknowledgement | `ModelDetailDto`; `ModelSelectionDto` | detail data derived from `lib/mock/invest-model-discovery.ts` and page-local copy | public or signed-in for detail; `user` for selection | selection stores model version only, not user allocation preferences. |
+| Model Detail | `/invest-model/models/[modelId]` | `GET /api/models/:id`; `POST /api/model-selections` after acknowledgement | `ModelDetailDto`; `ModelSelectionDto` | DB read model first; `legacy_mock_fallback` for comparison mocks and `db_unavailable_mock_fallback` only when the detail route is unavailable | public or signed-in for detail; `user` for selection | selection stores reviewed model version only, not user allocation preferences, allocation settings, orders, deposits, brokerage links, or advice. |
 | Feed Insights | `/invest-model/feed` | `GET /api/feed` | `FeedPostDto[]` | `lib/mock/invest-model-feed.ts` | signed-in | informational model/market/review notes only. |
 | Feed Detail | `/invest-model/feed/[postId]` | `GET /api/feed/:postId`; feed action APIs | `FeedPostDetailDto`; `FeedCommentDto`; `FeedReactionStateDto` | `FeedPostDto` list item plus future detail mock | signed-in | route param uses public id only; informational content only; comments/actions are user-scoped contracts. |
-| Search | `/invest-model/search` | `GET /api/search?q=` | `SearchResultDto` | DB-backed grouped result arrays; empty arrays when no match | signed-in | read-only grouped search; no recommendation, model selection, TradeIntent, external paid search, order, or brokerage action. |
-| Notification Center | `/invest-model/notifications` | `GET /api/notifications`; `POST /api/notifications/mark-all-read` | `NotificationCenterDto` | DB-backed feed-derived notification rows and read state | user | read/unread center only; no push/email/SMS delivery, broker/account connection, order, or advice. |
+| Search | `/invest-model/search` | `GET /api/search?q=` | `SearchResultDto` | DB-backed grouped result arrays; empty arrays when no match or non-OK route response | `user`/`admin` prototype header | read-only grouped search; no recommendation, model selection, TradeIntent, external paid search, order, or brokerage action. |
+| Notification Center | `/invest-model/notifications` | `GET /api/notifications`; `POST /api/notifications/mark-all-read` | `NotificationCenterDto` | DB-backed feed-derived notification rows and read state; page throws to app error boundary on route failure | `user`/`admin`; GET may use session fallback, POST uses prototype header | read/unread center only; no push/email/SMS delivery, broker/account connection, order, or advice. |
 | My Page | `/invest-model/my` | `GET /api/my`; supporting `GET /api/my/activity` | `MyPageSummaryDto`; `MyPageFeedActivitySummaryDto` | DB-backed user read model with mock-safe fallback labels | user | profile, selected model, saved/comment activity, notification summary, and recent notification rows only. No real account, balance, deposit, order, broker, push/email/SMS delivery, or advice. |
-| Portfolio | `/invest-model/portfolio` | `GET /api/portfolio/mock-summary` | `PortfolioSummaryDto`; `PortfolioDashboardTimelineDto[]` | DB-backed mock-safe summary fallback | user | 1D/1W/1M time dashboard, simulated positions, AllocationDecision, and blocked TradeIntent state only. No real deposit, balance, order, broker, or advice. |
+| Portfolio | `/invest-model/portfolio` | `GET /api/portfolio/mock-summary` | `PortfolioSummaryDto`; `PortfolioDashboardTimelineDto[]` | DB-backed mock-safe summary, with `lib/mock/invest-model-portfolio.ts` used only when DB state is unavailable | user | 1D/1W/1M time dashboard, simulated positions, AllocationDecision, blocked TradeIntent state, and `safetyMeta` flags only. No real deposit, balance, order, broker, or advice. |
 
 ## Supporting Screens
 
@@ -80,11 +80,13 @@ Data needs:
 
 API sequence:
 
-1. `GET /api/portfolio/mock-summary?userPublicId=user_demo_001`
+1. `GET /api/portfolio/mock-summary`
 
 Fallback:
 
+- The API accepts only `user`/`admin` role for Portfolio, reads the current member scope through `resolveInvestModelUserScope`, then returns DB-backed Portfolio state when available. Do not document or depend on a client-provided `userPublicId` query override.
 - The API uses `lib/mock/invest-model-portfolio.ts` only as a mock-safe fallback when DB state is unavailable.
+- `PortfolioSummaryDto.safetyMeta` must remain `mockOnly=true`, `realDeposit=false`, `realBalance=false`, `realOrder=false`, `brokerageConnection=false`, and `financialAdvice=false` for both DB-backed and fallback responses.
 - The screen should keep its 1D/1W/1M cards visible when fallback data is used, but every value must retain mock/simulated/no real P/L/no return claim/no brokerage labels.
 - Empty or unavailable state must not invite deposit setup, account connection, real order entry, or suitability advice.
 
@@ -101,12 +103,13 @@ Data needs:
 
 API sequence:
 
-1. `GET /api/my?userPublicId=user_demo_001`
-2. `GET /api/my/activity?userPublicId=user_demo_001` only when a smaller activity-only refresh is needed
+1. `GET /api/my`
+2. `GET /api/my/activity` only when a smaller activity-only refresh is needed
 
 Fallback:
 
 - The API may return `dataContext='mock_safe_fallback'` or `sourceLabel='mock_safe_fallback'` for unavailable prototype rows.
+- `GET /api/my` and `GET /api/my/activity` resolve user scope server-side and expose `userScopeSource='session'` or `userScopeSource='demo_fallback'`; do not document or depend on a client-provided `userPublicId` query override.
 - Empty activity/notification lists should render as private in-app empty states, not as account setup, funding, brokerage connection, or notification-delivery prompts.
 - The screen must not call or merge the starter `/api/user` route for investModel-specific selected model, saved FeedPost, comment, notification, portfolio, or financial state.
 
@@ -193,9 +196,10 @@ API sequence:
 
 Fallback:
 
-- Use model detail mock derived from discovery data and page-local detail copy.
-- Selection action can remain disabled or mock-safe until backend persistence is ready.
-- If model is not public-safe, show `404 not_found` style unavailable state rather than exposing hidden status.
+- Use the `GET /api/models/:id` DB read model first. The route returns only marketplace-visible approved/public model detail and reports `marketplaceVisibleOnly=true`, `backtestMetricsOnly=true`, `financialAdvice=false`, `modelSelectionCreated=false`, `tradeIntentCreated=false`, `realOrder=false`, and `brokerageConnection=false`.
+- If the detail route returns a server error or cannot be called, use `db_unavailable_mock_fallback` from `lib/mock/invest-model-model-detail.ts`; if the API returns non-OK and the requested model id matches local comparison data, the page may show `legacy_mock_fallback`.
+- Selection action is persisted only through `POST /api/model-selections` after risk acknowledgement and remains model-version review state, not allocation preference, deposit, order, brokerage consent, or advice.
+- If a DB model is not marketplace-visible, the route returns `404 not_found`. The page must not reveal hidden DB status; local legacy comparison mock visibility should be tightened later if it can overlap with hidden production-like identifiers.
 
 ### Feed Insights
 
@@ -271,7 +275,7 @@ API sequence:
 
 Fallback:
 
-- If the API is unavailable, show an unavailable state rather than inventing live market/search results.
+- If the API is unavailable or returns non-OK, the current page renders empty grouped arrays rather than inventing live market/search results.
 - Empty groups should say no matching model/feed/signal records were found in the prototype dataset.
 
 ### Notification Center
@@ -280,7 +284,8 @@ Route contract:
 
 - Screen route: `/invest-model/notifications`.
 - Top notification buttons should navigate to the route while preserving locale query state.
-- `GET /api/notifications` accepts optional `userPublicId` and `limit`; the current prototype limits `userPublicId` to `user_demo_001`.
+- `GET /api/notifications` accepts optional `limit`; the route resolves user scope server-side through `resolveInvestModelUserScope` and reports `userScopeSource='session'` or `userScopeSource='demo_fallback'`.
+- `POST /api/notifications/mark-all-read` resolves the same user scope but mutates only `feed_post_reads`; it does not send any delivery provider event.
 - `POST /api/notifications/mark-all-read` updates only the current user's feed read state and returns the refreshed center.
 - The page must label notifications as feed-derived/informational rows, not real push, email, SMS, broker, order, account, or advice alerts.
 
@@ -301,7 +306,7 @@ API sequence:
 
 Fallback:
 
-- If the API is unavailable, show a quiet unavailable state and keep unread badge copy conservative.
+- If the API is unavailable, the current page throws to the app error boundary. A future UI fallback may replace that with a quiet unavailable state, but it must keep unread badge copy conservative.
 - Empty state should say there are no prototype notifications yet, without implying external delivery setup.
 
 ## Public Id And Detail Link Rules
@@ -322,7 +327,7 @@ These rules apply to Signal and Feed detail routes before list cards become link
 | --- | --- | --- |
 | 1 | `GET /api/models` | Powers Discover Models and model navigation. |
 | 2 | `GET /api/models/:id` | Powers Model Detail and risk/mandate review before selection. |
-| 3 | `GET /api/portfolio/mock-summary` | Powers Home and future Portfolio, but must stay mock-only. |
+| 3 | `GET /api/portfolio/mock-summary` | Powers Home and Portfolio, but must stay mock-only with explicit safety meta flags. |
 | 4 | `GET /api/signals` | Powers Home preview and Realtime Signals. |
 | 5 | `GET /api/feed` | Powers Home preview and Feed Insights. |
 | 6 | `POST /api/model-selections` | Enables explicit model version selection after risk acknowledgement. |
