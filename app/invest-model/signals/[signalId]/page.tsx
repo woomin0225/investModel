@@ -145,7 +145,7 @@ function signalSafetyDescription(locale: SignalLocale, signal: SignalEventDto) {
   if (signal.signalType === 'risk') {
     return locale === 'ko'
       ? '이 화면은 위험 관찰 입력값을 보여줍니다. 매수, 매도, 보유, 주문 신호가 아닙니다.'
-      : 'This screen shows a risk observation input. It is not a buy, sell, hold, or order signal.';
+      : 'This screen shows a risk observation input. It is not a trade-direction signal or order instruction.';
   }
 
   return locale === 'ko'
