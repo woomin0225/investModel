@@ -49,6 +49,7 @@
     "test:signal-api": "npx tsx scripts/smoke/signal-api-smoke.ts",
     "test:signal-detail-api": "npx tsx scripts/smoke/signal-detail-api-smoke.ts",
     "test:signal-explainer-api": "npx tsx scripts/smoke/signal-explainer-api-smoke.ts",
+    "test:signal-explainer-card": "npx tsx scripts/qa/signal-explainer-card-smoke.ts",
     "test:signal-explainer-read-model": "npx tsx scripts/smoke/signal-explainer-read-model-smoke.ts",
     "test:stripe-build-isolation": "npx tsx scripts/smoke/stripe-build-isolation-smoke.ts",
     "test:watchlist-api": "npx tsx scripts/smoke/watchlist-api-smoke.ts",

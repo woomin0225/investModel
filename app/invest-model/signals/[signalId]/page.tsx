@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { NextRequest } from 'next/server';
 
+import { GET as readSignalExplainer } from '@/app/api/signals/[signalId]/explainer/route';
 import { GET as readSignalDetail } from '@/app/api/signals/[signalId]/route';
 import {
   DetailBackLink,
@@ -16,6 +17,7 @@ import type {
   SignalEventDto,
   SignalEventType
 } from '@/lib/domain/signals/signal-event';
+import type { SignalExplainerReadModel } from '@/lib/db/signal-explainer-read-model';
 import {
   finiteNumber,
   formatScoreWidth
@@ -226,6 +228,79 @@ function signalScoreSnapshotRows(locale: SignalLocale, signal: SignalEventDto) {
   ];
 }
 
+function signalExplainerBoundaryLine(locale: SignalLocale) {
+  return locale === 'ko'
+    ? [
+        'Seed/mock only',
+        'Observed inputs',
+        'No advice',
+        'No order',
+        'No live external data'
+      ]
+    : [
+        'Seed/mock only',
+        'Observed inputs',
+        'No advice',
+        'No order',
+        'No live external data'
+      ];
+}
+
+function signalExplainerMetaLine(
+  locale: SignalLocale,
+  explainer: SignalExplainerReadModel
+) {
+  const source =
+    explainer.generatedFrom === 'db_seed_projection'
+      ? 'DB seed projection'
+      : 'Deterministic fixture';
+
+  return locale === 'ko'
+    ? `${source} / mockOnly=${explainer.safetyMeta.mockOnly} / financialAdvice=${explainer.safetyMeta.financialAdvice}`
+    : `${source} / mockOnly=${explainer.safetyMeta.mockOnly} / financialAdvice=${explainer.safetyMeta.financialAdvice}`;
+}
+
+function signalExplainerAccessibleLabel(
+  locale: SignalLocale,
+  explainer: SignalExplainerReadModel
+) {
+  return locale === 'ko'
+    ? `${explainer.explanationTitle}. ${explainer.safetySummary}`
+    : `${explainer.explanationTitle}. ${explainer.safetySummary}`;
+}
+
+async function readSignalExplainerRoute(
+  signalPublicId: string
+): Promise<SignalExplainerReadModel> {
+  const response = await readSignalExplainer(
+    new NextRequest(`http://localhost/api/signals/${signalPublicId}/explainer`, {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    }),
+    {
+      params: Promise.resolve({
+        signalId: signalPublicId
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('SignalEvent explainer route read failed.');
+  }
+
+  const payload = (await response.json()) as {
+    data?: SignalExplainerReadModel;
+  };
+
+  if (!payload.data) {
+    throw new Error('SignalEvent explainer route returned no data.');
+  }
+
+  return payload.data;
+}
+
 function signalEvidenceVisibleBoundaries(locale: SignalLocale) {
   return locale === 'ko'
     ? [
@@ -295,6 +370,8 @@ export default async function InvestModelSignalDetailPage({
     notFound();
   }
 
+  const explainer = await readSignalExplainerRoute(resolvedParams.signalId);
+
   const scoreTone = scoreToneFromScore(signal.score);
   const currentPath = `/invest-model/signals/${resolvedParams.signalId}`;
   const backHref = `/invest-model/signals?lang=${locale}`;
@@ -338,6 +415,11 @@ export default async function InvestModelSignalDetailPage({
     }
   ];
   const scoreSnapshotRows = signalScoreSnapshotRows(locale, signal);
+  const explainerAccessibleLabel = signalExplainerAccessibleLabel(
+    locale,
+    explainer
+  );
+  const explainerMetaLine = signalExplainerMetaLine(locale, explainer);
   const evidenceRows = [
     {
       label: locale === 'ko' ? '관련 뉴스 맥락' : 'Related news context',
@@ -501,6 +583,73 @@ export default async function InvestModelSignalDetailPage({
               </div>
             ))}
           </div>
+
+          <section
+            aria-label={explainerAccessibleLabel}
+            title={explainerAccessibleLabel}
+            className="mt-5 grid gap-3 rounded-invest-control border border-invest-primary/20 bg-invest-primary-soft/35 p-3"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-[12px] font-bold leading-4 text-invest-primary">
+                  {locale === 'ko' ? 'Why it moved' : 'Why it moved'}
+                </p>
+                <h3 className="mt-1 text-[16px] font-bold leading-6 text-invest-text">
+                  {explainer.explanationTitle}
+                </h3>
+              </div>
+              <RiskBadge tone="neutral">
+                {explainer.generatedFrom === 'db_seed_projection'
+                  ? 'DB seed'
+                  : 'Fixture'}
+              </RiskBadge>
+            </div>
+
+            <p className="text-sm font-semibold leading-6 text-invest-text">
+              {explainer.explanationSummary}
+            </p>
+            <p className="rounded-invest-control bg-invest-surface px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+              {signalExplainerBoundaryLine(locale).join(' / ')}
+            </p>
+
+            <div className="grid gap-2">
+              {explainer.drivers.map((driver) => (
+                <div
+                  key={`${driver.sourceType}-${driver.label}`}
+                  className="grid min-w-0 gap-2 rounded-invest-control border border-invest-border/70 bg-invest-surface p-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="min-w-0 break-words text-sm font-bold leading-5 text-invest-text [overflow-wrap:anywhere]">
+                      {driver.label}
+                    </p>
+                    <span className="rounded-full bg-invest-bg-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-text-muted">
+                      {driver.contributionLabel}
+                    </span>
+                  </div>
+                  <p className="min-w-0 break-words text-[12px] font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
+                    {driver.evidenceLabel}
+                  </p>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
+                    <div
+                      className="h-full rounded-full bg-invest-primary"
+                      style={{
+                        width: scoreWidth(driver.normalizedScore)
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid gap-2 rounded-invest-control bg-invest-surface p-3 min-[360px]:grid-cols-[minmax(0,0.44fr)_minmax(0,1fr)]">
+              <p className="text-[12px] font-bold leading-4 text-invest-text-muted">
+                {locale === 'ko' ? 'Explainer source' : 'Explainer source'}
+              </p>
+              <p className="min-w-0 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                {explainerMetaLine}
+              </p>
+            </div>
+          </section>
 
           <div className="mt-5 grid gap-2">
             <p className="rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
