@@ -5,6 +5,11 @@ import {
   type SearchSuggestionItem,
   type SearchSuggestionKind
 } from '@/lib/db/search-suggestion-read-model';
+import {
+  readSearchNoResultSeedFixture,
+  type SearchNoResultCategory,
+  type SearchNoResultGroup
+} from '@/lib/db/search-no-result-read-model';
 import type { AccessRole } from '@/lib/domain/types';
 import {
   readInvestModelRole,
@@ -27,6 +32,13 @@ type ApiErrorCode = 'forbidden' | 'validation_error' | 'server_error';
 
 type SearchSuggestionDto = SearchSuggestionItem & {
   href: string;
+};
+
+type SearchNoResultGroupDto = SearchNoResultGroup & {
+  suggestedSearches: {
+    query: string;
+    href: string;
+  }[];
 };
 
 function errorResponse(
@@ -131,12 +143,48 @@ function toDto(suggestion: SearchSuggestionItem): SearchSuggestionDto {
   };
 }
 
-function buildEmptyState(query: string) {
+function suggestionKindToNoResultCategory(
+  kind: SearchSuggestionKind
+): SearchNoResultCategory {
+  if (kind === 'topic') {
+    return 'feed';
+  }
+
+  return kind;
+}
+
+function toNoResultGroupDto(
+  group: SearchNoResultGroup
+): SearchNoResultGroupDto {
+  return {
+    ...group,
+    suggestedKeywords: [...group.suggestedKeywords],
+    sourceTables: [...group.sourceTables],
+    relatedSuggestionPublicIds: [...group.relatedSuggestionPublicIds],
+    sourceMeta: { ...group.sourceMeta },
+    suggestedSearches: group.suggestedKeywords.map((keyword) => ({
+      query: keyword,
+      href: `/invest-model/search?q=${encodeURIComponent(keyword)}`
+    }))
+  };
+}
+
+function uniqueKeywords(groups: SearchNoResultGroupDto[]) {
+  return Array.from(
+    new Set(groups.flatMap((group) => group.suggestedKeywords))
+  ).slice(0, 8);
+}
+
+function buildEmptyState(query: string, groups: SearchNoResultGroupDto[]) {
   return {
     title: 'No seeded suggestions matched',
     message: query
       ? 'Try another mock or seeded topic. Live quote lookup and external search providers are not connected.'
-      : 'Seed Search suggestions will appear after mock or DB seed read-model rows are available.'
+      : 'Seed Search suggestions will appear after mock or DB seed read-model rows are available.',
+    groupedSuggestionCount: groups.length,
+    safeFallbackKeywords: uniqueKeywords(groups),
+    safetyLabel:
+      'Grouped empty-state suggestions come from local seed/read-model rows only; no live quote lookup, external search provider, paid API, advice, order, deposit, or brokerage action is connected.'
   };
 }
 
@@ -194,21 +242,58 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const fixture = await readSearchSuggestionSeedFixture();
+    const [fixture, noResultFixture] = await Promise.all([
+      readSearchSuggestionSeedFixture(),
+      readSearchNoResultSeedFixture()
+    ]);
     const suggestions = fixture
       .filter((suggestion) => !kind || suggestion.kind === kind)
       .filter((suggestion) => matchesSuggestion(suggestion, query))
       .slice(0, limit.value)
       .map(toDto);
+    const noResultGroups = noResultFixture
+      .filter(
+        (group) => !kind || group.category === suggestionKindToNoResultCategory(kind)
+      )
+      .map(toNoResultGroupDto);
     const recentMockTerms = fixture
       .slice(0, 5)
       .map((suggestion) => suggestion.query);
+    const groupedEmptyState =
+      suggestions.length === 0
+        ? {
+            query,
+            groups: noResultGroups,
+            safetyMeta: {
+              mockOnly: true,
+              seedOnly: true,
+              localReadModelOnly: true,
+              emptyStateOnly: true,
+              realtimeExternalData: false,
+              externalSearchProvider: false,
+              liveQuoteLookup: false,
+              externalPaidApi: false,
+              financialAdvice: false,
+              modelSelectionCreated: false,
+              tradeIntentCreated: false,
+              realOrder: false,
+              realDeposit: false,
+              brokerageConnection: false,
+              accountData: false
+            }
+          }
+        : null;
 
     return Response.json({
       data: {
         suggestions,
         recentMockTerms,
-        emptyState: suggestions.length === 0 ? buildEmptyState(query) : null,
+        noResultGroups: suggestions.length === 0 ? noResultGroups : [],
+        groupedEmptyState,
+        emptyState:
+          suggestions.length === 0
+            ? buildEmptyState(query, noResultGroups)
+            : null,
         safetySummary:
           'Seeded suggestions are read-only discovery shortcuts, not live market search, investment advice, model selection, orders, or brokerage actions.'
       },
@@ -227,11 +312,14 @@ export async function GET(request: NextRequest) {
         limit: limit.value,
         counts: {
           suggestions: suggestions.length,
-          recentMockTerms: recentMockTerms.length
+          recentMockTerms: recentMockTerms.length,
+          noResultGroups:
+            suggestions.length === 0 ? noResultGroups.length : 0
         },
         dataContext: 'mock_or_seed',
         readOnly: true,
         suggestionChipsOnly: true,
+        groupedEmptyStateOnly: suggestions.length === 0,
         localReadModelOnly: true,
         realtimeExternalData: false,
         externalSearchProvider: false,
@@ -241,6 +329,8 @@ export async function GET(request: NextRequest) {
         modelSelectionCreated: false,
         tradeIntentCreated: false,
         realOrder: false,
+        realDeposit: false,
+        accountData: false,
         brokerageConnection: false
       }
     });

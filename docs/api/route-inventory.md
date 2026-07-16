@@ -31,6 +31,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `POST` | `/api/feed/:postId/saves` | Toggle or set the signed-in user's saved state. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/reads` | Mark the signed-in user's post as read. | signed-in | DB-backed action implemented |
 | `GET` | `/api/search` | Read grouped model, feed, and signal search results. | signed-in | DB-backed read implemented |
+| `GET` | `/api/search/suggestions` | Read seed/mock search suggestion chips and grouped no-result fallback metadata. | signed-in | Seed/read-model backed read implemented |
 | `GET` | `/api/notifications` | Read user-scoped notification center rows. | user | DB-backed read implemented |
 | `POST` | `/api/notifications/mark-all-read` | Mark notification-center FeedPost read state as read. | user | DB-backed read-state action implemented |
 | `GET` | `/api/my` | Read the My Page screen summary for one prototype user. | user | DB-backed read implemented |
@@ -242,6 +243,20 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Mock source | Existing DB seed/read models; no external realtime search provider while IS-004 is open. |
 | Safety notes | Search is read-only model discovery and information retrieval. It must not create recommendations, model selections, `TradeIntent`, orders, brokerage actions, or paid external API calls. |
 
+### `GET /api/search/suggestions`
+
+| Field | Value |
+| --- | --- |
+| Status | Seed/read-model backed read API implemented in `app/api/search/suggestions/route.ts`; smoke-covered by `scripts/smoke/search-suggestion-api-smoke.ts`. |
+| Purpose | Provide mobile Search suggestion chips and grouped no-result fallback keywords for model, feed, and signal empty states. |
+| Request | Optional query parameters: `q` trimmed and capped at 80 characters, `kind` as `topic`, `model`, or `signal`, and `limit` from 1 to 8. Invalid `kind`, non-integer `limit`, or overlong `q` returns `422 validation_error`. |
+| Response DTO | `SearchSuggestionDto[]`, `recentMockTerms`, `emptyState`, `noResultGroups`, and `groupedEmptyState` when no suggestion matches. |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
+| Screens | Search suggestion chips and future grouped Search empty-state rows. |
+| Source tables | `search_query_logs`, `investment_models`, `model_versions`, `model_signal_events`, `feed_posts` |
+| Mock source | `lib/db/search-suggestion-read-model.ts` and `lib/db/search-no-result-read-model.ts` deterministic fixtures when DB projection is unavailable. |
+| Safety notes | Suggestions and grouped empty-state keywords are local read-only navigation helpers only. The route must keep `readOnly=true`, `localReadModelOnly=true`, `externalSearchProvider=false`, `liveQuoteLookup=false`, `externalPaidApi=false`, `financialAdvice=false`, `modelSelectionCreated=false`, `tradeIntentCreated=false`, `realOrder=false`, `realDeposit=false`, `accountData=false`, and `brokerageConnection=false`. |
+
 ### `GET /api/notifications`
 
 | Field | Value |
@@ -447,7 +462,7 @@ The current route inventory is checked against these local smoke scripts:
 | Models | `scripts/smoke/model-api-smoke.ts`, `scripts/smoke/model-selection-api-smoke.ts` |
 | Signals | `scripts/smoke/signal-api-smoke.ts`, `scripts/smoke/signal-detail-api-smoke.ts`, `scripts/smoke/mock-ingestion-boundary-smoke.ts` |
 | Feed | `scripts/smoke/feed-api-smoke.ts`, `scripts/smoke/feed-detail-api-smoke.ts`, `scripts/smoke/feed-comment-api-smoke.ts`, `scripts/smoke/feed-reply-api-smoke.ts`, `scripts/smoke/feed-like-api-smoke.ts`, `scripts/smoke/feed-save-api-smoke.ts`, `scripts/smoke/feed-read-api-smoke.ts`, `scripts/smoke/feed-ranking-api-smoke.ts` |
-| Search, notifications, My Page, portfolio | `scripts/smoke/search-api-smoke.ts`, `scripts/smoke/search-read-model-projection-smoke.ts`, `scripts/smoke/notifications-api-smoke.ts`, `scripts/smoke/notifications-mark-all-read-api-smoke.ts`, `scripts/smoke/my-page-api-smoke.ts`, `scripts/smoke/my-activity-api-smoke.ts`, `scripts/smoke/portfolio-mock-summary-api-smoke.ts`, `scripts/smoke/portfolio-holdings-api-smoke.ts`, `scripts/smoke/portfolio-allocation-split-api-smoke.ts` |
+| Search, notifications, My Page, portfolio | `scripts/smoke/search-api-smoke.ts`, `scripts/smoke/search-read-model-projection-smoke.ts`, `scripts/smoke/search-suggestion-api-smoke.ts`, `scripts/smoke/search-no-result-read-model-smoke.ts`, `scripts/smoke/notifications-api-smoke.ts`, `scripts/smoke/notifications-mark-all-read-api-smoke.ts`, `scripts/smoke/my-page-api-smoke.ts`, `scripts/smoke/my-activity-api-smoke.ts`, `scripts/smoke/portfolio-mock-summary-api-smoke.ts`, `scripts/smoke/portfolio-holdings-api-smoke.ts`, `scripts/smoke/portfolio-allocation-split-api-smoke.ts` |
 | Creator/admin/review contracts | `scripts/smoke/creator-draft-validation-smoke.ts`, `scripts/smoke/admin-force-stop-smoke.ts`, `scripts/smoke/rbac-access-smoke.ts`, `scripts/smoke/operator-review-manual-smoke.ts`, `scripts/smoke/review-result-notification-smoke.ts`, `scripts/smoke/model-status-notification-smoke.ts`, `scripts/qa/invest-model-admin-review-flow-smoke.ts`, `scripts/qa/invest-model-model-report-smoke.ts` |
 
 ## Error And Policy Notes

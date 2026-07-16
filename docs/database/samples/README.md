@@ -29,4 +29,5 @@ sample values without applying them directly to MySQL.
 - `feed-detail-read-model.sample.sql`
 - `model-compare-read-model.sample.sql`
 - `admin-review-queue-read-model.sample.sql`
+- `search-suggestion-read-model.sample.sql`
 - `search-no-result-read-model.sample.sql`

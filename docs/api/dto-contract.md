@@ -481,6 +481,77 @@ Safety requirements:
 - The route meta must keep `readOnly: true`, `modelDiscoveryOnly: true`, `realtimeExternalData: false`, `financialAdvice: false`, `modelSelectionCreated: false`, `tradeIntentCreated: false`, `realOrder: false`, and `brokerageConnection: false`.
 - Do not add fields named `recommendation`, `tradeAction`, `order`, `execution`, `brokerAction`, `suitability`, or `expectedReturn`.
 
+## `SearchSuggestionDto`
+
+Used by `GET /api/search/suggestions` and the Search suggestion chip surface.
+
+```ts
+interface SearchSuggestionDto {
+  suggestionPublicId: string;
+  kind: 'topic' | 'model' | 'signal';
+  label: string;
+  query: string;
+  helper: string;
+  tone: 'neutral' | 'attention' | 'risk';
+  relatedPublicIds: string[];
+  safetyLabel: string;
+  sourceMeta: {
+    sourceTables: string[];
+    mockOnly: true;
+    seedOnly: true;
+    localReadModelOnly: true;
+    realtimeExternalData: false;
+    externalSearchProvider: false;
+    liveQuoteLookup: false;
+    externalPaidApi: false;
+    financialAdvice: false;
+    modelSelectionCreated: false;
+    tradeIntentCreated: false;
+    realOrder: false;
+    brokerageConnection: false;
+  };
+  href: string;
+}
+
+interface SearchNoResultGroupDto {
+  groupPublicId: string;
+  category: 'model' | 'feed' | 'signal';
+  title: string;
+  emptyMessage: string;
+  suggestedKeywords: string[];
+  suggestedSearches: Array<{ query: string; href: string }>;
+  helper: string;
+  safetyLabel: string;
+  sourceMeta: {
+    mockOnly: true;
+    seedOnly: true;
+    localReadModelOnly: true;
+    emptyStateOnly: true;
+    realtimeExternalData: false;
+    externalSearchProvider: false;
+    liveQuoteLookup: false;
+    externalPaidApi: false;
+    financialAdvice: false;
+    modelSelectionCreated: false;
+    tradeIntentCreated: false;
+    realOrder: false;
+    realDeposit: false;
+    brokerageConnection: false;
+    accountData: false;
+  };
+}
+```
+
+Source tables: `search_query_logs`, `investment_models`, `model_versions`, `model_signal_events`, `feed_posts`.
+
+Safety requirements:
+
+- Suggestion chips are local seed/mock discovery shortcuts only.
+- When no chip matches, `noResultGroups` and `groupedEmptyState` may provide grouped model/feed/signal fallback keywords from `SearchNoResultGroupDto`.
+- Empty-state fallback keywords must not call external search providers, live quote lookups, paid APIs, broker/account systems, order routes, or advice/ranking engines.
+- The route meta must keep `readOnly: true`, `suggestionChipsOnly: true`, `localReadModelOnly: true`, `externalSearchProvider: false`, `liveQuoteLookup: false`, `externalPaidApi: false`, `financialAdvice: false`, `modelSelectionCreated: false`, `tradeIntentCreated: false`, `realOrder: false`, `realDeposit: false`, `accountData: false`, and `brokerageConnection: false`.
+- Do not add fields named `recommendation`, `tradeAction`, `order`, `execution`, `brokerAction`, `suitability`, `expectedReturn`, `accountNumber`, or `brokerageAccount`.
+
 ## `NotificationCenterDto`
 
 Used by `GET /api/notifications`, `POST /api/notifications/mark-all-read`, My Page notification summary, and the future Notification Center screen.

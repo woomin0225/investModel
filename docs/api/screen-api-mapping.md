@@ -27,7 +27,7 @@
 | Model Detail | `/invest-model/models/[modelId]` | `GET /api/models/:id`; `POST /api/model-selections` after acknowledgement | `ModelDetailDto`; `ModelSelectionDto` | DB read model first; `legacy_mock_fallback` for comparison mocks and `db_unavailable_mock_fallback` only when the detail route is unavailable | public or signed-in for detail; `user` for selection | selection stores reviewed model version only, not user allocation preferences, allocation settings, orders, deposits, brokerage links, or advice. |
 | Feed Insights | `/invest-model/feed` | `GET /api/feed` | `FeedPostDto[]` | `lib/mock/invest-model-feed.ts` | signed-in | informational model/market/review notes only. |
 | Feed Detail | `/invest-model/feed/[postId]` | `GET /api/feed/:postId`; feed action APIs | `FeedPostDetailDto`; `FeedCommentDto`; `FeedReactionStateDto` | DB-backed FeedPost detail read model; safe empty/not-found state when unavailable | signed-in | route param uses public id only; informational content only; comments/actions are user-scoped contracts. |
-| Search | `/invest-model/search` | `GET /api/search?q=` | `SearchResultDto` | DB-backed grouped result arrays; empty arrays when no match or non-OK route response | `user`/`admin` prototype header | read-only grouped search; no recommendation, model selection, TradeIntent, external paid search, order, or brokerage action. |
+| Search | `/invest-model/search` | `GET /api/search?q=`; `GET /api/search/suggestions` | `SearchResultDto`; `SearchSuggestionDto` | DB-backed grouped result arrays; seed/read-model suggestion chips and grouped no-result fallback metadata | `user`/`admin` prototype header | read-only grouped search; no recommendation, model selection, TradeIntent, external paid search, live quote lookup, order, deposit, account data, or brokerage action. |
 | Notification Center | `/invest-model/notifications` | `GET /api/notifications`; `POST /api/notifications/mark-all-read` | `NotificationCenterDto` | DB-backed feed-derived notification rows and read state; page throws to app error boundary on route failure | `user`/`admin`; GET may use session fallback, POST uses prototype header | read/unread center only; no push/email/SMS delivery, broker/account connection, order, or advice. |
 | My Page | `/invest-model/my` | `GET /api/my`; supporting `GET /api/my/activity` | `MyPageSummaryDto`; `MyPageFeedActivitySummaryDto` | DB-backed user read model with mock-safe fallback labels | user | profile, selected model, saved/comment activity, notification summary, and recent notification rows only. No real account, balance, deposit, order, broker, push/email/SMS delivery, or advice. |
 | Portfolio | `/invest-model/portfolio` | `GET /api/portfolio/mock-summary` | `PortfolioSummaryDto`; `PortfolioDashboardTimelineDto[]` | DB-backed mock-safe summary, with `lib/mock/invest-model-portfolio.ts` used only when DB state is unavailable | user | 1D/1W/1M time dashboard, simulated positions, AllocationDecision, blocked TradeIntent state, and `safetyMeta` flags only. No real deposit, balance, order, broker, or advice. |
@@ -273,11 +273,13 @@ Data needs:
 API sequence:
 
 1. `GET /api/search?q={query}`
+2. `GET /api/search/suggestions?q={query}` for seed suggestion chips, recent mock terms, and grouped no-result fallback metadata
 
 Fallback:
 
 - If the API is unavailable or returns non-OK, the current page renders empty grouped arrays rather than inventing live market/search results.
 - Empty groups should say no matching model/feed/signal records were found in the prototype dataset.
+- Suggestion chips and grouped empty-state keywords must come from local seed/read-model rows only. They may link back to `/invest-model/search?q=...`, but they must not start live quote lookup, external search, model selection, `TradeIntent`, orders, deposits, account setup, brokerage connection, or financial advice flows.
 
 ### Notification Center
 

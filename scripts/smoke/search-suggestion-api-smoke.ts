@@ -105,8 +105,45 @@ async function main() {
   );
   assertCondition(
     noMatchJson.data.suggestions.length === 0 &&
-      noMatchJson.data.emptyState?.message.includes('Live quote lookup'),
-    'no-match response returns a safe empty state'
+      noMatchJson.data.emptyState?.message.includes('Live quote lookup') &&
+      Array.isArray(noMatchJson.data.noResultGroups) &&
+      noMatchJson.data.noResultGroups.length >= 3 &&
+      noMatchJson.data.groupedEmptyState?.safetyMeta?.emptyStateOnly === true,
+    'no-match response returns safe grouped empty-state suggestions'
+  );
+  assertCondition(
+    noMatchJson.data.noResultGroups.every(
+      (group: {
+        groupPublicId?: string;
+        suggestedSearches?: { href?: string }[];
+        sourceMeta?: Record<string, unknown>;
+      }) =>
+        group.groupPublicId?.startsWith('search_no_result_') &&
+        Array.isArray(group.suggestedSearches) &&
+        group.suggestedSearches.every((item) =>
+          item.href?.startsWith('/invest-model/search?q=')
+        ) &&
+        group.sourceMeta?.localReadModelOnly === true &&
+        group.sourceMeta?.emptyStateOnly === true &&
+        group.sourceMeta?.externalSearchProvider === false &&
+        group.sourceMeta?.liveQuoteLookup === false &&
+        group.sourceMeta?.externalPaidApi === false &&
+        group.sourceMeta?.financialAdvice === false &&
+        group.sourceMeta?.tradeIntentCreated === false &&
+        group.sourceMeta?.realOrder === false &&
+        group.sourceMeta?.realDeposit === false &&
+        group.sourceMeta?.accountData === false &&
+        group.sourceMeta?.brokerageConnection === false
+    ),
+    'grouped no-result suggestions preserve local-only safety meta'
+  );
+  assertCondition(
+    noMatchJson.data.emptyState.safeFallbackKeywords.length >= 3 &&
+      noMatchJson.meta?.groupedEmptyStateOnly === true &&
+      noMatchJson.meta?.counts?.noResultGroups >= 3 &&
+      noMatchJson.meta?.realDeposit === false &&
+      noMatchJson.meta?.accountData === false,
+    'no-match meta exposes safe fallback keyword counts'
   );
   assertCondition(
     emptyQueryJson.meta?.routeStatus === 'fixture_or_db_seed_projection' &&
