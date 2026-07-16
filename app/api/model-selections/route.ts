@@ -11,6 +11,7 @@ import {
 import {
   buildUserModelSelectionDto,
   canCreateModelSelection,
+  findForbiddenModelSelectionRequestFields,
   type ModelSelectionRequest,
   validateModelSelectionRequest
 } from '@/lib/domain/models/model-selection';
@@ -191,6 +192,23 @@ export async function POST(request: NextRequest) {
   }
 
   const userScope = await resolveInvestModelUserScope(request);
+  const forbiddenFields = findForbiddenModelSelectionRequestFields(body);
+
+  if (forbiddenFields.length > 0) {
+    return errorResponse(
+      403,
+      'policy_blocked',
+      'Model selection records only the chosen ModelVersion. User mandate, allocation, leverage, risk preference, deposit, brokerage, or balance overrides are blocked.',
+      {
+        forbiddenFields,
+        financialOperationsEnabled: false,
+        realDeposit: false,
+        realOrder: false,
+        brokerageConnection: false
+      }
+    );
+  }
+
   const scopedBody =
     typeof body === 'object' && body !== null
       ? { ...body, userPublicId: userScope.userPublicId }
@@ -259,6 +277,23 @@ export async function POST(request: NextRequest) {
         404,
         'not_found',
         'ModelVersion public id was not found for this InvestmentModel.'
+      );
+    }
+
+    if (model.currentVersionId !== modelVersion.id) {
+      return errorResponse(
+        403,
+        'policy_blocked',
+        'Only the current live ModelVersion can be selected. Older or non-current versions remain read-only metadata.',
+        {
+          modelPublicId: model.publicId,
+          modelVersionPublicId: modelVersion.publicId,
+          currentVersionRequired: true,
+          financialOperationsEnabled: false,
+          realDeposit: false,
+          realOrder: false,
+          brokerageConnection: false
+        }
       );
     }
 

@@ -14,6 +14,19 @@ export const modelSelectionRequestSchema = z.object({
   riskAcknowledgedAt: z.string().trim().datetime({ offset: true }).optional()
 });
 
+export const forbiddenModelSelectionRequestFields = [
+  'allocationOverride',
+  'brokerageAccountId',
+  'cashBalance',
+  'depositAmount',
+  'leveragePreference',
+  'mandateOverride',
+  'portfolioMandate',
+  'riskPreference',
+  'riskProfile',
+  'targetAllocationPct'
+] as const;
+
 export type ModelSelectionRequest = z.infer<typeof modelSelectionRequestSchema>;
 
 export type ModelSelectionValidationResult =
@@ -42,6 +55,16 @@ export interface UserModelSelectionDto extends UserModelSelection {
 
 export function canCreateModelSelection(role: AccessRole) {
   return role === 'user' || role === 'admin';
+}
+
+export function findForbiddenModelSelectionRequestFields(input: unknown) {
+  if (typeof input !== 'object' || input === null) {
+    return [];
+  }
+
+  return forbiddenModelSelectionRequestFields.filter((field) =>
+    Object.prototype.hasOwnProperty.call(input, field)
+  );
 }
 
 export function validateModelSelectionRequest(
