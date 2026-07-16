@@ -515,6 +515,9 @@ const portfolioCompactSummaryCardSource = readProjectFile(
 const portfolioHoldingsListCardSource = readProjectFile(
   'components/invest-model/portfolio-holdings-list-card.tsx'
 );
+const portfolioInsightPanelSource = readProjectFile(
+  'components/invest-model/portfolio-insight-panel.tsx'
+);
 const modelSelectionCtaSource = readProjectFile(
   'components/invest-model/model-selection-cta.tsx'
 );
@@ -2104,8 +2107,14 @@ assertCondition(
     !portfolioPageSource.includes('<MetricCard') &&
     portfolioPageSource.includes('PortfolioCompactSummaryCard') &&
     portfolioPageSource.includes('<PortfolioCompactSummaryCard locale={locale} />') &&
+    portfolioPageSource.includes('PortfolioInsightPanel') &&
+    portfolioPageSource.includes('<PortfolioInsightPanel locale={locale} />') &&
     portfolioPageSource.includes('PortfolioHoldingsListCard') &&
     portfolioPageSource.includes('<PortfolioHoldingsListCard locale={locale} />') &&
+    portfolioPageSource.indexOf('<PortfolioInsightPanel locale={locale} />') >
+      portfolioPageSource.indexOf('<PortfolioCompactSummaryCard locale={locale} />') &&
+    portfolioPageSource.indexOf('<PortfolioInsightPanel locale={locale} />') <
+      portfolioPageSource.indexOf('<PortfolioHoldingsListCard locale={locale} />') &&
     portfolioPageSource.indexOf('<PortfolioHoldingsListCard locale={locale} />') >
       portfolioPageSource.indexOf('<PortfolioCompactSummaryCard locale={locale} />') &&
     portfolioPageSource.indexOf('<PortfolioHoldingsListCard locale={locale} />') <
@@ -2149,6 +2158,40 @@ assertCondition(
     !portfolioHoldingsListCardSource.includes('Execute trade') &&
     !portfolioHoldingsListCardSource.includes('Buy now') &&
     !portfolioHoldingsListCardSource.includes('Sell now') &&
+    portfolioInsightPanelSource.includes("'use client'") &&
+    portfolioInsightPanelSource.includes('/api/portfolio/insight') &&
+    portfolioInsightPanelSource.includes('x-invest-model-role') &&
+    portfolioInsightPanelSource.includes("status: 'loading'") &&
+    portfolioInsightPanelSource.includes("status: 'empty'") &&
+    portfolioInsightPanelSource.includes("status: 'error'") &&
+    portfolioInsightPanelSource.includes("status: 'loaded'") &&
+    portfolioInsightPanelSource.includes('PortfolioInsightLoading') &&
+    portfolioInsightPanelSource.includes('aria-busy="true"') &&
+    portfolioInsightPanelSource.includes('data-portfolio-insight-loading-skeleton="mock-only"') &&
+    portfolioInsightPanelSource.includes('data-portfolio-insight-panel="mock-safe"') &&
+    portfolioInsightPanelSource.includes('Mock portfolio insights') &&
+    portfolioInsightPanelSource.includes('Allocation rationale') &&
+    portfolioInsightPanelSource.includes('Status timeline') &&
+    portfolioInsightPanelSource.includes('mock rationale only') &&
+    portfolioInsightPanelSource.includes('read-only timeline') &&
+    portfolioInsightPanelSource.includes('pre-order simulation only') &&
+    portfolioInsightPanelSource.includes('no real deposit') &&
+    portfolioInsightPanelSource.includes('no real balance') &&
+    portfolioInsightPanelSource.includes('no real order') &&
+    portfolioInsightPanelSource.includes('no broker') &&
+    portfolioInsightPanelSource.includes('not advice') &&
+    portfolioInsightPanelSource.includes('allocationCommandCreated=') &&
+    portfolioInsightPanelSource.includes('legalJudgment=') &&
+    portfolioInsightPanelSource.includes('min-[390px]:grid-cols-[minmax(0,1fr)_7.25rem]') &&
+    portfolioInsightPanelSource.includes('min-[390px]:grid-cols-[minmax(0,1fr)_auto]') &&
+    portfolioInsightPanelSource.includes('min-h-invest-touch-target') &&
+    portfolioInsightPanelSource.includes('[overflow-wrap:anywhere]') &&
+    !portfolioInsightPanelSource.includes('Deposit now') &&
+    !portfolioInsightPanelSource.includes('Connect brokerage') &&
+    !portfolioInsightPanelSource.includes('Place order') &&
+    !portfolioInsightPanelSource.includes('Execute trade') &&
+    !portfolioInsightPanelSource.includes('Buy now') &&
+    !portfolioInsightPanelSource.includes('Sell now') &&
     portfolioCompactSummaryCardSource.includes("'use client'") &&
     portfolioCompactSummaryCardSource.includes('/api/portfolio/compact-summary') &&
     portfolioCompactSummaryCardSource.includes('x-invest-model-role') &&

@@ -45,6 +45,7 @@
     "test:portfolio-compact-card": "npx tsx scripts/qa/portfolio-compact-card-smoke.ts",
     "test:portfolio-holdings-api": "npx tsx scripts/smoke/portfolio-holdings-api-smoke.ts",
     "test:portfolio-holdings-card": "npx tsx scripts/qa/portfolio-holdings-list-card-smoke.ts",
+    "test:portfolio-insight-panel": "npx tsx scripts/qa/portfolio-insight-panel-smoke.ts",
     "test:portfolio-market-context": "npx tsx scripts/qa/portfolio-market-context-tiles-smoke.ts",
     "test:portfolio-allocation-split-api": "npx tsx scripts/smoke/portfolio-allocation-split-api-smoke.ts",
     "test:portfolio-allocation-split-read-model": "npx tsx scripts/smoke/portfolio-allocation-split-read-model-smoke.ts",

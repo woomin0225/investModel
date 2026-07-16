@@ -15,6 +15,7 @@ import {
   modelSelectionReadStatusCopy,
   PortfolioCompactSummaryCard,
   PortfolioHoldingsListCard,
+  PortfolioInsightPanel,
   PortfolioMarketContextTiles,
   RiskBadge,
   SectionHeader,
@@ -641,6 +642,8 @@ export default async function InvestModelPortfolioPage({
     >
       <section className="space-y-invest-section-gap">
         <PortfolioCompactSummaryCard locale={locale} />
+
+        <PortfolioInsightPanel locale={locale} />
 
         <PortfolioHoldingsListCard locale={locale} />
 

@@ -14,6 +14,7 @@ export { modelSelectionReadStatusCopy } from './model-selection-read-status-copy
 export { ModelSelectionReadStatus } from './model-selection-read-status';
 export { PortfolioCompactSummaryCard } from './portfolio-compact-summary-card';
 export { PortfolioHoldingsListCard } from './portfolio-holdings-list-card';
+export { PortfolioInsightPanel } from './portfolio-insight-panel';
 export { PortfolioMarketContextTiles } from './portfolio-market-context-tiles';
 export { SeededPriceMiniChartCard } from './seeded-price-mini-chart-card';
 export { SignalRefreshAction } from './signal-refresh-action';
