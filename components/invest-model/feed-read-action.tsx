@@ -117,6 +117,12 @@ export function FeedReadAction({
       : isKorean
         ? '읽음 기록이 대기 중입니다. 비공개 읽기 기록일 뿐 조언, 주문, 승인 신호가 아닙니다.'
         : 'Read state is pending. Private reading history only; not advice, order, or approval signal.';
+  const pendingSafetyText = isKorean
+    ? 'Saving read state only. No recommendation, order, approval, or investment advice is created.'
+    : 'Saving read state only. No recommendation, order, approval, or investment advice is created.';
+  const errorSafetyText = isKorean
+    ? 'The read state did not update. No recommendation, order, approval, or investment advice was created.'
+    : 'The read state did not update. No recommendation, order, approval, or investment advice was created.';
 
   return (
     <div
@@ -168,13 +174,24 @@ export function FeedReadAction({
         </span>
       </div>
 
-      {status === 'error' ? (
-        <p className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk">
+      {isPending ? (
+        <p
+          role="status"
+          className="mt-2 text-[11px] font-semibold leading-4 text-invest-primary"
+        >
+          {pendingSafetyText}
+        </p>
+      ) : status === 'error' ? (
+        <p
+          role="alert"
+          className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk"
+        >
           <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />
           <span>
             {isKorean
               ? '읽음 기록을 저장하지 못했습니다.'
-              : 'Could not update read state.'}
+              : 'Could not update read state.'}{' '}
+            {errorSafetyText}
           </span>
         </p>
       ) : (

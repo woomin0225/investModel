@@ -1207,6 +1207,30 @@ assertCondition(
   'Feed comment action must present safety boundaries as prose instead of hashtag safety chip groups'
 );
 assertCondition(
+  feedLikeActionSource.includes('Saving like state only') &&
+    feedLikeActionSource.includes('The like state did not update') &&
+    feedLikeActionSource.includes('role="status"') &&
+    feedLikeActionSource.includes('role="alert"') &&
+    feedLikeActionSource.includes('focus-visible:ring-2 focus-visible:ring-invest-primary') &&
+    feedLikeActionSource.includes('active:bg-invest-primary-soft/55') &&
+    feedSaveActionSource.includes('Saving a private reading shortcut only') &&
+    feedSaveActionSource.includes('The saved state did not update') &&
+    feedSaveActionSource.includes('role="status"') &&
+    feedSaveActionSource.includes('role="alert"') &&
+    feedReadActionSource.includes('Saving read state only') &&
+    feedReadActionSource.includes('The read state did not update') &&
+    feedReadActionSource.includes('role="status"') &&
+    feedReadActionSource.includes('role="alert"') &&
+    feedCommentActionSource.includes('Posting informational comment only') &&
+    feedCommentActionSource.includes('The comment did not post') &&
+    feedCommentActionSource.includes('There are no comments yet. The first comment is informational discussion only') &&
+    feedCommentActionSource.includes('Posting informational reply only') &&
+    feedCommentActionSource.includes('The reply did not post') &&
+    feedCommentActionSource.includes('No order, brokerage action, investment advice, or approval') &&
+    feedCommentActionSource.includes('does not create advice, orders, or brokerage actions'),
+  'BK-477 Feed Detail actions must separate pending, error, and empty states with safe 390px-friendly status copy'
+);
+assertCondition(
   creatorModelDraftFormSource.includes('const helperLine') &&
     creatorModelDraftFormSource.includes('const successMetaLine') &&
     creatorModelDraftFormSource.includes('copy.helper.mockOnly') &&

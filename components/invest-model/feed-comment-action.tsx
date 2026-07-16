@@ -127,6 +127,10 @@ function CommentItem({
       : isKorean
         ? '600자 이내의 정보성 답글을 입력한 뒤 등록하세요.'
         : 'Enter an informational reply within 600 characters before posting.';
+  const replyPendingSafetyText =
+    'Posting informational reply only. No order, brokerage action, investment advice, or approval is created.';
+  const replyErrorSafetyText =
+    'The reply did not post. No order, brokerage action, investment advice, or approval was created.';
 
   async function handleReplySubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -341,6 +345,14 @@ function CommentItem({
             )}
             {isKorean ? '답글 등록' : 'Post reply'}
           </button>
+          {isReplyPending ? (
+            <p
+              role="status"
+              className="mt-2 text-[11px] font-semibold leading-4 text-invest-primary"
+            >
+              {replyPendingSafetyText}
+            </p>
+          ) : null}
           {replyErrorMessage ? (
             <p
               id={replyErrorId}
@@ -348,7 +360,9 @@ function CommentItem({
               className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk"
             >
               <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-              <span>{replyErrorMessage}</span>
+              <span>
+                {replyErrorMessage} {replyErrorSafetyText}
+              </span>
             </p>
           ) : null}
         </form>
@@ -413,6 +427,13 @@ export function FeedCommentAction({
       : isKorean
         ? '600자 이내의 정보성 댓글을 입력한 뒤 등록하세요.'
         : 'Enter an informational comment within 600 characters before posting.';
+  const commentPendingSafetyText =
+    'Posting informational comment only. No order, brokerage action, investment advice, or approval is created.';
+  const commentErrorSafetyText =
+    'The comment did not post. No order, brokerage action, investment advice, or approval was created.';
+  const emptySafetyText = isKorean
+    ? '아직 댓글이 없습니다. 첫 댓글도 정보성 토론 전용이며 투자 조언, 주문, 브로커 동작을 만들지 않습니다.'
+    : 'There are no comments yet. The first comment is informational discussion only; it does not create advice, orders, or brokerage actions.';
 
   const helperText = useMemo(() => {
     if (remainingCount < 0) {
@@ -587,6 +608,14 @@ export function FeedCommentAction({
           {isKorean ? '댓글 등록' : 'Post comment'}
         </button>
 
+        {isPending ? (
+          <p
+            role="status"
+            className="mt-3 text-[11px] font-semibold leading-4 text-invest-primary"
+          >
+            {commentPendingSafetyText}
+          </p>
+        ) : null}
         {errorMessage ? (
           <p
             id={commentErrorId}
@@ -594,7 +623,9 @@ export function FeedCommentAction({
             className="mt-3 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk"
           >
             <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-            <span>{errorMessage}</span>
+            <span>
+              {errorMessage} {commentErrorSafetyText}
+            </span>
           </p>
         ) : null}
         {successMessage ? (
@@ -621,7 +652,7 @@ export function FeedCommentAction({
           ))
         ) : (
           <div className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-5 text-sm font-semibold leading-6 text-invest-text-muted">
-            {isKorean ? '아직 댓글이 없습니다.' : 'There are no comments yet.'}
+            {emptySafetyText}
           </div>
         )}
       </div>

@@ -62,6 +62,12 @@ export function FeedSaveAction({
     : isKorean
       ? '저장되지 않았습니다. 저장은 비공개 읽기 바로가기만 만들며 모델 선택, 배분, 주문 의도가 아닙니다.'
       : 'Not saved. Save only creates a private reading shortcut, not model selection, allocation, or order intent.';
+  const pendingSafetyText = isKorean
+    ? '비공개 읽기 바로가기를 저장하는 중입니다. 모델 선택, 배분, 주문 의도는 생성되지 않습니다.'
+    : 'Saving a private reading shortcut only. No model selection, allocation, or order intent is created.';
+  const errorSafetyText = isKorean
+    ? '저장 상태 변경에 실패했지만 모델 선택, 배분, 실제 주문은 생성되지 않았습니다.'
+    : 'The saved state did not update. No model selection, allocation, or real order was created.';
 
   async function handleToggleSave() {
     if (isPending) {
@@ -127,7 +133,7 @@ export function FeedSaveAction({
         aria-live="polite"
         title={actionTitle}
         className={cn(
-          'flex min-h-invest-touch-target w-full items-start justify-between gap-2 rounded-invest-control text-left disabled:cursor-wait disabled:opacity-80',
+          'flex min-h-invest-touch-target w-full items-start justify-between gap-2 rounded-invest-control text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary active:bg-invest-primary-soft/55 disabled:cursor-wait disabled:opacity-80',
           investMotionClass.interactiveControl
         )}
       >
@@ -167,10 +173,23 @@ export function FeedSaveAction({
         </span>
       </button>
 
+      {isPending ? (
+        <p
+          role="status"
+          className="mt-2 text-[11px] font-semibold leading-4 text-invest-primary"
+        >
+          {pendingSafetyText}
+        </p>
+      ) : null}
       {errorMessage ? (
-        <p className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk">
+        <p
+          role="alert"
+          className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk"
+        >
           <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-          <span>{errorMessage}</span>
+          <span>
+            {errorMessage} {errorSafetyText}
+          </span>
         </p>
       ) : (
         <p className="mt-2 text-[11px] font-semibold leading-4 text-invest-text-muted">

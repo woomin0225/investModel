@@ -48,6 +48,12 @@ export function FeedLikeAction({
     : isKorean
       ? '좋아요를 누르지 않았습니다. 인기 맥락일 뿐 투자 조언, 수익, 주문 신호가 아닙니다.'
       : 'Not liked by you. Popularity context only; not advice, return, or order signal.';
+  const pendingSafetyText = isKorean
+    ? '좋아요 상태를 저장하는 중입니다. 실제 주문, 브로커 동작, 투자 조언은 생성되지 않습니다.'
+    : 'Saving like state only. No real order, brokerage action, or investment advice is created.';
+  const errorSafetyText = isKorean
+    ? '상태 변경에 실패했지만 실제 주문, 브로커 동작, 투자 조언은 생성되지 않았습니다.'
+    : 'The like state did not update. No real order, brokerage action, or investment advice was created.';
 
   async function handleToggleLike() {
     if (isPending) {
@@ -113,7 +119,7 @@ export function FeedLikeAction({
         aria-label={actionTitle}
         title={actionTitle}
         className={cn(
-          'flex min-h-invest-touch-target w-full items-start justify-between gap-2 rounded-invest-control text-left disabled:cursor-wait disabled:opacity-80',
+          'flex min-h-invest-touch-target w-full items-start justify-between gap-2 rounded-invest-control text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary active:bg-invest-primary-soft/55 disabled:cursor-wait disabled:opacity-80',
           investMotionClass.interactiveControl
         )}
       >
@@ -153,10 +159,23 @@ export function FeedLikeAction({
         </span>
       </button>
 
+      {isPending ? (
+        <p
+          role="status"
+          className="mt-2 text-[11px] font-semibold leading-4 text-invest-primary"
+        >
+          {pendingSafetyText}
+        </p>
+      ) : null}
       {errorMessage ? (
-        <p className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk">
+        <p
+          role="alert"
+          className="mt-2 flex gap-1.5 text-[11px] font-semibold leading-4 text-invest-risk"
+        >
           <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-          <span>{errorMessage}</span>
+          <span>
+            {errorMessage} {errorSafetyText}
+          </span>
         </p>
       ) : (
         <p className="mt-2 text-[11px] font-semibold leading-4 text-invest-text-muted">
