@@ -230,7 +230,22 @@ const screens: ScreenCheck[] = [
     requiredCopy: [
       investModelFeedMock.summary.title,
       investModelFeedMock.summary.description,
-      investModelFeedMock.summary.reviewLabel
+      investModelFeedMock.summary.reviewLabel,
+      'Feed topic clusters',
+      'Topic cluster API loaded',
+      'Topic cluster empty state',
+      'Topic cluster error state',
+      'Read-only chips group seeded FeedPosts',
+      'Feed topic chips',
+      'Feed topic cluster rail',
+      'Topic cluster safety labels',
+      'Read-only topic cluster',
+      'mock/seed source',
+      'no live feed',
+      'no paid API',
+      'no advice',
+      'no order',
+      'no brokerage'
     ]
   },
   {
