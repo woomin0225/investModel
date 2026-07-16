@@ -24,6 +24,7 @@ import { investModelFeedMock } from '../../lib/mock/invest-model-feed';
 import { investModelPortfolioMock } from '../../lib/mock/invest-model-portfolio';
 import { pendingAdminReviewModels } from '../../lib/mock/invest-model-admin-review';
 import { investModelCopy } from '../../lib/i18n/invest-model';
+import { adminReviewQueueSeedFixture } from '../../lib/db/admin-review-queue-read-model';
 
 type ScreenCheck = {
   name: string;
@@ -208,10 +209,15 @@ const screens: ScreenCheck[] = [
     pageFile: 'app/invest-model/admin/reviews/page.tsx',
     activeTab: 'models',
     requiredCopy: [
-      pendingAdminReviewModels[0]?.modelName ?? '',
-      pendingAdminReviewModels[0]?.creatorName ?? '',
-      pendingAdminReviewModels[0]?.blockedActionLabel ?? '',
-      pendingAdminReviewModels[0]?.disclosureStatusLabel ?? ''
+      adminReviewQueueSeedFixture[0]?.reviewPublicId ?? '',
+      adminReviewQueueSeedFixture[0]?.modelPublicId ?? '',
+      adminReviewQueueSeedFixture[0]?.modelVersionPublicId ?? '',
+      adminReviewQueueSeedFixture[0]?.reasonPlaceholder ?? '',
+      'Admin review queue',
+      'No legal judgment',
+      'final suitability approval',
+      'broker connection',
+      'deposit movement'
     ]
   },
   {
@@ -1673,10 +1679,13 @@ assertCondition(
 );
 assertCondition(
   adminReviewsPageSource.includes(
-    '{copy.blocked}: {model.blockedActionLabel}'
+    '{copy.actionDisabled}'
   ) &&
-    !adminReviewsPageSource.includes('<RiskBadge tone="blocked">{copy.blocked}</RiskBadge>') &&
-    !adminReviewsPageSource.includes('<RiskBadge>{model.blockedActionLabel}</RiskBadge>'),
+    adminReviewsPageSource.includes('data-review-metadata-only') &&
+    adminReviewsPageSource.includes('data-legal-judgment') &&
+    adminReviewsPageSource.includes('data-suitability-approval') &&
+    !adminReviewsPageSource.includes('<RiskBadge tone="blocked">{copy.actionDisabled}</RiskBadge>') &&
+    !adminReviewsPageSource.includes('buildAdminModelReviewResult'),
   'Admin Review Queue must present blocked/read-only action state as prose instead of hashtag status chip groups'
 );
 assertCondition(
