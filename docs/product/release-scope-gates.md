@@ -16,6 +16,20 @@
 - `docs/security/rbac-matrix.md`
 - `docs/automation/codex-recurring-workflow-prompt.md`
 
+## Readability And Scope Invariants
+
+이 문서는 사람이 그대로 읽고 판단할 수 있어야 한다. 한글 본문이나 주석이 깨져 보이면 정책 의미를 추측해 진행하지 말고, UTF-8 기준으로 원문을 복구한 뒤 검증한다.
+
+모든 단계에서 유지해야 하는 불변 조건:
+
+- `Prototype`은 기본 자동화 단계이며, mock/seed/local test 데이터만 사용한다.
+- `Internal Alpha`는 내부 사용자와 staging 범위만 허용한다. 일부 DB 저장은 가능하지만 금융 동작은 여전히 mock이다.
+- `Closed Beta`는 제한된 외부 테스터에게 앱 경험을 보여줄 수 있지만 실제 금융 실행은 금지한다.
+- `Public Launch`도 기본 범위에는 실제 입금, 주문, 계좌 연결이 포함되지 않는다. 별도 `financial_operation` gate가 끝나기 전까지 추가하지 않는다.
+- 모든 단계는 모바일/Capacitor-first 방향을 유지하고, Next.js 모바일 웹/PWA를 공유 검증 표면으로 사용한다.
+- `MockDeposit`, `AllocationDecision`, `TradeIntent`, `SignalEvent`, `FeedPost`는 각각 모의 예치금, 모의 판단, 주문 전 의도, 관찰 신호, 정보성 피드로만 설명한다.
+- 실제 자금 이동, 실제 주문/체결/정산, 브로커 또는 은행 계좌 연결, 최종 법률 판단, 운영 비밀값, 외부 유료 API 키는 별도 승인 전까지 금지한다.
+
 ## Universal Blockers
 
 아래 항목은 별도의 `financial_operation` 승인, 법무/컴플라이언스 검토, 보안 검토, 운영 승인 전까지 모든 출시 단계에서 금지한다.

@@ -33,6 +33,7 @@
     "test:pwa-manifest": "npx tsx scripts/smoke/pwa-manifest-smoke.ts",
     "test:rbac": "npx tsx scripts/smoke/rbac-access-smoke.ts",
     "test:review-notification": "npx tsx scripts/smoke/review-result-notification-smoke.ts",
+    "test:release-scope-gates": "npx tsx scripts/smoke/release-scope-gates-readability-smoke.ts",
     "test:signal-api": "npx tsx scripts/smoke/signal-api-smoke.ts",
     "test:signal-detail-api": "npx tsx scripts/smoke/signal-detail-api-smoke.ts",
     "test:stripe-build-isolation": "npx tsx scripts/smoke/stripe-build-isolation-smoke.ts",
