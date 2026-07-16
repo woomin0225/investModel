@@ -1357,6 +1357,24 @@ assertCondition(
     portfolioPageSource.includes('displayPortfolio.allocationDecision.statusLabel') &&
     portfolioPageSource.includes('displayPortfolio.tradeIntent.statusLabel') &&
     portfolioPageSource.includes('Portfolio time dashboard read-model trace') &&
+    portfolioPageSource.includes('PortfolioEmptyStateCard') &&
+    portfolioPageSource.includes('portfolioEmptyStateAccessibleLabel') &&
+    portfolioPageSource.includes('No DB mock time windows yet') &&
+    portfolioPageSource.includes('No MockDeposit simulation rows yet') &&
+    portfolioPageSource.includes('MockDeposit 모의 행이 아직 없습니다') &&
+    portfolioPageSource.includes(
+      'MockDeposit is not a real deposit, cash balance, account, or brokerage connection'
+    ) &&
+    portfolioPageSource.includes('View mock models') &&
+    portfolioPageSource.includes('모의 모델 보기') &&
+    portfolioPageSource.includes('min-h-invest-touch-target') &&
+    portfolioPageSource.includes('const hasTimeSnapshots = displayPortfolio.timeSnapshots.length > 0') &&
+    portfolioPageSource.includes('const hasPositions = displayPortfolio.positions.length > 0') &&
+    portfolioPageSource.includes(
+      'displayPortfolio.tradeIntent.blockedActions.length > 0'
+    ) &&
+    portfolioPageSource.includes('blockedActionsEmptyAccessibleLabel') &&
+    portfolioPageSource.includes('No blocked real-world action rows yet') &&
     /locale === 'ko'\s*\?\s*'모의 기간 대시보드'\s*:\s*'Mock time dashboard'/.test(
       portfolioPageSource
     ) &&
@@ -1477,7 +1495,7 @@ assertCondition(
     !/<RiskBadge\b[^>]*tone="blocked"[^>]*>[\s\S]{0,240}\{action\}[\s\S]{0,80}<\/RiskBadge>/.test(
       portfolioPageSource
     ) &&
-    !/(<button|<Link|role="button"|href=|onClick|formAction)[\s\S]{0,240}(Buy now|Sell now|Place order|Submit order|Execute trade|Connect brokerage|매수하기|매도하기|주문하기|브로커 연결|계좌 연결)[\s\S]{0,240}/i.test(
+    !/(<button|<Link|role="button"|href=|onClick|formAction)[\s\S]{0,240}(Buy now|Sell now|Place order|Submit order|Execute trade|Connect brokerage|Deposit|Open account|Link account|Trade now|Start trading|Invest now|매수하기|매도하기|주문하기|브로커 연결|계좌 연결|입금|계좌 개설|거래 시작)[\s\S]{0,240}/i.test(
       portfolioPageSource
     ) &&
     !/(<button|<Link|role="button"|href=|onClick|formAction)[\s\S]{0,240}(Buy now|Sell now|Place order|Submit order|Execute trade|Connect brokerage|매수하기|매도하기|주문하기|브로커 연결|계좌 연결)[\s\S]{0,240}/i.test(
@@ -1504,6 +1522,16 @@ assertCondition(
     portfolioPageSource.includes('position.quantityLabel'),
   'Portfolio must start with the DB-backed time dashboard summary and keep TradeIntent/order-density UI read-only simulated or blocked'
 );
+
+assertNoLongUnbrokenText('Portfolio empty state', [
+  'No DB mock time windows yet',
+  'No MockDeposit simulation rows yet',
+  'MockDeposit 모의 행이 아직 없습니다',
+  'This portfolio has no simulated holdings yet. MockDeposit is not a real deposit, cash balance, account, or brokerage connection.',
+  '이 포트폴리오에는 아직 모의 보유 행이 없습니다. MockDeposit은 실제 입금, 현금 잔고, 계좌, 브로커 연결이 아닙니다.',
+  'Read-only empty state / no real deposit / no real order / no broker',
+  '읽기 전용 빈 상태 / 실제 입금 없음 / 실제 주문 없음 / 브로커 미연결'
+]);
 
 const screenResults = screens.map((screen) => {
   const source = readProjectFile(screen.pageFile);

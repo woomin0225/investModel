@@ -4,6 +4,7 @@ import {
   Database,
   ShieldAlert
 } from 'lucide-react';
+import Link from 'next/link';
 import { NextRequest } from 'next/server';
 
 import { GET as readPortfolioMockSummary } from '@/app/api/portfolio/mock-summary/route';
@@ -53,6 +54,18 @@ const portfolioCopy = {
     decisionDescription:
       '배분 결정과 주문 전 의도는 실제 주문, 체결, 운용 지시가 아닙니다.',
     blockedActionsTitle: '비활성화된 실제 기능',
+    timeEmptyTitle: '아직 DB 모의 기간 데이터가 없습니다',
+    timeEmptyDescription:
+      'MockDeposit과 선택 모델 맥락은 유지되지만 표시할 1D, 1W, 1M seed 스냅샷이 없습니다.',
+    positionEmptyTitle: 'MockDeposit 모의 행이 아직 없습니다',
+    positionEmptyDescription:
+      '이 포트폴리오에는 아직 모의 보유 행이 없습니다. MockDeposit은 실제 입금, 현금 잔고, 계좌, 브로커 연결이 아닙니다.',
+    blockedActionsEmptyTitle: '차단된 실제 기능 목록이 비어 있습니다',
+    blockedActionsEmptyDescription:
+      'TradeIntent는 여전히 읽기 전용 모의 상태이며 실제 주문, 체결, 브로커 지시를 만들지 않습니다.',
+    emptyCtaLabel: '모의 모델 보기',
+    emptySafetyLine:
+      '읽기 전용 빈 상태 / 실제 입금 없음 / 실제 주문 없음 / 브로커 미연결',
     footer:
       '포트폴리오 값, 포지션, 주문 전 의도는 실제 자산, 투자 조언, 주문, 계좌 연결을 의미하지 않습니다.'
   },
@@ -80,6 +93,18 @@ const portfolioCopy = {
     decisionDescription:
       'AllocationDecision and TradeIntent are not real orders, fills, or operating instructions.',
     blockedActionsTitle: 'Disabled real-world actions',
+    timeEmptyTitle: 'No DB mock time windows yet',
+    timeEmptyDescription:
+      'MockDeposit and selected model context remain available, but no 1D, 1W, or 1M seed snapshots are filled yet.',
+    positionEmptyTitle: 'No MockDeposit simulation rows yet',
+    positionEmptyDescription:
+      'This portfolio has no simulated holdings yet. MockDeposit is not a real deposit, cash balance, account, or brokerage connection.',
+    blockedActionsEmptyTitle: 'No blocked real-world action rows yet',
+    blockedActionsEmptyDescription:
+      'TradeIntent remains read-only and simulated; it does not create real orders, fills, or broker instructions.',
+    emptyCtaLabel: 'View mock models',
+    emptySafetyLine:
+      'Read-only empty state / no real deposit / no real order / no broker',
     footer:
       'Portfolio values, positions, and TradeIntent are not real assets, advice, orders, or account connections.'
   }
@@ -284,6 +309,58 @@ function portfolioBlockedActionAccessibleLabel(
   return `Blocked real-world action: ${action}. It is not executed in the Portfolio mock summary.`;
 }
 
+function portfolioEmptyStateAccessibleLabel(
+  locale: 'ko' | 'en',
+  title: string,
+  description: string
+) {
+  if (locale === 'ko') {
+    return `${title}. ${description} DB seed/mock 기준 빈 상태이며 실제 입금, 계좌 연결, 주문, 체결, 브로커 동작, 투자 조언이 아닙니다.`;
+  }
+
+  return `${title}. ${description} DB seed/mock empty state; not a real deposit, account connection, order, fill, brokerage action, or investment advice.`;
+}
+
+function PortfolioEmptyStateCard({
+  ariaLabel,
+  ctaLabel,
+  description,
+  safetyLine,
+  title
+}: {
+  ariaLabel: string;
+  ctaLabel: string;
+  description: string;
+  safetyLine: string;
+  title: string;
+}) {
+  return (
+    <article
+      aria-label={ariaLabel}
+      title={ariaLabel}
+      className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-4 shadow-invest-card"
+    >
+      <div className="grid gap-3 min-[360px]:grid-cols-[minmax(0,1fr)_auto] min-[360px]:items-center">
+        <div className="min-w-0">
+          <p className="text-sm font-bold leading-5 text-invest-text">{title}</p>
+          <p className="mt-1 text-[13px] leading-5 text-invest-text-muted">
+            {description}
+          </p>
+        </div>
+        <Link
+          href="/invest-model/models"
+          className="inline-flex min-h-invest-touch-target items-center justify-center rounded-invest-control bg-invest-primary-soft px-3 py-2 text-center text-[13px] font-bold leading-5 text-invest-primary transition-[background-color,transform] duration-200 ease-out hover:bg-invest-primary-soft/75 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-invest-surface motion-reduce:transition-none motion-reduce:active:scale-100"
+        >
+          {ctaLabel}
+        </Link>
+      </div>
+      <p className="mt-3 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+        {safetyLine}
+      </p>
+    </article>
+  );
+}
+
 function portfolioTradeIntentDetailRows(
   locale: 'ko' | 'en',
   portfolio: InvestModelPortfolioSummary
@@ -460,6 +537,26 @@ export default async function InvestModelPortfolioPage({
     portfolioTradeIntentSafetyBadges(locale);
   const tradeIntentSafetyBadgeLabel =
     portfolioTradeIntentSafetyBadgeLabel(locale);
+  const hasTimeSnapshots = displayPortfolio.timeSnapshots.length > 0;
+  const hasPositions = displayPortfolio.positions.length > 0;
+  const hasBlockedActions =
+    displayPortfolio.tradeIntent.blockedActions.length > 0;
+  const timeEmptyAccessibleLabel = portfolioEmptyStateAccessibleLabel(
+    locale,
+    copy.timeEmptyTitle,
+    copy.timeEmptyDescription
+  );
+  const positionEmptyAccessibleLabel = portfolioEmptyStateAccessibleLabel(
+    locale,
+    copy.positionEmptyTitle,
+    copy.positionEmptyDescription
+  );
+  const blockedActionsEmptyAccessibleLabel =
+    portfolioEmptyStateAccessibleLabel(
+      locale,
+      copy.blockedActionsEmptyTitle,
+      copy.blockedActionsEmptyDescription
+    );
   const blockedVisibleBoundaries = portfolioBlockedVisibleBoundaries(locale);
   const timeDashboardVisibleBoundaries =
     portfolioTimeDashboardVisibleBoundaries(locale);
@@ -574,57 +671,69 @@ export default async function InvestModelPortfolioPage({
             }
             className="grid grid-cols-3 gap-2 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
-            {displayPortfolio.timeSnapshots.map((snapshot) => {
-              const snapshotStateLabel =
-                locale === 'ko'
-                  ? `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. 모의 전용 기준점이며 실제 수익률, 실잔고, 주문, 브로커 데이터가 아닙니다.`
-                  : `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. Mock-only checkpoint; not a real return, real balance, order, or brokerage data.`;
-              const snapshotSafetyLine =
-                locale === 'ko'
-                  ? ['DB 스냅샷', '모의 전용 기준점', snapshot.safetyLabel].join(
-                      ' / '
-                    )
-                  : [
-                      'DB snapshot',
-                      'mock-only checkpoint',
-                      snapshot.safetyLabel
-                    ].join(' / ');
+            {hasTimeSnapshots ? (
+              displayPortfolio.timeSnapshots.map((snapshot) => {
+                const snapshotStateLabel =
+                  locale === 'ko'
+                    ? `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. 모의 전용 기준점이며 실제 수익률, 실잔고, 주문, 브로커 데이터가 아닙니다.`
+                    : `${snapshot.rangeLabel} ${snapshot.valueLabel}. ${snapshot.checkpointLabel}. ${snapshot.signalLabel}. ${snapshot.safetyLabel}. Mock-only checkpoint; not a real return, real balance, order, or brokerage data.`;
+                const snapshotSafetyLine =
+                  locale === 'ko'
+                    ? ['DB 스냅샷', '모의 전용 기준점', snapshot.safetyLabel].join(
+                        ' / '
+                      )
+                    : [
+                        'DB snapshot',
+                        'mock-only checkpoint',
+                        snapshot.safetyLabel
+                      ].join(' / ');
 
-              return (
-                <article
-                  key={snapshot.rangeLabel}
-                  role="listitem"
-                  aria-label={snapshotStateLabel}
-                  title={snapshotStateLabel}
-                  className={cn(
-                    'group min-w-0 rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card',
-                    investMotionClass.interactiveCard
-                  )}
-                >
-                  <div className="mb-2 flex items-center justify-between gap-1.5">
-                    <span className="rounded-full bg-invest-primary-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary">
-                      {snapshot.rangeLabel}
-                    </span>
-                    <Clock3
-                      aria-hidden
-                      className="size-4 shrink-0 text-invest-text-muted transition-transform duration-200 ease-out group-hover:rotate-12 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:rotate-0 motion-reduce:group-active:scale-100"
-                    />
-                  </div>
-                  <p className="text-[15px] font-bold leading-5 text-invest-text">
-                    {snapshot.valueLabel}
-                  </p>
-                  <p className="mt-1 text-[12px] leading-4 text-invest-text-muted">
-                    {snapshot.checkpointLabel}
-                  </p>
-                  <p className="mt-2 text-[12px] font-semibold leading-4 text-invest-primary">
-                    {snapshot.signalLabel}
-                  </p>
-                  <div className="mt-2 rounded-invest-control bg-invest-bg-soft px-2 py-1.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
-                    {snapshotSafetyLine}
-                  </div>
-                </article>
-              );
-            })}
+                return (
+                  <article
+                    key={snapshot.rangeLabel}
+                    role="listitem"
+                    aria-label={snapshotStateLabel}
+                    title={snapshotStateLabel}
+                    className={cn(
+                      'group min-w-0 rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card',
+                      investMotionClass.interactiveCard
+                    )}
+                  >
+                    <div className="mb-2 flex items-center justify-between gap-1.5">
+                      <span className="rounded-full bg-invest-primary-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-primary">
+                        {snapshot.rangeLabel}
+                      </span>
+                      <Clock3
+                        aria-hidden
+                        className="size-4 shrink-0 text-invest-text-muted transition-transform duration-200 ease-out group-hover:rotate-12 group-active:scale-95 motion-reduce:transition-none motion-reduce:group-hover:rotate-0 motion-reduce:group-active:scale-100"
+                      />
+                    </div>
+                    <p className="text-[15px] font-bold leading-5 text-invest-text">
+                      {snapshot.valueLabel}
+                    </p>
+                    <p className="mt-1 text-[12px] leading-4 text-invest-text-muted">
+                      {snapshot.checkpointLabel}
+                    </p>
+                    <p className="mt-2 text-[12px] font-semibold leading-4 text-invest-primary">
+                      {snapshot.signalLabel}
+                    </p>
+                    <div className="mt-2 rounded-invest-control bg-invest-bg-soft px-2 py-1.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                      {snapshotSafetyLine}
+                    </div>
+                  </article>
+                );
+              })
+            ) : (
+              <div className="col-span-3">
+                <PortfolioEmptyStateCard
+                  ariaLabel={timeEmptyAccessibleLabel}
+                  title={copy.timeEmptyTitle}
+                  description={copy.timeEmptyDescription}
+                  ctaLabel={copy.emptyCtaLabel}
+                  safetyLine={copy.emptySafetyLine}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -708,23 +817,24 @@ export default async function InvestModelPortfolioPage({
             aria-label={copy.positionTitle}
             className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
           >
-            {displayPortfolio.positions.map((position, index) => {
-              const positionAccessibleLabel = portfolioPositionAccessibleLabel(
-                locale,
-                position
-              );
+            {hasPositions ? (
+              displayPortfolio.positions.map((position, index) => {
+                const positionAccessibleLabel = portfolioPositionAccessibleLabel(
+                  locale,
+                  position
+                );
 
-              return (
-                <article
-                  key={position.symbol}
-                  role="listitem"
-                  aria-label={positionAccessibleLabel}
-                  title={positionAccessibleLabel}
-                  className={cn(
-                    'group rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
-                    investMotionClass.interactiveCard
-                  )}
-                >
+                return (
+                  <article
+                    key={position.symbol}
+                    role="listitem"
+                    aria-label={positionAccessibleLabel}
+                    title={positionAccessibleLabel}
+                    className={cn(
+                      'group rounded-invest-card border border-invest-border bg-invest-surface p-4 shadow-invest-card focus-within:border-invest-primary/40',
+                      investMotionClass.interactiveCard
+                    )}
+                  >
                   <div
                     className={cn(
                       'mb-3 h-1.5 rounded-full',
@@ -781,9 +891,18 @@ export default async function InvestModelPortfolioPage({
                       </RiskBadge>
                     </div>
                   </div>
-                </article>
-              );
-            })}
+                  </article>
+                );
+              })
+            ) : (
+              <PortfolioEmptyStateCard
+                ariaLabel={positionEmptyAccessibleLabel}
+                title={copy.positionEmptyTitle}
+                description={copy.positionEmptyDescription}
+                ctaLabel={copy.emptyCtaLabel}
+                safetyLine={copy.emptySafetyLine}
+              />
+            )}
           </div>
         </div>
 
@@ -909,22 +1028,32 @@ export default async function InvestModelPortfolioPage({
                 title={blockedActionsAccessibleLabel}
                 className="mt-3 space-y-1 rounded-invest-control bg-invest-risk-soft/40 p-2 text-[12px] font-semibold leading-5 text-invest-danger"
               >
-                {displayPortfolio.tradeIntent.blockedActions.map((action) => (
+                {hasBlockedActions ? (
+                  displayPortfolio.tradeIntent.blockedActions.map((action) => (
+                    <span
+                      key={action}
+                      role="listitem"
+                      aria-label={portfolioBlockedActionAccessibleLabel(
+                        locale,
+                        action
+                      )}
+                      title={portfolioBlockedActionAccessibleLabel(
+                        locale,
+                        action
+                      )}
+                    >
+                      {action}
+                    </span>
+                  ))
+                ) : (
                   <span
-                    key={action}
                     role="listitem"
-                    aria-label={portfolioBlockedActionAccessibleLabel(
-                      locale,
-                      action
-                    )}
-                    title={portfolioBlockedActionAccessibleLabel(
-                      locale,
-                      action
-                    )}
+                    aria-label={blockedActionsEmptyAccessibleLabel}
+                    title={blockedActionsEmptyAccessibleLabel}
                   >
-                    {action}
+                    {copy.blockedActionsEmptyDescription}
                   </span>
-                ))}
+                )}
               </div>
               <p
                 aria-label={
