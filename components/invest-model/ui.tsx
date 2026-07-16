@@ -178,12 +178,14 @@ export function RiskBadge({
   return (
     <span
       className={cn(
-        'inline-flex min-h-6 max-w-full items-center rounded-invest-badge px-2.5 py-1 text-[11px] font-semibold leading-4 transition-[background-color,color,transform] duration-200 ease-out motion-reduce:transition-none',
+        'inline-flex min-h-6 min-w-0 max-w-full items-start rounded-invest-badge px-2.5 py-1 text-left text-[11px] font-semibold leading-4 whitespace-normal transition-[background-color,color,transform] duration-200 ease-out [overflow-wrap:anywhere] motion-reduce:transition-none',
         riskBadgeToneClass[tone],
         className
       )}
     >
-      <span className="truncate">{children}</span>
+      <span className="min-w-0 line-clamp-2 [overflow-wrap:anywhere]">
+        {children}
+      </span>
     </span>
   );
 }
@@ -239,11 +241,11 @@ export function SectionHeader({
   return (
     <div className={cn('flex items-end justify-between gap-3', className)}>
       <div className="min-w-0">
-        <h2 className="text-[20px] font-bold leading-7 text-invest-text">
+        <h2 className="min-w-0 break-words text-[20px] font-bold leading-7 text-invest-text [overflow-wrap:anywhere]">
           {title}
         </h2>
         {description ? (
-          <p className="mt-1 text-sm leading-5 text-invest-text-muted">
+          <p className="mt-1 break-words text-sm leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
             {description}
           </p>
         ) : null}
@@ -577,7 +579,7 @@ export function ModelCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <h3 className="truncate text-[17px] font-semibold leading-6 text-invest-text">
+              <h3 className="line-clamp-2 break-words text-[17px] font-semibold leading-6 text-invest-text [overflow-wrap:anywhere]">
                 {name}
               </h3>
               <div className="mt-1 flex flex-wrap gap-1.5">
@@ -615,7 +617,7 @@ export function ModelCard({
           {hasFooter ? (
             <div className="mt-4 space-y-2.5 border-t border-invest-border pt-3">
               {footerBadges.length > 0 ? (
-                <p className="text-xs font-semibold leading-5 text-invest-text-muted">
+                <p className="break-words text-xs font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
                   {footerBadges.map((badge) => badge.label).join(' / ')}
                 </p>
               ) : null}
@@ -628,7 +630,9 @@ export function ModelCard({
                       : 'bg-invest-primary-soft text-invest-primary group-hover:bg-invest-primary group-hover:text-white'
                   )}
                 >
-                  <span className="truncate">{actionLabel}</span>
+                  <span className="min-w-0 line-clamp-2 [overflow-wrap:anywhere]">
+                    {actionLabel}
+                  </span>
                   <ArrowRight
                     aria-hidden
                     className={cn(
@@ -676,12 +680,12 @@ export function InvestmentModelCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <h3 className="min-w-0 flex-1 text-[17px] font-semibold leading-6 text-invest-text">
+            <h3 className="min-w-0 flex-1 break-words text-[17px] font-semibold leading-6 text-invest-text [overflow-wrap:anywhere]">
               {name}
             </h3>
             <RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>
           </div>
-          <p className="mt-2 text-sm leading-6 text-invest-text-muted">
+          <p className="mt-2 break-words text-sm leading-6 text-invest-text-muted [overflow-wrap:anywhere]">
             {summary}
           </p>
           <ModelRiskBadgeGroup

@@ -808,6 +808,19 @@ assertCondition(
   'BK-456 SectionHeader action buttons must include section-aware accessibility names and titles'
 );
 assertCondition(
+  investModelUiSource.includes('whitespace-normal') &&
+    investModelUiSource.includes('[overflow-wrap:anywhere]') &&
+    investModelUiSource.includes('items-start rounded-invest-badge') &&
+    investModelUiSource.includes('<span className="min-w-0 line-clamp-2 [overflow-wrap:anywhere]">') &&
+    investModelUiSource.includes('min-w-0 break-words text-[20px] font-bold') &&
+    investModelUiSource.includes('line-clamp-2 break-words text-[17px] font-semibold') &&
+    investModelUiSource.includes('min-w-0 flex-1 break-words text-[17px] font-semibold') &&
+    investModelUiSource.includes('break-words text-xs font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]') &&
+    !investModelUiSource.includes('<span className="truncate">{children}</span>') &&
+    !investModelUiSource.includes('<h3 className="truncate text-[17px] font-semibold leading-6 text-invest-text">'),
+  'BK-457 shared badges, section headers, and model card titles must wrap long Korean text within 390px cards'
+);
+assertCondition(
   feedDetailPageSource.includes('id="comments"') &&
     feedDetailPageSource.includes('<FeedCommentAction'),
   'Feed detail must expose a comments anchor for Feed card comment actions'
