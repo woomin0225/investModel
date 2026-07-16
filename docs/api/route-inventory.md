@@ -325,6 +325,20 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Mock source | `lib/db/portfolio-holdings-read-model.ts` reads DB state or mock-safe fallback from the PortfolioSummary read model. |
 | Safety notes | Must expose `mockOnly`, `simulated`, `brokerConfirmed=false`, `brokerConfirmedHoldings=false`, `realHolding=false`, `orderExecution=false`, `tradeFill=false`, `settlement=false`, `accountLinking=false`, `externalPaidApi=false`, `realOrder=false`, and `financialAdvice=false`. No real holdings, broker account, order, fill, settlement, account link, or recommendation is created. |
 
+### `GET /api/portfolio/allocation-split`
+
+| Field | Value |
+| --- | --- |
+| Status | Seed/read-model backed read API implemented in `app/api/portfolio/allocation-split/route.ts`; smoke-covered by `scripts/smoke/portfolio-allocation-split-api-smoke.ts`. |
+| Purpose | Provide Portfolio allocation UI with deterministic sector and asset-class bucket arrays sourced from the BK-508 allocation split read model. |
+| Request | No request body. Client-provided `userPublicId` is ignored; the server resolves the current prototype scope from session or `user_demo_001` demo fallback. |
+| Response DTO | `PortfolioAllocationSplitDto` |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
+| Screens | Portfolio allocation split modules. |
+| Source tables | `users`, `user_model_selections`, `portfolios`, `portfolio_positions`, `market_instruments`, `mock_deposits` |
+| Mock source | `lib/db/portfolio-allocation-split-read-model.ts` derives deterministic simulated buckets from the BK-508 seed fixture. |
+| Safety notes | Must expose `mockOnly`, `simulated`, `readOnly`, `brokerConfirmed=false`, `brokerConfirmedHoldings=false`, `realHolding=false`, `userRiskSettingAccepted=false`, `userAllocationOverrideAccepted=false`, `orderExecution=false`, `tradeFill=false`, `settlement=false`, `accountLinking=false`, `externalPaidApi=false`, `realOrder=false`, and `financialAdvice=false`. No user risk setting, allocation override, real holding, broker account, order, fill, settlement, account link, or recommendation is created. |
+
 ### `GET /api/price-history`
 
 | Field | Value |
@@ -418,7 +432,7 @@ The current route inventory is checked against these local smoke scripts:
 | Models | `scripts/smoke/model-api-smoke.ts`, `scripts/smoke/model-selection-api-smoke.ts` |
 | Signals | `scripts/smoke/signal-api-smoke.ts`, `scripts/smoke/signal-detail-api-smoke.ts`, `scripts/smoke/mock-ingestion-boundary-smoke.ts` |
 | Feed | `scripts/smoke/feed-api-smoke.ts`, `scripts/smoke/feed-detail-api-smoke.ts`, `scripts/smoke/feed-comment-api-smoke.ts`, `scripts/smoke/feed-reply-api-smoke.ts`, `scripts/smoke/feed-like-api-smoke.ts`, `scripts/smoke/feed-save-api-smoke.ts`, `scripts/smoke/feed-read-api-smoke.ts`, `scripts/smoke/feed-ranking-api-smoke.ts` |
-| Search, notifications, My Page, portfolio | `scripts/smoke/search-api-smoke.ts`, `scripts/smoke/search-read-model-projection-smoke.ts`, `scripts/smoke/notifications-api-smoke.ts`, `scripts/smoke/notifications-mark-all-read-api-smoke.ts`, `scripts/smoke/my-page-api-smoke.ts`, `scripts/smoke/my-activity-api-smoke.ts`, `scripts/smoke/portfolio-mock-summary-api-smoke.ts`, `scripts/smoke/portfolio-holdings-api-smoke.ts` |
+| Search, notifications, My Page, portfolio | `scripts/smoke/search-api-smoke.ts`, `scripts/smoke/search-read-model-projection-smoke.ts`, `scripts/smoke/notifications-api-smoke.ts`, `scripts/smoke/notifications-mark-all-read-api-smoke.ts`, `scripts/smoke/my-page-api-smoke.ts`, `scripts/smoke/my-activity-api-smoke.ts`, `scripts/smoke/portfolio-mock-summary-api-smoke.ts`, `scripts/smoke/portfolio-holdings-api-smoke.ts`, `scripts/smoke/portfolio-allocation-split-api-smoke.ts` |
 | Creator/admin/review contracts | `scripts/smoke/creator-draft-validation-smoke.ts`, `scripts/smoke/admin-force-stop-smoke.ts`, `scripts/smoke/rbac-access-smoke.ts`, `scripts/smoke/operator-review-manual-smoke.ts`, `scripts/smoke/review-result-notification-smoke.ts`, `scripts/smoke/model-status-notification-smoke.ts`, `scripts/qa/invest-model-admin-review-flow-smoke.ts`, `scripts/qa/invest-model-model-report-smoke.ts` |
 
 ## Error And Policy Notes

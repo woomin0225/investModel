@@ -148,6 +148,7 @@ Validation error에는 legal/financial 차단 이유를 넣지 않는다. 요청
 | `GET /api/feed` | `signed_in` | private/admin-only posts -> `404` | guaranteed return copy -> `review_required` before publish |
 | `POST /api/model-selections` | `user` | non-live model/version -> `404` or `409 conflict` depending on prior visibility | direct mandate override -> `policy_blocked` |
 | `GET /api/portfolio/mock-summary` | `user` | other user's mock portfolio -> `404` | real balance/payment/account fields -> `policy_blocked` |
+| `GET /api/portfolio/allocation-split` | `user` | other user's mock portfolio allocation context -> `404` | user risk setting, direct allocation override, real balance/payment/account/order fields -> `policy_blocked` |
 | `POST /api/creator/models` | `creator` | cross-owner draft -> `404` | live status write/model artifact execution -> `policy_blocked` |
 | `POST /api/admin/models/:id/reviews` | `admin` | missing model -> `404` | legal approval finalization without review -> `review_required` |
 
@@ -184,4 +185,3 @@ Frontend copy must not tell the user that a real financial operation is availabl
 - `policy_blocked` and `review_required` should be produced by policy/guard helpers, not form validators.
 - Creator/admin routes must attach audit candidates even when the route currently uses mock-only data.
 - `BK-141` should implement reusable route/server-action guard helpers based on this document.
-

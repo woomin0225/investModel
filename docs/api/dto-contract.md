@@ -635,6 +635,69 @@ Safety requirements:
 - The route meta must keep `mockOnly: true`, `realDeposit: false`, `realBalance: false`, `realOrder: false`, `brokerageConnection: false`, and `financialAdvice: false`.
 - Do not add bank, broker, account number, routing number, real balance, real deposit, order, execution, fill, settlement, suitability, or personalized advice fields.
 
+## `PortfolioAllocationSplitDto`
+
+Used by `GET /api/portfolio/allocation-split` and future Portfolio allocation split modules.
+
+Implementation note: this DTO is a deterministic seed/read-model contract backed by BK-508. It derives sector and asset-class buckets from simulated `PortfolioPosition` values and does not accept user risk settings or allocation overrides.
+
+```ts
+interface PortfolioAllocationSplitDto {
+  isMockOnly: true;
+  safetyMeta: {
+    mockOnly: true;
+    realDeposit: false;
+    realBalance: false;
+    realOrder: false;
+    brokerageConnection: false;
+    financialAdvice: false;
+  };
+  seedSourceLabel: 'seed_005_portfolio_positions_006_allocation_split';
+  sourceTables: [
+    'users',
+    'user_model_selections',
+    'portfolios',
+    'portfolio_positions',
+    'market_instruments',
+    'mock_deposits'
+  ];
+  summaryAlignment: {
+    sourceSummaryValueLabel: string;
+    holdingsTotalLabel: string;
+    bucketTotalLabel: string;
+    allocationBasisLabel: 'PortfolioSummary simulated total';
+  };
+  sectorBuckets: PortfolioAllocationBucketDto[];
+  assetClassBuckets: PortfolioAllocationBucketDto[];
+  displayHints: {
+    segmentedControlTitle: 'Mock allocation split';
+    sectorTabLabel: 'Sector buckets';
+    assetClassTabLabel: 'Asset-class buckets';
+    safetyLine: string;
+  };
+}
+
+interface PortfolioAllocationBucketDto {
+  bucketId: string;
+  bucketType: 'sector' | 'asset_class';
+  label: string;
+  valueLabel: string;
+  weightLabel: string;
+  sourceSymbols: string[];
+  safetyLabel: 'simulated allocation bucket';
+}
+```
+
+Source tables: `users`, `user_model_selections`, `portfolios`, `portfolio_positions`, `market_instruments`, `mock_deposits`.
+
+Safety requirements:
+
+- `summaryAlignment` must stay anchored to the BK-508 78000 USD simulated holdings total unless a future seed task changes both the fixture and smoke.
+- Sector and asset-class bucket value totals must match the simulated holdings total, and bucket weights must sum to 100.
+- Bucket rows must remain labels and simulated values only. They must not become user preference, mandate override, direct allocation, broker holding, or order instruction fields.
+- The route meta must keep `mockOnly: true`, `readOnly: true`, `simulated: true`, `userRiskSettingAccepted: false`, `userAllocationOverrideAccepted: false`, `realDeposit: false`, `realBalance: false`, `realOrder: false`, `brokerageConnection: false`, `accountLinking: false`, `orderExecution: false`, `tradeFill: false`, `settlement: false`, and `financialAdvice: false`.
+- Do not add bank, broker, account number, routing number, payment, real balance, real deposit, order, execution, fill, settlement, suitability, guaranteed return, or personalized advice fields.
+
 ## Implementation Order
 
 1. Add TypeScript DTO interfaces after route and screen mapping are stable.

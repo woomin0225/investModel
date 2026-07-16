@@ -115,6 +115,7 @@ Current implemented role expectations:
 | My Page | deny | allow | deny | allow | deny | session or `user_demo_001` demo fallback; client `userPublicId` ignored |
 | Notifications | deny | allow | deny | allow | deny | feed read-state only; no push, email, SMS, broker, order, or advice delivery |
 | Portfolio mock summary | deny | allow | deny | allow | deny | header-only prototype guard, then session or `user_demo_001` demo fallback scope; another client `userPublicId` ignored |
+| Portfolio allocation split | deny | allow | deny | allow | deny | server-resolved user scope; BK-508 simulated buckets only; client `userPublicId` ignored; no user risk setting, allocation override, broker, order, account, or advice action |
 
 `IS-006` remains in monitoring until this prototype role-header path is replaced
 by real session/authorization policy for native/mobile authenticated users.
