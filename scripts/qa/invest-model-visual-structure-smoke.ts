@@ -58,9 +58,10 @@ const screens: ScreenCheck[] = [
     pageFile: 'app/invest-model/notifications/page.tsx',
     activeTab: 'home',
     requiredCopy: [
-      'DB-backed notification center',
+      'Feed-derived in-app read state',
       'Latest notification candidates',
-      'No real push'
+      'push/email/SMS false',
+      'broker/order/advice blocked'
     ]
   },
   {
@@ -1244,7 +1245,7 @@ assertCondition(
     notificationsPageSource.includes("notificationItemVisibleBoundaries(locale).join(' / ')") &&
     notificationsPageSource.includes("notificationEmptyVisibleBoundaries(locale).join(' / ')") &&
     notificationsPageSource.includes("eyebrow: '알림'") &&
-    notificationsPageSource.includes("summaryTitle: 'DB 기반 알림 센터'") &&
+    notificationsPageSource.includes("summaryTitle: '피드 기반 인앱 읽음 상태'") &&
     notificationsPageSource.includes("markAllRead: '모두 읽음 처리'") &&
     notificationsPageSource.includes('DB 기반 알림 빈 상태') &&
     notificationsPageSource.includes('로컬 DB 읽음 상태만 업데이트합니다') &&

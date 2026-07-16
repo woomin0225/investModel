@@ -33,16 +33,16 @@ export type MarkNotificationCenterReadResult =
 function notificationPolicyNotices(): PolicyNoticeDto[] {
   return [
     {
-      code: 'notification_read_model_only',
+      code: 'feed_derived_in_app_read_state_only',
       severity: 'info',
       message:
-        'Notifications are derived from DB-backed FeedPost read state for this prototype.'
+        'Notifications are feed-derived in-app rows from DB-backed FeedPost read state for this prototype.'
     },
     {
       code: 'no_real_push_delivery',
       severity: 'warning',
       message:
-        'This screen does not send push, email, SMS, broker, order, or account notifications.'
+        'This screen does not send push, email, SMS, broker, order, account, or financial advice notifications.'
     }
   ];
 }

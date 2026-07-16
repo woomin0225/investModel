@@ -29,6 +29,20 @@ type InvestModelNotificationsResponse = {
   meta: {
     routeStatus: string;
     readOnly: boolean;
+    inAppOnly: boolean;
+    feedDerivedInAppReadStateOnly: boolean;
+    sourceReadModel: 'feed_post_read_state';
+    sourceEntity: 'feed_post';
+    mutationScope: 'none_read_only' | 'feed_post_reads_only';
+    deliveryProvider: 'none';
+    deliveryChannels: ['in_app_mock'];
+    externalDeliveryBlocked: boolean;
+    pushDeliveryBlocked: boolean;
+    emailDeliveryBlocked: boolean;
+    smsDeliveryBlocked: boolean;
+    brokerMessagingBlocked: boolean;
+    orderMessagingBlocked: boolean;
+    financialAdviceBlocked: boolean;
     sendsRealPush: boolean;
     sendsRealEmail: boolean;
     sendsRealSms: boolean;
@@ -45,9 +59,9 @@ const notificationCopy = {
   ko: {
     eyebrow: '알림',
     title: '알림',
-    summaryTitle: 'DB 기반 알림 센터',
+    summaryTitle: '피드 기반 인앱 읽음 상태',
     summaryDescription:
-      '이 첫 알림 묶음은 서버에서 확인한 회원 범위의 피드 글 읽음 상태에서 알림 행을 파생합니다. 실제 푸시, 이메일, 문자, 브로커, 주문, 계좌 메시지가 아닙니다.',
+      '이 첫 알림 묶음은 서버에서 확인한 회원 범위의 피드 글 읽음 상태에서 알림 행을 파생합니다. 앱 안 후보 행만 표시하며 실제 푸시, 이메일, 문자, 브로커, 주문, 계좌 메시지가 아닙니다.',
     unread: '읽지 않음',
     read: '읽음',
     emptyTitle: '아직 DB 기반 알림이 없습니다',
@@ -68,9 +82,9 @@ const notificationCopy = {
   en: {
     eyebrow: 'Notifications',
     title: 'Notifications',
-    summaryTitle: 'DB-backed notification center',
+    summaryTitle: 'Feed-derived in-app read state',
     summaryDescription:
-      'This first slice derives notification rows from FeedPost read state in the server-resolved member scope. It is not real push, email, SMS, broker, order, or account messaging.',
+      'This first slice derives in-app candidate rows from FeedPost read state in the server-resolved member scope. It is not real push, email, SMS, broker, order, or account messaging.',
     unread: 'Unread',
     read: 'Read',
     emptyTitle: 'No DB-backed notifications yet',
@@ -155,20 +169,32 @@ function notificationSafetyAccessibleLabel(locale: 'ko' | 'en') {
 
 function notificationSummaryVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? ['DB 읽음 상태', '피드 글 기반', '실제 푸시 없음', '실주문 없음']
-    : ['DB read state', 'FeedPost derived', 'no real push', 'no orders'];
+    ? [
+        '인앱 전용',
+        'DB 읽음 상태',
+        '피드 글 기반',
+        '푸시/이메일/문자 false',
+        '브로커/주문/조언 차단'
+      ]
+    : [
+        'in-app only',
+        'DB read state',
+        'FeedPost derived',
+        'push/email/SMS false',
+        'broker/order/advice blocked'
+      ];
 }
 
 function notificationActionVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? ['로컬 읽음 처리', '이메일/문자 없음', '브로커 미연결', '추천 아님']
-    : ['local read mutation', 'no email/SMS', 'no brokerage', 'not advice'];
+    ? ['앱 안 읽음 상태만', '로컬 읽음 처리', '이메일/문자 없음', '브로커 미연결', '추천 아님']
+    : ['in-app read state only', 'local read mutation', 'no email/SMS', 'no brokerage', 'not advice'];
 }
 
 function notificationItemVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? ['DB 피드 글 기반', '정보성 알림', '계좌 메시지 아님']
-    : ['DB FeedPost', 'informational alert', 'not account messaging'];
+    ? ['앱 안 후보', 'DB 피드 글 기반', '정보성 알림', '계좌 메시지 아님']
+    : ['in-app candidate', 'DB FeedPost', 'informational alert', 'not account messaging'];
 }
 
 function notificationEmptyVisibleBoundaries(locale: 'ko' | 'en') {

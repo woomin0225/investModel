@@ -445,10 +445,12 @@ Source tables: `users`, `feed_posts`, `feed_post_reads`, `investment_models`.
 Safety requirements:
 
 - Notification ids are public, derived ids for the notification-center DTO; internal numeric ids must not be exposed.
-- Current notification rows are feed-derived informational events, not push/email/SMS delivery records.
+- Current notification rows are feed-derived in-app read-state events, not push/email/SMS delivery records.
 - `status` and `unreadCount` are private read-state UI data for the current demo user only.
 - `POST /api/notifications/mark-all-read` returns `{ notificationCenter, markedCount, readAt }` and mutates only `feed_post_reads`.
-- Route meta must keep `sendsRealPush`, `sendsRealEmail`, `sendsRealSms`, `realOrder`, `brokerageConnection`, and `financialAdvice` false.
+- Route meta must include `feedDerivedInAppReadStateOnly=true`, `inAppOnly=true`, `sourceReadModel='feed_post_read_state'`, `sourceEntity='feed_post'`, `deliveryProvider='none'`, `deliveryChannels=['in_app_mock']`, and `externalDeliveryBlocked=true`.
+- `GET /api/notifications` route meta must expose `mutationScope='none_read_only'`; `POST /api/notifications/mark-all-read` must expose `mutationScope='feed_post_reads_only'`.
+- Route meta must keep `sendsRealPush`, `sendsRealEmail`, `sendsRealSms`, `realOrder`, `brokerageConnection`, and `financialAdvice` false, and must keep `pushDeliveryBlocked`, `emailDeliveryBlocked`, `smsDeliveryBlocked`, `brokerMessagingBlocked`, `orderMessagingBlocked`, and `financialAdviceBlocked` true.
 - Do not include bank, broker, account, order, execution, fill, allocation, or personalized advice fields.
 
 ## `MyPageFeedActivitySummaryDto`

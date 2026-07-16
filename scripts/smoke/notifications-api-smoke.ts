@@ -138,6 +138,22 @@ async function main() {
   assertCondition(
     successJson.meta?.routeStatus === 'db_backed' &&
       successJson.meta?.readOnly === true &&
+      successJson.meta?.inAppOnly === true &&
+      successJson.meta?.feedDerivedInAppReadStateOnly === true &&
+      successJson.meta?.sourceReadModel === 'feed_post_read_state' &&
+      successJson.meta?.sourceEntity === 'feed_post' &&
+      successJson.meta?.mutationScope === 'none_read_only' &&
+      successJson.meta?.deliveryProvider === 'none' &&
+      successJson.meta?.externalDeliveryBlocked === true &&
+      successJson.meta?.pushDeliveryBlocked === true &&
+      successJson.meta?.emailDeliveryBlocked === true &&
+      successJson.meta?.smsDeliveryBlocked === true &&
+      successJson.meta?.brokerMessagingBlocked === true &&
+      successJson.meta?.orderMessagingBlocked === true &&
+      successJson.meta?.financialAdviceBlocked === true &&
+      Array.isArray(successJson.meta?.deliveryChannels) &&
+      successJson.meta.deliveryChannels.length === 1 &&
+      successJson.meta.deliveryChannels[0] === 'in_app_mock' &&
       successJson.meta?.sendsRealPush === false &&
       successJson.meta?.sendsRealEmail === false &&
       successJson.meta?.sendsRealSms === false &&

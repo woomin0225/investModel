@@ -288,7 +288,10 @@ Data needs:
 
 - `NotificationCenterDto.unreadCount`
 - `NotificationCenterItemDto[]` with title, body, read/unread status, event label, occurred time, `href`, and source feed post
-- API meta flags: `sendsRealPush=false`, `sendsRealEmail=false`, `sendsRealSms=false`, `realOrder=false`, `brokerageConnection=false`, `financialAdvice=false`
+- API meta flags: `feedDerivedInAppReadStateOnly=true`, `inAppOnly=true`, `sourceReadModel='feed_post_read_state'`, `sourceEntity='feed_post'`, `deliveryProvider='none'`, `deliveryChannels=['in_app_mock']`, `externalDeliveryBlocked=true`
+- API blocked flags: `pushDeliveryBlocked=true`, `emailDeliveryBlocked=true`, `smsDeliveryBlocked=true`, `brokerMessagingBlocked=true`, `orderMessagingBlocked=true`, `financialAdviceBlocked=true`
+- API false flags: `sendsRealPush=false`, `sendsRealEmail=false`, `sendsRealSms=false`, `realOrder=false`, `brokerageConnection=false`, `financialAdvice=false`
+- Mutation scope: `GET /api/notifications` uses `mutationScope='none_read_only'`; `POST /api/notifications/mark-all-read` uses `mutationScope='feed_post_reads_only'`
 
 API sequence:
 
