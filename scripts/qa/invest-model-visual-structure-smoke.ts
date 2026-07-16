@@ -1242,6 +1242,26 @@ assertCondition(
     notificationsPageSource.includes(": 'View Feed'}") &&
     notificationsPageSource.includes('Browse DB-backed FeedPosts that notification candidates derive from.') &&
     notificationsPageSource.includes('Not real push, email, SMS, orders, brokerage action, or investment advice.') &&
+    notificationsPageSource.includes('notificationUnavailableCopy') &&
+    notificationsPageSource.includes("status: 'unavailable'") &&
+    notificationsPageSource.includes("status: 'ready'") &&
+    notificationsPageSource.includes('read_model_unavailable') &&
+    notificationsPageSource.includes('notification_read_model_unavailable') &&
+    notificationsPageSource.includes('Notifications are quietly unavailable') &&
+    notificationsPageSource.includes('in-app only') &&
+    notificationsPageSource.includes('DB read state') &&
+    notificationsPageSource.includes('no push/email/SMS') &&
+    notificationsPageSource.includes('no brokerage') &&
+    notificationsPageSource.includes('broker/order/advice blocked') &&
+    notificationsPageSource.includes('<BellOff') &&
+    !notificationsPageSource.includes("throw new Error('InvestModel notifications API contract returned an error.')") &&
+    !notificationsPageSource.includes('Enable push') &&
+    !notificationsPageSource.includes('Set up email') &&
+    !notificationsPageSource.includes('Set up SMS') &&
+    !notificationsPageSource.includes('Connect brokerage') &&
+    !notificationsPageSource.includes('Link account') &&
+    !notificationsPageSource.includes('Deposit now') &&
+    !notificationsPageSource.includes('Place order') &&
     myPageSource.includes('<EmptyStateCta') &&
     myPageSource.includes(": 'Read FeedPosts'}") &&
     myPageSource.includes('Read DB-backed FeedPosts without creating saved or comment activity.') &&

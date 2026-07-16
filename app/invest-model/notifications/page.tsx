@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/server';
-import { Bell, CheckCircle2, Search, ShieldCheck } from 'lucide-react';
+import { Bell, BellOff, CheckCircle2, Search, ShieldCheck } from 'lucide-react';
 
 import { POST as markAllNotificationsRead } from '@/app/api/notifications/mark-all-read/route';
 import { GET as readNotifications } from '@/app/api/notifications/route';
@@ -25,6 +25,7 @@ type InvestModelNotificationsPageProps = {
 };
 
 type InvestModelNotificationsResponse = {
+  ok?: true;
   data: NotificationCenterDto;
   meta: {
     routeStatus: string;
@@ -51,6 +52,38 @@ type InvestModelNotificationsResponse = {
     financialAdvice: boolean;
   };
 };
+
+type InvestModelNotificationsUnavailable = {
+  ok: false;
+  error?: {
+    code?: string;
+    message?: string;
+    requestId?: string;
+  };
+  meta?: {
+    routeStatus?: string;
+    inAppOnly?: boolean;
+    deliveryProvider?: 'none';
+    deliveryChannels?: ['in_app_mock'];
+    externalDeliveryBlocked?: boolean;
+    pushDeliveryBlocked?: boolean;
+    emailDeliveryBlocked?: boolean;
+    smsDeliveryBlocked?: boolean;
+    brokerMessagingBlocked?: boolean;
+    orderMessagingBlocked?: boolean;
+    financialAdviceBlocked?: boolean;
+    sendsRealPush?: boolean;
+    sendsRealEmail?: boolean;
+    sendsRealSms?: boolean;
+    realOrder?: boolean;
+    brokerageConnection?: boolean;
+    financialAdvice?: boolean;
+  };
+};
+
+type InvestModelNotificationsState =
+  | ({ status: 'ready' } & InvestModelNotificationsResponse)
+  | ({ status: 'unavailable' } & InvestModelNotificationsUnavailable);
 
 type NotificationCenterItem =
   InvestModelNotificationsResponse['data']['items'][number];
@@ -101,6 +134,37 @@ const notificationCopy = {
       'Updates only local DB read state. No push, email, SMS, orders, brokerage, or advice is sent.',
     footer:
       'Notifications here are prototype UI records from local DB read models. They do not recommend securities, guarantee returns, connect accounts, or execute orders.'
+  }
+} as const;
+
+const notificationUnavailableCopy = {
+  ko: {
+    title: '알림을 조용히 대기 중입니다',
+    description:
+      '알림 읽기 모델을 잠시 불러오지 못했습니다. 이 상태도 인앱 DB 읽기 화면일 뿐이며 실제 푸시, 이메일, 문자, 주문, 브로커, 계좌 메시지, 투자 조언을 만들지 않습니다.',
+    status: '인앱 알림 일시 대기',
+    action: '읽음 처리 대기',
+    boundaries: [
+      '인앱 전용',
+      'DB 읽기 상태',
+      '외부 전송 없음',
+      '푸시/이메일/문자 없음',
+      '주문/브로커/조언 차단'
+    ]
+  },
+  en: {
+    title: 'Notifications are quietly unavailable',
+    description:
+      'The notification read model could not be loaded. This remains an in-app DB read-state screen and does not create push, email, SMS, orders, brokerage, account messages, or investment advice.',
+    status: 'In-app notifications paused',
+    action: 'Read-state action paused',
+    boundaries: [
+      'in-app only',
+      'DB read state',
+      'no external delivery',
+      'no push/email/SMS',
+      'broker/order/advice blocked'
+    ]
   }
 } as const;
 
@@ -228,10 +292,21 @@ async function readInvestModelNotifications() {
   );
 
   if (!response.ok) {
-    throw new Error('InvestModel notifications API contract returned an error.');
+    const unavailablePayload =
+      (await response.json()) as InvestModelNotificationsUnavailable;
+
+    return {
+      ...unavailablePayload,
+      status: 'unavailable' as const
+    };
   }
 
-  return (await response.json()) as InvestModelNotificationsResponse;
+  const payload = (await response.json()) as InvestModelNotificationsResponse;
+
+  return {
+    ...payload,
+    status: 'ready' as const
+  };
 }
 
 async function markAllNotificationsReadAction() {
@@ -251,7 +326,7 @@ async function markAllNotificationsReadAction() {
   );
 
   if (!response.ok) {
-    throw new Error('InvestModel notification read-state update failed.');
+    return;
   }
 
   revalidatePath('/invest-model');
@@ -265,8 +340,110 @@ export default async function InvestModelNotificationsPage({
   const resolvedSearchParams = (await searchParams) ?? {};
   const locale = resolveInvestModelLocale(resolvedSearchParams);
   const copy = notificationCopy[locale];
+  const unavailableCopy = notificationUnavailableCopy[locale];
   const actionsCopy = investModelCopy[locale].actions;
-  const { data: notificationCenter } = await readInvestModelNotifications();
+  const notificationsState: InvestModelNotificationsState =
+    await readInvestModelNotifications();
+  const safetyAccessibleLabel = notificationSafetyAccessibleLabel(locale);
+
+  if (notificationsState.status === 'unavailable') {
+    const unavailableAccessibleLabel =
+      `${unavailableCopy.title}. ${unavailableCopy.description} ${unavailableCopy.boundaries.join(' / ')}.`;
+
+    return (
+      <MobileShell
+        activeTab="home"
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        locale={locale}
+        currentPath="/invest-model/notifications"
+        trailing={
+          <Link
+            href={withInvestModelLocale('/invest-model/search', locale)}
+            aria-label={actionsCopy.searchModels}
+            className={cn(
+              'grid size-invest-touch-target place-items-center rounded-invest-control border border-invest-border bg-invest-surface text-invest-text shadow-invest-card',
+              investMotionClass.interactiveControl
+            )}
+          >
+            <Search aria-hidden className="size-5" />
+          </Link>
+        }
+      >
+        <section className="space-y-invest-section-gap">
+          <section
+            aria-label={unavailableAccessibleLabel}
+            title={unavailableAccessibleLabel}
+            className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+          >
+            <div className="flex items-start gap-3">
+              <div className="grid size-11 shrink-0 place-items-center rounded-invest-control bg-invest-surface-muted text-invest-text-muted">
+                <BellOff aria-hidden className="size-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                  {unavailableCopy.boundaries.join(' / ')}
+                </p>
+                <h2 className="mt-3 text-[20px] font-bold leading-7 text-invest-text">
+                  {unavailableCopy.title}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-invest-text-muted">
+                  {unavailableCopy.description}
+                </p>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="rounded-invest-control bg-invest-bg-soft px-3 py-2">
+                    <p className="text-[11px] font-bold leading-4 text-invest-text-muted">
+                      {unavailableCopy.status}
+                    </p>
+                    <p className="mt-1 text-[16px] font-bold leading-6 text-invest-text">
+                      {notificationsState.meta?.routeStatus ??
+                        'read_model_unavailable'}
+                    </p>
+                  </div>
+                  <div className="rounded-invest-control bg-invest-bg-soft px-3 py-2">
+                    <p className="text-[11px] font-bold leading-4 text-invest-text-muted">
+                      {unavailableCopy.action}
+                    </p>
+                    <p className="mt-1 text-[16px] font-bold leading-6 text-invest-text">
+                      in_app_mock
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-4 rounded-invest-control bg-invest-surface px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                  {notificationsState.error?.code ??
+                    'notification_read_model_unavailable'}{' '}
+                  / deliveryProvider none / sendsRealPush false
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <div
+            aria-label={safetyAccessibleLabel}
+            title={safetyAccessibleLabel}
+            className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding"
+          >
+            <div className="flex items-start gap-3">
+              <ShieldCheck
+                aria-hidden
+                className="mt-0.5 size-5 shrink-0 text-invest-primary"
+              />
+              <div className="min-w-0">
+                <p className="rounded-invest-control bg-invest-surface px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+                  {copy.noAdvice} / {copy.noOrders} / {copy.noPush}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-invest-text-muted">
+                  {copy.footer}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </MobileShell>
+    );
+  }
+
+  const { data: notificationCenter } = notificationsState;
   const hasUnreadNotifications = notificationCenter.unreadCount > 0;
   const summaryAccessibleLabel = notificationSummaryAccessibleLabel(
     locale,
@@ -276,7 +453,6 @@ export default async function InvestModelNotificationsPage({
     locale,
     notificationCenter
   );
-  const safetyAccessibleLabel = notificationSafetyAccessibleLabel(locale);
   const emptyAccessibleLabel =
     locale === 'ko'
       ? `${copy.emptyTitle}. ${copy.emptyDescription} DB 기반 알림 빈 상태이며 실제 푸시, 이메일, 문자, 주문, 브로커 동작, 투자 조언이 아닙니다.`
