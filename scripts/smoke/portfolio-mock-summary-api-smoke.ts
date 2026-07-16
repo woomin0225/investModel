@@ -8,6 +8,7 @@ import { NextRequest } from 'next/server';
 
 import { GET } from '../../app/api/portfolio/mock-summary/route';
 import { client } from '../../lib/db/drizzle';
+import type { AccessRole } from '../../lib/domain/types';
 
 function assertCondition(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -15,12 +16,18 @@ function assertCondition(condition: unknown, message: string): asserts condition
   }
 }
 
-async function readPortfolioSummary(search = '') {
+const ignoredClientUserPublicId = 'user_other_001';
+
+function containsIgnoredClientUserPublicId(value: unknown) {
+  return JSON.stringify(value).includes(ignoredClientUserPublicId);
+}
+
+async function readPortfolioSummary(search = '', role: AccessRole = 'user') {
   return GET(
     new NextRequest(`http://localhost/api/portfolio/mock-summary${search}`, {
       method: 'GET',
       headers: {
-        'x-invest-model-role': 'user'
+        'x-invest-model-role': role
       }
     })
   );
@@ -40,10 +47,13 @@ async function main() {
       }
     })
   );
+  const systemResponse = await readPortfolioSummary('', 'system');
   const summaryResponse = await readPortfolioSummary();
   const summaryJson = await summaryResponse.json();
+  const adminSummaryResponse = await readPortfolioSummary('', 'admin');
+  const adminSummaryJson = await adminSummaryResponse.json();
   const clientScopedResponse = await readPortfolioSummary(
-    '?userPublicId=user_other_001'
+    `?userPublicId=${ignoredClientUserPublicId}`
   );
   const clientScopedJson = await clientScopedResponse.json();
 
@@ -52,7 +62,15 @@ async function main() {
     'public role is forbidden'
   );
   assertCondition(creatorResponse.status === 403, 'creator role is forbidden');
+  assertCondition(systemResponse.status === 403, 'system role is forbidden');
   assertCondition(summaryResponse.status === 200, 'portfolio summary responds');
+  assertCondition(
+    adminSummaryResponse.status === 200 &&
+      adminSummaryJson.meta?.userPublicId === 'user_demo_001' &&
+      adminSummaryJson.meta?.userScopeSource === 'demo_fallback' &&
+      adminSummaryJson.meta?.mockOnly === true,
+    'admin role can read the mock-safe prototype portfolio summary without bypassing user scope'
+  );
   assertCondition(
     summaryJson.data?.isMockOnly === true &&
       summaryJson.data?.mockDeposit?.safetyLabel ===
@@ -116,8 +134,10 @@ async function main() {
   assertCondition(
     clientScopedResponse.status === 200 &&
       clientScopedJson.meta?.userPublicId === 'user_demo_001' &&
-      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined,
-    'client userPublicId compatibility metadata is not exposed for portfolio summary'
+      clientScopedJson.meta?.userScopeSource === 'demo_fallback' &&
+      clientScopedJson.meta?.clientUserPublicIdIgnored === undefined &&
+      !containsIgnoredClientUserPublicId(clientScopedJson),
+    'client userPublicId does not switch or leak another portfolio scope'
   );
 
   await client.end();

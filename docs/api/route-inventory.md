@@ -24,11 +24,11 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | `GET` | `/api/feed` | List model notes, market context, risk notes, and review notes. | signed-in | mock-backed allowed |
 | `GET` | `/api/feed/rankings` | Read FeedPost popularity rankings from tracked likes. | signed-in | DB-backed read implemented |
 | `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | DB-backed read implemented |
-| `POST` | `/api/feed/:postId/comments` | Create a top-level informational comment. | signed-in | action contract defined; implementation pending |
-| `POST` | `/api/feed/:postId/comments/:commentId/replies` | Create an informational reply comment. | signed-in | action contract defined; implementation pending |
+| `POST` | `/api/feed/:postId/comments` | Create a top-level informational comment. | signed-in | DB-backed action implemented |
+| `POST` | `/api/feed/:postId/comments/:commentId/replies` | Create an informational reply comment. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/likes` | Toggle or set the signed-in user's like state. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/saves` | Toggle or set the signed-in user's saved state. | signed-in | DB-backed action implemented |
-| `POST` | `/api/feed/:postId/read` | Mark the signed-in user's post as read. | signed-in | action contract defined; implementation pending |
+| `POST` | `/api/feed/:postId/read` | Mark the signed-in user's post as read. | signed-in | DB-backed action implemented |
 | `GET` | `/api/search` | Read grouped model, feed, and signal search results. | signed-in | DB-backed read implemented |
 | `GET` | `/api/notifications` | Read user-scoped notification center rows. | user | DB-backed read implemented |
 | `POST` | `/api/notifications/mark-all-read` | Mark notification-center FeedPost read state as read. | user | DB-backed read-state action implemented |
@@ -140,7 +140,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | --- | --- |
 | Status | DB-backed action API implemented in `app/api/feed/[postId]/comments/route.ts`. |
 | Purpose | Create a top-level informational comment for a visible feed post. |
-| Request | Path parameter `postId`; JSON body `{ userPublicId: string, body: string, clientRequestId?: string }`. `body` is trimmed and capped at 600 characters. |
+| Request | Path parameter `postId`; JSON body `{ body: string, clientRequestId?: string }`. `body` is trimmed and capped at 600 characters. Client-provided `userPublicId` is ignored; the server-resolved scope owns the comment. |
 | Response DTO | Refreshed `FeedPostDetailDto` including the new top-level `FeedCommentDto` and updated `FeedReactionStateDto.commentCount`. |
 | Permission | Signed-in user/admin role; only visible posts can receive comments. |
 | Screens | Feed Detail |
@@ -193,7 +193,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | --- | --- |
 | Status | DB-backed action API implemented in `app/api/feed/[postId]/reads/route.ts`. |
 | Purpose | Mark the signed-in user's feed post as read. |
-| Request | Path parameter `postId`; JSON body `{ userPublicId: string }`. |
+| Request | Path parameter `postId`; optional JSON body for compatibility only. Client-provided `userPublicId` is ignored; the server-resolved scope owns the read state. |
 | Response DTO | `FeedReactionStateDto` |
 | Permission | Signed-in user/admin role; only the actor's own read state can change. |
 | Screens | Feed Detail, Feed Insights list row actions |
@@ -221,7 +221,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | --- | --- |
 | Status | DB-backed notification center read API implemented in `app/api/notifications/route.ts`. |
 | Purpose | Provide the notification button and notification center with unread/read rows derived from user-scoped feed read state. |
-| Request | Optional query parameters `userPublicId` (prototype-limited to `user_demo_001`) and `limit` (1-30, default 12). |
+| Request | Optional query parameter `limit` (1-30, default 12). Client-provided `userPublicId` is ignored; the server resolves the current prototype scope from session or `user_demo_001` demo fallback. |
 | Response DTO | `NotificationCenterDto` |
 | Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
 | Screens | Top notification button, future Notification Center, My Page notification summary |
@@ -249,7 +249,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | --- | --- |
 | Status | DB-backed read API implemented in `app/api/my/route.ts`. |
 | Purpose | Provide the My Page screen with one typed summary containing user profile, active selected model, saved/comment FeedPost activity, notification summary, recent notifications, and mock-safe policy notices. |
-| Request | Optional query parameter `userPublicId`, limited to `user_demo_001` in the prototype. No request body. |
+| Request | No request body. Client-provided `userPublicId` is ignored; the server resolves the current prototype scope from session or `user_demo_001` demo fallback. |
 | Response DTO | `MyPageSummaryDto` |
 | Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
 | Screens | My Page |
@@ -263,7 +263,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | --- | --- |
 | Status | DB-backed read API implemented in `app/api/my/activity/route.ts`. |
 | Purpose | Provide My Page with user-scoped saved/comment FeedPost activity counts and recent activity shortcuts. |
-| Request | Optional query parameter `userPublicId`, limited to `user_demo_001` in the prototype. |
+| Request | Client-provided `userPublicId` is ignored by route-level callers; server-side read-model helpers accept explicit public ids only for local verification and isolated fallback tests. |
 | Response DTO | `MyPageFeedActivitySummaryDto` |
 | Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
 | Screens | My Page |
@@ -290,7 +290,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | --- | --- |
 | Status | DB-backed read API implemented in `app/api/portfolio/mock-summary/route.ts`. |
 | Purpose | Provide Home/Portfolio with mock-safe selected model state, MockDeposit, AllocationDecision, 1D/1W/1M time dashboard snapshots, simulated positions, and blocked TradeIntent state. |
-| Request | Optional query parameter `userPublicId`, currently limited to `user_demo_001` in the prototype. No request body. |
+| Request | No request body. Client-provided `userPublicId` is ignored; the server resolves the current prototype scope from session or `user_demo_001` demo fallback. |
 | Response DTO | `PortfolioSummaryDto` with embedded `PortfolioDashboardTimelineDto` rows in `timeSnapshots`. |
 | Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
 | Screens | Home, Portfolio |

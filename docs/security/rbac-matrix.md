@@ -86,6 +86,39 @@ Legend:
 | `POST /api/creator/models` | `creator` | creator owns draft; no live status write |
 | `POST /api/admin/models/:id/reviews` | `admin` | audit log required |
 
+## Current Prototype Guard Snapshot
+
+The current MVP route layer still accepts `x-invest-model-role` only as a
+prototype harness input. It is not a production authorization source. Most
+protected user routes attempt the existing session helper when the header is
+absent and otherwise stay `public`.
+
+Portfolio mock summary currently keeps the stricter header-only prototype guard:
+a session-only request without `x-invest-model-role` is still forbidden, while
+`x-invest-model-role: user` reads only the server-resolved session or
+`user_demo_001` demo fallback scope. This asymmetry is intentionally documented
+until the route guard is centralized.
+
+User-scoped routes resolve the effective user through the server helper, not
+through client-provided `userPublicId` query/body fields. Without a real
+session, the route-level prototype fallback is `user_demo_001`; direct
+read-model tests may still pass another public id to verify that missing-user
+fallback rows do not leak the seeded demo user's data.
+
+Current implemented role expectations:
+
+| Surface | public | user | creator | admin | system | Scope rule |
+| --- | --- | --- | --- | --- | --- | --- |
+| Feed read/actions | deny | allow | deny | allow | deny | server-resolved user scope; no client `userPublicId` compatibility meta |
+| Signal read/detail | deny | allow | deny | allow | deny | observed signals only; no `TradeIntent` creation |
+| Model selection | deny | allow | deny | allow | deny | server-resolved user scope; no deposit, order, or broker connection |
+| My Page | deny | allow | deny | allow | deny | session or `user_demo_001` demo fallback; client `userPublicId` ignored |
+| Notifications | deny | allow | deny | allow | deny | feed read-state only; no push, email, SMS, broker, order, or advice delivery |
+| Portfolio mock summary | deny | allow | deny | allow | deny | header-only prototype guard, then session or `user_demo_001` demo fallback scope; another client `userPublicId` ignored |
+
+`IS-006` remains in monitoring until this prototype role-header path is replaced
+by real session/authorization policy for native/mobile authenticated users.
+
 ## Audit Requirements
 
 Audit log is required for:

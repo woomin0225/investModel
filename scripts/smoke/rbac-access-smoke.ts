@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 
 import { canReviewInvestmentModel } from '../../lib/domain/models/admin-review';
+import { canReadFeed } from '../../lib/domain/feed/feed-post';
 import { canCreateModelDraft } from '../../lib/domain/models/creator-draft';
 import { canRequestModelDescriptionRevision } from '../../lib/domain/models/description-revision';
 import { canCreateCreatorDraft } from '../../lib/domain/models/model-creator';
+import { canCreateModelSelection } from '../../lib/domain/models/model-selection';
+import { canReadSignals } from '../../lib/domain/signals/signal-event';
 import type { AccessRole } from '../../lib/domain/types';
 
 const roles = ['public', 'user', 'creator', 'admin', 'system'] as const satisfies
@@ -53,4 +56,24 @@ assertRoleGate({
   allowedRoles: ['admin']
 });
 
-console.log('RBAC access smoke test passed for creator and admin model gates.');
+assertRoleGate({
+  label: 'GET /api/feed and feed interaction routes',
+  gate: canReadFeed,
+  allowedRoles: ['user', 'admin']
+});
+
+assertRoleGate({
+  label: 'GET /api/signals and signal detail routes',
+  gate: canReadSignals,
+  allowedRoles: ['user', 'admin']
+});
+
+assertRoleGate({
+  label: 'POST /api/model-selections',
+  gate: canCreateModelSelection,
+  allowedRoles: ['user', 'admin']
+});
+
+console.log(
+  'RBAC access smoke test passed for creator/admin model gates and user/admin read scopes.'
+);
