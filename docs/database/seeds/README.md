@@ -30,6 +30,10 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   the `005` holdings rows, checks the 78000 USD simulated total, and adds no
   user-directed preference fields, broker/bank links, orders, fills, or live
   data dependencies.
+- `007_interest_save_state_seed.sql` refreshes a small private mock
+  user-scoped FeedPost save state for shared Signals/Feed/Models interest UI
+  work. It does not create model selections, deposits, allocation decisions,
+  TradeIntent rows, broker links, orders, legal judgments, or external data.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -52,6 +56,8 @@ files. Do not insert sample rows directly in a MySQL console for product work.
      representative projection before adding API or UI mini-chart work.
 5. FeedPost rows, comments, reactions, saves, reads, and ranking examples.
    - The first tracked slice is `002_feed_interaction_seed.sql`.
+   - Use `007_interest_save_state_seed.sql` for the shared private
+     interest/save fixture before adding Signals/Feed/Models saved-state UI.
 6. MockDeposit, portfolio, positions, allocation decisions, and TradeIntent
    simulation rows.
    - The first dedicated holdings slice is
