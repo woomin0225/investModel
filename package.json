@@ -13,6 +13,7 @@
     "test:creator-draft-validation": "npx tsx scripts/smoke/creator-draft-validation-smoke.ts",
     "test:db-schema-drift": "npx tsx scripts/smoke/db-schema-drift-readonly-smoke.ts",
     "test:admin-force-stop": "npx tsx scripts/smoke/admin-force-stop-smoke.ts",
+    "test:admin-review-queue-api": "npx tsx scripts/smoke/admin-review-queue-api-smoke.ts",
     "test:admin-review-queue-read-model": "npx tsx scripts/smoke/admin-review-queue-read-model-smoke.ts",
     "test:auth-user-scope-boundary": "npx tsx scripts/smoke/auth-user-scope-boundary-smoke.ts",
     "test:backlog-schema-audit": "npx tsx scripts/qa/backlog-dependency-schema-audit-smoke.ts",

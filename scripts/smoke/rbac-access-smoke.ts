@@ -57,6 +57,12 @@ assertRoleGate({
 });
 
 assertRoleGate({
+  label: 'GET /api/admin/reviews/queue',
+  gate: canReviewInvestmentModel,
+  allowedRoles: ['admin']
+});
+
+assertRoleGate({
   label: 'GET /api/feed and feed interaction routes',
   gate: canReadFeed,
   allowedRoles: ['user', 'admin']
