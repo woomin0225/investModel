@@ -87,17 +87,23 @@ async function main() {
   assertCondition(
     listJson.data.every(
       (signal: {
+        linkedModelName?: string;
+        signalType?: string;
         scoreSnapshot?: {
           rankValue?: number | null;
           rankDeltaDisplay?: string;
+          totalScoreDisplay?: string;
           calculationContext?: string;
         };
       }) =>
+        typeof signal.linkedModelName === 'string' &&
+        typeof signal.signalType === 'string' &&
         typeof signal.scoreSnapshot?.rankValue === 'number' &&
         typeof signal.scoreSnapshot?.rankDeltaDisplay === 'string' &&
+        typeof signal.scoreSnapshot?.totalScoreDisplay === 'string' &&
         signal.scoreSnapshot?.calculationContext === 'mock_seed'
     ),
-    'signal list exposes latest mock-safe score snapshots'
+    'signal list exposes latest mock-safe model-linked score snapshots'
   );
   assertCondition(
     listJson.meta?.routeStatus === 'db_backed' &&

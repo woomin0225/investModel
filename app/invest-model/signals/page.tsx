@@ -56,6 +56,33 @@ type InvestModelSignalsPageProps = {
 type SignalFilterId = 'all' | 'news_traffic' | 'price_trend' | 'risk_alert';
 type SignalLocale = 'ko' | 'en';
 type SignalTone = keyof typeof signalToneClass;
+type SignalClusterId = Exclude<SignalFilterId, 'all'>;
+
+type SignalClusterSource = {
+  id: string;
+  title: string;
+  sourceLabel: string;
+  marketLabel: string;
+  scoreLabel: string;
+  scoreTone: SignalTone;
+  description: string;
+  linkedModelName: string;
+  rankSnapshot?: {
+    scoreLabel: string;
+    contextLabel: string;
+  } | null;
+};
+
+type SignalClusterRanking = {
+  id: SignalClusterId;
+  label: string;
+  title: string;
+  description: string;
+  countLabel: string;
+  metaLabel: string;
+  href: string;
+  tone: SignalTone;
+};
 
 const signalFilterIds = [
   'all',
@@ -260,6 +287,208 @@ function toDbSignalCard(
   };
 }
 
+const signalClusterRankingCopy = {
+  ko: {
+    eyebrow: 'Seed/mock model themes',
+    title: 'Theme and signal clusters',
+    description:
+      'DB seed/mock SignalEvent observations are grouped into model themes for exploration only.',
+    safety: 'DB seed/mock observations only / exploration only / not advice / not orders',
+    clusterRank: 'Cluster rank',
+    observedInputsOnly: 'Observed inputs only',
+    observationUnit: 'observations',
+    emptyDetail: 'No matching seed/mock observation in the current filter.',
+    definitions: {
+      news_traffic: {
+        label: 'News/traffic theme',
+        title: 'Attention and narrative cluster'
+      },
+      price_trend: {
+        label: 'Price trend theme',
+        title: 'Momentum and spread cluster'
+      },
+      risk_alert: {
+        label: 'Risk theme',
+        title: 'Drawdown and volatility cluster'
+      }
+    }
+  },
+  en: {
+    eyebrow: 'Seed/mock model themes',
+    title: 'Theme and signal clusters',
+    description:
+      'DB seed/mock SignalEvent observations are grouped into model themes for exploration only.',
+    safety: 'DB seed/mock observations only / exploration only / not advice / not orders',
+    clusterRank: 'Cluster rank',
+    observedInputsOnly: 'Observed inputs only',
+    observationUnit: 'observations',
+    emptyDetail: 'No matching seed/mock observation in the current filter.',
+    definitions: {
+      news_traffic: {
+        label: 'News/traffic theme',
+        title: 'Attention and narrative cluster'
+      },
+      price_trend: {
+        label: 'Price trend theme',
+        title: 'Momentum and spread cluster'
+      },
+      risk_alert: {
+        label: 'Risk theme',
+        title: 'Drawdown and volatility cluster'
+      }
+    }
+  }
+} as const;
+
+const signalClusterIds = [
+  'news_traffic',
+  'price_trend',
+  'risk_alert'
+] as const satisfies readonly SignalClusterId[];
+
+function signalClusterMatches(
+  signal: SignalClusterSource,
+  clusterId: SignalClusterId
+) {
+  const haystack = [
+    signal.title,
+    signal.sourceLabel,
+    signal.marketLabel,
+    signal.description,
+    signal.linkedModelName
+  ]
+    .join(' ')
+    .toLowerCase();
+
+  if (clusterId === 'news_traffic') {
+    return /news|traffic|attention|earnings|search|narrative|feed/.test(
+      haystack
+    );
+  }
+
+  if (clusterId === 'price_trend') {
+    return /price|trend|momentum|yield|spread|rate|curve/.test(haystack);
+  }
+
+  return /risk|drawdown|volatility|vol|stress|liquidity|alert/.test(haystack);
+}
+
+function buildSignalClusterRankings(
+  signals: readonly SignalClusterSource[],
+  locale: SignalLocale
+): SignalClusterRanking[] {
+  const copy = signalClusterRankingCopy[locale];
+
+  return signalClusterIds
+    .map<SignalClusterRanking | null>((clusterId) => {
+      const matches = signals.filter((signal) =>
+        signalClusterMatches(signal, clusterId)
+      );
+      const leadSignal = matches[0];
+
+      if (!leadSignal) {
+        return null;
+      }
+
+      const definition = copy.definitions[clusterId];
+      const snapshotMeta = leadSignal.rankSnapshot
+        ? `${leadSignal.rankSnapshot.scoreLabel} / ${leadSignal.rankSnapshot.contextLabel}`
+        : leadSignal.scoreLabel;
+
+      return {
+        id: clusterId,
+        label: definition.label,
+        title: definition.title,
+        description: leadSignal.description || copy.emptyDetail,
+        countLabel: `${matches.length} ${copy.observationUnit}`,
+        metaLabel: [
+          leadSignal.linkedModelName,
+          snapshotMeta,
+          copy.observedInputsOnly
+        ].join(' / '),
+        href: signalFilterHref(locale, clusterId),
+        tone: leadSignal.scoreTone
+      };
+    })
+    .filter((cluster): cluster is SignalClusterRanking => cluster !== null);
+}
+
+function SignalThemeClusterRankingSection({
+  locale,
+  clusters
+}: {
+  locale: SignalLocale;
+  clusters: SignalClusterRanking[];
+}) {
+  const copy = signalClusterRankingCopy[locale];
+
+  if (clusters.length === 0) {
+    return null;
+  }
+
+  return (
+    <section
+      aria-labelledby="signal-theme-cluster-title"
+      className="space-y-3 rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+    >
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <div className="min-w-0 space-y-1">
+          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-invest-primary">
+            {copy.eyebrow}
+          </p>
+          <h2
+            id="signal-theme-cluster-title"
+            className="min-w-0 break-words text-[17px] font-bold leading-6 text-invest-text [overflow-wrap:anywhere]"
+          >
+            {copy.title}
+          </h2>
+          <p className="text-sm leading-5 text-invest-text-muted">
+            {copy.description}
+          </p>
+        </div>
+        <RiskBadge tone="low">{copy.observedInputsOnly}</RiskBadge>
+      </div>
+
+      <div className="grid gap-2 min-[390px]:grid-cols-2">
+        {clusters.map((cluster, index) => (
+          <Link
+            key={cluster.id}
+            href={cluster.href}
+            aria-label={`${copy.clusterRank} ${index + 1}. ${cluster.title}. ${copy.safety}`}
+            title={`${copy.clusterRank} ${index + 1}. ${cluster.title}. ${copy.safety}`}
+            className={cn(
+              'group min-h-invest-touch-target min-w-0 rounded-invest-control border border-invest-border bg-invest-bg-soft p-3 text-left focus-visible:ring-2 focus-visible:ring-invest-primary/30',
+              investMotionClass.interactiveCard
+            )}
+          >
+            <div className="mb-2 flex min-w-0 items-center justify-between gap-2">
+              <span className="shrink-0 text-[12px] font-bold text-invest-primary">
+                #{index + 1}
+              </span>
+              <RiskBadge tone={badgeToneByScore[cluster.tone]}>
+                {cluster.label}
+              </RiskBadge>
+            </div>
+            <h3 className="min-w-0 break-words text-sm font-bold leading-5 text-invest-text [overflow-wrap:anywhere]">
+              {cluster.title}
+            </h3>
+            <p className="mt-2 line-clamp-2 text-[12px] leading-5 text-invest-text-muted">
+              {cluster.description}
+            </p>
+            <p className="mt-2 min-w-0 break-words text-[11px] font-semibold leading-4 text-invest-text-muted [overflow-wrap:anywhere]">
+              {[cluster.countLabel, cluster.metaLabel].join(' / ')}
+            </p>
+          </Link>
+        ))}
+      </div>
+
+      <p className="rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[11px] font-semibold leading-4 text-invest-text-muted">
+        {copy.safety}
+      </p>
+    </section>
+  );
+}
+
 async function readSignalsRoute({
   signalType,
   limit
@@ -359,6 +588,10 @@ export default async function InvestModelSignalsPage({
     locale === 'ko'
       ? `${visibleSignals.length}개 표시`
       : `${visibleSignals.length} shown`;
+  const signalClusterRankings = buildSignalClusterRankings(
+    visibleSignals,
+    locale
+  );
   const signalListLabel =
     locale === 'ko' ? '표시 중인 신호 목록' : 'Shown signal list';
 
@@ -504,6 +737,11 @@ export default async function InvestModelSignalsPage({
             </span>
             <span className="shrink-0">{visibleSignalCountLabel}</span>
           </div>
+
+          <SignalThemeClusterRankingSection
+            locale={locale}
+            clusters={signalClusterRankings}
+          />
 
           <div
             role="list"

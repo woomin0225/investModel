@@ -155,6 +155,8 @@ const screens: ScreenCheck[] = [
       investModelCopy.en.signals.sectionTitle,
       investModelCopy.en.signals.footerBadges.noRecommendation,
       investModelCopy.en.signals.footerBadges.mockData,
+      'Theme and signal clusters',
+      'DB seed/mock observations only',
       investModelSignalsMock.summary.blockedLabel
     ]
   },
@@ -927,6 +929,36 @@ assertCondition(
   signalsPageSource.includes('investMotionClass.interactiveCard') &&
     signalsPageSource.includes('investMotionClass.interactiveControl'),
   'Realtime Signals must reuse shared motion classes for cards and filter controls'
+);
+const signalThemeClusterSectionStart = signalsPageSource.indexOf(
+  'const signalClusterRankingCopy'
+);
+const signalThemeClusterSectionEnd = signalsPageSource.indexOf(
+  'async function readSignalsRoute'
+);
+const signalThemeClusterSectionSource =
+  signalThemeClusterSectionStart >= 0 && signalThemeClusterSectionEnd > signalThemeClusterSectionStart
+    ? signalsPageSource.slice(
+        signalThemeClusterSectionStart,
+        signalThemeClusterSectionEnd
+      )
+    : '';
+assertCondition(
+  signalsPageSource.includes('buildSignalClusterRankings') &&
+    signalsPageSource.includes('SignalThemeClusterRankingSection') &&
+    signalThemeClusterSectionSource.includes('Theme and signal clusters') &&
+    signalThemeClusterSectionSource.includes('Seed/mock model themes') &&
+    signalThemeClusterSectionSource.includes('Cluster rank') &&
+    signalThemeClusterSectionSource.includes('Observed inputs only') &&
+    signalThemeClusterSectionSource.includes('DB seed/mock observations only') &&
+    signalThemeClusterSectionSource.includes('not advice') &&
+    signalThemeClusterSectionSource.includes('not orders') &&
+    signalThemeClusterSectionSource.includes('grid gap-2 min-[390px]:grid-cols-2') &&
+    signalThemeClusterSectionSource.includes('[overflow-wrap:anywhere]') &&
+    !/\b(Buy|Sell|Hold|buy now|sell now|place order|execute trade|connect brokerage|brokerageConnection|externalPaidApi)\b/i.test(
+      signalThemeClusterSectionSource
+    ),
+  'BK-445 Signals theme cluster ranking must remain seed/mock, mobile-safe, exploratory, and non-trading'
 );
 assertCondition(
   signalsPageSource.includes('detailHref: signalDetailHref') &&
