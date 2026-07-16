@@ -34,6 +34,10 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   user-scoped FeedPost save state for shared Signals/Feed/Models interest UI
   work. It does not create model selections, deposits, allocation decisions,
   TradeIntent rows, broker links, orders, legal judgments, or external data.
+- `008_portfolio_insight_seed.sql` adds mock-safe
+  `portfolio_analysis_snapshots` rows for allocation rationale and model status
+  timeline read-model work. It keeps `mockOnly` safety metadata and never adds
+  real balance, order, broker connection, legal judgment, or advice fields.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -72,6 +76,9 @@ files. Do not insert sample rows directly in a MySQL console for product work.
    - Use `006_portfolio_allocation_split_seed.sql` and
      `docs/database/samples/portfolio-allocation-split-read-model.sample.sql`
      before adding allocation split API/UI work.
+   - Use `008_portfolio_insight_seed.sql` and
+     `docs/database/samples/portfolio-insight-read-model.sample.sql` before
+     adding portfolio insight timeline/rationale API or UI work.
 7. User notifications and My Page activity rows.
    - Current notification center rows are derived from `feed_posts` and
      `feed_post_reads`, and `user_notifications` is now aligned in DBML, MySQL
@@ -79,10 +86,10 @@ files. Do not insert sample rows directly in a MySQL console for product work.
    - Use `docs/database/samples/user-notifications-sample.sql` as the reviewed
      whole-file sample before promoting dedicated notification rows into a
      canonical seed file.
-   - Current Portfolio time dashboard rows are derived from `portfolios`,
-     `portfolio_positions`, `allocation_decisions`, and `trade_intents`;
-     dedicated `portfolio_analysis_snapshots` seed rows should wait until that
-     canonical table is aligned in ORM/migrations.
+   - Current Portfolio insight rows can use
+     `008_portfolio_insight_seed.sql` as the first dedicated
+     `portfolio_analysis_snapshots` SQL seed slice; API code should still wait
+     for ORM/migration alignment before querying that table directly.
 
 ## Safety Rules
 

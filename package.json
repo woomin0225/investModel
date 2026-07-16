@@ -48,6 +48,7 @@
     "test:portfolio-market-context": "npx tsx scripts/qa/portfolio-market-context-tiles-smoke.ts",
     "test:portfolio-allocation-split-api": "npx tsx scripts/smoke/portfolio-allocation-split-api-smoke.ts",
     "test:portfolio-allocation-split-read-model": "npx tsx scripts/smoke/portfolio-allocation-split-read-model-smoke.ts",
+    "test:portfolio-insight-read-model": "npx tsx scripts/smoke/portfolio-insight-read-model-smoke.ts",
     "test:portfolio-holdings-read-model": "npx tsx scripts/smoke/portfolio-holdings-read-model-smoke.ts",
     "test:portfolio-compact-read-model": "npx tsx scripts/smoke/portfolio-compact-read-model-smoke.ts",
     "test:price-history-api": "npx tsx scripts/smoke/price-history-api-smoke.ts",

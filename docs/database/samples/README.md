@@ -24,3 +24,4 @@ sample values without applying them directly to MySQL.
 - `portfolio-timeline-read-model.sample.sql`
 - `price-history-read-model.sample.sql`
 - `my-page-read-model.sample.sql`
+- `portfolio-insight-read-model.sample.sql`
