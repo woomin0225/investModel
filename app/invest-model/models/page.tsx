@@ -571,7 +571,7 @@ export default async function InvestModelDiscoveryPage({
           <div
             role="list"
             aria-label={modelListLabel}
-            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+            className="space-y-2.5 rounded-invest-control bg-invest-bg-soft p-1.5"
           >
             {filteredInvestmentModels.map((model) => {
               const statusDisplay = getInvestmentModelStatusDisplay(
@@ -627,7 +627,7 @@ export default async function InvestModelDiscoveryPage({
                         locale
                       )}
                       aria-label={`${model.name} ${model.performanceLabel} ${model.riskLabel}`}
-                      className="block space-y-2 rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
+                      className="block space-y-2 rounded-invest-control focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
                     >
                       {modelCard}
                       <p className="px-3 text-xs font-semibold leading-5 text-invest-text-muted">

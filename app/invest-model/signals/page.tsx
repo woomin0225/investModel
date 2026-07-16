@@ -485,7 +485,7 @@ export default async function InvestModelSignalsPage({
           <div
             role="list"
             aria-label={signalListLabel}
-            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+            className="space-y-2.5 rounded-invest-control bg-invest-bg-soft p-1.5"
           >
             {visibleSignals.length > 0 ? (
               visibleSignals.map((signal) => (

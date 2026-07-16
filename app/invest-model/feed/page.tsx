@@ -572,7 +572,7 @@ export default async function InvestModelFeedPage({
           <div
             role="list"
             aria-label={feedCopy.sectionTitle}
-            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+            className="space-y-2.5 rounded-invest-control bg-invest-bg-soft p-1.5"
           >
             {posts.length > 0 ? (
               posts.map((post) => (

@@ -25,6 +25,14 @@ export const investMotionClass = {
     'transition-[background-color,border-color,transform] duration-200 ease-out hover:border-invest-primary/30 hover:bg-invest-primary-soft active:scale-95 focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg motion-reduce:transition-none motion-reduce:active:scale-100'
 } as const;
 
+export const investCardClass = {
+  surface:
+    'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+  mutedPanel:
+    'rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding',
+  listRail: 'rounded-invest-control bg-invest-bg-soft p-1.5'
+} as const;
+
 type RiskBadgeProps = {
   children: ReactNode;
   tone?: RiskBadgeTone;
@@ -278,7 +286,8 @@ export function MobileFilterRail({
       role="group"
       aria-label={ariaLabel}
       className={cn(
-        'grid grid-cols-2 gap-2 rounded-invest-card bg-invest-bg-soft p-1.5 min-[520px]:flex min-[520px]:flex-wrap',
+        'grid grid-cols-2 gap-2 min-[520px]:flex min-[520px]:flex-wrap',
+        investCardClass.listRail,
         className
       )}
     >
@@ -347,7 +356,7 @@ export function MetricCard({
   return (
     <article
       className={cn(
-        'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        investCardClass.surface,
         className
       )}
     >
@@ -483,7 +492,7 @@ export function PerformanceMetricGroup({
   return (
     <section
       className={cn(
-        'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        investCardClass.surface,
         className
       )}
     >
@@ -503,7 +512,7 @@ export function PerformanceMetricGroup({
 
       <div
         role="list"
-        className="mt-4 space-y-2 rounded-invest-card bg-invest-bg-soft p-1.5"
+        className={cn('mt-4 space-y-2', investCardClass.listRail)}
       >
         {metrics.map((metric) => (
           <div
@@ -566,7 +575,8 @@ export function ModelCard({
   return (
     <article
       className={cn(
-        'group rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        'group',
+        investCardClass.surface,
         investMotionClass.interactiveCard,
         isSelectionDisabled && 'border-invest-border bg-invest-surface-muted opacity-80',
         className
@@ -669,7 +679,7 @@ export function InvestmentModelCard({
   return (
     <article
       className={cn(
-        'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        investCardClass.surface,
         investMotionClass.interactiveCard,
         className
       )}
@@ -726,7 +736,7 @@ export function InvestmentModelDetail({
   return (
     <article
       className={cn(
-        'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card',
+        investCardClass.surface,
         className
       )}
     >

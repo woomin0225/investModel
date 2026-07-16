@@ -9,7 +9,10 @@ import {
   investModelNavItems,
   type InvestModelTabKey
 } from '../../components/invest-model/mobile-shell';
-import { investMotionClass } from '../../components/invest-model/ui';
+import {
+  investCardClass,
+  investMotionClass
+} from '../../components/invest-model/ui';
 import { investModelHomeMock } from '../../lib/mock/invest-model-home';
 import {
   discoverableInvestmentModels,
@@ -445,6 +448,42 @@ assertCondition(
 );
 const portfolioPageSource = readProjectFile(
   'app/invest-model/portfolio/page.tsx'
+);
+const cardRailSources = [
+  ['Feed Insights', feedPageSource],
+  ['Discover Models', modelsPageSource],
+  ['Realtime Signals', signalsPageSource],
+  ['Mock Portfolio', portfolioPageSource]
+] as const;
+
+assertCondition(
+  investCardClass.surface ===
+    'rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card' &&
+    investCardClass.mutedPanel ===
+      'rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding' &&
+    investCardClass.listRail ===
+      'rounded-invest-control bg-invest-bg-soft p-1.5' &&
+    investModelUiSource.includes('export const investCardClass') &&
+    investModelUiSource.includes('listRail:') &&
+    investModelUiSource.includes('investCardClass.surface') &&
+    investModelUiSource.includes('investCardClass.listRail'),
+  'BK-459 shared card surface/list rail tokens must stay centralized in investModel UI'
+);
+assertCondition(
+  cardRailSources.every(([, source]) =>
+    source.includes('rounded-invest-control bg-invest-bg-soft p-1.5')
+  ) &&
+    cardRailSources.every(
+      ([, source]) =>
+        !source.includes('space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5')
+    ) &&
+    modelsPageSource.includes(
+      'block space-y-2 rounded-invest-control focus:outline-none'
+    ) &&
+    !modelsPageSource.includes(
+      'block space-y-2 rounded-invest-card focus:outline-none'
+    ),
+  'BK-459 list rails must use control radius so repeated card children do not read as nested cards'
 );
 const portfolioKoreanLabelMapRequired = [
   '모의 배정됨',

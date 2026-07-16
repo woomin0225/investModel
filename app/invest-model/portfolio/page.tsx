@@ -697,7 +697,7 @@ export default async function InvestModelPortfolioPage({
             aria-label={
               locale === 'ko' ? '모의 기간 대시보드' : 'Mock time dashboard'
             }
-            className="grid grid-cols-3 gap-2 rounded-invest-card bg-invest-bg-soft p-1.5"
+            className="grid grid-cols-3 gap-2 rounded-invest-control bg-invest-bg-soft p-1.5"
           >
             {hasTimeSnapshots ? (
               displayPortfolio.timeSnapshots.map((snapshot) => {
@@ -843,7 +843,7 @@ export default async function InvestModelPortfolioPage({
           <div
             role="list"
             aria-label={copy.positionTitle}
-            className="space-y-2.5 rounded-invest-card bg-invest-bg-soft p-1.5"
+            className="space-y-2.5 rounded-invest-control bg-invest-bg-soft p-1.5"
           >
             {hasPositions ? (
               displayPortfolio.positions.map((position, index) => {
