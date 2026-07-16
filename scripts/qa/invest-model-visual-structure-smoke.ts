@@ -76,6 +76,8 @@ const screens: ScreenCheck[] = [
       'API dataContext',
       'Recent FeedPost activity',
       'Saved/comment activity is an informational reading shortcut only',
+      'No real account, deposit, or order data is shown or used.',
+      'Simulated portfolio summary',
       'Personalized settings',
       'Selected model',
       'Saved feed',
@@ -775,6 +777,7 @@ assertCondition(
 );
 assertCondition(
   investModelUiSource.includes('export function EmptyStateCta') &&
+    investModelUiSource.includes('account or brokerage connection, push delivery') &&
     investModelUiSource.includes('min-h-invest-touch-target') &&
     investModelUiSource.includes('aria-label={ariaLabel ?? `${label}. ${description}`}') &&
     feedPageSource.includes('<EmptyStateCta') &&
@@ -835,6 +838,10 @@ assertCondition(
 assertCondition(
   feedPageSource.includes("feedEmptyVisibleBoundaries(locale).join(' / ')") &&
     feedPageSource.includes("feedRankingVisibleBoundaries(locale).join(' / ')") &&
+    feedPageSource.includes('feedRankingEmptyAccessibleLabel') &&
+    feedPageSource.includes('정보성 관심도 히스토리만 표시합니다') &&
+    feedPageSource.includes('No tracked DB like-ranking rows are available yet') &&
+    feedPageSource.includes('aria-label={feedRankingEmptyAccessibleLabel(locale)}') &&
     feedPageSource.includes("{feedCopy.footerBadges.noAdvice} /{' '}") &&
     !feedPageSource.includes('feedEmptyVisibleBoundaries(locale).map((boundary) => (') &&
     !feedPageSource.includes('feedRankingVisibleBoundaries(locale).map(') &&
@@ -948,7 +955,7 @@ assertCondition(
     notificationsPageSource.includes('로컬 DB 읽음 상태만 업데이트합니다') &&
     notificationsPageSource.includes('정보성 읽기 모델이며 실제 푸시') &&
     notificationsPageSource.includes('피드 글 읽음 상태에서 알림 행을 파생합니다') &&
-    notificationsPageSource.includes('피드 글 행이 추가되거나 읽음 상태가 바뀌면') &&
+    notificationsPageSource.includes('빈 상태에서도 실제 푸시, 이메일, 문자, 주문, 계좌 메시지는 만들지 않습니다.') &&
     notificationsPageSource.includes("sectionDescription: '피드 글 기록과 읽음 상태에서 파생됩니다.'") &&
     notificationsPageSource.includes("locale === 'ko' ? 'DB 피드 글 기반' : 'DB FeedPost'") &&
     notificationsPageSource.includes("item.status === 'unread'\n    ? '새 DB 기반 피드 글'") &&
@@ -1027,6 +1034,7 @@ assertCondition(
     feedPageSource.includes('피드 상세를 열고 읽음 상태를 기록합니다.') &&
     feedPageSource.includes('목록 또는 상세 댓글 영역의 DB 기반 피드 동작을 실행합니다.') &&
     feedPageSource.includes('피드 좋아요 순위 ${ranking.rank}위') &&
+    feedPageSource.includes('좋아요 순위 빈 상태입니다.') &&
     feedPageSource.includes('DB 기반 추적 좋아요 순위이며 모델 품질, 기대 수익, 추천, 주문 근거가 아닙니다.') &&
     feedPageSource.includes("'DB 기반 관심도 순위'") &&
     feedPageSource.includes('피드 빈 상태입니다. DB 기반 피드 조회 범위만 표시하며 정보성 상태일 뿐 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.') &&
@@ -1257,6 +1265,21 @@ assertCondition(
 );
 assertCondition(
   myPageSource.includes('내 정보는 API의 사용자 범위 출처를 기준으로 현재 회원 DB 기반 조회 또는 프로토타입 보조 상태를 구분합니다.') &&
+    myPageSource.includes('저장, 댓글, 알림 히스토리를 DB 기반 조회로 묶어 보여주며') &&
+    myPageSource.includes('최근 피드 글 활동 빈 상태') &&
+    myPageSource.includes('read-only empty state') &&
+    myPageSource.includes('No real account, deposit, or order data is shown or used.') &&
+    myPageSource.includes('Simulated portfolio summary') &&
+    myPageSource.includes('when DB saved-state rows are available') &&
+    myPageSource.includes('when DB comment rows are available') &&
+    !myPageSource.includes('No real account, deposit, or order data is connected.') &&
+    !myPageSource.includes('MockDeposit summary') &&
+    !myPageSource.includes('after the save toggle is connected') &&
+    !myPageSource.includes('after comment and reply APIs are connected') &&
+    !myPageSource.includes('Enable push') &&
+    !myPageSource.includes('Connect account') &&
+    !myPageSource.includes('Link broker') &&
+    myPageSource.includes('border border-dashed border-invest-border bg-invest-bg-soft') &&
     myPageSource.includes('회원 범위는 API의 사용자 범위 출처로 확인하며, 화면 값은 현재 회원 DB 기반 조회 또는 프로토타입 보조 상태만 표시합니다.') &&
     myPageSource.includes('DB 사용자 조회 상태') &&
     myPageSource.includes('로컬 프로필 요약') &&

@@ -52,7 +52,7 @@ const notificationCopy = {
     read: '읽음',
     emptyTitle: '아직 DB 기반 알림이 없습니다',
     emptyDescription:
-      '피드 글 행이 추가되거나 읽음 상태가 바뀌면 이 센터에 해당 기록이 표시될 수 있습니다.',
+      '피드 글 행이 추가되거나 읽음 상태가 바뀌면 이 센터에 해당 기록이 표시될 수 있습니다. 빈 상태에서도 실제 푸시, 이메일, 문자, 주문, 계좌 메시지는 만들지 않습니다.',
     sectionTitle: '최근 알림 후보',
     sectionDescription: '피드 글 기록과 읽음 상태에서 파생됩니다.',
     noAdvice: '추천 아님',
@@ -75,7 +75,7 @@ const notificationCopy = {
     read: 'Read',
     emptyTitle: 'No DB-backed notifications yet',
     emptyDescription:
-      'When FeedPost rows are added or read-state changes, this center can surface those records.',
+      'When FeedPost rows are added or read-state changes, this center can surface those records. Even this empty state does not create real push, email, SMS, orders, or account messages.',
     sectionTitle: 'Latest notification candidates',
     sectionDescription: 'Derived from FeedPost records and read state.',
     noAdvice: 'No advice',

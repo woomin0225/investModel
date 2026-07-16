@@ -127,9 +127,16 @@ function myPageActivityVisibleBoundaries(locale: 'ko' | 'en') {
 
 function myPageRecentActivityVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
-    ? ['DB 피드 글 활동', '저장/댓글 읽기', '브로커 미연결', '푸시 전송 없음']
+    ? [
+        'DB 피드 글 활동',
+        '읽기 전용 빈 상태',
+        '저장/댓글 읽기',
+        '브로커 미연결',
+        '푸시 전송 없음'
+      ]
     : [
         'DB FeedPost activity',
+        'read-only empty state',
         'saved/comment read model',
         'no brokerage',
         'no push delivery'
@@ -239,7 +246,7 @@ const myPageCopy = {
     },
     activityTitle: '활동 조회 상태',
     activityDescription:
-      '내 정보는 앞으로 저장, 댓글, 알림 상태를 DB 기반 조회로 묶어 보여줍니다.',
+      '내 정보는 저장, 댓글, 알림 히스토리를 DB 기반 조회로 묶어 보여주며, 비어 있을 때도 읽기 전용 안내만 표시합니다.',
     activityItems: [
       {
         icon: Bookmark,
@@ -273,7 +280,7 @@ const myPageCopy = {
     bannerEyebrow: 'Member state',
     bannerTitle: 'Current member app activity',
     bannerDescription:
-      'Shows only in-app activity such as model selection, saved posts, and comments. No real account, deposit, or order data is connected.',
+      'Shows only in-app activity such as model selection, saved posts, and comments. No real account, deposit, or order data is shown or used.',
     summary: {
       saved: 'Saved',
       savedValue: '0',
@@ -316,26 +323,26 @@ const myPageCopy = {
       },
       portfolio: {
         title: 'Simulated portfolio',
-        description: 'MockDeposit summary',
+        description: 'Simulated portfolio summary',
         status: 'Simulated only'
       }
     },
     activityTitle: 'Activity read model',
     activityDescription:
-      'My Page will collect saved, comment, and notification states through DB read models.',
+      'My Page groups saved, comment, and notification history through DB read models; empty states stay read-only guidance only.',
     activityItems: [
       {
         icon: Bookmark,
         href: '/invest-model/feed',
         title: 'Saved posts',
-        description: 'Recent saved FeedPosts will appear after the save toggle is connected.',
+        description: 'Recent saved FeedPosts will appear when DB saved-state rows are available.',
         badge: 'Pending'
       },
       {
         icon: MessageCircle,
         href: '/invest-model/feed',
         title: 'Comments',
-        description: 'Recent comments will appear after comment and reply APIs are connected.',
+        description: 'Recent comments will appear when DB comment rows are available.',
         badge: 'Pending'
       },
       {
@@ -415,6 +422,10 @@ export default async function InvestModelMyPage({
         getActivitySortTime(left.activityAt)
     )
     .slice(0, 4);
+  const recentActivityEmptyAccessibleLabel =
+    locale === 'ko'
+      ? '최근 피드 글 활동 빈 상태. 표시할 저장 또는 댓글 히스토리가 아직 없으며 DB 기반 피드 읽기만 안내합니다. 추천, 주문, 실계좌, 브로커 연결, 실제 알림 전송과 연결되지 않습니다.'
+      : 'Recent FeedPost activity empty state. No saved or comment history is available yet, and it only guides DB-backed FeedPost reading. Not advice, orders, real accounts, brokerage connection, or notification delivery.';
   const noticesValue = `${notificationSummary.unreadCount}/${notificationSummary.totalCount}`;
   const noticesDescription =
     notificationSummary.latestNotificationTitle ??
@@ -755,7 +766,11 @@ export default async function InvestModelMyPage({
                 ))}
               </div>
             ) : (
-              <div className="mt-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-sm leading-5 text-invest-text-muted">
+              <div
+                aria-label={recentActivityEmptyAccessibleLabel}
+                title={recentActivityEmptyAccessibleLabel}
+                className="mt-3 rounded-invest-card border border-dashed border-invest-border bg-invest-bg-soft px-3 py-3 text-sm leading-5 text-invest-text-muted"
+              >
                 {locale === 'ko'
                   ? '표시할 DB 피드 글 활동이 아직 없습니다.'
                   : 'No DB FeedPost activity to show yet.'}

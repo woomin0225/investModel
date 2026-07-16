@@ -377,7 +377,7 @@ export function MetricCard({
 }
 
 /**
- * EmptyStateCta gives empty states one safe navigation action without implying money movement, orders, or advice.
+ * EmptyStateCta gives empty states one safe navigation action without implying money movement, orders, account or brokerage connection, push delivery, or advice.
  */
 export function EmptyStateCta({
   href,

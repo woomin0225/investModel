@@ -344,6 +344,12 @@ function feedRankingVisibleBoundaries(locale: FeedLocale) {
       ];
 }
 
+function feedRankingEmptyAccessibleLabel(locale: FeedLocale) {
+  return locale === 'ko'
+    ? '좋아요 순위 빈 상태입니다. 아직 추적된 DB 좋아요 순위 행이 없으며 정보성 관심도 히스토리만 표시합니다. 추천, 주문, 브로커 연결, 실시간 외부 데이터, 수익 보장과 연결되지 않습니다.'
+    : 'Like ranking empty state. No tracked DB like-ranking rows are available yet, and this area only presents informational attention history. Not advice, orders, brokerage connection, realtime external data, or return claims.';
+}
+
 function feedEmptyAccessibleLabel(locale: FeedLocale) {
   return locale === 'ko'
     ? '피드 빈 상태입니다. DB 기반 피드 조회 범위만 표시하며 정보성 상태일 뿐 추천, 주문, 브로커 동작, 실시간 외부 데이터가 아닙니다.'
@@ -879,10 +885,19 @@ export default async function InvestModelFeedPage({
                   </Link>
                 ))
               ) : (
-                <div className="rounded-invest-control border border-dashed border-invest-border bg-invest-bg-soft p-4 text-sm font-semibold leading-6 text-invest-text-muted">
-                  {locale === 'ko'
-                    ? '아직 추적된 좋아요 순위 행이 없습니다.'
-                    : 'No tracked like ranking rows yet.'}
+                <div
+                  aria-label={feedRankingEmptyAccessibleLabel(locale)}
+                  title={feedRankingEmptyAccessibleLabel(locale)}
+                  className="rounded-invest-control border border-dashed border-invest-border bg-invest-bg-soft p-4 text-sm font-semibold leading-6 text-invest-text-muted"
+                >
+                  <p>
+                    {locale === 'ko'
+                      ? '아직 추적된 좋아요 순위 행이 없습니다.'
+                      : 'No tracked like ranking rows yet.'}
+                  </p>
+                  <p className="mt-3 rounded-invest-control bg-invest-surface px-2 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                    {feedRankingVisibleBoundaries(locale).join(' / ')}
+                  </p>
                 </div>
               )}
             </div>
