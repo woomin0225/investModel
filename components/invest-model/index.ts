@@ -7,6 +7,7 @@ export { FeedSaveAction } from './feed-save-action';
 export { ModelSelectionCta } from './model-selection-cta';
 export { modelSelectionReadStatusCopy } from './model-selection-read-status-copy';
 export { ModelSelectionReadStatus } from './model-selection-read-status';
+export { PortfolioCompactSummaryCard } from './portfolio-compact-summary-card';
 export { SignalRefreshAction } from './signal-refresh-action';
 export { WatchlistSeedPanel } from './watchlist-seed-panel';
 export {

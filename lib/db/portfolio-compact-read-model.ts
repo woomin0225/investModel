@@ -68,6 +68,12 @@ export async function readInvestModelPortfolioCompactSummary(
   const summary = await readInvestModelPortfolioSummary(userPublicId);
   const latestSnapshot = summary.timeSnapshots[0];
   const cashSnapshot = summary.timeSnapshots[1] ?? latestSnapshot;
+  const latestValueLabel =
+    latestSnapshot?.valueLabel ?? 'No PortfolioSummary rows yet';
+  const cashValueLabel =
+    cashSnapshot?.valueLabel ?? 'No MockDeposit cash window yet';
+  const snapshotLabel =
+    latestSnapshot?.checkpointLabel ?? 'DB read-model compact fallback';
 
   return {
     isMockOnly: true,
@@ -101,10 +107,10 @@ export async function readInvestModelPortfolioCompactSummary(
       safetyLabel: summary.mockDeposit.safetyLabel
     },
     portfolioSummary: {
-      simulatedValueLabel: latestSnapshot.valueLabel,
-      mockCashBufferLabel: `${cashSnapshot.valueLabel} mock context`,
+      simulatedValueLabel: latestValueLabel,
+      mockCashBufferLabel: `${cashValueLabel} mock context`,
       positionCountLabel: `${summary.positions.length} simulated PortfolioPositions`,
-      snapshotLabel: latestSnapshot.checkpointLabel,
+      snapshotLabel,
       safetyLabel:
         'PortfolioSummary is mock/simulated only; no real deposit, real balance, real order, brokerage connection, or financial advice.'
     },

@@ -462,6 +462,9 @@ const investModelNumberFormatterSource = readProjectFile(
 const portfolioReadModelSource = readProjectFile(
   'lib/db/portfolio-read-model.ts'
 );
+const portfolioCompactReadModelSource = readProjectFile(
+  'lib/db/portfolio-compact-read-model.ts'
+);
 const modelReadModelSource = readProjectFile(
   'lib/domain/models/model-read-model.ts'
 );
@@ -486,6 +489,9 @@ const modelSelectionReadStatusCopySource = readProjectFile(
 );
 const watchlistSeedPanelSource = readProjectFile(
   'components/invest-model/watchlist-seed-panel.tsx'
+);
+const portfolioCompactSummaryCardSource = readProjectFile(
+  'components/invest-model/portfolio-compact-summary-card.tsx'
 );
 const modelSelectionCtaSource = readProjectFile(
   'components/invest-model/model-selection-cta.tsx'
@@ -2021,6 +2027,46 @@ assertCondition(
 assertCondition(
   !portfolioPageSource.includes('<SoftBanner') &&
     !portfolioPageSource.includes('<MetricCard') &&
+    portfolioPageSource.includes('PortfolioCompactSummaryCard') &&
+    portfolioPageSource.includes('<PortfolioCompactSummaryCard locale={locale} />') &&
+    portfolioCompactSummaryCardSource.includes("'use client'") &&
+    portfolioCompactSummaryCardSource.includes('/api/portfolio/compact-summary') &&
+    portfolioCompactSummaryCardSource.includes('x-invest-model-role') &&
+    portfolioCompactSummaryCardSource.includes("status: 'loading'") &&
+    portfolioCompactSummaryCardSource.includes("status: 'empty'") &&
+    portfolioCompactSummaryCardSource.includes("status: 'loaded'") &&
+    portfolioCompactSummaryCardSource.includes('PortfolioCompactLoadingRows') &&
+    portfolioCompactSummaryCardSource.includes('aria-busy="true"') &&
+    portfolioCompactSummaryCardSource.includes('data-portfolio-compact-loading-skeleton="mock-only"') &&
+    portfolioCompactSummaryCardSource.includes('PortfolioSummary') &&
+    portfolioCompactSummaryCardSource.includes('No PortfolioSummary rows yet') &&
+    portfolioCompactSummaryCardSource.includes('MockDeposit') &&
+    portfolioCompactSummaryCardSource.includes('pre-order simulation only') &&
+    portfolioCompactSummaryCardSource.includes('no real deposit') &&
+    portfolioCompactSummaryCardSource.includes('no real balance') &&
+    portfolioCompactSummaryCardSource.includes('no real order') &&
+    portfolioCompactSummaryCardSource.includes('no brokerage') &&
+    portfolioCompactSummaryCardSource.includes('not advice') &&
+    portfolioCompactSummaryCardSource.includes('TradeIntent not created') &&
+    portfolioCompactSummaryCardSource.includes('grid gap-3 min-[390px]:grid-cols-[minmax(0,1fr)_7.25rem]') &&
+    portfolioCompactSummaryCardSource.includes('break-words text-[22px]') &&
+    portfolioCompactSummaryCardSource.includes('[overflow-wrap:anywhere]') &&
+    portfolioCompactSummaryCardSource.includes('mockOnly=') &&
+    portfolioCompactSummaryCardSource.includes('realDeposit=') &&
+    portfolioCompactSummaryCardSource.includes('realOrder=') &&
+    portfolioCompactSummaryCardSource.includes('brokerageConnection=') &&
+    portfolioCompactSummaryCardSource.includes('accountLinking=') &&
+    portfolioCompactSummaryCardSource.includes('tradeIntentCreated=') &&
+    portfolioCompactSummaryCardSource.includes('min-w-0') &&
+    !portfolioCompactSummaryCardSource.includes('Deposit now') &&
+    !portfolioCompactSummaryCardSource.includes('Connect brokerage') &&
+    !portfolioCompactSummaryCardSource.includes('Place order') &&
+    !portfolioCompactSummaryCardSource.includes('Execute trade') &&
+    !portfolioCompactSummaryCardSource.includes('Buy now') &&
+    !portfolioCompactSummaryCardSource.includes('Sell now') &&
+    portfolioCompactReadModelSource.includes('latestSnapshot?.valueLabel') &&
+    portfolioCompactReadModelSource.includes('No PortfolioSummary rows yet') &&
+    portfolioCompactReadModelSource.includes('DB read-model compact fallback') &&
     portfolioPageSource.includes('const displayPortfolio = toPortfolioDisplaySummary(locale, portfolio)') &&
     portfolioPageSource.includes(
       'const safetyMetaLine = portfolioSafetyMetaLine('
