@@ -112,14 +112,18 @@ export const investModelWatchlistSeedFixture: InvestModelWatchlistReadModel = {
   ]
 };
 
-function cloneFixture(): InvestModelWatchlistReadModel {
+function cloneFixture(
+  limit = investModelWatchlistSeedFixture.items.length
+): InvestModelWatchlistReadModel {
   return {
     ...investModelWatchlistSeedFixture,
     emptyState: { ...investModelWatchlistSeedFixture.emptyState },
-    items: investModelWatchlistSeedFixture.items.map((item) => ({
-      ...item,
-      safetyMeta: { ...item.safetyMeta }
-    }))
+    items: investModelWatchlistSeedFixture.items
+      .slice(0, limit)
+      .map((item) => ({
+        ...item,
+        safetyMeta: { ...item.safetyMeta }
+      }))
   };
 }
 
@@ -151,7 +155,7 @@ export async function readInvestModelWatchlistSeedFixture(
   limit = 3
 ): Promise<InvestModelWatchlistReadModel> {
   if (!process.env.MYSQL_URL) {
-    return cloneFixture();
+    return cloneFixture(limit);
   }
 
   try {
@@ -184,11 +188,11 @@ export async function readInvestModelWatchlistSeedFixture(
       .limit(limit);
 
     if (rows.length === 0) {
-      return cloneFixture();
+      return cloneFixture(limit);
     }
 
     return {
-      ...cloneFixture(),
+      ...cloneFixture(limit),
       generatedFrom: 'db_seed_projection',
       items: rows.map((row) => ({
         id: `watch_seed_${row.signalPublicId}`,
@@ -211,6 +215,6 @@ export async function readInvestModelWatchlistSeedFixture(
       }))
     };
   } catch {
-    return cloneFixture();
+    return cloneFixture(limit);
   }
 }
