@@ -196,6 +196,8 @@ Pass criteria:
 
 Purpose: confirm mobile-first UI work is checked like an app surface.
 
+Reference checklist: `docs/qa/invest-model-390px-smoke-checklist.md`.
+
 Steps:
 
 1. Start the dev server if UI changes require runtime validation.
