@@ -484,6 +484,9 @@ const modelSelectionReadStatusSource = readProjectFile(
 const modelSelectionReadStatusCopySource = readProjectFile(
   'components/invest-model/model-selection-read-status-copy.ts'
 );
+const watchlistSeedPanelSource = readProjectFile(
+  'components/invest-model/watchlist-seed-panel.tsx'
+);
 const modelSelectionCtaSource = readProjectFile(
   'components/invest-model/model-selection-cta.tsx'
 );
@@ -1578,9 +1581,32 @@ assertCondition(
   'Admin Review Detail must present disabled status transition as prose instead of a hashtag status chip group'
 );
 assertCondition(
-  !homePageSource.includes('<SoftBanner') &&
+    !homePageSource.includes('<SoftBanner') &&
     !homePageSource.includes('homeVisibleBoundaries(locale).map') &&
     homePageSource.includes('homeTopSummaryCopy') &&
+    homePageSource.includes('WatchlistSeedPanel') &&
+    watchlistSeedPanelSource.includes("'use client'") &&
+    watchlistSeedPanelSource.includes('/api/watchlist/mock-summary?limit=3') &&
+    watchlistSeedPanelSource.includes('x-invest-model-role') &&
+    watchlistSeedPanelSource.includes("status: 'loading'") &&
+    watchlistSeedPanelSource.includes("status: 'empty'") &&
+    watchlistSeedPanelSource.includes("status: 'loaded'") &&
+    watchlistSeedPanelSource.includes('WatchlistLoadingRows') &&
+    watchlistSeedPanelSource.includes('EmptyStateCta') &&
+    watchlistSeedPanelSource.includes('grid-cols-[2rem_minmax(0,1fr)]') &&
+    watchlistSeedPanelSource.includes('min-[390px]:grid-cols-[2rem_minmax(0,1fr)_auto]') &&
+    watchlistSeedPanelSource.includes('seed/read-model') &&
+    watchlistSeedPanelSource.includes('Observation watchlist') &&
+    watchlistSeedPanelSource.includes('관찰 관심 목록') &&
+    watchlistSeedPanelSource.includes('simulation only') &&
+    watchlistSeedPanelSource.includes('no live trading') &&
+    watchlistSeedPanelSource.includes('no brokerage') &&
+    watchlistSeedPanelSource.includes('not advice') &&
+    watchlistSeedPanelSource.includes('No live market data, advice, real deposit, live order, or brokerage connection is connected') &&
+    watchlistSeedPanelSource.includes('실시간 시세, 투자조언, 실입금, 실주문, 브로커 연결은 없습니다') &&
+    !watchlistSeedPanelSource.includes('Deposit now') &&
+    !watchlistSeedPanelSource.includes('Connect brokerage') &&
+    !watchlistSeedPanelSource.includes('Place order') &&
     homePageSource.includes('topSummaryAccessibleLabel') &&
     homePageSource.includes('aria-label={topSummaryAccessibleLabel}') &&
     homePageSource.includes('portfolio.selectedModel.name') &&
@@ -1630,8 +1656,11 @@ assertCondition(
     homeLoadingSource.includes('grid grid-cols-[1fr_auto]') &&
     homeLoadingSource.includes('grid grid-cols-2 gap-invest-card-gap') &&
     homeLoadingSource.includes('min-[360px]:grid-cols-3') &&
+    homeLoadingSource.includes('Loading mock seed watchlist read model') &&
+    homeLoadingSource.includes('min-[390px]:grid-cols-[2rem_minmax(0,1fr)_auto]') &&
     homeLoadingSource.includes('role="list"') &&
     homeLoadingSource.includes('No live account, deposit, order, brokerage connection, or external realtime fetch is running') &&
+    homeLoadingSource.includes('No live market data, advice, real deposit, order, or brokerage connection is loading') &&
     !homeLoadingSource.includes('fetch(') &&
     !homeLoadingSource.includes('readHomePortfolioSummaryRoute') &&
     !homeLoadingSource.includes('Deposit now') &&

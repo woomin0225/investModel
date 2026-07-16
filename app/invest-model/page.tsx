@@ -11,6 +11,7 @@ import {
   SectionHeader,
   SearchAndNotificationActions
 } from '@/components/invest-model';
+import { WatchlistSeedPanel } from '@/components/invest-model/watchlist-seed-panel';
 import {
   investModelCopy,
   resolveInvestModelLocale
@@ -258,6 +259,8 @@ export default async function InvestModelPreviewPage({
             );
           })}
         </div>
+
+        <WatchlistSeedPanel locale={locale} />
 
         <div className="grid gap-invest-card-gap">
           <MetricCard

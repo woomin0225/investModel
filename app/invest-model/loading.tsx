@@ -133,6 +133,41 @@ export default function InvestModelHomeLoading() {
           ))}
         </div>
 
+        <div
+          aria-label="Loading mock seed watchlist read model. No live market data, advice, real deposit, order, or brokerage connection is loading."
+          className="space-y-invest-card-gap"
+        >
+          <div className="space-y-1">
+            <SkeletonBlock className="h-6 w-44" />
+            <SkeletonBlock className="h-4 w-full" />
+            <SkeletonBlock className="h-4 w-8/12" />
+          </div>
+          <div className="space-y-2 rounded-invest-card border border-invest-border bg-invest-bg-soft p-1.5">
+            {[0, 1, 2].map((item) => (
+              <article
+                key={item}
+                role="listitem"
+                className="rounded-invest-control bg-invest-surface p-3 shadow-invest-card"
+              >
+                <div className="grid grid-cols-[2rem_minmax(0,1fr)] gap-2.5 min-[390px]:grid-cols-[2rem_minmax(0,1fr)_auto]">
+                  <SkeletonBlock className="size-8" />
+                  <div className="min-w-0">
+                    <SkeletonBlock className="h-3 w-28" />
+                    <SkeletonBlock className="mt-2 h-5 w-full" />
+                    <SkeletonBlock className="mt-2 h-4 w-9/12" />
+                  </div>
+                  <div className="col-span-2 flex gap-1.5 min-[390px]:col-span-1 min-[390px]:block">
+                    <SkeletonBlock className="h-6 w-20 rounded-invest-badge" />
+                    <SkeletonBlock className="h-6 w-24 rounded-invest-badge min-[390px]:mt-1.5" />
+                  </div>
+                </div>
+                <SkeletonBlock className="mt-3 h-8 w-full" />
+              </article>
+            ))}
+          </div>
+          <SkeletonBlock className="h-16 w-full rounded-invest-card" />
+        </div>
+
         <HomeMetricSkeleton />
 
         <div className="space-y-invest-card-gap">
