@@ -68,9 +68,11 @@ export async function GET(request: NextRequest) {
           'users',
           'feed_posts',
           'feed_post_saves',
-          'feed_post_comments'
+          'feed_post_comments',
+          'user_notifications'
         ],
-        feedActivityReadModelSource: 'feed_post_saves_and_comments',
+        feedActivityReadModelSource:
+          'feed_post_saves_comments_and_in_app_notifications',
         dataContext: activitySummary.sourceLabel,
         userPublicId: userScope.userPublicId,
         userScopeSource: userScope.source,

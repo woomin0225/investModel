@@ -68,6 +68,11 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   `models`, `feed`, and `signals` scopes and does not add external providers,
   live search volume, live quotes, account data, deposits, TradeIntent rows,
   orders, brokerage links, or financial advice.
+- `015_my_page_activity_read_model_seed.sql` adds deterministic in-app mock
+  notification rows so My Page can project saved FeedPost, visible comments,
+  and notifications into one user-scoped activity list. It does not add account
+  linkage, deposits, orders, TradeIntent rows, broker connections, external
+  delivery, paid API data, or financial advice.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -85,6 +90,9 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   categories. It stays local and seed-only while IS-004 blocks live search
   volume, live quotes, paid APIs, account data, orders, deposits,
   brokerage/account links, and financial advice.
+- `../samples/my-page-activity-read-model.sample.sql` documents the BK-572 My
+  Page activity projection for saved FeedPost rows, visible comments, and
+  `in_app_mock` notification rows.
 - `../samples/signal-detail-read-model.sample.sql` documents the BK-541 Signal
   detail projection for public SignalEvent ids, source labels, score snapshot
   ranks, and observed driver breakdown rows.
@@ -134,6 +142,9 @@ files. Do not insert sample rows directly in a MySQL console for product work.
    - Use `012_notification_unavailable_read_model_seed.sql` and
      `../samples/notification-unavailable-read-model.sample.sql` when a screen
      or API needs explicit empty and unavailable notification fallback rows.
+   - Use `015_my_page_activity_read_model_seed.sql` and
+     `../samples/my-page-activity-read-model.sample.sql` when My Page needs a
+     single activity list from saved FeedPost, comment, and notification rows.
    - Current Portfolio insight rows can use
      `008_portfolio_insight_seed.sql` as the first dedicated
      `portfolio_analysis_snapshots` SQL seed slice; API code should still wait

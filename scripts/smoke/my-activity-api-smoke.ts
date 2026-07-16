@@ -150,10 +150,11 @@ async function main() {
     activityJson.meta?.routeStatus === 'db_backed' &&
       activityJson.meta?.readOnly === true &&
       activityJson.meta?.feedActivityReadModelSource ===
-        'feed_post_saves_and_comments' &&
+        'feed_post_saves_comments_and_in_app_notifications' &&
       activityJson.meta?.dataContext === 'db_read_model' &&
       activityJson.meta?.sourceTables?.includes('feed_post_saves') &&
       activityJson.meta?.sourceTables?.includes('feed_post_comments') &&
+      activityJson.meta?.sourceTables?.includes('user_notifications') &&
       activityJson.meta?.userScopeSource === 'demo_fallback' &&
       activityJson.meta?.clientUserPublicIdIgnored === undefined &&
       activityJson.meta?.sendsRealPush === false &&

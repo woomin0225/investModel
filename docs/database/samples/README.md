@@ -31,3 +31,4 @@ sample values without applying them directly to MySQL.
 - `admin-review-queue-read-model.sample.sql`
 - `search-suggestion-read-model.sample.sql`
 - `search-no-result-read-model.sample.sql`
+- `my-page-activity-read-model.sample.sql`
