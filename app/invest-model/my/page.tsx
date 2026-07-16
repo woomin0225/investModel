@@ -27,6 +27,7 @@ import {
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
 import { GET as readMySummary } from '@/app/api/my/route';
+import type { MyPageActivityRow } from '@/lib/domain/my-page/feed-activity';
 import type { MyPageSummaryDto } from '@/lib/domain/my-page/summary';
 import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
 import { cn } from '@/lib/utils';
@@ -47,6 +48,15 @@ type MyPageSummaryRouteMeta = {
 type MyPageSummaryRouteResult = {
   data: MyPageSummaryDto;
   meta: MyPageSummaryRouteMeta;
+};
+
+type MyPageActivityRailItem = {
+  key: string;
+  href: string;
+  label: string;
+  title: string;
+  bodyPreview?: string;
+  activityAt?: string;
 };
 
 function getActivitySortTime(activityAt?: string) {
@@ -111,6 +121,29 @@ function recentFeedActivityAccessibleLabel(
   return locale === 'ko'
     ? `${label} 피드 글 활동: ${title}. ${timeLabel}. 사용자 범위 DB 기반 조회의 읽기 바로가기이며 추천, 주문, 브로커 동작, 실계좌 데이터가 아닙니다.`
     : `${label} FeedPost activity: ${title}. ${timeLabel}. User-scoped DB read model reading shortcut, not advice, an order, a brokerage action, or real account data.`;
+}
+
+function myPageActivityRailLabel(
+  locale: 'ko' | 'en',
+  row: MyPageActivityRow
+) {
+  if (row.activityType === 'saved_feed') {
+    return locale === 'ko' ? '\uC800\uC7A5' : 'Saved';
+  }
+
+  if (row.activityType === 'comment') {
+    return locale === 'ko' ? '\uB313\uAE00' : 'Comment';
+  }
+
+  return locale === 'ko' ? '\uC54C\uB9BC' : 'Notification';
+}
+
+function myPageActivityRailHref(row: MyPageActivityRow) {
+  if (row.activityType === 'notification') {
+    return '/invest-model/notifications';
+  }
+
+  return `/invest-model/feed/${row.sourcePublicId}`;
 }
 
 function myPageSafetyAccessibleLabel(locale: 'ko' | 'en') {
@@ -428,6 +461,30 @@ export default async function InvestModelMyPage({
         getActivitySortTime(left.activityAt)
     )
     .slice(0, 4);
+  const groupedActivityRows: MyPageActivityRailItem[] = (
+    activitySummary.activityRows?.length
+      ? activitySummary.activityRows.map((row) => ({
+          key: row.activityPublicId,
+          href: myPageActivityRailHref(row),
+          label: myPageActivityRailLabel(locale, row),
+          title: row.title,
+          bodyPreview: row.bodyPreview,
+          activityAt: row.activityAt
+        }))
+      : recentActivityRows.map((item) => ({
+          key: `${item.activityLabel}-${item.postPublicId}-${item.activityAt ?? 'none'}`,
+          href: `/invest-model/feed/${item.postPublicId}`,
+          label: item.label,
+          title: item.title,
+          activityAt: item.activityAt
+        }))
+  )
+    .sort(
+      (left, right) =>
+        getActivitySortTime(right.activityAt) -
+        getActivitySortTime(left.activityAt)
+    )
+    .slice(0, 5);
   const recentActivityEmptyAccessibleLabel =
     locale === 'ko'
       ? '최근 피드 글 활동 빈 상태. 표시할 저장 또는 댓글 히스토리가 아직 없으며 비공개 앱 활동의 DB 읽기 상태만 안내합니다. 추천, 주문, 실계좌, 브로커 계좌, 입금, 푸시 전송과 연결되지 않습니다.'
@@ -717,7 +774,7 @@ export default async function InvestModelMyPage({
               {myPageRecentActivityVisibleBoundaries(locale).join(' / ')}
             </p>
 
-            {recentActivityRows.length > 0 ? (
+            {groupedActivityRows.length > 0 ? (
               <div
                 role="list"
                 aria-label={
@@ -727,13 +784,10 @@ export default async function InvestModelMyPage({
                 }
                 className="mt-3 space-y-2"
               >
-                {recentActivityRows.map((item) => (
+                {groupedActivityRows.map((item) => (
                   <Link
-                    key={`${item.activityLabel}-${item.postPublicId}-${item.activityAt ?? 'none'}`}
-                    href={withInvestModelLocale(
-                      `/invest-model/feed/${item.postPublicId}`,
-                      locale
-                    )}
+                    key={item.key}
+                    href={withInvestModelLocale(item.href, locale)}
                     role="listitem"
                     aria-label={recentFeedActivityAccessibleLabel(
                       locale,
@@ -759,6 +813,11 @@ export default async function InvestModelMyPage({
                       <p className="mt-1 line-clamp-2 text-sm font-semibold leading-5 text-invest-text">
                         {item.title}
                       </p>
+                      {item.bodyPreview ? (
+                        <p className="mt-1 line-clamp-2 text-[12px] leading-4 text-invest-text-muted">
+                          {item.bodyPreview}
+                        </p>
+                      ) : null}
                       {item.activityAt ? (
                         <p className="mt-1 text-[11px] leading-4 text-invest-text-muted">
                           {item.activityAt}

@@ -80,6 +80,10 @@ const screens: ScreenCheck[] = [
       'API userScopeSource',
       'API dataContext',
       'Recent FeedPost activity',
+      'groupedActivityRows',
+      'activitySummary.activityRows?.length',
+      'myPageActivityRailHref(row)',
+      "row.activityType === 'notification'",
       'Saved/comment activity is an informational reading shortcut only',
       'No private in-app activity to show yet.',
       'private in-app activity',
@@ -1795,6 +1799,10 @@ assertCondition(
     myPageSource.includes("summaryVisibleBoundaries.join(' / ')") &&
     myPageSource.includes("myPageActivityVisibleBoundaries(locale).join(' / ')") &&
     myPageSource.includes("myPageRecentActivityVisibleBoundaries(locale).join(' / ')") &&
+    myPageSource.includes('groupedActivityRows') &&
+    myPageSource.includes('activitySummary.activityRows?.length') &&
+    myPageSource.includes("row.activityType === 'notification'") &&
+    myPageSource.includes("return '/invest-model/notifications';") &&
     myPageSource.includes("myPagePrivateActivityEmptyBoundaries(locale)") &&
     myPageSource.includes("privateActivityEmptyBoundaries.join(' / ')") &&
     !myPageSource.includes('<ShieldCheck') &&
@@ -1821,6 +1829,10 @@ assertCondition(
     myPageSource.includes('푸시 전송 없음') &&
     myPageSource.includes('이 빈 상태는 저장/댓글 DB 읽기 상태만 설명하며 브로커 계좌, 입금, 푸시 전송 설정을 제공하지 않습니다.') &&
     myPageSource.includes('No private in-app activity to show yet.') &&
+    myPageSource.includes('key: row.activityPublicId') &&
+    myPageSource.includes('bodyPreview: row.bodyPreview') &&
+    myPageSource.includes('href: myPageActivityRailHref(row)') &&
+    myPageSource.includes('.slice(0, 5)') &&
     myPageSource.includes('no broker account') &&
     myPageSource.includes('no deposit') &&
     myPageSource.includes('no push delivery') &&
@@ -1831,6 +1843,7 @@ assertCondition(
     !myPageSource.includes('after the save toggle is connected') &&
     !myPageSource.includes('after comment and reply APIs are connected') &&
     !myPageSource.includes('Enable push') &&
+    !myPageSource.includes('Enable real push') &&
     !myPageSource.includes('Connect account') &&
     !myPageSource.includes('Link broker') &&
     myPageSource.includes('border border-dashed border-invest-border bg-invest-bg-soft') &&
