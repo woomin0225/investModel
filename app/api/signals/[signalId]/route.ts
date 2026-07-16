@@ -95,12 +95,15 @@ export async function GET(request: NextRequest, context: RouteContext) {
         persistence: 'persisted',
         sourceTables: [
           'model_signal_events',
+          'signal_score_snapshots',
+          'signal_score_inputs',
           'model_versions',
           'investment_models',
           'market_instruments'
         ],
         observedInputsOnly: true,
         realtimeExternalData: false,
+        externalPaidApi: false,
         financialAdvice: false,
         tradeIntentCreated: false,
         realOrder: false,

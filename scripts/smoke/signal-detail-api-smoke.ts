@@ -18,6 +18,54 @@ function assertCondition(condition: unknown, message: string): asserts condition
   }
 }
 
+const forbiddenPayloadKeys = new Set([
+  'id',
+  'signalEventId',
+  'snapshotId',
+  'inputId',
+  'orderId',
+  'tradeIntent',
+  'tradeIntentId',
+  'tradeIntentCreated',
+  'broker',
+  'brokerage',
+  'brokerageConnection',
+  'financialAdvice',
+  'advice'
+]);
+
+function findForbiddenPayloadKey(value: unknown): string | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const match = findForbiddenPayloadKey(item);
+
+      if (match) {
+        return match;
+      }
+    }
+
+    return null;
+  }
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    if (forbiddenPayloadKeys.has(key)) {
+      return key;
+    }
+
+    const match = findForbiddenPayloadKey(nestedValue);
+
+    if (match) {
+      return match;
+    }
+  }
+
+  return null;
+}
+
 async function applyTrackedSignalSeed() {
   const seedPaths = [
     path.resolve('docs/database/seeds/003_signal_event_seed.sql'),
@@ -63,6 +111,9 @@ async function main() {
     }
   );
   const notFoundResponse = await detailRequest('sig_mock_missing');
+  const notFoundJson = await notFoundResponse.json();
+  const blankIdResponse = await detailRequest('   ');
+  const blankIdJson = await blankIdResponse.json();
   const detailResponse = await detailRequest('sig_mock_news_traffic_001');
   const detailJson = await detailResponse.json();
 
@@ -70,7 +121,20 @@ async function main() {
     forbiddenResponse.status === 403,
     'public role is forbidden'
   );
-  assertCondition(notFoundResponse.status === 404, 'missing signal is 404');
+  assertCondition(
+    notFoundResponse.status === 404 &&
+      notFoundJson.data === undefined &&
+      notFoundJson.error?.code === 'not_found' &&
+      typeof notFoundJson.error?.message === 'string' &&
+      notFoundJson.error.message.includes('not found'),
+    'missing signal is 404 without data payload or side effects'
+  );
+  assertCondition(
+    blankIdResponse.status === 422 &&
+      blankIdJson.data === undefined &&
+      blankIdJson.error?.code === 'validation_error',
+    'blank signal public id returns validation error without data payload'
+  );
   assertCondition(detailResponse.status === 200, 'signal detail responds');
   assertCondition(
       detailJson.data?.signalPublicId === 'sig_mock_news_traffic_001' &&
@@ -115,12 +179,29 @@ async function main() {
   );
   assertCondition(
     detailJson.meta?.routeStatus === 'db_backed' &&
+      detailJson.meta?.sourceTables?.includes('model_signal_events') &&
+      detailJson.meta?.sourceTables?.includes('signal_score_snapshots') &&
+      detailJson.meta?.sourceTables?.includes('signal_score_inputs') &&
+      detailJson.meta?.observedInputsOnly === true &&
       detailJson.meta?.realtimeExternalData === false &&
+      detailJson.meta?.externalPaidApi === false &&
       detailJson.meta?.tradeIntentCreated === false &&
       detailJson.meta?.realOrder === false &&
       detailJson.meta?.brokerageConnection === false &&
       detailJson.meta?.financialAdvice === false,
     'signal detail keeps mock-safe API meta'
+  );
+  assertCondition(
+    detailJson.data?.tradeIntent === undefined &&
+      detailJson.data?.tradeIntentCreated === undefined &&
+      detailJson.data?.order === undefined &&
+      detailJson.data?.brokerageConnection === undefined &&
+      detailJson.data?.financialAdvice === undefined,
+    'signal detail DTO exposes no advice or TradeIntent-capable fields'
+  );
+  assertCondition(
+    findForbiddenPayloadKey(detailJson.data) === null,
+    'signal detail DTO recursively exposes no internal/action-capable keys'
   );
 
   await client.end();
