@@ -5,6 +5,7 @@ import { GET as readModels } from '@/app/api/models/route';
 import {
   investMotionClass,
   MobileShell,
+  MobileFilterRail,
   ModelCard,
   RiskBadge,
   SectionHeader,
@@ -495,42 +496,48 @@ export default async function InvestModelDiscoveryPage({
                 ))}
               </div>
             </div>
-            <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
-              <div className="flex w-max gap-2 pr-invest-screen-x">
-                {investModelDiscoveryFilterIds.map((filterId, index) => {
-                  const isSelected = selectedFilter === filterId;
+            <MobileFilterRail
+              ariaLabel={
+                locale === 'ko'
+                  ? '투자 모델 필터'
+                  : 'InvestmentModel filters'
+              }
+            >
+              {investModelDiscoveryFilterIds.map((filterId, index) => {
+                const isSelected = selectedFilter === filterId;
 
-                  return (
-                    <Link
-                      key={filterId}
-                      href={getDiscoveryFilterHref(
-                        filterId,
-                        locale,
-                        searchQuery
-                      )}
-                      aria-current={isSelected ? 'true' : undefined}
-                      aria-pressed={isSelected}
+                return (
+                  <Link
+                    key={filterId}
+                    href={getDiscoveryFilterHref(
+                      filterId,
+                      locale,
+                      searchQuery
+                    )}
+                    aria-current={isSelected ? 'true' : undefined}
+                    aria-pressed={isSelected}
+                    className={cn(
+                      'inline-flex min-h-invest-touch-target w-full min-w-0 items-center justify-center gap-2 rounded-invest-control border px-3 text-center text-sm font-semibold shadow-invest-card min-[520px]:w-auto',
+                      investMotionClass.interactiveControl,
+                      isSelected
+                        ? 'border-invest-primary bg-invest-primary text-white shadow-invest-card-strong'
+                        : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft hover:text-invest-primary'
+                    )}
+                  >
+                    <span
+                      aria-hidden
                       className={cn(
-                        'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
-                        investMotionClass.interactiveControl,
-                        isSelected
-                          ? 'border-invest-primary bg-invest-primary text-white shadow-invest-card-strong'
-                          : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft hover:text-invest-primary'
+                        'size-1.5 shrink-0 rounded-full',
+                        isSelected ? 'bg-white' : 'bg-invest-border'
                       )}
-                    >
-                      <span
-                        aria-hidden
-                        className={cn(
-                          'size-1.5 rounded-full',
-                          isSelected ? 'bg-white' : 'bg-invest-border'
-                        )}
-                      />
+                    />
+                    <span className="min-w-0 truncate">
                       {modelsCopy.filters[index]}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
+                    </span>
+                  </Link>
+                );
+              })}
+            </MobileFilterRail>
             <div className="group rounded-invest-card border border-invest-border bg-invest-surface-muted p-3 transition-[border-color,background-color] duration-200 ease-out hover:border-invest-primary/20 hover:bg-invest-primary-soft/60 motion-reduce:transition-none">
               <div className="flex items-center justify-between gap-3 text-xs font-semibold text-invest-text-muted">
                 <span>{selectedFilterLabel}</span>

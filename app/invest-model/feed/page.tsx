@@ -18,6 +18,7 @@ import {
   EmptyStateCta,
   investMotionClass,
   MobileShell,
+  MobileFilterRail,
   RiskBadge,
   SectionHeader,
   SearchAndNotificationActions
@@ -515,45 +516,45 @@ export default async function InvestModelFeedPage({
             description={feedCopy.sectionDescription}
           />
 
-          <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
-            <div className="flex w-max gap-2 pr-invest-screen-x">
-              {filterOptions.map((filter) => {
-                const isActive = filter.postType === selectedFilter.postType;
-                const filterAccessibleLabel = feedFilterAccessibleLabel(
-                  locale,
-                  filter.label,
-                  isActive,
-                  visiblePostCountLabel
-                );
+          <MobileFilterRail
+            ariaLabel={locale === 'ko' ? '피드 필터' : 'Feed filters'}
+          >
+            {filterOptions.map((filter) => {
+              const isActive = filter.postType === selectedFilter.postType;
+              const filterAccessibleLabel = feedFilterAccessibleLabel(
+                locale,
+                filter.label,
+                isActive,
+                visiblePostCountLabel
+              );
 
-                return (
-                  <Link
-                    key={filter.label}
-                    href={filterHref(locale, filter.postType)}
-                    aria-label={filterAccessibleLabel}
-                    aria-pressed={isActive}
-                    aria-current={isActive ? 'true' : undefined}
-                    title={filterAccessibleLabel}
-                    className={cn(
-                      'inline-flex min-h-invest-touch-target items-center gap-2 rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card',
-                      isActive
-                        ? 'border-invest-primary/25 bg-invest-primary-soft text-invest-primary'
-                        : 'border-invest-border bg-invest-surface text-invest-text',
-                      investMotionClass.interactiveControl
-                    )}
-                  >
-                    {isActive ? (
-                      <span
-                        aria-hidden
-                        className="size-1.5 rounded-full bg-invest-primary"
-                      />
-                    ) : null}
-                    {filter.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+              return (
+                <Link
+                  key={filter.label}
+                  href={filterHref(locale, filter.postType)}
+                  aria-label={filterAccessibleLabel}
+                  aria-pressed={isActive}
+                  aria-current={isActive ? 'true' : undefined}
+                  title={filterAccessibleLabel}
+                  className={cn(
+                    'inline-flex min-h-invest-touch-target w-full min-w-0 items-center justify-center gap-2 rounded-invest-control border px-3 text-center text-sm font-semibold shadow-invest-card min-[520px]:w-auto',
+                    isActive
+                      ? 'border-invest-primary/25 bg-invest-primary-soft text-invest-primary'
+                      : 'border-invest-border bg-invest-surface text-invest-text',
+                    investMotionClass.interactiveControl
+                  )}
+                >
+                  {isActive ? (
+                    <span
+                      aria-hidden
+                      className="size-1.5 shrink-0 rounded-full bg-invest-primary"
+                    />
+                  ) : null}
+                  <span className="min-w-0 truncate">{filter.label}</span>
+                </Link>
+              );
+            })}
+          </MobileFilterRail>
 
           <div className="flex items-center justify-between gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-4 text-invest-text-muted">
             <span className="min-w-0 truncate text-invest-text">

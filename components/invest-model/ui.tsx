@@ -63,6 +63,12 @@ type EmptyStateCtaProps = {
   className?: string;
 };
 
+type MobileFilterRailProps = {
+  children: ReactNode;
+  ariaLabel: string;
+  className?: string;
+};
+
 type DetailBackLinkProps = {
   href: string;
   label: string;
@@ -250,6 +256,25 @@ export function SectionHeader({
           <ArrowRight aria-hidden className="size-4" />
         </button>
       ) : null}
+    </div>
+  );
+}
+
+export function MobileFilterRail({
+  children,
+  ariaLabel,
+  className
+}: MobileFilterRailProps) {
+  return (
+    <div
+      role="group"
+      aria-label={ariaLabel}
+      className={cn(
+        'grid grid-cols-2 gap-2 rounded-invest-card bg-invest-bg-soft p-1.5 min-[520px]:flex min-[520px]:flex-wrap',
+        className
+      )}
+    >
+      {children}
     </div>
   );
 }

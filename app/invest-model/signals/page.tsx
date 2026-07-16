@@ -6,6 +6,7 @@ import {
   MetricCard,
   EmptyStateCta,
   MobileShell,
+  MobileFilterRail,
   RiskBadge,
   SectionHeader,
   SearchAndNotificationActions,
@@ -430,51 +431,49 @@ export default async function InvestModelSignalsPage({
             disabled={signalReadState === 'fallback'}
           />
 
-          <div className="-mx-invest-screen-x overflow-x-auto px-invest-screen-x [scrollbar-width:none]">
-            <div className="flex w-max gap-2 pr-invest-screen-x">
-              {filterOptions.map((filter) => {
-                const isSelected = filter.id === selectedFilterId;
+          <MobileFilterRail
+            ariaLabel={locale === 'ko' ? '신호 필터' : 'Signal filters'}
+          >
+            {filterOptions.map((filter) => {
+              const isSelected = filter.id === selectedFilterId;
 
-                return (
-                  <Link
-                    key={filter.id}
-                    href={signalFilterHref(locale, filter.id)}
-                    aria-pressed={isSelected}
-                    aria-current={isSelected ? 'page' : undefined}
-                    title={signalFilterTitle(
-                      locale,
-                      filter.label,
-                      isSelected
-                    )}
-                    className={cn(
-                      'group relative inline-flex min-h-invest-touch-target items-center gap-2 overflow-hidden rounded-invest-control border px-3 text-sm font-semibold shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30',
-                      isSelected
-                        ? 'border-invest-primary bg-invest-primary text-white'
-                        : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft/50',
-                      investMotionClass.interactiveControl
-                    )}
-                  >
-                    {isSelected ? (
-                      <span
-                        aria-hidden
-                        className="size-1.5 rounded-full bg-white transition-transform duration-200 ease-out group-active:scale-75 motion-reduce:transition-none motion-reduce:group-active:scale-100"
-                      />
-                    ) : null}
-                    <span className="relative z-10">{filter.label}</span>
+              return (
+                <Link
+                  key={filter.id}
+                  href={signalFilterHref(locale, filter.id)}
+                  aria-pressed={isSelected}
+                  aria-current={isSelected ? 'page' : undefined}
+                  title={signalFilterTitle(locale, filter.label, isSelected)}
+                  className={cn(
+                    'group relative inline-flex min-h-invest-touch-target w-full min-w-0 items-center justify-center gap-2 overflow-hidden rounded-invest-control border px-3 text-center text-sm font-semibold shadow-invest-card focus-visible:ring-2 focus-visible:ring-invest-primary/30 min-[520px]:w-auto',
+                    isSelected
+                      ? 'border-invest-primary bg-invest-primary text-white'
+                      : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft/50',
+                    investMotionClass.interactiveControl
+                  )}
+                >
+                  {isSelected ? (
                     <span
                       aria-hidden
-                      className={cn(
-                        'absolute inset-x-3 bottom-1 h-0.5 rounded-full transition-[opacity,transform] duration-200 ease-out group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-active:scale-x-100',
-                        isSelected
-                          ? 'bg-white/80 opacity-90'
-                          : 'bg-invest-primary opacity-0 group-hover:opacity-45'
-                      )}
+                      className="size-1.5 shrink-0 rounded-full bg-white transition-transform duration-200 ease-out group-active:scale-75 motion-reduce:transition-none motion-reduce:group-active:scale-100"
                     />
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+                  ) : null}
+                  <span className="relative z-10 min-w-0 truncate">
+                    {filter.label}
+                  </span>
+                  <span
+                    aria-hidden
+                    className={cn(
+                      'absolute inset-x-3 bottom-1 h-0.5 rounded-full transition-[opacity,transform] duration-200 ease-out group-active:scale-x-75 motion-reduce:transition-none motion-reduce:group-active:scale-x-100',
+                      isSelected
+                        ? 'bg-white/80 opacity-90'
+                        : 'bg-invest-primary opacity-0 group-hover:opacity-45'
+                    )}
+                  />
+                </Link>
+              );
+            })}
+          </MobileFilterRail>
 
           <div className="flex items-center justify-between gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-4 text-invest-text-muted">
             <span className="min-w-0 truncate text-invest-text">

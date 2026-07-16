@@ -739,6 +739,21 @@ assertCondition(
   'Discover Models must wire search input to the DB-backed /api/models q filter, keep the search CTA at the shared 44px touch target, and preserve it across filters'
 );
 assertCondition(
+  investModelUiSource.includes('export function MobileFilterRail') &&
+    investModelUiSource.includes('grid grid-cols-2 gap-2') &&
+    investModelUiSource.includes('min-[520px]:flex min-[520px]:flex-wrap') &&
+    modelsPageSource.includes('<MobileFilterRail') &&
+    feedPageSource.includes('<MobileFilterRail') &&
+    signalsPageSource.includes('<MobileFilterRail') &&
+    modelsPageSource.includes('InvestmentModel filters') &&
+    feedPageSource.includes('Feed filters') &&
+    signalsPageSource.includes('Signal filters') &&
+    !modelsPageSource.includes('flex w-max gap-2 pr-invest-screen-x') &&
+    !feedPageSource.includes('flex w-max gap-2 pr-invest-screen-x') &&
+    !signalsPageSource.includes('flex w-max gap-2 pr-invest-screen-x'),
+  'Models, Feed, and Signals filters must use the shared 390px wrapping MobileFilterRail instead of horizontal scroller-only controls'
+);
+assertCondition(
   feedPageSource.includes('<FeedCardSaveAction') &&
     feedPageSource.includes('locale={locale}') &&
     feedPageSource.includes('feedDetailSectionHref') &&

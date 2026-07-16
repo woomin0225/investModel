@@ -27,6 +27,7 @@ export {
   EmptyStateCta,
   MetricCard,
   ModelCard,
+  MobileFilterRail,
   ModelRiskBadgeGroup,
   PerformanceMetricGroup,
   RiskBadge,
