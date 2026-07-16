@@ -89,6 +89,8 @@ Use this map when creating new Backlog rows from selected screenshots. The filen
 
 ## Backlog Mapping
 
+### Initial Pattern Backlog
+
 - Home summary header: BK-435
 - Signal ranking and observation cards: BK-436
 - Model search and topic chips: BK-437
@@ -100,3 +102,26 @@ Use this map when creating new Backlog rows from selected screenshots. The filen
 - Bottom navigation and top icon states: BK-443
 - Read-only blocked/simulated dense detail pattern: BK-444
 - Theme and signal cluster ranking: BK-445
+
+### Implemented Companion Mapping BK-512-BK-533
+
+Use this mapping when continuing pattern-derived work from the recent
+Signals, Feed, Models, My Page, and Search passes. Each UI pattern should keep
+its DB/read-model, API, UI, and QA companion chain visible in Backlog notes so
+future rows do not become frontend-only tasks.
+
+| Pattern thread | Screen tags | Backlog chain | Source pattern | Safety conversion |
+| --- | --- | --- | --- | --- |
+| Signal explainer | Signals; Models | BK-512 seed/read-model; BK-513 read-only API; BK-514 UI card; BK-515 390px smoke | Why-it-moved cards and tagged evidence rows from the selected explainer references | Treat `SignalEvent` drivers as observed inputs only. Keep mock/simulated source labels, no advice, no buy/sell/hold wording, no live external data, and no order-capable fields while IS-004 is open. |
+| Feed topic clusters | Feed; Signals; Home | BK-516 seed/read-model; BK-517 read-only API; BK-518 topic chips/cluster rail; BK-519 smoke | Theme/ranking rails, news-topic chips, and compact feed modules | Convert tradeable themes into `FeedPost` topics and related sample `SignalEvent` context. Do not copy competitor news copy, brand labels, paid feed behavior, or recommendation framing. |
+| Server checkpoint after feed cluster | N/A server reachability | BK-520 | Operational checkpoint required by the 10-number Backlog rule | Record localhost, LAN URL, and same-Wi-Fi mobile reachability evidence only. This is not a UI pattern and must not add native permissions, brokerage access, secrets, or paid APIs. |
+| Model review calendar strip | Models; Home | BK-521 seed/read-model; BK-522 read-only API; BK-523 event strip; BK-524 smoke | Small event/calendar strips and status pills | Translate market calendars into mock model-review dates, reviewed/paused states, and sample change history. Keep the strip read-only with no actual rebalance execution, legal judgment, broker action, or order CTA. |
+| Interest/save state rail | My Page; Feed; Models; Signals | BK-525 seed/read-model; BK-526 read-only API; BK-527 mobile state rail; BK-528 smoke | Stars, saved lists, interest rows, and service shortcuts | Use saved/unsaved/pending/error states as private mock interest markers only. They must not look like model selection, notification subscription, deposit, order, or brokerage connection. |
+| Search suggestion chips | Search; Signals; Models; Feed | BK-529 seed/read-model; BK-531 read-only API; BK-532 mobile chips; BK-533 smoke | Recent search, category chips, dense search filters, and empty rows | Convert search suggestions into seed/mock topic, model, and signal keywords. Keep chips as local navigation only; no live quote lookup, external search provider, trade intent, order, or advice language. |
+| Server checkpoint before search API/UI | N/A server reachability | BK-530 | Operational checkpoint required by the 10-number Backlog rule | Record local HTTP and LAN/mobile constraints in Runs or Issues. Leave `commit_hash` blank for sheet-only checkpoints and keep IS-008 linked while LAN reachability is unavailable. |
+
+BK-512-BK-533 should remain a reference chain, not a new product surface. If a
+future implementation needs additional UI from these patterns, add companion
+database/read-model, API/backend, UI, and smoke rows together, link
+dependencies with id-only semicolon values, and keep notes in Korean when a row
+is selected or completed.
