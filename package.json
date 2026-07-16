@@ -76,6 +76,7 @@
     "test:search-no-result-read-model": "npx tsx scripts/smoke/search-no-result-read-model-smoke.ts",
     "test:search-suggestion-read-model": "npx tsx scripts/smoke/search-suggestion-read-model-smoke.ts",
     "test:search-suggestion-chips": "npx tsx scripts/qa/search-suggestion-chips-smoke.ts",
+    "test:search-empty-state-mobile": "npx tsx scripts/qa/search-empty-state-mobile-smoke.ts",
     "test:search-suggestion-api": "npx tsx scripts/smoke/search-suggestion-api-smoke.ts",
     "test:signal-explainer-api": "npx tsx scripts/smoke/signal-explainer-api-smoke.ts",
     "test:signal-explainer-card": "npx tsx scripts/qa/signal-explainer-card-smoke.ts",
