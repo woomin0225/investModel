@@ -143,6 +143,12 @@ function myPageRecentActivityVisibleBoundaries(locale: 'ko' | 'en') {
       ];
 }
 
+function myPagePrivateActivityEmptyBoundaries(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? ['비공개 앱 활동', 'DB 읽기 상태', '브로커 계좌 없음', '입금 없음', '푸시 전송 없음']
+    : ['private in-app activity', 'DB read state', 'no broker account', 'no deposit', 'no push delivery'];
+}
+
 function myPageSummaryVisibleBoundaries(locale: 'ko' | 'en') {
   return locale === 'ko'
     ? [
@@ -424,8 +430,9 @@ export default async function InvestModelMyPage({
     .slice(0, 4);
   const recentActivityEmptyAccessibleLabel =
     locale === 'ko'
-      ? '최근 피드 글 활동 빈 상태. 표시할 저장 또는 댓글 히스토리가 아직 없으며 DB 기반 피드 읽기만 안내합니다. 추천, 주문, 실계좌, 브로커 연결, 실제 알림 전송과 연결되지 않습니다.'
-      : 'Recent FeedPost activity empty state. No saved or comment history is available yet, and it only guides DB-backed FeedPost reading. Not advice, orders, real accounts, brokerage connection, or notification delivery.';
+      ? '최근 피드 글 활동 빈 상태. 표시할 저장 또는 댓글 히스토리가 아직 없으며 비공개 앱 활동의 DB 읽기 상태만 안내합니다. 추천, 주문, 실계좌, 브로커 계좌, 입금, 푸시 전송과 연결되지 않습니다.'
+      : 'Recent FeedPost activity empty state. No saved or comment history is available yet, and it only explains private in-app DB read state. Not advice, orders, real accounts, broker account, deposit, or push delivery.';
+  const privateActivityEmptyBoundaries = myPagePrivateActivityEmptyBoundaries(locale);
   const noticesValue = `${notificationSummary.unreadCount}/${notificationSummary.totalCount}`;
   const noticesDescription =
     notificationSummary.latestNotificationTitle ??
@@ -772,11 +779,19 @@ export default async function InvestModelMyPage({
                 className="mt-3 rounded-invest-card border border-dashed border-invest-border bg-invest-bg-soft px-3 py-3 text-sm leading-5 text-invest-text-muted"
               >
                 {locale === 'ko'
-                  ? '표시할 DB 피드 글 활동이 아직 없습니다.'
-                  : 'No DB FeedPost activity to show yet.'}
+                  ? '표시할 비공개 앱 활동이 아직 없습니다.'
+                  : 'No private in-app activity to show yet.'}
+                <p className="mt-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                  {privateActivityEmptyBoundaries.join(' / ')}
+                </p>
+                <p className="mt-2 text-[12px] leading-5 text-invest-text-muted">
+                  {locale === 'ko'
+                    ? '이 빈 상태는 저장/댓글 DB 읽기 상태만 설명하며 브로커 계좌, 입금, 푸시 전송 설정을 제공하지 않습니다.'
+                    : 'This private in-app empty state only explains saved/comment DB read state; it does not offer a broker account, deposit, or push delivery setup.'}
+                </p>
                 <EmptyStateCta
                   href={withInvestModelLocale('/invest-model/feed', locale)}
-                  label={locale === 'ko' ? '피드 읽기' : 'Browse Feed'}
+                  label={locale === 'ko' ? '피드 읽기' : 'Read FeedPosts'}
                   description={
                     locale === 'ko'
                       ? '저장이나 댓글 없이 DB 기반 피드 글을 읽어봅니다.'
@@ -784,8 +799,8 @@ export default async function InvestModelMyPage({
                   }
                   ariaLabel={
                     locale === 'ko'
-                      ? '피드 읽기. 저장이나 댓글 없이 DB 기반 피드 글을 읽어봅니다. 추천, 주문, 실계좌, 실제 알림 전송과 연결되지 않습니다.'
-                      : 'Browse Feed. Read DB-backed FeedPosts without creating saved or comment activity. Not advice, orders, real accounts, or notification delivery.'
+                      ? '피드 읽기. 저장이나 댓글 없이 DB 기반 피드 글을 읽어봅니다. 추천, 주문, 실계좌, 브로커 계좌, 입금, 푸시 전송과 연결되지 않습니다.'
+                      : 'Read FeedPosts. Read DB-backed FeedPosts without creating saved or comment activity. Not advice, orders, real accounts, broker account, deposit, or push delivery.'
                   }
                   className="bg-invest-surface"
                 />

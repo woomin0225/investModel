@@ -80,6 +80,13 @@ const screens: ScreenCheck[] = [
       'API dataContext',
       'Recent FeedPost activity',
       'Saved/comment activity is an informational reading shortcut only',
+      'No private in-app activity to show yet.',
+      'private in-app activity',
+      'DB read state',
+      'no broker account',
+      'no deposit',
+      'no push delivery',
+      'This private in-app empty state only explains saved/comment DB read state; it does not offer a broker account, deposit, or push delivery setup.',
       'No real account, deposit, or order data is shown or used.',
       'Simulated portfolio summary',
       'Personalized settings',
@@ -1145,9 +1152,9 @@ assertCondition(
     notificationsPageSource.includes('Browse DB-backed FeedPosts that notification candidates derive from.') &&
     notificationsPageSource.includes('Not real push, email, SMS, orders, brokerage action, or investment advice.') &&
     myPageSource.includes('<EmptyStateCta') &&
-    myPageSource.includes(": 'Browse Feed'}") &&
+    myPageSource.includes(": 'Read FeedPosts'}") &&
     myPageSource.includes('Read DB-backed FeedPosts without creating saved or comment activity.') &&
-    myPageSource.includes('Not advice, orders, real accounts, or notification delivery.') &&
+    myPageSource.includes('Not advice, orders, real accounts, broker account, deposit, or push delivery.') &&
     !feedPageSource.includes('Deposit now') &&
     !feedPageSource.includes('Connect brokerage') &&
     !signalsPageSource.includes('Buy now') &&
@@ -1642,6 +1649,8 @@ assertCondition(
     myPageSource.includes("summaryVisibleBoundaries.join(' / ')") &&
     myPageSource.includes("myPageActivityVisibleBoundaries(locale).join(' / ')") &&
     myPageSource.includes("myPageRecentActivityVisibleBoundaries(locale).join(' / ')") &&
+    myPageSource.includes("myPagePrivateActivityEmptyBoundaries(locale)") &&
+    myPageSource.includes("privateActivityEmptyBoundaries.join(' / ')") &&
     !myPageSource.includes('<ShieldCheck') &&
     !myPageSource.includes('<RiskBadge\n            tone={myPageMeta.userScopeSource') &&
     !myPageSource.includes('<RiskBadge\n                tone={\n                  activitySummary.sourceLabel') &&
@@ -1660,6 +1669,17 @@ assertCondition(
     myPageSource.includes('Simulated portfolio summary') &&
     myPageSource.includes('when DB saved-state rows are available') &&
     myPageSource.includes('when DB comment rows are available') &&
+    myPageSource.includes('표시할 비공개 앱 활동이 아직 없습니다.') &&
+    myPageSource.includes('브로커 계좌 없음') &&
+    myPageSource.includes('입금 없음') &&
+    myPageSource.includes('푸시 전송 없음') &&
+    myPageSource.includes('이 빈 상태는 저장/댓글 DB 읽기 상태만 설명하며 브로커 계좌, 입금, 푸시 전송 설정을 제공하지 않습니다.') &&
+    myPageSource.includes('No private in-app activity to show yet.') &&
+    myPageSource.includes('no broker account') &&
+    myPageSource.includes('no deposit') &&
+    myPageSource.includes('no push delivery') &&
+    myPageSource.includes('private in-app DB read state') &&
+    myPageSource.includes('This private in-app empty state only explains saved/comment DB read state; it does not offer a broker account, deposit, or push delivery setup.') &&
     !myPageSource.includes('No real account, deposit, or order data is connected.') &&
     !myPageSource.includes('MockDeposit summary') &&
     !myPageSource.includes('after the save toggle is connected') &&
