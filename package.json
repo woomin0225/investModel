@@ -18,6 +18,7 @@
     "test:feed-api": "npx tsx scripts/smoke/feed-api-smoke.ts",
     "test:feed-comment-api": "npx tsx scripts/smoke/feed-comment-api-smoke.ts",
     "test:feed-detail-api": "npx tsx scripts/smoke/feed-detail-api-smoke.ts",
+    "test:feed-detail-read-model": "npx tsx scripts/smoke/feed-detail-read-model-smoke.ts",
     "test:feed-like-api": "npx tsx scripts/smoke/feed-like-api-smoke.ts",
     "test:feed-read-api": "npx tsx scripts/smoke/feed-read-api-smoke.ts",
     "test:feed-reply-api": "npx tsx scripts/smoke/feed-reply-api-smoke.ts",

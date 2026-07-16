@@ -26,3 +26,4 @@ sample values without applying them directly to MySQL.
 - `my-page-read-model.sample.sql`
 - `portfolio-insight-read-model.sample.sql`
 - `signal-detail-read-model.sample.sql`
+- `feed-detail-read-model.sample.sql`

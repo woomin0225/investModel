@@ -44,6 +44,11 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   observed-only wording, and it does not require live traffic, live quotes,
   external paid APIs, TradeIntent rows, orders, brokerage/account links, or
   financial advice.
+- `010_feed_detail_seed.sql` extends the FeedPost detail slice with additional
+  informational body rows plus comments, replies, reactions, saves, reads, and
+  ranking examples for mobile detail screens. It keeps user state mock-scoped
+  and does not require live feeds, push delivery, deposits, broker/account
+  links, orders, TradeIntent rows, external paid APIs, or financial advice.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -78,6 +83,9 @@ files. Do not insert sample rows directly in a MySQL console for product work.
    - The first tracked slice is `002_feed_interaction_seed.sql`.
    - Use `007_interest_save_state_seed.sql` for the shared private
      interest/save fixture before adding Signals/Feed/Models saved-state UI.
+   - Use `010_feed_detail_seed.sql` and
+     `docs/database/samples/feed-detail-read-model.sample.sql` before adding
+     new Feed detail API or mobile detail states.
 6. MockDeposit, portfolio, positions, allocation decisions, and TradeIntent
    simulation rows.
    - The first dedicated holdings slice is
