@@ -28,6 +28,7 @@
     "test:invest-model-user-scope": "npx tsx scripts/qa/invest-model-client-user-scope-smoke.ts",
     "test:market-data": "npx tsx scripts/smoke/market-data-provider-smoke.ts",
     "test:model-api": "npx tsx scripts/smoke/model-api-smoke.ts",
+    "test:model-review-calendar-read-model": "npx tsx scripts/smoke/model-review-calendar-read-model-smoke.ts",
     "test:model-status-notification": "npx tsx scripts/smoke/model-status-notification-smoke.ts",
     "test:model-selection": "npx tsx scripts/smoke/model-selection-api-smoke.ts",
     "test:mock-decision": "npx tsx scripts/smoke/mock-decision-engine-smoke.ts",
