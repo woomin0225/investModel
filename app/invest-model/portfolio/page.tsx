@@ -436,6 +436,32 @@ function portfolioTradeIntentSafetyBadgeLabel(locale: 'ko' | 'en') {
     : 'TradeIntent simulated read-only safety badges';
 }
 
+function portfolioTradeIntentTopSummaryItems(
+  _locale: 'ko' | 'en',
+  portfolio: InvestModelPortfolioSummary
+) {
+  return [
+    {
+      label: 'TradeIntent summary',
+      value: portfolio.tradeIntent.statusLabel,
+      detail: 'read-only pre-order intent',
+      tone: 'low' as const
+    },
+    {
+      label: 'Risk label',
+      value: portfolio.selectedModel.riskLabel,
+      detail: portfolio.tradeIntent.boundaryLabel,
+      tone: 'blocked' as const
+    },
+    {
+      label: 'Mock source',
+      value: portfolio.allocationDecision.sourceLabel,
+      detail: 'mock/DB read model basis',
+      tone: 'medium' as const
+    }
+  ];
+}
+
 function portfolioBlockedVisibleBoundaries(locale: 'ko' | 'en') {
   if (locale === 'ko') {
     return [
@@ -537,6 +563,8 @@ export default async function InvestModelPortfolioPage({
     portfolioTradeIntentSafetyBadges(locale);
   const tradeIntentSafetyBadgeLabel =
     portfolioTradeIntentSafetyBadgeLabel(locale);
+  const tradeIntentTopSummaryItems =
+    portfolioTradeIntentTopSummaryItems(locale, displayPortfolio);
   const hasTimeSnapshots = displayPortfolio.timeSnapshots.length > 0;
   const hasPositions = displayPortfolio.positions.length > 0;
   const hasBlockedActions =
@@ -972,6 +1000,31 @@ export default async function InvestModelPortfolioPage({
                   <RiskBadge key={badge} tone="blocked">
                     {badge}
                   </RiskBadge>
+                ))}
+              </div>
+              <div
+                aria-label="TradeIntent top read-only summary"
+                title="TradeIntent top read-only summary"
+                className="mt-3 grid gap-2 rounded-invest-control border border-invest-risk/10 bg-invest-bg-soft p-2 min-[370px]:grid-cols-3"
+              >
+                {tradeIntentTopSummaryItems.map((item) => (
+                  <div
+                    key={item.label}
+                    className="min-w-0 rounded-invest-control bg-invest-surface px-2.5 py-2"
+                  >
+                    <p className="text-[11px] font-bold uppercase leading-4 text-invest-text-muted">
+                      {item.label}
+                    </p>
+                    <RiskBadge
+                      tone={item.tone}
+                      className="mt-1 max-w-full justify-center text-center"
+                    >
+                      {item.value}
+                    </RiskBadge>
+                    <p className="mt-1 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                      {item.detail}
+                    </p>
+                  </div>
                 ))}
               </div>
               <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-2">

@@ -1495,6 +1495,14 @@ assertCondition(
     ) &&
     portfolioPageSource.includes('portfolioTradeIntentSafetyBadges') &&
     portfolioPageSource.includes('portfolioTradeIntentSafetyBadgeLabel') &&
+    portfolioPageSource.includes('portfolioTradeIntentTopSummaryItems') &&
+    portfolioPageSource.includes('TradeIntent top read-only summary') &&
+    portfolioPageSource.includes('TradeIntent summary') &&
+    portfolioPageSource.includes('read-only pre-order intent') &&
+    portfolioPageSource.includes('Risk label') &&
+    portfolioPageSource.includes('Mock source') &&
+    portfolioPageSource.includes('mock/DB read model basis') &&
+    portfolioPageSource.includes('tradeIntentTopSummaryItems.map((item) => (') &&
     portfolioPageSource.includes('TradeIntent 모의 읽기 전용 안전 배지') &&
     portfolioPageSource.includes('aria-label={tradeIntentSafetyBadgeLabel}') &&
     portfolioPageSource.includes("'Simulated trade', 'Read-only', 'No broker'") &&
