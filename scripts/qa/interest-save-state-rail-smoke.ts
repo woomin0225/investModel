@@ -1,8 +1,9 @@
 /**
- * Focused source smoke for BK-527.
- * Guards the shared Interest/save mobile state rail wiring, 390px layout shape,
- * bottom-tab clearance, and read-only safety language without opening DB,
- * broker, push, deposit, order, or external service paths.
+ * Focused source smoke for BK-527/BK-528.
+ * Guards the shared Interest/save mobile state rail wiring, all visible save
+ * states, 390px layout shape, focus/active host affordances, bottom-tab
+ * clearance, and read-only safety language without opening DB, broker, push,
+ * deposit, order, or external service paths.
  */
 
 import { readFileSync } from 'fs';
@@ -24,6 +25,13 @@ function assertIncludes(source: string, needle: string, label: string) {
   assertCondition(source.includes(needle), `${label}: missing ${needle}`);
 }
 
+function assertAnyIncludes(source: string, needles: string[], label: string) {
+  assertCondition(
+    needles.some((needle) => source.includes(needle)),
+    `${label}: missing one of ${needles.join(', ')}`
+  );
+}
+
 function assertNoUnsafeInteractiveCta(label: string, source: string) {
   const unsafePattern =
     /(<button|<Link|role="button"|href=|onClick|formAction|actionLabel|ctaLabel)[\s\S]{0,280}(Deposit now|Connect brokerage|Place order|Execute trade|Buy now|Sell now|Submit order|Open account|Link account|Invest now|Subscribe alerts|Enable push)/i;
@@ -38,6 +46,10 @@ const railSource = readProjectFile(
   'components/invest-model/interest-save-state-rail.tsx'
 );
 const serverLookupSource = readProjectFile('lib/server/interest-save-state.ts');
+const readModelSource = readProjectFile('lib/db/interest-save-read-model.ts');
+const interestSaveApiSource = readProjectFile(
+  'app/api/my/interest-saves/route.ts'
+);
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
 const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
 const modelsPageSource = readProjectFile('app/invest-model/models/page.tsx');
@@ -64,7 +76,31 @@ const packageSource = readProjectFile('package.json');
   'rounded-invest-control',
   'break-words',
   '[overflow-wrap:anywhere]',
-  'RiskBadge'
+  'RiskBadge',
+  'BookmarkCheck',
+  'Bookmark,',
+  'CircleDashed',
+  'XCircle',
+  'ShieldCheck',
+  'const stateTone',
+  'const stateIcon',
+  "saved: BookmarkCheck",
+  "unsaved: Bookmark",
+  "pending: CircleDashed",
+  "error: XCircle",
+  "read_only: ShieldCheck",
+  "saved: 'low'",
+  "unsaved: 'neutral'",
+  "pending: 'medium'",
+  "error: 'high'",
+  "read_only: 'neutral'",
+  "const visibleState = displayState ?? 'read_only'",
+  'const safeLabel = safetyLabel ?? copy.readOnlySafety',
+  'const ariaLabel = `${copy.privateState}. ${copy.label}. ${safeLabel}`',
+  'aria-label={ariaLabel}',
+  'title={ariaLabel}',
+  'group/interest-save',
+  'investMotionClass.interactiveCard'
 ].forEach((needle) =>
   assertIncludes(railSource, needle, 'Interest/save state rail component')
 );
@@ -96,6 +132,49 @@ assertCondition(
 );
 
 [
+  'select models, deliver push, create orders',
+  'connect brokers, or create deposit/TradeIntent records',
+  'return {};'
+].forEach((needle) =>
+  assertIncludes(serverLookupSource, needle, 'Interest/save read-only fallback')
+);
+
+[
+  'mock user-scoped reading/interest shortcut only',
+  'user_demo_001',
+  "state: 'saved'",
+  "state: 'unsaved'",
+  "state: 'pending'",
+  'Private mock reading shortcut only',
+  'private mock user-scoped state',
+  'Interest/save state is mock user-scoped UI state only',
+  'sourceTables',
+  'mockUserScoped: true',
+  'privateShortcutOnly: true',
+  'allocationSignal: false',
+  'externalPaidApi: false'
+].forEach((needle) =>
+  assertIncludes(readModelSource, needle, 'Interest/save read model fixture')
+);
+
+[
+  'Only signed-in user or admin roles can read private mock interest/save state.',
+  'resolveInvestModelUserScope',
+  'userPublicId: userScope.userPublicId',
+  "dataContext: 'mock'",
+  'readOnly: true',
+  'mockUserScoped: true',
+  'privateShortcutOnly: true',
+  'depositSignal: false',
+  'orderIntentSignal: false',
+  'tradeIntentSignal: false',
+  'sendsRealPush: false',
+  'deliveryAttempted: false'
+].forEach((needle) =>
+  assertIncludes(interestSaveApiSource, needle, 'Interest/save API user-scope guard')
+);
+
+[
   [signalsPageSource, 'signal_event', 'signal.id'],
   [feedPageSource, 'feed_post', 'post.id'],
   [modelsPageSource, 'investment_model', 'model.modelPublicId']
@@ -109,6 +188,42 @@ assertCondition(
   assertIncludes(source, `interestSaveStateLookup[${publicId}]?.state`, label);
   assertIncludes(source, `interestSaveStateLookup[${publicId}]?.safetyLabel`, label);
 });
+
+[
+  [
+    signalsPageSource,
+    'Signals page host card',
+    ['focus-visible:ring-2'],
+    ['group-active:scale-95']
+  ],
+  [
+    feedPageSource,
+    'Feed page host card',
+    ['focus-within:border-invest-primary/40', 'focus-visible:outline-none'],
+    ['active:scale-[0.98]', 'group-active:scale-95']
+  ],
+  [
+    modelsPageSource,
+    'Models page host card',
+    ['focus:outline-none focus:ring-2 focus:ring-invest-primary'],
+    ['active:scale-[0.98]', 'group-active:scale-95']
+  ]
+].forEach(([source, label, focusNeedles, activeNeedles]) => {
+  assertAnyIncludes(source as string, focusNeedles as string[], `${label} focus state`);
+  assertAnyIncludes(source as string, activeNeedles as string[], `${label} active state`);
+  assertIncludes(source as string, 'min-h-invest-touch-target', `${label} touch target`);
+  assertIncludes(source as string, 'InterestSaveStateRail', `${label} rail presence`);
+});
+
+[
+  [signalsPageSource, 'Signals page mobile rail container', 'rounded-invest-control bg-invest-bg-soft p-1.5'],
+  [feedPageSource, 'Feed page 390px rail container', 'min-[390px]:grid-cols-[64px_minmax(0,1fr)]'],
+  [feedPageSource, 'Feed page rail before bottom actions', 'mt-3 grid grid-cols-[repeat(3,minmax(0,1fr))]'],
+  [modelsPageSource, 'Models page rail list spacing', 'className="block space-y-2 rounded-invest-control'],
+  [modelsPageSource, 'Models page disabled rail spacing', 'className="space-y-2"']
+].forEach(([source, label, needle]) =>
+  assertIncludes(source as string, needle as string, label as string)
+);
 
 assertIncludes(
   modelsPageSource,
@@ -158,11 +273,11 @@ assertIncludes(
   'guaranteed',
   'risk free'
 ].forEach((needle) => {
-  [railSource, serverLookupSource, signalsPageSource, feedPageSource, modelsPageSource].forEach(
+  [railSource, serverLookupSource, readModelSource, interestSaveApiSource, signalsPageSource, feedPageSource, modelsPageSource].forEach(
     (source, index) =>
       assertCondition(
         !source.includes(needle),
-        `${['rail', 'server lookup', 'signals page', 'feed page', 'models page'][index]} avoids unsafe term ${needle}`
+        `${['rail', 'server lookup', 'read model', 'interest save API', 'signals page', 'feed page', 'models page'][index]} avoids unsafe term ${needle}`
       )
   );
 });
