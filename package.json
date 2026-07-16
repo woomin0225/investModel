@@ -32,6 +32,7 @@
     "test:news-traffic": "npx tsx scripts/smoke/news-traffic-provider-smoke.ts",
     "test:pwa-manifest": "npx tsx scripts/smoke/pwa-manifest-smoke.ts",
     "test:portfolio-compact-api": "npx tsx scripts/smoke/portfolio-compact-summary-api-smoke.ts",
+    "test:portfolio-compact-card": "npx tsx scripts/qa/portfolio-compact-card-smoke.ts",
     "test:portfolio-compact-read-model": "npx tsx scripts/smoke/portfolio-compact-read-model-smoke.ts",
     "test:rbac": "npx tsx scripts/smoke/rbac-access-smoke.ts",
     "test:review-notification": "npx tsx scripts/smoke/review-result-notification-smoke.ts",
