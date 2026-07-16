@@ -1,8 +1,8 @@
 /**
- * Focused source smoke for BK-523.
- * Guards the model detail review calendar strip wiring, 390px layout shape,
- * bottom-tab clearance, and read-only safety language without opening a DB or
- * broker/external service.
+ * Focused source smoke for BK-523/BK-524.
+ * Guards the model detail review calendar strip wiring, loaded/empty/error
+ * read states, 390px layout shape, bottom-tab clearance, and read-only safety
+ * language without opening a DB or broker/external service.
  */
 
 import { readFileSync } from 'fs';
@@ -22,6 +22,13 @@ function assertCondition(condition: unknown, message: string): asserts condition
 
 function assertIncludes(source: string, needle: string, label: string) {
   assertCondition(source.includes(needle), `${label}: missing ${needle}`);
+}
+
+function assertAnyIncludes(source: string, needles: string[], label: string) {
+  assertCondition(
+    needles.some((needle) => source.includes(needle)),
+    `${label}: missing one of ${needles.join(', ')}`
+  );
 }
 
 function assertNoUnsafeInteractiveCta(label: string, source: string) {
@@ -67,6 +74,11 @@ const mobileShellSource = readProjectFile(
   'components/invest-model/mobile-shell.tsx'
 );
 const packageSource = readProjectFile('package.json');
+const readModelSource = readProjectFile('lib/db/model-review-calendar-read-model.ts');
+const listApiSource = readProjectFile('app/api/models/review-calendar/route.ts');
+const detailApiSource = readProjectFile(
+  'app/api/models/review-calendar/[reviewPublicId]/route.ts'
+);
 const stripSource = modelDetailPageSource.slice(
   modelDetailPageSource.indexOf('function ModelReviewScheduleStrip'),
   modelDetailPageSource.indexOf('async function modelDetailReviewScheduleItems')
@@ -88,9 +100,14 @@ assertCondition(
   'Review calendar API loaded',
   'Review calendar empty state',
   'Review calendar error state',
+  'readState === \'api_loaded\'',
+  'readState === \'empty\'',
   "'x-invest-model-role': 'user'",
   'payload.data?.all',
   'model.modelPublicId',
+  'apiItems.length === 0',
+  'matchingItems.length > 0 ? matchingItems : apiItems.slice(0, 3)',
+  'visibleItems.slice(0, 3).map',
   'No model review calendar metadata is available.',
   'No rebalance execution, order, TradeIntent, brokerage, or legal judgment was created.'
 ].forEach((needle) =>
@@ -98,10 +115,15 @@ assertCondition(
 );
 
 [
+  'aria-label={copy.title}',
+  'SectionHeader title={copy.title} description={copy.description}',
+  '{readStateLabel} / {copy.safetyLabel}',
   'grid-cols-[4.75rem_minmax(0,1fr)]',
   'min-h-invest-touch-target',
   'min-w-0',
   'truncate',
+  'flex min-w-0 flex-wrap',
+  'text-xs leading-5 text-invest-text-muted',
   'rounded-invest-control',
   'gap-3',
   'p-2.5',
@@ -113,11 +135,75 @@ assertCondition(
   assertIncludes(modelDetailPageSource, needle, 'Model detail review strip 390px layout')
 );
 
+[
+  'review_due',
+  'reviewed',
+  'paused',
+  'mock_schedule_seed',
+  'Mock review schedule only',
+  'Reviewed placeholder metadata only',
+  'Paused metadata only',
+  'no legal judgment',
+  'rebalance execution',
+  'TradeIntent',
+  'brokerage connection',
+  'paid external API',
+  'reviewMetadataOnly: true',
+  'rebalanceExecution: false',
+  'tradeIntentCreated: false',
+  'realOrder: false',
+  'brokerageConnection: false',
+  'externalPaidApi: false'
+].forEach((needle) =>
+  assertIncludes(readModelSource, needle, 'Review calendar seed/read-model safety')
+);
+
+[
+  'Only signed-in user or admin roles can read model review calendar metadata.',
+  "contract: 'ModelReviewCalendarDto'",
+  "persistence: 'read_only_seed_projection'",
+  'mockOnly: true',
+  'reviewMetadataOnly: true',
+  'legalJudgment: false',
+  'rebalanceExecution: false',
+  'allocationChanged: false',
+  'tradeIntentCreated: false',
+  'realOrder: false',
+  'brokerageConnection: false',
+  'externalPaidApi: false',
+  'financialAdvice: false',
+  'emptyState',
+  'statusCounts'
+].forEach((needle) =>
+  assertIncludes(listApiSource, needle, 'Review calendar list API safety')
+);
+
+[
+  'Only signed-in user or admin roles can read model review calendar metadata.',
+  "contract: 'ModelReviewCalendarDto'",
+  'Model review calendar public id is required.',
+  'No live review system, rebalance, order, or brokerage action was queried.',
+  'rebalanceExecution: false',
+  'tradeIntentCreated: false',
+  'realOrder: false',
+  'brokerageConnection: false'
+].forEach((needle) =>
+  assertIncludes(detailApiSource, needle, 'Review calendar detail API safety')
+);
+
 assertCondition(
   !/\b(?:fixed|sticky|w-screen|min-w-screen|max-w-screen|overflow-x-auto|overflow-x-scroll)\b|100vw/.test(
     stripSource
   ),
   'Model detail review strip must not introduce fixed/sticky or horizontal-scroll layout'
+);
+
+[
+  ['Model detail page focus state', ['focus:outline-none', 'focus:ring-2', 'focus-visible:ring-2', 'focus-within:bg-invest-primary-soft/60']],
+  ['Model detail page active state', ['active:scale-[0.99]', 'active:scale-95']],
+  ['Model detail page motion affordance', ['investMotionClass.interactiveCard', 'investMotionClass.interactiveControl']]
+].forEach(([label, needles]) =>
+  assertAnyIncludes(modelDetailPageSource, needles as string[], label as string)
 );
 
 [
@@ -143,5 +229,37 @@ assertIncludes(
 
 assertNoUnsafeInteractiveCta('Model review strip', stripSource);
 assertNegatedSafetyOnly('Model review strip', stripSource);
+
+[
+  'Deposit now',
+  'Connect brokerage',
+  'Connect broker',
+  'Place order',
+  'Execute trade',
+  'Execute rebalance',
+  'Buy now',
+  'Sell now',
+  'Submit order',
+  'Open account',
+  'Link account',
+  'Invest now',
+  'Start trading',
+  'Trade now',
+  'Legal approval',
+  'Legally approved',
+  'rebalanceExecutionId',
+  'brokerageAccountId',
+  'brokerOrder',
+  'accountNumber',
+  'realBalance',
+  'externalApiKey'
+].forEach((needle) => {
+  [stripSource, listApiSource, detailApiSource].forEach((source, index) =>
+    assertCondition(
+      !source.includes(needle),
+      `${['strip', 'list API', 'detail API'][index]} avoids unsafe term ${needle}`
+    )
+  );
+});
 
 console.log('PASS model review calendar strip smoke');
