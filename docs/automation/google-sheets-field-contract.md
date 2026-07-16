@@ -88,6 +88,8 @@ When work is complete:
 5. Resolve only Issues that were actually fixed by the run.
 6. Leave unrelated dirty local files unstaged and mention them only when they affect the selected task.
 
+`Backlog.status=done` is not sufficient by itself. Before ending a run, read back `Done` and confirm the selected task id exists there. Sheet-only, planning-only, server-checkpoint, and no-file-change completions still need a `Done` row; keep `commit_hash` blank only when no file-changing commit exists and state that reason in `notes` and `Runs.verification`.
+
 If verification fails, push fails, or a required secret/account/legal decision is needed, do not mark the task done. Use `blocked` or `review` and update Issues.
 
 ## Issues Fields

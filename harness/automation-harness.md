@@ -94,6 +94,9 @@ Every Backlog id whose number is a multiple of 10, such as `BK-10`, `BK-20`, `BK
 - Documentation, harness, and automation runs should record `git diff --check`, targeted `rg` terms, skipped runtime-check reason, and push result.
 - Server checkpoint runs should record listening port, local HTTP response, LAN IP URL, same-Wi-Fi mobile reachability, or the Issue-backed reason it could not be checked.
 - Sheet-only runs should record Backlog/In Progress/Done/Runs readback, duplicate/stale status check, `commit_hash` blank reason, and no-file-change status.
+- If a selected Backlog row is marked `done`, appending or confirming the matching `Done` ledger row and reading it back is mandatory before the run is complete.
+- Sheet-only, planning-only, server-checkpoint, and no-file-change runs still need a `Done` ledger row when they complete a Backlog task. Keep `commit_hash` blank only when no file-changing commit exists, and record the sheet-only/no-file-change reason in `notes` and `Runs.verification`.
+- Before ending any automation run, audit for Backlog rows changed to `done` without a matching `Done` row by task id. Repair the missing append immediately, or record a blocking Issue/Runs note if the sheet write cannot be completed.
 - Failure or blocked runs should record the failing command, whether a retry happened, linked Issue id, final task status, and why `done` was not used.
 
 Do not write only `검증 완료`, `테스트 완료`, or `pass`. If a check is skipped, state the exact reason and whether it is covered by an existing Issue.

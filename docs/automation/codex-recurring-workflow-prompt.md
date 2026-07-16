@@ -52,6 +52,11 @@ After work:
 5. Add a Runs row with trigger, selected task id, agents, summary, verification, commit hash, and next action.
 6. If files changed, commit and push with a concise Korean commit message.
 7. End with a short status. For heartbeat runs, return only the heartbeat XML decision.
+
+Done ledger requirements:
+1. `Backlog.status=done` is not complete by itself. A matching `Done` row with the same task id must be appended or confirmed, then read back before the run is considered complete.
+2. Sheet-only, planning-only, server-checkpoint, and no-file-change completions still require a `Done` ledger row when they complete a Backlog task. Leave `commit_hash` blank only when no file-changing commit exists and record the reason in `notes` and `Runs.verification`.
+3. Before ending a run, compare the selected done task id against `Done`; if it is missing, repair the append immediately or record an Issue/Runs blocker instead of reporting normal completion.
 ```
 
 ## Task Selection Rules
@@ -140,5 +145,6 @@ When the planner or coordinator creates Backlog rows, use the existing sheet sty
 - If existing checklist rows contain English prose, translate the human-readable wording during checklist hygiene work without changing ids, dependency links, status history, commit hashes, or timestamps.
 - `notes` may be blank only for brand-new unselected rows. Once selected, skipped, blocked, or completed, write a short Korean note.
 - `commit_hash` is filled only after a file-changing commit is pushed. For sheet-only/planning-only rows keep it blank and record the reason in `notes` and `Runs.verification`.
+- A completed Backlog row must have a matching `Done` ledger row before the run can be marked complete. Always read back the Done row after appending it.
 - Do not create frontend-only rows for screens that need server or DB support. Add companion backend/API and database/read-model rows and link them through `dependencies`.
 - Every new or selected Backlog id divisible by 10 (`BK-10`, `BK-20`, `BK-30`, ... `BK-490`, `BK-500`) must include server status and same-Wi-Fi mobile reachability checking. Verify the local dev server, LAN URL, and mobile access when a device is available; otherwise record why it was skipped or blocked.
