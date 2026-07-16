@@ -586,24 +586,6 @@ export default async function InvestModelFeedPage({
                     investMotionClass.interactiveCard
                   )}
                 >
-                  <Link
-                    href={feedDetailHref(locale, post.id)}
-                    aria-label={feedActionAccessibleLabel(
-                      locale,
-                      post,
-                      feedActions[0],
-                      true
-                    )}
-                    title={feedActionAccessibleLabel(
-                      locale,
-                      post,
-                      feedActions[0],
-                      true
-                    )}
-                    className="absolute inset-0 z-10 rounded-invest-card focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-surface"
-                  >
-                    <span className="sr-only">{post.title}</span>
-                  </Link>
                   <div
                     className={cn(
                       'mb-3 h-1.5 rounded-full',

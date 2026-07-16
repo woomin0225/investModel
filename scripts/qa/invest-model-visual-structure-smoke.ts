@@ -914,6 +914,32 @@ assertCondition(
     signalsPageSource.includes("href={'detailHref' in signal ? signal.detailHref : '#'}"),
   'Realtime Signals list must link DB-backed SignalEvent rows to Signal Detail routes'
 );
+const signalDetailHrefCount =
+  signalsPageSource.match(
+    /detailHref: signalDetailHref\(locale, signal\.signalPublicId\)/g
+  )?.length ?? 0;
+assertCondition(
+  signalsPageSource.includes(
+    "function signalDetailHref(locale: 'ko' | 'en', signalPublicId: string)"
+  ) &&
+    signalsPageSource.includes('new URLSearchParams({ lang: locale })') &&
+    signalsPageSource.includes(
+      'return `/invest-model/signals/${signalPublicId}?${params.toString()}`;'
+    ) &&
+    signalsPageSource.includes('id: signal.signalPublicId') &&
+    signalsPageSource.includes('detailHref: signalDetailHref(locale, signal.signalPublicId)') &&
+    signalDetailHrefCount === 1 &&
+    signalDetailPageSource.includes('readSignalDetailRoute(resolvedParams.signalId)') &&
+    signalDetailPageSource.includes(
+      'new NextRequest(`http://localhost/api/signals/${signalPublicId}`'
+    ) &&
+    signalDetailPageSource.includes('signalId: signalPublicId') &&
+    !signalsPageSource.includes('id: signal.id') &&
+    !signalsPageSource.includes('/invest-model/signals/${signal.id}') &&
+    !signalsPageSource.includes('className="absolute inset-0') &&
+    !signalDetailPageSource.includes('Number(resolvedParams.signalId)'),
+  'Signals list/detail links must stay public-id based and preserve locale query state'
+);
 assertCondition(
   signalsPageSource.includes('rankSnapshot') &&
     signalsPageSource.includes('DB 점수 스냅샷 순위일 뿐 조언이나 주문이 아닙니다') &&
@@ -1049,6 +1075,48 @@ assertCondition(
     feedPageSource.includes('feedDetailSectionHref') &&
     feedPageSource.includes("'comments'"),
   'Feed cards must wire Save and Comment actions to DB-backed save state, locale-aware copy, and the comment section'
+);
+const feedDetailHrefCount =
+  feedPageSource.match(/href=\{feedDetailHref\(locale, post\.id\)\}/g)
+    ?.length ?? 0;
+assertCondition(
+  feedPageSource.includes(
+    'function feedDetailHref(locale: FeedLocale, postId: string)'
+  ) &&
+    feedPageSource.includes('new URLSearchParams({ lang: locale })') &&
+    feedPageSource.includes(
+      'return `/invest-model/feed/${postId}?${params.toString()}`;'
+    ) &&
+    feedPageSource.includes('id: post.postPublicId') &&
+    feedPageSource.includes('postPublicId: ranking.postPublicId') &&
+    feedPageSource.includes('href={feedDetailHref(locale, post.id)}') &&
+    feedDetailHrefCount === 1 &&
+    feedPageSource.includes('href={feedDetailHref(locale, ranking.postPublicId)}') &&
+    feedPageSource.includes('href={feedDetailSectionHref(') &&
+    feedPageSource.includes("'comments'") &&
+    feedDetailPageSource.includes('postPublicId: resolvedParams.postId') &&
+    feedDetailPageSource.includes(
+      'new NextRequest(`http://localhost/api/feed/${postPublicId}`'
+    ) &&
+    feedDetailPageSource.includes('postId: postPublicId') &&
+    feedDetailPageSource.includes(
+      'href={`/invest-model/signals/${signalPublicId}?lang=${locale}`}'
+    ) &&
+    !feedPageSource.includes('id: post.id') &&
+    !feedPageSource.includes('/invest-model/feed/${post.id}') &&
+    !feedDetailPageSource.includes('Number(resolvedParams.postId)'),
+  'Feed list/detail links must stay public-id based, preserve locale query state, and keep comment anchors'
+);
+assertCondition(
+  !feedPageSource.includes('className="absolute inset-0 z-10 rounded-invest-card') &&
+    feedPageSource.includes('<FeedCardSaveAction') &&
+    feedPageSource.includes('feedDetailSectionHref') &&
+    feedCardSaveActionSource.includes(
+      "'relative z-20 group inline-flex min-h-9 min-w-0 items-center justify-center"
+    ) &&
+    !feedPageSource.includes('<Link\n                    key={post.id}') &&
+    !feedPageSource.includes('<button\n                    key={post.id}'),
+  'Feed cards must not use a full-card overlay link while nested Read/Save/Comment controls are present'
 );
 assertCondition(
   feedPageSource.includes('parseFeedPostType') &&
