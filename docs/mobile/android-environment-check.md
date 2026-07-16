@@ -1,6 +1,6 @@
 # Android Environment Check
 
-Last checked: 2026-07-15
+Last checked: 2026-07-16
 
 ## Scope
 
@@ -53,9 +53,9 @@ npx cap --version
 Test-Path "$env:LOCALAPPDATA\Android\Sdk"
 ```
 
-## Required Before BK-413
+## Required Before Android Scaffold Tasks
 
-Complete these outside Codex before running the Android scaffold task:
+Complete these outside Codex before running BK-413, BK-423, or any Android/iOS native scaffold task:
 
 1. Install Android Studio 2025.2.1 or later.
 2. Install Android SDK through Android Studio.
@@ -75,4 +75,4 @@ Until the missing items are resolved:
 - Do not add native permissions.
 - Do not add push, biometric unlock, secure storage, background jobs, broker, bank, payment, account-linking, real order, or real deposit behavior.
 
-BK-413 can start only after this checklist is updated with a ready Android Studio/SDK/toolchain result.
+BK-490 confirms that native scaffold work remains deferred while IS-007 is open. Until this checklist is updated with a ready Android Studio/SDK/toolchain result, automation should continue with PWA manifest checks, 390px mobile QA, LAN/WebView source documentation, and other shared Next.js runtime work instead of generating native platform folders.

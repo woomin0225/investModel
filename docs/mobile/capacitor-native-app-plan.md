@@ -39,6 +39,19 @@ The app should not:
 
 ## Packaging Strategy
 
+### Current Scaffold Gate
+
+BK-490 records the current operating boundary for Android/iOS scaffold work.
+
+Until IS-007 is resolved with a ready Android Studio/Android SDK toolchain, and until iOS work is run on a Mac with Xcode available, native platform scaffold tasks such as BK-423 must stay deferred. The project should keep improving the shared Next.js mobile/PWA runtime, PWA manifest, 390px QA checks, and LAN/WebView source documentation instead of generating or committing `android/` or `ios/` platform folders.
+
+The ready signal for reopening native scaffold work is an updated environment check that proves:
+
+- Android Studio and Android SDK are installed and discoverable.
+- `adb`, `emulator`, `sdkmanager`, and `avdmanager` are available for Android validation.
+- A trusted LAN or HTTPS staging URL can open `/invest-model` from the target device before WebView testing.
+- The task still avoids native permissions, push, biometric unlock, native secure storage, store submission, broker/bank/payment links, real deposits, and real orders.
+
 Phase 1: Native packaging scaffold
 
 - Add Capacitor dependencies and config in a small follow-up task.

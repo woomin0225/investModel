@@ -1,6 +1,6 @@
 # Android And iOS Dual Development Checklist
 
-Last checked: 2026-07-15
+Last checked: 2026-07-16
 
 ## Goal
 
@@ -82,6 +82,8 @@ Needed:
 ## Project Setup Checklist
 
 Do these in small Backlog items, not all at once:
+
+BK-490 / IS-007 gate: keep the native scaffold steps below planned but inactive until `docs/mobile/android-environment-check.md` shows Android Studio, Android SDK, command-line tools, and an Android test device or emulator are ready. iOS scaffold work remains Mac/Xcode-only. While this gate is open, automation should choose PWA manifest, 390px mobile QA, LAN server reachability, WebView source, and shared Next.js runtime tasks instead of running `npx cap add android` or `npx cap add ios`.
 
 - Add `@capacitor/core` and `@capacitor/cli`.
 - Add `capacitor.config.ts`.
