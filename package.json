@@ -30,6 +30,7 @@
     "test:model-api": "npx tsx scripts/smoke/model-api-smoke.ts",
     "test:model-review-calendar-api": "npx tsx scripts/smoke/model-review-calendar-api-smoke.ts",
     "test:model-review-calendar-read-model": "npx tsx scripts/smoke/model-review-calendar-read-model-smoke.ts",
+    "test:model-review-calendar-strip": "npx tsx scripts/qa/model-review-calendar-strip-smoke.ts",
     "test:model-status-notification": "npx tsx scripts/smoke/model-status-notification-smoke.ts",
     "test:model-selection": "npx tsx scripts/smoke/model-selection-api-smoke.ts",
     "test:mock-decision": "npx tsx scripts/smoke/mock-decision-engine-smoke.ts",

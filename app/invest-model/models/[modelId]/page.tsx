@@ -7,6 +7,7 @@ import {
   SquareCheckBig
 } from 'lucide-react';
 import { GET as readModelDetail } from '@/app/api/models/[modelId]/route';
+import { GET as readModelReviewCalendar } from '@/app/api/models/review-calendar/route';
 import {
   DetailBackLink,
   investMotionClass,
@@ -29,6 +30,7 @@ import {
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
 import type { ModelDetailDto } from '@/lib/domain/models/model-read-model';
+import type { ModelReviewCalendarItem } from '@/lib/db/model-review-calendar-read-model';
 import { cn } from '@/lib/utils';
 
 type InvestmentModelDetailView = MockInvestmentModelDetail & {
@@ -101,6 +103,9 @@ const detailReviewScheduleCopy = {
     description:
       '리뷰와 모의 리밸런싱 점검만 표시하며 실제 주문, 체결, 브로커 동작 일정이 아닙니다.',
     safetyLabel: '검토 전용 / 모의 점검 / 실제 거래 실행 없음',
+    apiLoadedLabel: 'Review calendar API loaded',
+    emptyLabel: 'Review calendar empty state',
+    errorLabel: 'Review calendar error state',
     items: {
       review: {
         label: '모델 리뷰',
@@ -130,6 +135,9 @@ const detailReviewScheduleCopy = {
     description:
       'Shows review and mock rebalance checkpoints only, not real orders, execution, or brokerage actions.',
     safetyLabel: 'Review only / Mock checkpoint / No real trading execution',
+    apiLoadedLabel: 'Review calendar API loaded',
+    emptyLabel: 'Review calendar empty state',
+    errorLabel: 'Review calendar error state',
     items: {
       review: {
         label: 'Model review',
@@ -248,7 +256,7 @@ export default async function InvestModelDetailPage({
     );
   }
 
-  const reviewScheduleItems = modelDetailReviewScheduleItems(locale, model);
+  const reviewScheduleState = await modelDetailReviewScheduleItems(locale, model);
 
   return (
     <MobileShell
@@ -305,7 +313,8 @@ export default async function InvestModelDetailPage({
 
         <ModelReviewScheduleStrip
           locale={locale}
-          items={reviewScheduleItems}
+          items={reviewScheduleState.items}
+          readState={reviewScheduleState.readState}
         />
 
         <nav
@@ -498,14 +507,24 @@ type ModelReviewScheduleItem = {
   description: string;
 };
 
+type ModelReviewScheduleReadState = 'api_loaded' | 'empty' | 'error_fallback';
+
 function ModelReviewScheduleStrip({
   locale,
-  items
+  items,
+  readState
 }: {
   locale: 'ko' | 'en';
   items: ModelReviewScheduleItem[];
+  readState: ModelReviewScheduleReadState;
 }) {
   const copy = detailReviewScheduleCopy[locale];
+  const readStateLabel =
+    readState === 'api_loaded'
+      ? copy.apiLoadedLabel
+      : readState === 'empty'
+        ? copy.emptyLabel
+        : copy.errorLabel;
 
   return (
     <section
@@ -513,8 +532,11 @@ function ModelReviewScheduleStrip({
       className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
     >
       <SectionHeader title={copy.title} description={copy.description} />
+      <p className="mt-3 rounded-invest-control bg-invest-bg-soft p-2 text-xs font-semibold leading-5 text-invest-text-muted">
+        {readStateLabel} / {copy.safetyLabel}
+      </p>
       <div className="mt-4 grid gap-2" role="list">
-        {items.map((item) => (
+        {items.length > 0 ? items.map((item) => (
           <div
             key={`${item.dateLabel}-${item.label}`}
             role="listitem"
@@ -546,7 +568,35 @@ function ModelReviewScheduleStrip({
               </p>
             </div>
           </div>
-        ))}
+        )) : (
+          <div
+            role="listitem"
+            className="grid min-h-invest-touch-target grid-cols-[4.75rem_minmax(0,1fr)] gap-3 rounded-invest-control border border-invest-border bg-invest-surface-muted p-2.5"
+          >
+            <div className="grid min-w-0 content-center rounded-invest-control bg-invest-bg-soft px-2 py-1 text-center">
+              <p className="truncate text-[11px] font-bold uppercase leading-4 tracking-normal text-invest-primary">
+                {copy.emptyLabel}
+              </p>
+              <p className="truncate text-[11px] font-semibold leading-4 text-invest-text-muted">
+                read-only
+              </p>
+            </div>
+            <div className="min-w-0">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <CalendarCheck
+                  aria-hidden
+                  className="size-4 shrink-0 text-invest-primary"
+                />
+                <p className="min-w-0 text-sm font-bold leading-5 text-invest-text">
+                  {copy.emptyLabel}
+                </p>
+              </div>
+              <p className="mt-1 text-xs leading-5 text-invest-text-muted">
+                No model review calendar metadata is available. No rebalance execution, order, TradeIntent, brokerage, or legal judgment was created.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
       <p className="mt-3 rounded-invest-control bg-invest-bg-soft p-2 text-xs font-semibold leading-5 text-invest-text-muted">
         {copy.safetyLabel}
@@ -555,13 +605,15 @@ function ModelReviewScheduleStrip({
   );
 }
 
-function modelDetailReviewScheduleItems(
+async function modelDetailReviewScheduleItems(
   locale: 'ko' | 'en',
   model: InvestmentModelDetailView
-): ModelReviewScheduleItem[] {
+): Promise<{
+  items: ModelReviewScheduleItem[];
+  readState: ModelReviewScheduleReadState;
+}> {
   const copy = detailReviewScheduleCopy[locale].items;
-
-  return [
+  const fallbackItems = [
     {
       ...copy.review,
       statusLabel: model.reviewLabel || copy.review.statusLabel
@@ -580,6 +632,66 @@ function modelDetailReviewScheduleItems(
         copy.disclosure.statusLabel
     }
   ];
+
+  try {
+    const response = await readModelReviewCalendar(
+      new NextRequest('http://localhost/api/models/review-calendar', {
+        method: 'GET',
+        headers: {
+          'x-invest-model-role': 'user'
+        }
+      })
+    );
+
+    if (!response.ok) {
+      throw new Error('Model review calendar route read failed.');
+    }
+
+    const payload = (await response.json()) as {
+      data?: {
+        all?: ModelReviewCalendarItem[];
+      };
+    };
+    const apiItems = payload.data?.all ?? [];
+
+    if (apiItems.length === 0) {
+      return {
+        items: [],
+        readState: 'empty'
+      };
+    }
+
+    const matchingItems = apiItems.filter(
+      (item) => item.modelPublicId === model.modelPublicId
+    );
+    const visibleItems =
+      matchingItems.length > 0 ? matchingItems : apiItems.slice(0, 3);
+
+    return {
+      items: visibleItems.slice(0, 3).map((item) => ({
+        label: item.modelName,
+        dateLabel:
+          item.status === 'review_due'
+            ? copy.review.dateLabel
+            : item.status === 'reviewed'
+              ? copy.disclosure.dateLabel
+              : copy.rebalance.dateLabel,
+        statusLabel:
+          item.status === 'review_due'
+            ? copy.review.statusLabel
+            : item.status === 'reviewed'
+              ? copy.disclosure.statusLabel
+              : copy.rebalance.statusLabel,
+        description: `${item.summary} ${item.safetyLabel}`
+      })),
+      readState: 'api_loaded'
+    };
+  } catch {
+    return {
+      items: fallbackItems,
+      readState: 'error_fallback'
+    }
+  }
 }
 
 function modelDetailVisibleBoundaries(locale: 'ko' | 'en') {
