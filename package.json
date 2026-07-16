@@ -24,6 +24,7 @@
     "test:feed-topic-cluster-api": "npx tsx scripts/smoke/feed-topic-cluster-api-smoke.ts",
     "test:feed-topic-cluster-rail": "npx tsx scripts/qa/feed-topic-cluster-rail-smoke.ts",
     "test:feed-topic-cluster-read-model": "npx tsx scripts/smoke/feed-topic-cluster-read-model-smoke.ts",
+    "test:interest-save-api": "npx tsx scripts/smoke/interest-save-api-smoke.ts",
     "test:interest-save-read-model": "npx tsx scripts/smoke/interest-save-read-model-smoke.ts",
     "test:invest-model-interaction-db": "npx tsx scripts/qa/invest-model-interaction-db-output-smoke.ts",
     "test:invest-model-user-scope": "npx tsx scripts/qa/invest-model-client-user-scope-smoke.ts",
