@@ -1,4 +1,8 @@
 import type { PolicyNoticeDto } from '@/lib/domain/feed/feed-post';
+import {
+  formatModelPercent,
+  nullableFiniteNumber
+} from '@/lib/domain/formatting/invest-model-number';
 import type { AccessRole, DomainPublicId } from '@/lib/domain/types';
 
 export interface ModelRiskBadgeDto {
@@ -325,20 +329,15 @@ function splitList(value?: string | null) {
 }
 
 function percentMetric(value?: string | number | null): ModelPercentMetricDto {
-  const parsed = nullableNumber(value);
+  const parsed = nullableFiniteNumber(value);
 
   return {
     value: parsed,
-    display: parsed === null ? 'N/A' : `${parsed > 0 ? '+' : ''}${parsed}%`,
+    display: formatModelPercent(parsed),
     context: parsed === null ? 'not_available' : 'backtest_placeholder'
   };
 }
 
 function nullableNumber(value?: string | number | null) {
-  if (value === null || value === undefined || value === '') {
-    return null;
-  }
-
-  const parsed = typeof value === 'number' ? value : Number.parseFloat(value);
-  return Number.isFinite(parsed) ? parsed : null;
+  return nullableFiniteNumber(value);
 }

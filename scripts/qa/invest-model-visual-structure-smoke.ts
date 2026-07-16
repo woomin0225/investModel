@@ -387,6 +387,16 @@ const topIconBarSource = readProjectFile(
   'components/invest-model/top-icon-bar.tsx'
 );
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
+const investModelNumberFormatterSource = readProjectFile(
+  'lib/domain/formatting/invest-model-number.ts'
+);
+const portfolioReadModelSource = readProjectFile(
+  'lib/db/portfolio-read-model.ts'
+);
+const modelReadModelSource = readProjectFile(
+  'lib/domain/models/model-read-model.ts'
+);
+const signalEventSource = readProjectFile('lib/domain/signals/signal-event.ts');
 const homePageSource = readProjectFile('app/invest-model/page.tsx');
 const homeLoadingSource = readProjectFile('app/invest-model/loading.tsx');
 const investModelErrorSource = readProjectFile('app/invest-model/error.tsx');
@@ -423,6 +433,29 @@ const modelDetailPageSource = readProjectFile(
   'app/invest-model/models/[modelId]/page.tsx'
 );
 const feedPageSource = readProjectFile('app/invest-model/feed/page.tsx');
+assertCondition(
+  investModelNumberFormatterSource.includes('export function finiteNumber') &&
+    investModelNumberFormatterSource.includes('export function nullableFiniteNumber') &&
+    investModelNumberFormatterSource.includes('export function formatModelPercent') &&
+    investModelNumberFormatterSource.includes("return `${safeValue > 0 ? '+' : ''}${formatted}%`;") &&
+    investModelNumberFormatterSource.includes('export function formatMockMoney') &&
+    investModelNumberFormatterSource.includes('Math.max(finiteNumber(value, 0), 0)') &&
+    investModelNumberFormatterSource.includes('export function formatAllocationWeight') &&
+    investModelNumberFormatterSource.includes("return '0% target'") &&
+    investModelNumberFormatterSource.includes('export function formatSimulatedQuantity') &&
+    investModelNumberFormatterSource.includes('export function formatScoreLabel') &&
+    investModelNumberFormatterSource.includes('export function formatScoreWidth') &&
+    portfolioReadModelSource.includes('formatMockMoney') &&
+    portfolioReadModelSource.includes('formatAllocationWeight') &&
+    portfolioReadModelSource.includes('formatSimulatedQuantity') &&
+    !portfolioReadModelSource.includes('Number(value ?? 0)') &&
+    modelReadModelSource.includes('formatModelPercent') &&
+    modelReadModelSource.includes('nullableFiniteNumber') &&
+    signalEventSource.includes('formatScoreLabel') &&
+    signalDetailPageSource.includes('formatScoreWidth') &&
+    signalDetailPageSource.includes('finiteNumber(signal.score, 0)'),
+  'BK-462 numeric formatters must prevent NaN/undefined/Infinity and clamp mock money, quantity, weight, and score displays'
+);
 assertCondition(
   investModelErrorSource.includes("'use client'") &&
     investModelErrorSource.includes('reset: () => void') &&

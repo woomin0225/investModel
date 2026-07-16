@@ -14,6 +14,12 @@ import {
   userModelSelections,
   users
 } from '@/lib/db/schema';
+import {
+  finiteNumber,
+  formatAllocationWeight,
+  formatMockMoney,
+  formatSimulatedQuantity
+} from '@/lib/domain/formatting/invest-model-number';
 import type { InvestModelPortfolioSummary } from '@/lib/domain/portfolio/portfolio-summary';
 
 const fallbackPortfolio: InvestModelPortfolioSummary = {
@@ -45,39 +51,6 @@ function formatDateTime(value: Date | string | null | undefined) {
   }
 
   return `${date.toISOString().slice(0, 16).replace('T', ' ')} UTC`;
-}
-
-function formatMoney(value: string | number | null | undefined, currency = 'USD') {
-  const amount = Number(value ?? 0);
-  const safeAmount = Number.isFinite(amount) ? amount : 0;
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0
-  }).format(safeAmount);
-}
-
-function formatWeight(value: string | number | null | undefined, total: number) {
-  const amount = Number(value ?? 0);
-
-  if (!Number.isFinite(amount) || total <= 0) {
-    return '0% target';
-  }
-
-  return `${Math.round((amount / total) * 100)}% target`;
-}
-
-function formatQuantity(value: string | number | null | undefined) {
-  const quantity = Number(value ?? 0);
-
-  if (!Number.isFinite(quantity)) {
-    return '0 simulated units';
-  }
-
-  return `${new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 8
-  }).format(quantity)} simulated units`;
 }
 
 function toBlockedActions(rows: Array<{ status: string; blockedReason: string | null }>) {
@@ -193,7 +166,7 @@ export async function readInvestModelPortfolioSummary(
       .limit(3);
 
     const currency = portfolioRow.currency || deposit?.currency || 'USD';
-    const totalMarketValue = Number(portfolioRow.totalMarketValue ?? 0);
+    const totalMarketValue = finiteNumber(portfolioRow.totalMarketValue, 0);
     const latestPositionAsOf = positionRows[0]?.asOf ?? portfolioRow.updatedAt;
     const activeTradeIntent = tradeIntentRows[0];
 
@@ -213,8 +186,8 @@ export async function readInvestModelPortfolioSummary(
           'Current selected model status comes from DB read model; it cannot create real orders or account activity.'
       },
       mockDeposit: {
-        displayLabel: `${formatMoney(deposit?.amount, deposit?.currency ?? currency)} MockDeposit`,
-        amountLabel: formatMoney(deposit?.amount, deposit?.currency ?? currency),
+        displayLabel: `${formatMockMoney(deposit?.amount, deposit?.currency ?? currency)} MockDeposit`,
+        amountLabel: formatMockMoney(deposit?.amount, deposit?.currency ?? currency),
         statusLabel: deposit?.status ?? 'mock_safe_fallback',
         sourceLabel: `sourceType: ${deposit?.sourceType ?? 'mock'}`,
         safetyLabel: 'Not a real deposit or cash balance'
@@ -230,21 +203,21 @@ export async function readInvestModelPortfolioSummary(
       timeSnapshots: [
         {
           rangeLabel: '1D',
-          valueLabel: `${formatMoney(portfolioRow.totalMarketValue, currency)} simulated`,
+          valueLabel: `${formatMockMoney(portfolioRow.totalMarketValue, currency)} simulated`,
           checkpointLabel: `${formatDateTime(portfolioRow.updatedAt)} DB checkpoint`,
           signalLabel: `${positionRows.length} simulated PortfolioPositions`,
           safetyLabel: 'No real P/L'
         },
         {
           rangeLabel: '1W',
-          valueLabel: `${formatMoney(portfolioRow.cashBalance, currency)} mock cash`,
+          valueLabel: `${formatMockMoney(portfolioRow.cashBalance, currency)} mock cash`,
           checkpointLabel: 'DB read model sample window',
           signalLabel: portfolioRow.status,
           safetyLabel: 'No return claim'
         },
         {
           rangeLabel: '1M',
-          valueLabel: `${formatMoney(portfolioRow.totalMarketValue, currency)} simulated`,
+          valueLabel: `${formatMockMoney(portfolioRow.totalMarketValue, currency)} simulated`,
           checkpointLabel: `${formatDateTime(latestPositionAsOf)} position snapshot`,
           signalLabel: 'PortfolioMandate guardrails only',
           safetyLabel: 'No brokerage data'
@@ -255,9 +228,12 @@ export async function readInvestModelPortfolioSummary(
           ? positionRows.map((position) => ({
               symbol: position.symbol,
               name: `${position.name} simulated holding`,
-              quantityLabel: formatQuantity(position.quantity),
-              weightLabel: formatWeight(position.marketValue, totalMarketValue),
-              valueLabel: `${formatMoney(position.marketValue, currency)} simulated`,
+              quantityLabel: formatSimulatedQuantity(position.quantity),
+              weightLabel: formatAllocationWeight(
+                position.marketValue,
+                totalMarketValue
+              ),
+              valueLabel: `${formatMockMoney(position.marketValue, currency)} simulated`,
               stateLabel: 'simulated position',
               sourceLabel: 'DB mock position'
             }))

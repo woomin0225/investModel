@@ -17,6 +17,10 @@ import type {
   SignalEventType
 } from '@/lib/domain/signals/signal-event';
 import {
+  finiteNumber,
+  formatScoreWidth
+} from '@/lib/domain/formatting/invest-model-number';
+import {
   investModelCopy,
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
@@ -98,7 +102,7 @@ function formatCapturedAt(value: string, locale: SignalLocale) {
 }
 
 function scoreWidth(score: number) {
-  return `${Math.min(Math.max(Math.round(score), 0), 100)}%`;
+  return formatScoreWidth(score);
 }
 
 function relatedFeedSearchHref(locale: SignalLocale, signal: SignalEventDto) {
@@ -435,7 +439,7 @@ export default async function InvestModelSignalDetailPage({
                 signalToneClass[scoreTone]
               )}
             >
-              {Math.round(signal.score)}
+              {Math.round(finiteNumber(signal.score, 0))}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap gap-2">

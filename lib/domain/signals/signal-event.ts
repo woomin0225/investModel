@@ -1,5 +1,9 @@
 import type { AccessRole, DomainPublicId } from '@/lib/domain/types';
 import type { PolicyNoticeDto } from '@/lib/domain/feed/feed-post';
+import {
+  finiteNumber,
+  formatScoreLabel
+} from '@/lib/domain/formatting/invest-model-number';
 
 /**
  * SignalEvent DTO helpers keep observed signal rows separate from advice,
@@ -103,14 +107,7 @@ function signalPolicyNotices(): PolicyNoticeDto[] {
 }
 
 function scoreToNumber(score: number | string | null | undefined) {
-  if (score === null || score === undefined) {
-    return 0;
-  }
-
-  const parsed =
-    typeof score === 'number' ? score : Number.parseFloat(score);
-
-  return Number.isFinite(parsed) ? parsed : 0;
+  return finiteNumber(score, 0);
 }
 
 function nullableRankToNumber(value: number | string | null | undefined) {
@@ -175,7 +172,7 @@ function buildScoreSnapshotDto(input: {
 
   return {
     totalScore,
-    totalScoreDisplay: `${Math.round(totalScore)} snapshot score`,
+    totalScoreDisplay: formatScoreLabel(totalScore, 'snapshot score'),
     rankValue,
     rankLabel: rankValue === null ? 'Unranked' : `#${rankValue}`,
     rankDelta,
@@ -246,7 +243,7 @@ export function buildSignalEventDto(input: {
     title: input.title,
     summary: input.summary ?? '',
     score,
-    scoreDisplay: `${Math.round(score)} score`,
+    scoreDisplay: formatScoreLabel(score, 'score'),
     sourceLabel: sourceLabelFor({
       signalType,
       sourceInstrumentSymbol: input.sourceInstrumentSymbol,
