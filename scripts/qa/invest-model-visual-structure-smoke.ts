@@ -493,6 +493,9 @@ const watchlistSeedPanelSource = readProjectFile(
 const portfolioCompactSummaryCardSource = readProjectFile(
   'components/invest-model/portfolio-compact-summary-card.tsx'
 );
+const portfolioHoldingsListCardSource = readProjectFile(
+  'components/invest-model/portfolio-holdings-list-card.tsx'
+);
 const modelSelectionCtaSource = readProjectFile(
   'components/invest-model/model-selection-cta.tsx'
 );
@@ -2029,6 +2032,51 @@ assertCondition(
     !portfolioPageSource.includes('<MetricCard') &&
     portfolioPageSource.includes('PortfolioCompactSummaryCard') &&
     portfolioPageSource.includes('<PortfolioCompactSummaryCard locale={locale} />') &&
+    portfolioPageSource.includes('PortfolioHoldingsListCard') &&
+    portfolioPageSource.includes('<PortfolioHoldingsListCard locale={locale} />') &&
+    portfolioPageSource.indexOf('<PortfolioHoldingsListCard locale={locale} />') >
+      portfolioPageSource.indexOf('<PortfolioCompactSummaryCard locale={locale} />') &&
+    portfolioPageSource.indexOf('<PortfolioHoldingsListCard locale={locale} />') <
+      portfolioPageSource.indexOf('<SeededPriceMiniChartCard locale={locale} />') &&
+    portfolioHoldingsListCardSource.includes("'use client'") &&
+    portfolioHoldingsListCardSource.includes('/api/portfolio/holdings') &&
+    portfolioHoldingsListCardSource.includes('x-invest-model-role') &&
+    portfolioHoldingsListCardSource.includes("status: 'loading'") &&
+    portfolioHoldingsListCardSource.includes("status: 'empty'") &&
+    portfolioHoldingsListCardSource.includes("status: 'error'") &&
+    portfolioHoldingsListCardSource.includes("status: 'loaded'") &&
+    portfolioHoldingsListCardSource.includes('PortfolioHoldingsLoading') &&
+    portfolioHoldingsListCardSource.includes('data-portfolio-holdings-loading-skeleton="mock-only"') &&
+    portfolioHoldingsListCardSource.includes('data-portfolio-holdings-list="mock-safe"') &&
+    portfolioHoldingsListCardSource.includes('Simulated holdings') &&
+    portfolioHoldingsListCardSource.includes('Mock allocation') &&
+    portfolioHoldingsListCardSource.includes('not broker-confirmed') &&
+    portfolioHoldingsListCardSource.includes('no real holding') &&
+    portfolioHoldingsListCardSource.includes('no order execution') &&
+    portfolioHoldingsListCardSource.includes('no account linking') &&
+    portfolioHoldingsListCardSource.includes('not advice') &&
+    portfolioHoldingsListCardSource.includes('mockOnly=') &&
+    portfolioHoldingsListCardSource.includes('realDeposit=') &&
+    portfolioHoldingsListCardSource.includes('realBalance=') &&
+    portfolioHoldingsListCardSource.includes('realOrder=') &&
+    portfolioHoldingsListCardSource.includes('brokerageConnection=') &&
+    portfolioHoldingsListCardSource.includes('brokerConfirmedHoldings=') &&
+    portfolioHoldingsListCardSource.includes('realHolding=') &&
+    portfolioHoldingsListCardSource.includes('orderExecution=') &&
+    portfolioHoldingsListCardSource.includes('tradeFill=') &&
+    portfolioHoldingsListCardSource.includes('settlement=') &&
+    portfolioHoldingsListCardSource.includes('accountLinking=') &&
+    portfolioHoldingsListCardSource.includes('externalPaidApi=') &&
+    portfolioHoldingsListCardSource.includes('financialAdvice=') &&
+    portfolioHoldingsListCardSource.includes('tradeIntentCreated=') &&
+    portfolioHoldingsListCardSource.includes('min-[390px]:grid-cols-[minmax(0,1fr)_7.25rem]') &&
+    portfolioHoldingsListCardSource.includes('[overflow-wrap:anywhere]') &&
+    !portfolioHoldingsListCardSource.includes('Deposit now') &&
+    !portfolioHoldingsListCardSource.includes('Connect brokerage') &&
+    !portfolioHoldingsListCardSource.includes('Place order') &&
+    !portfolioHoldingsListCardSource.includes('Execute trade') &&
+    !portfolioHoldingsListCardSource.includes('Buy now') &&
+    !portfolioHoldingsListCardSource.includes('Sell now') &&
     portfolioCompactSummaryCardSource.includes("'use client'") &&
     portfolioCompactSummaryCardSource.includes('/api/portfolio/compact-summary') &&
     portfolioCompactSummaryCardSource.includes('x-invest-model-role') &&

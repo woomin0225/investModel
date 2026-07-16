@@ -34,6 +34,7 @@
     "test:portfolio-compact-api": "npx tsx scripts/smoke/portfolio-compact-summary-api-smoke.ts",
     "test:portfolio-compact-card": "npx tsx scripts/qa/portfolio-compact-card-smoke.ts",
     "test:portfolio-holdings-api": "npx tsx scripts/smoke/portfolio-holdings-api-smoke.ts",
+    "test:portfolio-holdings-card": "npx tsx scripts/qa/portfolio-holdings-list-card-smoke.ts",
     "test:portfolio-holdings-read-model": "npx tsx scripts/smoke/portfolio-holdings-read-model-smoke.ts",
     "test:portfolio-compact-read-model": "npx tsx scripts/smoke/portfolio-compact-read-model-smoke.ts",
     "test:price-history-api": "npx tsx scripts/smoke/price-history-api-smoke.ts",
