@@ -49,6 +49,10 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   ranking examples for mobile detail screens. It keeps user state mock-scoped
   and does not require live feeds, push delivery, deposits, broker/account
   links, orders, TradeIntent rows, external paid APIs, or financial advice.
+- `011_model_compare_read_model_seed.sql` creates three model comparison rows
+  using existing InvestmentModel, ModelVersion, risk, mandate, disclosure, and
+  backtest tables. It stays mock/backtest-only and does not add account action,
+  TradeIntent, broker/bank, deposit, paid external API, or final legal fields.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -69,6 +73,8 @@ files. Do not insert sample rows directly in a MySQL console for product work.
 
 1. Identity and model creator rows for user 1 and sample creators.
 2. InvestmentModel rows, model versions, mandates, risk profiles, disclosures.
+   - Use `011_model_compare_read_model_seed.sql` when compare screens need a
+     stable risk/mandate/disclosure/backtest trio without adding new schema.
 3. SignalEvent rows, score snapshots, and mock ingestion inputs.
    - The first tracked slice is `003_signal_event_seed.sql`.
    - Use `signal-score-mock-ingestion-job.md` before adding a scheduled or

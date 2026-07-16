@@ -34,6 +34,7 @@
     "test:invest-model-user-scope": "npx tsx scripts/qa/invest-model-client-user-scope-smoke.ts",
     "test:market-data": "npx tsx scripts/smoke/market-data-provider-smoke.ts",
     "test:model-api": "npx tsx scripts/smoke/model-api-smoke.ts",
+    "test:model-compare-read-model": "npx tsx scripts/smoke/model-compare-read-model-smoke.ts",
     "test:model-review-calendar-api": "npx tsx scripts/smoke/model-review-calendar-api-smoke.ts",
     "test:model-review-calendar-read-model": "npx tsx scripts/smoke/model-review-calendar-read-model-smoke.ts",
     "test:model-review-calendar-strip": "npx tsx scripts/qa/model-review-calendar-strip-smoke.ts",
