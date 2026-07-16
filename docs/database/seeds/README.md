@@ -63,6 +63,11 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   as requiring review, and does not add legal judgments, suitability approvals,
   deposits, allocation decisions, TradeIntent rows, broker/account links,
   orders, live data, or paid external APIs.
+- `014_search_no_result_read_model_seed.sql` creates local zero-result
+  `search_query_logs` rows for Search empty-state read models. It uses only the
+  `models`, `feed`, and `signals` scopes and does not add external providers,
+  live search volume, live quotes, account data, deposits, TradeIntent rows,
+  orders, brokerage links, or financial advice.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -75,6 +80,11 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   keywords. It stays local and seed-only while IS-004 blocks live search
   volume, live quotes, paid APIs, orders, deposits, brokerage/account links,
   and financial advice.
+- `../samples/search-no-result-read-model.sample.sql` documents the BK-567
+  Search no-result grouped fallback projection for model, feed, and signal
+  categories. It stays local and seed-only while IS-004 blocks live search
+  volume, live quotes, paid APIs, account data, orders, deposits,
+  brokerage/account links, and financial advice.
 - `../samples/signal-detail-read-model.sample.sql` documents the BK-541 Signal
   detail projection for public SignalEvent ids, source labels, score snapshot
   ranks, and observed driver breakdown rows.
