@@ -7,6 +7,7 @@ import {
   EmptyStateCta,
   MobileShell,
   MobileFilterRail,
+  InterestSaveStateRail,
   RiskBadge,
   SectionHeader,
   SearchAndNotificationActions,
@@ -18,6 +19,7 @@ import {
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
 import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
+import { readInterestSaveStateLookup } from '@/lib/server/interest-save-state';
 import {
   parseSignalEventType,
   type SignalEventDto,
@@ -600,6 +602,8 @@ export default async function InvestModelSignalsPage({
   );
   const copy = investModelCopy[locale];
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
+  const interestSaveStateLookup =
+    await readInterestSaveStateLookup('signal_event');
   const signalsCopy = copy.signals;
   const signalsFooterSafetyLines = [
     signalsCopy.footerBadges.noRecommendation,
@@ -912,6 +916,19 @@ export default async function InvestModelSignalsPage({
                       <p className="mt-2.5 text-sm font-semibold leading-5 text-invest-text-muted transition-colors duration-200 ease-out group-hover:text-invest-text motion-reduce:transition-none">
                         {signal.statusLabel}
                       </p>
+                      <InterestSaveStateRail
+                        className="mt-3"
+                        locale={locale}
+                        itemType="signal_event"
+                        itemPublicId={signal.id}
+                        displayState={interestSaveStateLookup[signal.id]?.state}
+                        sourceSurface={
+                          interestSaveStateLookup[signal.id]?.sourceSurface
+                        }
+                        safetyLabel={
+                          interestSaveStateLookup[signal.id]?.safetyLabel
+                        }
+                      />
                     </div>
                   </div>
                 </Link>

@@ -17,6 +17,7 @@ import { GET as readFeedTopicClusters } from '@/app/api/feed/topic-clusters/rout
 import {
   FeedCardSaveAction,
   EmptyStateCta,
+  InterestSaveStateRail,
   investMotionClass,
   MobileShell,
   MobileFilterRail,
@@ -39,6 +40,7 @@ import {
   resolveInvestModelLocale
 } from '@/lib/i18n/invest-model';
 import { readInvestModelNotificationUnreadLabel } from '@/lib/server/invest-model-notifications';
+import { readInterestSaveStateLookup } from '@/lib/server/interest-save-state';
 import { cn } from '@/lib/utils';
 
 const postToneBadge = {
@@ -558,6 +560,7 @@ export default async function InvestModelFeedPage({
   );
   const copy = investModelCopy[locale];
   const unreadLabel = await readInvestModelNotificationUnreadLabel();
+  const interestSaveStateLookup = await readInterestSaveStateLookup('feed_post');
   const feedCopy = copy.feed;
   const { filters, posts: fallbackPosts } = feedCopy;
   const filterOptions = [
@@ -986,6 +989,19 @@ export default async function InvestModelFeedPage({
                           </RiskBadge>
                         ))}
                       </div>
+                      <InterestSaveStateRail
+                        className="mt-3"
+                        locale={locale}
+                        itemType="feed_post"
+                        itemPublicId={post.id}
+                        displayState={interestSaveStateLookup[post.id]?.state}
+                        sourceSurface={
+                          interestSaveStateLookup[post.id]?.sourceSurface
+                        }
+                        safetyLabel={
+                          interestSaveStateLookup[post.id]?.safetyLabel
+                        }
+                      />
                       <div className="mt-3 grid grid-cols-[repeat(3,minmax(0,1fr))] gap-2 border-t border-invest-border pt-3">
                         {feedActions.map((action, index) => {
                           const Icon = feedActionIcons[index];

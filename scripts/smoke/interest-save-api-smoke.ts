@@ -110,7 +110,7 @@ async function main() {
     );
     const signalJson = await signalResponse.json();
     const itemPublicIdResponse = await interestSaveRequest(
-      '/api/my/interest-saves?itemPublicId=model_mock_signal_observer'
+      '/api/my/interest-saves?itemPublicId=model_demo_signal_001'
     );
     const itemPublicIdJson = await itemPublicIdResponse.json();
     const limitResponse = await interestSaveRequest(
@@ -173,10 +173,10 @@ async function main() {
     assertReadOnlySafetyMeta(signalJson.meta);
     assertCondition(
       itemPublicIdResponse.status === 200 &&
-        itemPublicIdJson.meta?.itemPublicIdFilter === 'model_mock_signal_observer' &&
+        itemPublicIdJson.meta?.itemPublicIdFilter === 'model_demo_signal_001' &&
         itemPublicIdJson.data?.items.length === 1 &&
         itemPublicIdJson.data.items[0]?.itemPublicId ===
-          'model_mock_signal_observer',
+          'model_demo_signal_001',
       'itemPublicId filter returns exact public item match'
     );
     assertCondition(

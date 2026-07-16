@@ -4,6 +4,11 @@ export { FeedCommentAction } from './feed-comment-action';
 export { FeedLikeAction } from './feed-like-action';
 export { FeedReadAction } from './feed-read-action';
 export { FeedSaveAction } from './feed-save-action';
+export { InterestSaveStateRail } from './interest-save-state-rail';
+export type {
+  InterestSaveItemState,
+  InterestSaveItemType
+} from './interest-save-state-rail';
 export { ModelSelectionCta } from './model-selection-cta';
 export { modelSelectionReadStatusCopy } from './model-selection-read-status-copy';
 export { ModelSelectionReadStatus } from './model-selection-read-status';

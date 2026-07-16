@@ -108,10 +108,10 @@ const deterministicItems: InterestSaveItem[] = [
   },
   {
     generatedFrom: 'deterministic_fixture',
-    id: 'interest_save_model_model_mock_signal_observer',
+    id: 'interest_save_model_model_demo_signal_001',
     userPublicId: demoUserPublicId,
     itemType: 'investment_model',
-    itemPublicId: 'model_mock_signal_observer',
+    itemPublicId: 'model_demo_signal_001',
     displayTitle: 'Demo Signal Observer',
     sourceSurface: 'Models',
     state: 'pending',

@@ -4,6 +4,7 @@ import { ArrowRight, Scale, Search } from 'lucide-react';
 import { GET as readModels } from '@/app/api/models/route';
 import {
   investMotionClass,
+  InterestSaveStateRail,
   MobileShell,
   MobileFilterRail,
   ModelCard,
@@ -22,12 +23,14 @@ import {
   withInvestModelLocale
 } from '@/lib/i18n/invest-model';
 import type { ModelCardDto } from '@/lib/domain/models/model-read-model';
+import { readInterestSaveStateLookup } from '@/lib/server/interest-save-state';
 import { cn } from '@/lib/utils';
 
 type DiscoveryRiskTone = 'low' | 'medium' | 'high';
 
 type DiscoverableInvestmentModelView = {
   id: string;
+  modelPublicId: string;
   name: string;
   summary: string;
   market: string;
@@ -243,6 +246,7 @@ function toDiscoverableInvestmentModelView(
 
   return {
     id: card.slug,
+    modelPublicId: card.modelPublicId,
     name: card.name,
     summary: card.shortDescription ?? card.risk.summary ?? '',
     market: targetMarkets || readStateCopy.marketplaceFallback,
@@ -336,6 +340,8 @@ export default async function InvestModelDiscoveryPage({
   );
   const searchQuery = normalizeModelSearchQuery(resolvedSearchParams?.q);
   const copy = investModelCopy[locale];
+  const interestSaveStateLookup =
+    await readInterestSaveStateLookup('investment_model');
   const modelsCopy = copy.models;
   const modelsFooterSafetyLines = [
     modelsCopy.footerBadges.noLiveTrading,
@@ -652,12 +658,29 @@ export default async function InvestModelDiscoveryPage({
                   isSelectionDisabled={statusDisplay.isSelectionDisabled}
                 />
               );
+              const interestSaveRail = (
+                <InterestSaveStateRail
+                  locale={locale}
+                  itemType="investment_model"
+                  itemPublicId={model.modelPublicId}
+                  displayState={
+                    interestSaveStateLookup[model.modelPublicId]?.state
+                  }
+                  sourceSurface={
+                    interestSaveStateLookup[model.modelPublicId]?.sourceSurface
+                  }
+                  safetyLabel={
+                    interestSaveStateLookup[model.modelPublicId]?.safetyLabel
+                  }
+                />
+              );
 
               return (
                 <div key={model.id} role="listitem" className="min-w-0">
                   {statusDisplay.isSelectionDisabled ? (
                     <div className="space-y-2">
                       {modelCard}
+                      {interestSaveRail}
                       <p className="px-3 text-xs font-semibold leading-5 text-invest-text-muted">
                         {visibleBoundaries.join(' / ')}
                       </p>
@@ -672,6 +695,7 @@ export default async function InvestModelDiscoveryPage({
                       className="block space-y-2 rounded-invest-control focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg"
                     >
                       {modelCard}
+                      {interestSaveRail}
                       <p className="px-3 text-xs font-semibold leading-5 text-invest-text-muted">
                         {visibleBoundaries.join(' / ')}
                       </p>
