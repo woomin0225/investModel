@@ -41,6 +41,11 @@ files. Do not insert sample rows directly in a MySQL console for product work.
 - `../search-read-model-projection.md` defines the BK-307 grouped local search
   projection for InvestmentModel, SignalEvent, and FeedPost seed/read-model
   rows. It keeps search local and read-only while IS-004 is open.
+- `../samples/search-suggestion-read-model.sample.sql` documents the BK-529
+  Search suggestion chip seed/read-model projection for topic/model/signal
+  keywords. It stays local and seed-only while IS-004 blocks live search
+  volume, live quotes, paid APIs, orders, deposits, brokerage/account links,
+  and financial advice.
 
 ## Planned Seed Order
 

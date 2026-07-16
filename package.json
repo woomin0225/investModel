@@ -57,6 +57,7 @@
     "test:release-scope-gates": "npx tsx scripts/smoke/release-scope-gates-readability-smoke.ts",
     "test:signal-api": "npx tsx scripts/smoke/signal-api-smoke.ts",
     "test:signal-detail-api": "npx tsx scripts/smoke/signal-detail-api-smoke.ts",
+    "test:search-suggestion-read-model": "npx tsx scripts/smoke/search-suggestion-read-model-smoke.ts",
     "test:signal-explainer-api": "npx tsx scripts/smoke/signal-explainer-api-smoke.ts",
     "test:signal-explainer-card": "npx tsx scripts/qa/signal-explainer-card-smoke.ts",
     "test:signal-explainer-read-model": "npx tsx scripts/smoke/signal-explainer-read-model-smoke.ts",
