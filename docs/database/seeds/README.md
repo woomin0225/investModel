@@ -17,6 +17,10 @@ files. Do not insert sample rows directly in a MySQL console for product work.
 - `003_signal_event_seed.sql` creates the local demo creator, model, model
   version, simulated instrument, and SignalEvent rows needed by Signals
   filter/detail read-model work.
+- `004_price_history_seed.sql` creates a bounded
+  `mock_seed_sample_backtest_window` slice in `market_price_snapshots` for
+  future mini-chart work. It is sample/backtest fixture data only and does not
+  require live quotes, broker connectivity, paid APIs, or real-time feeds.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -33,11 +37,15 @@ files. Do not insert sample rows directly in a MySQL console for product work.
    - The first tracked slice is `003_signal_event_seed.sql`.
    - Use `signal-score-mock-ingestion-job.md` before adding a scheduled or
      manual snapshot append wrapper.
-4. FeedPost rows, comments, reactions, saves, reads, and ranking examples.
+4. Bounded price-history fixture rows for mini charts.
+   - The first tracked slice is `004_price_history_seed.sql`.
+   - Use `docs/database/samples/price-history-read-model.sample.sql` as the
+     representative projection before adding API or UI mini-chart work.
+5. FeedPost rows, comments, reactions, saves, reads, and ranking examples.
    - The first tracked slice is `002_feed_interaction_seed.sql`.
-5. MockDeposit, portfolio, positions, allocation decisions, and TradeIntent
+6. MockDeposit, portfolio, positions, allocation decisions, and TradeIntent
    simulation rows.
-6. User notifications and My Page activity rows.
+7. User notifications and My Page activity rows.
    - Current notification center rows are derived from `feed_posts` and
      `feed_post_reads`, and `user_notifications` is now aligned in DBML, MySQL
      SQL, ORM schema, and migration.

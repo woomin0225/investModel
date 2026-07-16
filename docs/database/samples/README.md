@@ -22,4 +22,5 @@ sample values without applying them directly to MySQL.
 - `feed-detail-interactions.sample.sql`
 - `user-notifications-sample.sql`
 - `portfolio-timeline-read-model.sample.sql`
+- `price-history-read-model.sample.sql`
 - `my-page-read-model.sample.sql`

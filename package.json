@@ -34,6 +34,7 @@
     "test:portfolio-compact-api": "npx tsx scripts/smoke/portfolio-compact-summary-api-smoke.ts",
     "test:portfolio-compact-card": "npx tsx scripts/qa/portfolio-compact-card-smoke.ts",
     "test:portfolio-compact-read-model": "npx tsx scripts/smoke/portfolio-compact-read-model-smoke.ts",
+    "test:price-history-read-model": "npx tsx scripts/smoke/price-history-read-model-smoke.ts",
     "test:rbac": "npx tsx scripts/smoke/rbac-access-smoke.ts",
     "test:review-notification": "npx tsx scripts/smoke/review-result-notification-smoke.ts",
     "test:release-scope-gates": "npx tsx scripts/smoke/release-scope-gates-readability-smoke.ts",
