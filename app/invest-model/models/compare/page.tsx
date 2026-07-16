@@ -47,8 +47,9 @@ const comparisonCopy = {
       leverage: '레버리지',
       review: '심사 상태'
     },
+    safetyLine: '모의 비교 / 백테스트 참고 / 추천 아님 / 실제 주문 없음 / 브로커 미연결',
     footer:
-      '비교표는 모델 선택을 돕는 정보 구조입니다. 사용자가 직접 투자성향을 설정하거나 실제 계좌, 입금, 주문을 연결하지 않습니다.',
+      '비교표는 모의 모델 메타데이터와 위험 맥락만 요약합니다. 투자 조언을 제공하거나 실제 계좌, 입금, 주문, 브로커 연결을 만들지 않습니다.',
     backToModels: '모델 목록으로'
   },
   en: {
@@ -70,8 +71,10 @@ const comparisonCopy = {
       leverage: 'Leverage',
       review: 'Review state'
     },
+    safetyLine:
+      'Mock comparison / Backtest placeholder / Not investment advice / No real order / No brokerage',
     footer:
-      'The comparison table is an information structure for model selection. It does not let users set investment preferences or connect real accounts, deposits, or orders.',
+      'The comparison table only summarizes mock model metadata and risk context. It does not provide investment advice or connect real accounts, deposits, orders, or brokerage.',
     backToModels: 'Back to models'
   }
 } as const;
@@ -201,6 +204,7 @@ export default async function ModelComparePage({
   const copy = comparisonCopy[locale];
   const models = comparisonModels[locale];
   const visibleBoundaries = modelCompareVisibleBoundaries(locale);
+  const safetyFooterLabel = `${copy.safetyLine}. ${copy.footer}`;
 
   return (
     <MobileShell
@@ -274,11 +278,15 @@ export default async function ModelComparePage({
           </div>
         </div>
 
-        <div className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding">
-          <p className="text-xs font-semibold leading-5 text-invest-text-muted">
-            No live orders / Approved mock only / Backtest placeholder
+        <div
+          className="rounded-invest-card border border-invest-border bg-invest-surface-muted p-invest-card-padding"
+          aria-label={safetyFooterLabel}
+          title={safetyFooterLabel}
+        >
+          <p className="break-words text-xs font-semibold leading-5 text-invest-text-muted">
+            {copy.safetyLine}
           </p>
-          <p className="mt-3 text-sm leading-6 text-invest-text-muted">
+          <p className="mt-3 break-words text-sm leading-6 text-invest-text-muted">
             {copy.footer}
           </p>
         </div>

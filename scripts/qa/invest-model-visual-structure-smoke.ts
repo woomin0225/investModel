@@ -1855,9 +1855,28 @@ assertCondition(
     !modelComparePageSource.includes('visibleBoundaries.map((boundary) => (') &&
     !modelComparePageSource.includes('<RiskBadge tone="blocked">No live orders</RiskBadge>') &&
     modelComparePageSource.includes(
+      "safetyLine: '모의 비교 / 백테스트 참고 / 추천 아님 / 실제 주문 없음 / 브로커 미연결'"
+    ) &&
+    modelComparePageSource.includes(
+      'Mock comparison / Backtest placeholder / Not investment advice / No real order / No brokerage'
+    ) &&
+    modelComparePageSource.includes(
+      '투자 조언을 제공하거나 실제 계좌, 입금, 주문, 브로커 연결을 만들지 않습니다.'
+    ) &&
+    modelComparePageSource.includes(
+      'does not provide investment advice or connect real accounts, deposits, orders, or brokerage.'
+    ) &&
+    modelComparePageSource.includes(
+      'const safetyFooterLabel = `${copy.safetyLine}. ${copy.footer}`'
+    ) &&
+    modelComparePageSource.includes('aria-label={safetyFooterLabel}') &&
+    modelComparePageSource.includes('title={safetyFooterLabel}') &&
+    modelComparePageSource.includes('{copy.safetyLine}') &&
+    modelComparePageSource.includes('break-words text-xs font-semibold') &&
+    !modelComparePageSource.includes(
       'No live orders / Approved mock only / Backtest placeholder'
     ),
-  'Model Compare must present safety boundaries as prose instead of hashtag safety chip groups'
+  'BK-488 Model Compare safety footer must be localized prose with mock, backtest, not advice, no real order, and no brokerage boundaries'
 );
 assertCondition(
   modelDetailPageSource.includes("detailVisibleBoundaries.join(' / ')") &&
