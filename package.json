@@ -31,6 +31,7 @@
     "test:review-notification": "npx tsx scripts/smoke/review-result-notification-smoke.ts",
     "test:signal-api": "npx tsx scripts/smoke/signal-api-smoke.ts",
     "test:signal-detail-api": "npx tsx scripts/smoke/signal-detail-api-smoke.ts",
+    "test:stripe-build-isolation": "npx tsx scripts/smoke/stripe-build-isolation-smoke.ts",
     "test:webhook-signature": "npx tsx scripts/smoke/webhook-signature-smoke.ts"
   },
   "dependencies": {

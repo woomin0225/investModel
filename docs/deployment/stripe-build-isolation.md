@@ -3,6 +3,7 @@
 Reviewed: 2026-07-14
 Task: BK-158
 Related issue: IS-001
+Latest guard: BK-466 adds `pnpm test:stripe-build-isolation` as a secret-free smoke check.
 
 This note defines how automated investModel work should treat the existing SaaS starter Stripe pricing and payment surface while `IS-001` remains open. It does not add Stripe keys, change payment behavior, connect live payments, or mark the production build blocker resolved.
 
@@ -69,6 +70,16 @@ Before public launch or paid functionality:
 - Re-run the appropriate build command in the approved environment.
 - Confirm no Stripe path is described as a deposit, brokerage, or investment execution feature.
 - Keep `MockDeposit` and `TradeIntent` copy visibly simulated and separate from payment or order execution.
+
+## Secret-Free Smoke Check
+
+Use this targeted check when a heartbeat touches production-build language, Stripe starter copy, setup docs, or verification wording:
+
+```bash
+pnpm test:stripe-build-isolation
+```
+
+The check is intentionally static. It verifies that `IS-001` stays open, that starter Stripe helpers and routes still guard missing or placeholder secrets, that `/pricing` remains labeled as starter billing rather than investModel funding, and that tracked files do not contain real-looking Stripe secret values. Passing this check is not a production `next build` result.
 
 ## Issue Status
 

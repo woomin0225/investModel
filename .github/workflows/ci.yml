@@ -33,6 +33,9 @@ jobs:
       - name: Typecheck
         run: pnpm exec tsc --noEmit
 
+      - name: Stripe build isolation smoke
+        run: pnpm run test:stripe-build-isolation
+
       - name: Creator draft validation smoke
         run: pnpm run test:creator-draft-validation
 
