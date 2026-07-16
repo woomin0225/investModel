@@ -61,6 +61,8 @@ async function main() {
   const filteredJson = await filteredResponse.json();
   const riskAliasResponse = await readSignals('?signalType=risk_alert&limit=10');
   const riskAliasJson = await riskAliasResponse.json();
+  const macroResponse = await readSignals('?signalType=macro&limit=10');
+  const macroJson = await macroResponse.json();
   const invalidResponse = await readSignals('?signalType=buy_signal');
 
   assertCondition(
@@ -117,9 +119,10 @@ async function main() {
   );
   assertCondition(
     filteredResponse.status === 200 &&
+      filteredJson.meta?.signalType === 'news_traffic' &&
       filteredJson.data.length === 1 &&
       filteredJson.data[0].signalType === 'news_traffic',
-    'signalType filter returns news_traffic rows'
+    'signalType filter returns news_traffic rows and meta'
   );
   assertCondition(
     riskAliasResponse.status === 200 &&
@@ -127,6 +130,18 @@ async function main() {
       riskAliasJson.data.length === 1 &&
       riskAliasJson.data[0].signalType === 'risk',
     'risk_alert query aliases to risk rows'
+  );
+  assertCondition(
+    macroResponse.status === 200 &&
+      Array.isArray(macroJson.data) &&
+      macroJson.data.length === 0 &&
+      macroJson.meta?.signalType === 'macro' &&
+      macroJson.meta?.observedInputsOnly === true &&
+      macroJson.meta?.realtimeExternalData === false &&
+      macroJson.meta?.tradeIntentCreated === false &&
+      macroJson.meta?.realOrder === false &&
+      macroJson.meta?.brokerageConnection === false,
+    'macro signalType filter returns an observed-only empty result safely'
   );
   assertCondition(
     invalidResponse.status === 422,

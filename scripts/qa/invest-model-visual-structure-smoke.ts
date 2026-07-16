@@ -480,6 +480,8 @@ const notificationsPageSource = readProjectFile(
 );
 const searchPageSource = readProjectFile('app/invest-model/search/page.tsx');
 const signalsPageSource = readProjectFile('app/invest-model/signals/page.tsx');
+const signalsRouteSource = readProjectFile('app/api/signals/route.ts');
+const signalApiSmokeSource = readProjectFile('scripts/smoke/signal-api-smoke.ts');
 const signalRefreshActionSource = readProjectFile(
   'components/invest-model/signal-refresh-action.tsx'
 );
@@ -964,6 +966,29 @@ assertCondition(
   signalsPageSource.includes('detailHref: signalDetailHref') &&
     signalsPageSource.includes("href={'detailHref' in signal ? signal.detailHref : '#'}"),
   'Realtime Signals list must link DB-backed SignalEvent rows to Signal Detail routes'
+);
+assertCondition(
+  signalsPageSource.includes('type SignalReadMeta') &&
+    signalsPageSource.includes('signalReadMeta: SignalReadMeta | null') &&
+    signalsPageSource.includes('signalReadResult.meta') &&
+    signalsPageSource.includes('canonicalSignalTypeLabel') &&
+    signalsPageSource.includes('signalQueryAlignmentLabel') &&
+    signalsPageSource.includes("type SignalFilterId =\n  | 'all'\n  | 'news_traffic'\n  | 'price_trend'\n  | 'macro'\n  | 'risk_alert';") &&
+    signalsPageSource.includes("return locale === 'ko' ? '매크로 관찰' : 'Macro context';") &&
+    signalsPageSource.includes('URL signalType=${selectedFilterId} / DB query=${canonicalSignalTypeLabel} / observed only') &&
+    signalsPageSource.includes('{signalQueryAlignmentLabel}') &&
+    signalsRouteSource.includes('signalType: signalType ?? \'all\'') &&
+    signalEventSource.includes("if (value === 'risk_alert')") &&
+    signalEventSource.includes("return 'risk'") &&
+    signalApiSmokeSource.includes("filteredJson.meta?.signalType === 'news_traffic'") &&
+    signalApiSmokeSource.includes("riskAliasJson.meta?.signalType === 'risk'") &&
+    signalApiSmokeSource.includes("macroJson.meta?.signalType === 'macro'") &&
+    signalsPageSource.includes('No observed SignalEvent rows match this filter. This is an observation-only no-signal state.') &&
+    signalsPageSource.includes('View all signals. Clears the filter and returns to DB sample observation signals. Not advice, an order, TradeIntent, or realtime external data.') &&
+    !signalsPageSource.includes('buy signal') &&
+    !signalsPageSource.includes('sell signal') &&
+    !signalsPageSource.includes('hold signal'),
+  'BK-478 Signals filter URL query, DB read-model query, API meta, and empty state safety must stay aligned'
 );
 const signalDetailHrefCount =
   signalsPageSource.match(

@@ -53,7 +53,12 @@ type InvestModelSignalsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-type SignalFilterId = 'all' | 'news_traffic' | 'price_trend' | 'risk_alert';
+type SignalFilterId =
+  | 'all'
+  | 'news_traffic'
+  | 'price_trend'
+  | 'macro'
+  | 'risk_alert';
 type SignalLocale = 'ko' | 'en';
 type SignalTone = keyof typeof signalToneClass;
 type SignalClusterId = Exclude<SignalFilterId, 'all'>;
@@ -84,10 +89,22 @@ type SignalClusterRanking = {
   tone: SignalTone;
 };
 
+type SignalReadMeta = {
+  routeStatus: 'db_backed';
+  signalType: SignalEventType | 'all';
+  observedInputsOnly: boolean;
+  realtimeExternalData: false;
+  financialAdvice: false;
+  tradeIntentCreated: false;
+  realOrder: false;
+  brokerageConnection: false;
+};
+
 const signalFilterIds = [
   'all',
   'news_traffic',
   'price_trend',
+  'macro',
   'risk_alert'
 ] as const satisfies readonly SignalFilterId[];
 
@@ -133,6 +150,30 @@ function signalTypeFromFilter(
   }
 
   return parseSignalEventType(filterId);
+}
+
+function signalFilterLabel(
+  locale: SignalLocale,
+  filterId: SignalFilterId,
+  filters: readonly string[]
+) {
+  if (filterId === 'all') {
+    return filters[0];
+  }
+
+  if (filterId === 'news_traffic') {
+    return filters[1];
+  }
+
+  if (filterId === 'price_trend') {
+    return filters[2];
+  }
+
+  if (filterId === 'macro') {
+    return locale === 'ko' ? '매크로 관찰' : 'Macro context';
+  }
+
+  return filters[3];
 }
 
 function signalFilterTitle(
@@ -307,6 +348,10 @@ const signalClusterRankingCopy = {
         label: 'Price trend theme',
         title: 'Momentum and spread cluster'
       },
+      macro: {
+        label: 'Macro theme',
+        title: 'Macro and rate context cluster'
+      },
       risk_alert: {
         label: 'Risk theme',
         title: 'Drawdown and volatility cluster'
@@ -332,6 +377,10 @@ const signalClusterRankingCopy = {
         label: 'Price trend theme',
         title: 'Momentum and spread cluster'
       },
+      macro: {
+        label: 'Macro theme',
+        title: 'Macro and rate context cluster'
+      },
       risk_alert: {
         label: 'Risk theme',
         title: 'Drawdown and volatility cluster'
@@ -343,6 +392,7 @@ const signalClusterRankingCopy = {
 const signalClusterIds = [
   'news_traffic',
   'price_trend',
+  'macro',
   'risk_alert'
 ] as const satisfies readonly SignalClusterId[];
 
@@ -368,6 +418,12 @@ function signalClusterMatches(
 
   if (clusterId === 'price_trend') {
     return /price|trend|momentum|yield|spread|rate|curve/.test(haystack);
+  }
+
+  if (clusterId === 'macro') {
+    return /macro|rate|yield|curve|inflation|policy|dollar|liquidity/.test(
+      haystack
+    );
   }
 
   return /risk|drawdown|volatility|vol|stress|liquidity|alert/.test(haystack);
@@ -495,7 +551,7 @@ async function readSignalsRoute({
 }: {
   signalType: SignalEventType | null;
   limit: number;
-}): Promise<SignalEventDto[]> {
+}): Promise<{ data: SignalEventDto[]; meta: SignalReadMeta }> {
   const params = new URLSearchParams({ limit: String(limit) });
 
   if (signalType) {
@@ -517,13 +573,21 @@ async function readSignalsRoute({
 
   const payload = (await response.json()) as {
     data?: SignalEventDto[];
+    meta?: SignalReadMeta;
   };
 
   if (!Array.isArray(payload.data)) {
     throw new Error('Signals route returned no data array.');
   }
 
-  return payload.data;
+  if (!payload.meta) {
+    throw new Error('Signals route returned no meta object.');
+  }
+
+  return {
+    data: payload.data,
+    meta: payload.meta
+  };
 }
 
 export default async function InvestModelSignalsPage({
@@ -542,9 +606,9 @@ export default async function InvestModelSignalsPage({
     signalsCopy.footerBadges.mockData
   ];
   const { summary, filters, signals: fallbackSignals } = signalsCopy;
-  const filterOptions = signalFilterIds.map((filterId, index) => ({
+  const filterOptions = signalFilterIds.map((filterId) => ({
     id: filterId,
-    label: filters[index]
+    label: signalFilterLabel(locale, filterId, filters)
   }));
   const selectedFilter =
     filterOptions.find((filter) => filter.id === selectedFilterId) ??
@@ -552,12 +616,15 @@ export default async function InvestModelSignalsPage({
   const selectedSignalType = signalTypeFromFilter(selectedFilterId);
   let signalReadState: 'db' | 'empty' | 'fallback' = 'db';
   let dbSignals: SignalEventDto[] = [];
+  let signalReadMeta: SignalReadMeta | null = null;
 
   try {
-    dbSignals = await readSignalsRoute({
+    const signalReadResult = await readSignalsRoute({
       signalType: selectedSignalType,
       limit: 20
     });
+    dbSignals = signalReadResult.data;
+    signalReadMeta = signalReadResult.meta;
 
     if (dbSignals.length === 0) {
       signalReadState = 'empty';
@@ -581,6 +648,10 @@ export default async function InvestModelSignalsPage({
                 return signal.sourceLabel === filters[2];
               }
 
+              if (selectedFilterId === 'macro') {
+                return false;
+              }
+
               return signal.sourceLabel === filters[3];
             })
         : [];
@@ -594,6 +665,12 @@ export default async function InvestModelSignalsPage({
   );
   const signalListLabel =
     locale === 'ko' ? '표시 중인 신호 목록' : 'Shown signal list';
+  const canonicalSignalTypeLabel =
+    signalReadMeta?.signalType ?? selectedSignalType ?? 'all';
+  const signalQueryAlignmentLabel =
+    locale === 'ko'
+      ? `URL signalType=${selectedFilterId} / DB query=${canonicalSignalTypeLabel} / observed only`
+      : `URL signalType=${selectedFilterId} / DB query=${canonicalSignalTypeLabel} / observed only`;
 
   const signalDataStateLabel =
     signalReadState === 'db'
@@ -731,11 +808,16 @@ export default async function InvestModelSignalsPage({
             })}
           </MobileFilterRail>
 
-          <div className="flex items-center justify-between gap-3 rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-4 text-invest-text-muted">
-            <span className="min-w-0 truncate text-invest-text">
-              {selectedFilter.label}
-            </span>
-            <span className="shrink-0">{visibleSignalCountLabel}</span>
+          <div className="rounded-invest-control bg-invest-bg-soft px-3 py-2 text-[12px] font-semibold leading-4 text-invest-text-muted">
+            <div className="flex items-center justify-between gap-3">
+              <span className="min-w-0 truncate text-invest-text">
+                {selectedFilter.label}
+              </span>
+              <span className="shrink-0">{visibleSignalCountLabel}</span>
+            </div>
+            <p className="mt-1 min-w-0 break-words [overflow-wrap:anywhere]">
+              {signalQueryAlignmentLabel}
+            </p>
           </div>
 
           <SignalThemeClusterRankingSection
@@ -840,8 +922,11 @@ export default async function InvestModelSignalsPage({
                 className="rounded-invest-card border border-dashed border-invest-border bg-invest-surface p-invest-card-padding text-sm font-semibold leading-6 text-invest-text-muted"
               >
                 {locale === 'ko'
-                  ? '선택한 필터에 표시할 DB 샘플 신호가 없습니다. 신호는 모의 관찰값 기준으로만 표시됩니다.'
-                  : 'No DB sample signals are available for this filter. Signals remain sample/mock observations only.'}
+                  ? '이 필터와 일치하는 관찰 SignalEvent 행이 없습니다. 이 상태는 관찰 전용 no-signal 상태입니다.'
+                  : 'No observed SignalEvent rows match this filter. This is an observation-only no-signal state.'}
+                <p className="mt-2 min-w-0 break-words text-[12px] leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
+                  {signalQueryAlignmentLabel}
+                </p>
                 <EmptyStateCta
                   href={signalFilterHref(locale, 'all')}
                   label={locale === 'ko' ? '전체 신호 보기' : 'View all signals'}
