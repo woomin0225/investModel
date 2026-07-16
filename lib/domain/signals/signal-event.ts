@@ -30,7 +30,17 @@ export interface SignalEventDto {
   capturedAt: string;
   dataContext: 'mock' | 'observed_placeholder';
   scoreSnapshot?: SignalScoreSnapshotDto;
+  observedDrivers?: SignalObservedDriverDto[];
   notices: PolicyNoticeDto[];
+}
+
+export interface SignalObservedDriverDto {
+  sourceType: string;
+  evidenceLabel: string;
+  normalizedScore: number;
+  weight: number;
+  contributionDisplay: string;
+  evidenceContext: 'mock';
 }
 
 export interface SignalScoreSnapshotDto {
@@ -227,6 +237,7 @@ export function buildSignalEventDto(input: {
   snapshotRankDelta?: number | string | null;
   snapshotCapturedAt?: Date | string | null;
   snapshotCalculationContext?: string | null;
+  observedDrivers?: SignalObservedDriverDto[];
 }): SignalEventDto {
   const signalType = parseSignalEventType(input.signalType) ?? 'macro';
   const score = scoreToNumber(input.score);
@@ -252,6 +263,7 @@ export function buildSignalEventDto(input: {
     capturedAt,
     dataContext: 'mock',
     scoreSnapshot: buildScoreSnapshotDto(input),
+    observedDrivers: input.observedDrivers?.map((driver) => ({ ...driver })),
     notices: signalPolicyNotices()
   };
 }

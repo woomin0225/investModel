@@ -6,10 +6,12 @@ import {
   marketInstruments,
   modelSignalEvents,
   modelVersions,
+  signalScoreInputs,
   signalScoreSnapshots
 } from '@/lib/db/schema';
 import {
   buildSignalEventDto,
+  type SignalObservedDriverDto,
   type SignalEventDto,
   type SignalEventType
 } from '@/lib/domain/signals/signal-event';
@@ -39,15 +41,20 @@ type SignalEventReadRow = Awaited<
   ReturnType<ReturnType<typeof signalEventBaseQuery>['limit']>
 >[number];
 
+function scoreSnapshotSelectFields() {
+  return {
+    snapshotId: signalScoreSnapshots.id,
+    snapshotTotalScore: signalScoreSnapshots.totalScore,
+    snapshotRankValue: signalScoreSnapshots.rankValue,
+    snapshotRankDelta: signalScoreSnapshots.rankDelta,
+    snapshotCapturedAt: signalScoreSnapshots.capturedAt,
+    snapshotCalculationContext: signalScoreSnapshots.calculationContext
+  };
+}
+
 async function readLatestScoreSnapshot(signalEventId: number) {
   const rows = await db
-    .select({
-      snapshotTotalScore: signalScoreSnapshots.totalScore,
-      snapshotRankValue: signalScoreSnapshots.rankValue,
-      snapshotRankDelta: signalScoreSnapshots.rankDelta,
-      snapshotCapturedAt: signalScoreSnapshots.capturedAt,
-      snapshotCalculationContext: signalScoreSnapshots.calculationContext
-    })
+    .select(scoreSnapshotSelectFields())
     .from(signalScoreSnapshots)
     .where(eq(signalScoreSnapshots.signalEventId, signalEventId))
     .orderBy(desc(signalScoreSnapshots.capturedAt))
@@ -56,14 +63,88 @@ async function readLatestScoreSnapshot(signalEventId: number) {
   return rows[0] ?? null;
 }
 
-async function attachLatestScoreSnapshots(rows: SignalEventReadRow[]) {
+async function readLatestScoreSnapshotWithInputs(signalEventId: number) {
+  const rows = await db
+    .select({
+      ...scoreSnapshotSelectFields(),
+      inputId: signalScoreInputs.id
+    })
+    .from(signalScoreSnapshots)
+    .innerJoin(
+      signalScoreInputs,
+      eq(signalScoreInputs.scoreSnapshotId, signalScoreSnapshots.id)
+    )
+    .where(eq(signalScoreSnapshots.signalEventId, signalEventId))
+    .orderBy(desc(signalScoreSnapshots.capturedAt))
+    .limit(1);
+
+  return rows[0] ?? null;
+}
+
+function toFiniteNumber(value: unknown, fallback = 0) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function observedOnlyEvidenceLabel(sourceLabel: string | null) {
+  const label =
+    sourceLabel ?? 'Seeded observed driver context; not advice or order evidence.';
+
+  return label.includes('Observed-only')
+    ? label
+    : `Observed-only mock driver: ${label}`;
+}
+
+async function readLatestScoreInputs(
+  snapshotId: number
+): Promise<SignalObservedDriverDto[]> {
+  const rows = await db
+    .select({
+      sourceType: signalScoreInputs.sourceType,
+      sourceLabel: signalScoreInputs.sourceLabel,
+      normalizedScore: signalScoreInputs.normalizedScore,
+      weight: signalScoreInputs.weight
+    })
+    .from(signalScoreInputs)
+    .where(eq(signalScoreInputs.scoreSnapshotId, snapshotId))
+    .orderBy(desc(signalScoreInputs.normalizedScore));
+
+  return rows.map((row) => {
+    const normalizedScore = toFiniteNumber(row.normalizedScore);
+    const weight = toFiniteNumber(row.weight);
+    const contribution = normalizedScore * weight;
+
+    return {
+      sourceType: row.sourceType,
+      evidenceLabel: observedOnlyEvidenceLabel(row.sourceLabel),
+      normalizedScore,
+      weight,
+      contributionDisplay: `${contribution.toFixed(2)} weighted mock points`,
+      evidenceContext: 'mock'
+    };
+  });
+}
+
+async function attachLatestScoreSnapshots(
+  rows: SignalEventReadRow[],
+  options: { includeDrivers?: boolean } = {}
+) {
   return Promise.all(
     rows.map(async (row) => {
-      const snapshot = await readLatestScoreSnapshot(row.signalEventId);
+      const snapshot =
+        options.includeDrivers
+          ? (await readLatestScoreSnapshotWithInputs(row.signalEventId)) ??
+            (await readLatestScoreSnapshot(row.signalEventId))
+          : await readLatestScoreSnapshot(row.signalEventId);
+      const observedDrivers =
+        options.includeDrivers && snapshot?.snapshotId
+          ? await readLatestScoreInputs(snapshot.snapshotId)
+          : undefined;
 
       return {
         ...row,
-        ...snapshot
+        ...snapshot,
+        observedDrivers
       };
     })
   );
@@ -111,7 +192,9 @@ export async function readSignalEventDtoByPublicId(
     .where(eq(modelSignalEvents.publicId, signalPublicId))
     .limit(1);
 
-  const rowsWithSnapshots = await attachLatestScoreSnapshots(rows);
+  const rowsWithSnapshots = await attachLatestScoreSnapshots(rows, {
+    includeDrivers: true
+  });
 
   return rowsWithSnapshots[0] ? buildSignalEventDto(rowsWithSnapshots[0]) : null;
 }

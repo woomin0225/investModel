@@ -38,6 +38,12 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   `portfolio_analysis_snapshots` rows for allocation rationale and model status
   timeline read-model work. It keeps `mockOnly` safety metadata and never adds
   real balance, order, broker connection, legal judgment, or advice fields.
+- `009_signal_detail_seed.sql` extends the `003` SignalEvent slice with
+  deterministic `signal_score_snapshots` and `signal_score_inputs` rows for
+  Signal detail driver breakdowns. It keeps public ids, source labels, and
+  observed-only wording, and it does not require live traffic, live quotes,
+  external paid APIs, TradeIntent rows, orders, brokerage/account links, or
+  financial advice.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -50,6 +56,9 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   keywords. It stays local and seed-only while IS-004 blocks live search
   volume, live quotes, paid APIs, orders, deposits, brokerage/account links,
   and financial advice.
+- `../samples/signal-detail-read-model.sample.sql` documents the BK-541 Signal
+  detail projection for public SignalEvent ids, source labels, score snapshot
+  ranks, and observed driver breakdown rows.
 
 ## Planned Seed Order
 
@@ -59,6 +68,8 @@ files. Do not insert sample rows directly in a MySQL console for product work.
    - The first tracked slice is `003_signal_event_seed.sql`.
    - Use `signal-score-mock-ingestion-job.md` before adding a scheduled or
      manual snapshot append wrapper.
+   - Use `009_signal_detail_seed.sql` when a screen needs stable detail
+     driver rows without invoking an ingestion job.
 4. Bounded price-history fixture rows for mini charts.
    - The first tracked slice is `004_price_history_seed.sql`.
    - Use `docs/database/samples/price-history-read-model.sample.sql` as the

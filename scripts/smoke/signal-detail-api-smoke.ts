@@ -19,10 +19,11 @@ function assertCondition(condition: unknown, message: string): asserts condition
 }
 
 async function applyTrackedSignalSeed() {
-  const seedPath = path.resolve(
-    'docs/database/seeds/003_signal_event_seed.sql'
-  );
-  const sql = fs.readFileSync(seedPath, 'utf8');
+  const seedPaths = [
+    path.resolve('docs/database/seeds/003_signal_event_seed.sql'),
+    path.resolve('docs/database/seeds/009_signal_detail_seed.sql')
+  ];
+  const sql = seedPaths.map((seedPath) => fs.readFileSync(seedPath, 'utf8')).join('\n');
   const connection = await mysql.createConnection({
     uri: process.env.MYSQL_URL,
     multipleStatements: true
@@ -72,13 +73,45 @@ async function main() {
   assertCondition(notFoundResponse.status === 404, 'missing signal is 404');
   assertCondition(detailResponse.status === 200, 'signal detail responds');
   assertCondition(
-    detailJson.data?.signalPublicId === 'sig_mock_news_traffic_001' &&
+      detailJson.data?.signalPublicId === 'sig_mock_news_traffic_001' &&
       detailJson.data?.id === undefined &&
       detailJson.data?.signalType === 'news_traffic' &&
       typeof detailJson.data?.score === 'number' &&
       typeof detailJson.data?.scoreSnapshot?.rankValue === 'number' &&
-      detailJson.data?.scoreSnapshot?.calculationContext === 'mock_seed',
-    'signal detail exposes public id, observed fields, and latest score snapshot only'
+      detailJson.data?.scoreSnapshot?.calculationContext === 'mock_seed' &&
+      Array.isArray(detailJson.data?.observedDrivers) &&
+      detailJson.data.observedDrivers.length >= 3 &&
+      detailJson.data.observedDrivers.every(
+        (driver: {
+          sourceType?: string;
+          evidenceLabel?: string;
+          normalizedScore?: number;
+          weight?: number;
+          contributionDisplay?: string;
+          evidenceContext?: string;
+        }) =>
+          typeof driver.sourceType === 'string' &&
+          typeof driver.evidenceLabel === 'string' &&
+          driver.evidenceLabel.includes('Observed-only') &&
+          typeof driver.normalizedScore === 'number' &&
+          driver.normalizedScore >= 0 &&
+          driver.normalizedScore <= 100 &&
+          typeof driver.weight === 'number' &&
+          driver.weight > 0 &&
+          typeof driver.contributionDisplay === 'string' &&
+          driver.contributionDisplay.includes('weighted mock points') &&
+          driver.evidenceContext === 'mock'
+      ),
+    'signal detail exposes public id, observed fields, score snapshot, and observed driver breakdown'
+  );
+  assertCondition(
+    detailJson.data?.observedDrivers.every(
+      (driver: { id?: unknown; orderId?: unknown; tradeIntentId?: unknown }) =>
+        driver.id === undefined &&
+        driver.orderId === undefined &&
+        driver.tradeIntentId === undefined
+    ),
+    'signal detail drivers expose no internal ids or order-capable fields'
   );
   assertCondition(
     detailJson.meta?.routeStatus === 'db_backed' &&

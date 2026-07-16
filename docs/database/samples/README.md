@@ -25,3 +25,4 @@ sample values without applying them directly to MySQL.
 - `price-history-read-model.sample.sql`
 - `my-page-read-model.sample.sql`
 - `portfolio-insight-read-model.sample.sql`
+- `signal-detail-read-model.sample.sql`
