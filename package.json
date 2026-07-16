@@ -62,6 +62,7 @@
     "test:signal-api": "npx tsx scripts/smoke/signal-api-smoke.ts",
     "test:signal-detail-read-model": "npx tsx scripts/smoke/signal-detail-read-model-smoke.ts",
     "test:signal-detail-api": "npx tsx scripts/smoke/signal-detail-api-smoke.ts",
+    "test:signal-detail-mobile-screen": "npx tsx scripts/qa/signal-detail-mobile-screen-smoke.ts",
     "test:search-suggestion-read-model": "npx tsx scripts/smoke/search-suggestion-read-model-smoke.ts",
     "test:search-suggestion-chips": "npx tsx scripts/qa/search-suggestion-chips-smoke.ts",
     "test:search-suggestion-api": "npx tsx scripts/smoke/search-suggestion-api-smoke.ts",

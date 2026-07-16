@@ -189,6 +189,44 @@ function signalScoreSnapshotVisibleBoundaries(locale: SignalLocale) {
       ];
 }
 
+function signalObservedContextVisibleBoundaries(locale: SignalLocale) {
+  return locale === 'ko'
+    ? [
+        'Observed context first',
+        'DB observed input',
+        'before score ranking',
+        'no advice',
+        'no order',
+        'no live external data'
+      ]
+    : [
+        'Observed context first',
+        'DB observed input',
+        'before score ranking',
+        'no advice',
+        'no order',
+        'no live external data'
+      ];
+}
+
+function signalObservedDriverVisibleBoundaries(locale: SignalLocale) {
+  return locale === 'ko'
+    ? [
+        'Observed driver breakdown',
+        'seed/mock score inputs',
+        'weighted mock points',
+        'not advice evidence',
+        'not order evidence'
+      ]
+    : [
+        'Observed driver breakdown',
+        'seed/mock score inputs',
+        'weighted mock points',
+        'not advice evidence',
+        'not order evidence'
+      ];
+}
+
 function signalScoreSnapshotRows(locale: SignalLocale, signal: SignalEventDto) {
   const snapshot = signal.scoreSnapshot;
 
@@ -415,6 +453,7 @@ export default async function InvestModelSignalDetailPage({
     }
   ];
   const scoreSnapshotRows = signalScoreSnapshotRows(locale, signal);
+  const observedDriverRows = signal.observedDrivers ?? [];
   const explainerAccessibleLabel = signalExplainerAccessibleLabel(
     locale,
     explainer
@@ -487,6 +526,45 @@ export default async function InvestModelSignalDetailPage({
           ariaLabel={backAccessibleLabel}
         />
 
+        <div className="grid gap-3 rounded-invest-card border border-invest-primary/20 bg-invest-surface p-invest-card-padding shadow-invest-card">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[12px] font-bold leading-4 text-invest-primary">
+                {locale === 'ko'
+                  ? 'Observed context first'
+                  : 'Observed context first'}
+              </p>
+              <h2 className="mt-1 text-[18px] font-bold leading-6 text-invest-text">
+                {signal.title}
+              </h2>
+            </div>
+            <RiskBadge tone="neutral">
+              {locale === 'ko' ? 'DB observed' : 'DB observed'}
+            </RiskBadge>
+          </div>
+          <p className="min-w-0 break-words text-sm font-semibold leading-6 text-invest-text [overflow-wrap:anywhere]">
+            {signal.summary}
+          </p>
+          <p className="rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+            {signalObservedContextVisibleBoundaries(locale).join(' / ')}
+          </p>
+          <div className="grid gap-2">
+            {sourceRows.map((row) => (
+              <div
+                key={`observed-${row.label}`}
+                className="grid gap-1 rounded-invest-control bg-invest-bg-soft p-3 min-[360px]:grid-cols-[minmax(0,0.42fr)_minmax(0,1fr)]"
+              >
+                <p className="text-[12px] font-bold leading-4 text-invest-text-muted">
+                  {row.label}
+                </p>
+                <p className="min-w-0 break-words text-sm font-semibold leading-5 text-invest-text [overflow-wrap:anywhere]">
+                  {row.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-invest-card-gap">
           <MetricCard
             label={locale === 'ko' ? '관찰 점수' : 'Observation score'}
@@ -557,6 +635,59 @@ export default async function InvestModelSignalDetailPage({
           <p className="mt-3 rounded-invest-control bg-invest-surface-muted px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
             {signalScoreSnapshotVisibleBoundaries(locale).join(' / ')}
           </p>
+
+          <section className="mt-3 grid gap-2 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="min-w-0 text-[15px] font-bold leading-6 text-invest-text">
+                {locale === 'ko'
+                  ? 'Observed driver breakdown'
+                  : 'Observed driver breakdown'}
+              </h3>
+              <span className="text-[12px] font-semibold leading-5 text-invest-text-muted">
+                {locale === 'ko' ? 'DB score inputs' : 'DB score inputs'}
+              </span>
+            </div>
+            <p className="rounded-invest-control bg-invest-surface px-2 py-2 text-[11px] font-semibold leading-5 text-invest-text-muted">
+              {signalObservedDriverVisibleBoundaries(locale).join(' / ')}
+            </p>
+            <div className="grid gap-2">
+              {observedDriverRows.map((driver) => (
+                <div
+                  key={`${driver.sourceType}-${driver.evidenceLabel}`}
+                  className="grid min-w-0 gap-2 rounded-invest-control border border-invest-border/70 bg-invest-surface p-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="min-w-0 break-words text-sm font-bold leading-5 text-invest-text [overflow-wrap:anywhere]">
+                      {driver.sourceType}
+                    </p>
+                    <span className="rounded-full bg-invest-bg-soft px-2 py-1 text-[11px] font-bold leading-4 text-invest-text-muted">
+                      {driver.contributionDisplay}
+                    </span>
+                  </div>
+                  <p className="min-w-0 break-words text-[12px] font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
+                    {driver.evidenceLabel}
+                  </p>
+                  <div className="grid gap-1 min-[360px]:grid-cols-[minmax(0,0.42fr)_minmax(0,1fr)]">
+                    <p className="text-[11px] font-semibold leading-4 text-invest-text-muted">
+                      {locale === 'ko' ? 'Weight' : 'Weight'} {driver.weight}
+                    </p>
+                    <p className="min-w-0 break-words text-[11px] font-semibold leading-4 text-invest-text-muted [overflow-wrap:anywhere]">
+                      {driver.evidenceContext} / normalized{' '}
+                      {Math.round(driver.normalizedScore)}
+                    </p>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-invest-surface-muted">
+                    <div
+                      className="h-full rounded-full bg-invest-primary"
+                      style={{
+                        width: scoreWidth(driver.normalizedScore)
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
 
           <div className="mt-3 grid gap-2 rounded-invest-control border border-invest-border/70 bg-invest-bg-soft p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -645,7 +776,7 @@ export default async function InvestModelSignalDetailPage({
               <p className="text-[12px] font-bold leading-4 text-invest-text-muted">
                 {locale === 'ko' ? 'Explainer source' : 'Explainer source'}
               </p>
-              <p className="min-w-0 text-[12px] font-semibold leading-5 text-invest-text-muted">
+              <p className="min-w-0 break-words text-[12px] font-semibold leading-5 text-invest-text-muted [overflow-wrap:anywhere]">
                 {explainerMetaLine}
               </p>
             </div>
