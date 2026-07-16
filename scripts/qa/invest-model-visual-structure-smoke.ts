@@ -1448,7 +1448,18 @@ assertCondition(
     investModelUiSource.includes(
       '<RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>'
     ) &&
-    portfolioPageSource.includes('portfolioTradeIntentDetailRows') &&
+    portfolioPageSource.includes(
+      "portfolioTradeIntentDetailRows(\n  locale: 'ko' | 'en'"
+    ) &&
+    portfolioPageSource.includes('portfolioTradeIntentSafetyBadges') &&
+    portfolioPageSource.includes('portfolioTradeIntentSafetyBadgeLabel') &&
+    portfolioPageSource.includes('TradeIntent 모의 읽기 전용 안전 배지') &&
+    portfolioPageSource.includes('aria-label={tradeIntentSafetyBadgeLabel}') &&
+    portfolioPageSource.includes("'Simulated trade', 'Read-only', 'No broker'") &&
+    portfolioPageSource.includes("['모의 거래', '읽기 전용', '브로커 미연결']") &&
+    portfolioPageSource.includes('tradeIntentSafetyBadges.map((badge) => (') &&
+    portfolioPageSource.includes('주문 실행, 체결, 브로커 지시 없음') &&
+    portfolioPageSource.includes('브로커 계좌/API 미연결') &&
     portfolioPageSource.includes(
       'TradeIntent read-only simulated blocked detail'
     ) &&
@@ -1459,7 +1470,7 @@ assertCondition(
     ) &&
     portfolioPageSource.includes('No brokerage account or broker API is connected') &&
     portfolioPageSource.includes(
-      'const tradeIntentDetailRows =\n    portfolioTradeIntentDetailRows(displayPortfolio)'
+      'const tradeIntentDetailRows =\n    portfolioTradeIntentDetailRows(locale, displayPortfolio)'
     ) &&
     portfolioPageSource.includes('displayPortfolio.tradeIntent.blockedActions.map((action) => (') &&
     portfolioPageSource.includes('role="listitem"') &&
@@ -1471,6 +1482,23 @@ assertCondition(
     ) &&
     !/(<button|<Link|role="button"|href=|onClick|formAction)[\s\S]{0,240}(Buy now|Sell now|Place order|Submit order|Execute trade|Connect brokerage|매수하기|매도하기|주문하기|브로커 연결|계좌 연결)[\s\S]{0,240}/i.test(
       modelDetailPageSource
+    ) &&
+    !/(<button|<Link|role="button"|href=|onClick|formAction)[\s\S]{0,240}(Buy now|Sell now|Place order|Submit order|Execute trade|Connect brokerage|Invest now|Start trading|매수|매도|주문하기|체결|브로커 연결|계좌 연결)[\s\S]{0,240}/i.test(
+      modelSelectionCtaSource
+    ) &&
+    modelSelectionReadStatusCopySource.includes(
+      'Read-only status / No real deposit, order, or brokerage'
+    ) &&
+    modelSelectionReadStatusCopySource.includes(
+      '읽기 전용 상태 / 실입금·실주문·브로커 미연결'
+    ) &&
+    !modelSelectionReadStatusCopySource.includes('No deposit/order') &&
+    !modelSelectionReadStatusCopySource.includes('실입금·실주문 아님') &&
+    modelDetailPageSource.includes(
+      'Read-only status / No real deposit, order, or brokerage'
+    ) &&
+    modelDetailPageSource.includes(
+      '읽기 전용 상태 / 실입금·실주문·브로커 미연결'
     ) &&
     portfolioPageSource.includes('displayPortfolio.timeSnapshots.length') &&
     portfolioPageSource.includes('position.quantityLabel'),

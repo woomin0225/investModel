@@ -19,7 +19,7 @@ export const modelSelectionReadStatusCopy = {
     signedOut: '로그인 사용자 식별자를 찾지 못했습니다.',
     error: '선택 기록을 불러오지 못했습니다.',
     persisted: 'DB 저장됨',
-    noRealAction: '실입금·실주문 아님',
+    noRealAction: '읽기 전용 상태 / 실입금·실주문·브로커 미연결',
     modelLabel: '투자 모델 식별자',
     versionLabel: '모델 버전 식별자',
     selectionLabel: '선택 기록 식별자'
@@ -31,7 +31,7 @@ export const modelSelectionReadStatusCopy = {
     signedOut: 'Could not find a signed-in user public id.',
     error: 'Could not load the selection record.',
     persisted: 'DB persisted',
-    noRealAction: 'No deposit/order',
+    noRealAction: 'Read-only status / No real deposit, order, or brokerage',
     modelLabel: 'InvestmentModel public id',
     versionLabel: 'ModelVersion public id',
     selectionLabel: 'Selection public id'

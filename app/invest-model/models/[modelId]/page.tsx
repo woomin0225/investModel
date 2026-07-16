@@ -183,7 +183,7 @@ export default async function InvestModelDetailPage({
           errorTitle: '선택 기록을 저장하지 못했습니다',
           signedOutMessage:
             '로그인된 사용자 식별자를 찾지 못했습니다. 샘플 사용자 데이터 또는 로그인이 필요합니다.',
-          safetyLabel: '실입금/실주문 아님',
+          safetyLabel: '읽기 전용 상태 / 실입금·실주문·브로커 미연결',
           persistedLabel: 'DB 저장됨',
           noLiveTradingLabel: copy.noLiveTradingLabel
         }
@@ -200,7 +200,7 @@ export default async function InvestModelDetailPage({
           errorTitle: 'Could not save the selection record',
           signedOutMessage:
             'A signed-in user public id was not found. A sample user seed or login is required.',
-          safetyLabel: 'No real deposit/order',
+          safetyLabel: 'Read-only status / No real deposit, order, or brokerage',
           persistedLabel: 'DB persisted',
           noLiveTradingLabel: copy.noLiveTradingLabel
         };

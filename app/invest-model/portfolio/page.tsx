@@ -285,8 +285,38 @@ function portfolioBlockedActionAccessibleLabel(
 }
 
 function portfolioTradeIntentDetailRows(
+  locale: 'ko' | 'en',
   portfolio: InvestModelPortfolioSummary
 ) {
+  if (locale === 'ko') {
+    return [
+      {
+        label: 'TradeIntent 상태',
+        value: portfolio.tradeIntent.statusLabel,
+        detail: portfolio.tradeIntent.boundaryLabel,
+        tone: 'low' as const
+      },
+      {
+        label: '읽기 전용 정책 검사',
+        value: '모의 상세만 표시',
+        detail: '주문 실행, 체결, 브로커 지시 없음',
+        tone: 'medium' as const
+      },
+      {
+        label: '브로커 연결',
+        value: '차단됨',
+        detail: '브로커 계좌/API 미연결',
+        tone: 'blocked' as const
+      },
+      {
+        label: '비활성 기능',
+        value: `${portfolio.tradeIntent.blockedActions.length}개 차단`,
+        detail: portfolio.tradeIntent.blockedActions.join(' / '),
+        tone: 'blocked' as const
+      }
+    ];
+  }
+
   return [
     {
       label: 'TradeIntent state',
@@ -313,6 +343,20 @@ function portfolioTradeIntentDetailRows(
       tone: 'blocked' as const
     }
   ];
+}
+
+function portfolioTradeIntentSafetyBadges(locale: 'ko' | 'en') {
+  if (locale === 'ko') {
+    return ['모의 거래', '읽기 전용', '브로커 미연결'];
+  }
+
+  return ['Simulated trade', 'Read-only', 'No broker'];
+}
+
+function portfolioTradeIntentSafetyBadgeLabel(locale: 'ko' | 'en') {
+  return locale === 'ko'
+    ? 'TradeIntent 모의 읽기 전용 안전 배지'
+    : 'TradeIntent simulated read-only safety badges';
 }
 
 function portfolioBlockedVisibleBoundaries(locale: 'ko' | 'en') {
@@ -411,7 +455,11 @@ export default async function InvestModelPortfolioPage({
     displayPortfolio
   );
   const tradeIntentDetailRows =
-    portfolioTradeIntentDetailRows(displayPortfolio);
+    portfolioTradeIntentDetailRows(locale, displayPortfolio);
+  const tradeIntentSafetyBadges =
+    portfolioTradeIntentSafetyBadges(locale);
+  const tradeIntentSafetyBadgeLabel =
+    portfolioTradeIntentSafetyBadgeLabel(locale);
   const blockedVisibleBoundaries = portfolioBlockedVisibleBoundaries(locale);
   const timeDashboardVisibleBoundaries =
     portfolioTimeDashboardVisibleBoundaries(locale);
@@ -796,6 +844,17 @@ export default async function InvestModelPortfolioPage({
                   {displayPortfolio.tradeIntent.boundaryLabel}
                 </span>
               </p>
+              <div
+                aria-label={tradeIntentSafetyBadgeLabel}
+                title={tradeIntentSafetyBadgeLabel}
+                className="mt-3 flex flex-wrap gap-1.5"
+              >
+                {tradeIntentSafetyBadges.map((badge) => (
+                  <RiskBadge key={badge} tone="blocked">
+                    {badge}
+                  </RiskBadge>
+                ))}
+              </div>
               <div className="mt-3 grid gap-2 rounded-invest-control bg-invest-bg-soft p-2 min-[360px]:grid-cols-2">
                 <div className="rounded-invest-control border border-invest-risk/10 bg-invest-risk-soft/55 p-2.5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-invest-text-muted">
