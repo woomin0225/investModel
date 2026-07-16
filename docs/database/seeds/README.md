@@ -57,6 +57,12 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   center fallback rows for empty and unavailable states. It keeps
   `delivery_channel = 'in_app_mock'` and does not add push, email, SMS,
   account, broker, order, external provider, secret, or advice delivery.
+- `013_admin_review_queue_seed.sql` creates pending, rejected, and paused
+  admin review queue rows using ComplianceReview metadata and InvestmentModel
+  paused status. It keeps model artifacts metadata-only, marks disclosure copy
+  as requiring review, and does not add legal judgments, suitability approvals,
+  deposits, allocation decisions, TradeIntent rows, broker/account links,
+  orders, live data, or paid external APIs.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model

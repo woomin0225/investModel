@@ -28,3 +28,4 @@ sample values without applying them directly to MySQL.
 - `signal-detail-read-model.sample.sql`
 - `feed-detail-read-model.sample.sql`
 - `model-compare-read-model.sample.sql`
+- `admin-review-queue-read-model.sample.sql`
