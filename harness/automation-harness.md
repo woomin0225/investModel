@@ -56,6 +56,28 @@ Recurring and manual automation runs must use multi-agent work when the tool is 
 
 If no safe dependency-ready task exists in `In Progress`, `Issues`, or `Backlog`, do not invent one implementation task directly. Use a `planner` agent first, create roughly 20-40 small prioritized `Backlog` rows, record that planning run in `Runs` with `planner` in `agents_used`, and let the next automation run select from the newly created checklist.
 
+## Backlog Creation Coupling Rule
+
+When creating new Backlog rows, do not add frontend-only implementation work in isolation if that screen will need API, server, DB, seed, or read-model support.
+
+- For each meaningful frontend row, also add the companion backend/API and database/read-model rows needed to make the UI real and testable.
+- Link companion rows through `dependencies` using semicolon-separated task ids such as `BK-501;BK-502`. Use a blank dependency only when the row is truly independent.
+- Keep each row small and separately verifiable: one frontend view/state, one API or backend contract, one DB/read-model/seed task, one smoke or QA task when needed.
+- Use `required_harness` to show the real work surface, for example `frontend;backend;database;domain-contract;automation` when a UI depends on an API and DB read model.
+- Fill `assigned_agent` on every Backlog row. Use intended roles such as `frontend-developer`, `backend-developer`, `database-engineer`, `qa-tester`, or `future-heartbeat`; do not leave it blank.
+- Fill `notes` for generated planning rows with a short Korean planning note or leave it blank only when the row has just been created and has not been selected yet. At completion, `notes` must summarize what changed or why the row was blocked/skipped.
+- Fill `commit_hash` only after a file-changing commit has been pushed. For sheet-only planning or no-file runs, keep `commit_hash` blank and state `sheet-only` or `no file changes` in `notes` and `Runs.verification`.
+
+## Server Reachability Checkpoint Rule
+
+Every Backlog id whose number is a multiple of 10, such as `BK-10`, `BK-20`, `BK-30`, ... `BK-490`, `BK-500`, must be treated as a server reachability checkpoint when it is created or selected.
+
+- The checkpoint should verify the local app server status before feature work continues.
+- When the local server is running, record whether a same-Wi-Fi mobile device can access the app through the PC LAN address and the active dev-server port.
+- If the server is not running or same-Wi-Fi access cannot be verified, record the result in `Runs.verification` and add or update an `Issues` row when it blocks mobile QA.
+- Do not require Android Studio, iOS tooling, real brokerage/account setup, external paid APIs, or secrets for this checkpoint.
+- Suitable verification examples include checking the listening port, local HTTP response, LAN IP URL, firewall/network notes, and 390px mobile browser access when a device is available.
+
 ## Design Sample Refill Rule
 
 If the checklist has no safe dependency-ready UI task, or if the user asks to improve mobile securities-app UX, use the design sample workflow before inventing implementation work.

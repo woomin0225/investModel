@@ -30,6 +30,12 @@ Before work:
 5. Mark the chosen task as in_progress before substantial work.
 6. Read AGENTS.md and the required harness files. For domain, API, DB, mock, RBAC, state, or automation work, also read harness/domain-contract-harness.md.
 
+When creating or selecting Backlog rows:
+1. Use semicolon-separated stable ids in dependencies, for example `BK-491;IS-004`; leave dependencies blank only for truly independent work.
+2. Fill assigned_agent for every row with a concrete intended role.
+3. For frontend checklist items that need real data, also add companion backend/API and database/read-model rows and link them through dependencies.
+4. Every BK id divisible by 10 must include local server status plus same-Wi-Fi mobile reachability verification, or a recorded skipped/blocked reason.
+
 During work:
 1. Keep scope to one bounded task.
 2. Do not implement real deposits, withdrawals, brokerage orders, account linking, legal determinations, user secrets, or paid external API keys.
@@ -122,3 +128,12 @@ Use `NOTIFY` only when user attention is needed for secrets, legal/financial rev
 Recurring and manual automation must use multi-agent work when the tool is available. `Runs.agents_used` must list actual roles separated by semicolons, for example `Codex coordinator; planner`, `Codex coordinator; frontend-developer; qa-tester`, or `Codex coordinator; backend-developer; security-reviewer`. Do not write only `Codex` when a planner, worker, explorer, reviewer, QA, or project role contributed. If multi-agent tooling is unavailable, record `Codex coordinator (multi-agent unavailable)` and explain why in `Runs.verification`.
 
 If there is no safe dependency-ready task in `In Progress`, `Issues`, or `Backlog`, do not choose an ad hoc implementation task. Use a `planner` agent to create roughly 20-40 small Backlog candidates first. Each candidate must include status `todo`, priority, area, title, detail, dependencies, required harness, assigned agent, acceptance criteria, risk flag, and issue links. Prioritize mobile/PWA polish, search, notifications, Signals filters/details, Feed details/comments/likes/saves/read/ranking, Portfolio time dashboard, My Page, DB-backed read models, and checklist hygiene. Write the candidates to Backlog, record the planning run in Runs, and stop after planning unless the user explicitly asked to implement in the same run.
+
+When the planner or coordinator creates Backlog rows, use the existing sheet style:
+
+- `dependencies` is a semicolon-separated list of task or issue ids such as `BK-491;IS-004`; use blank only for truly independent work.
+- `assigned_agent` must be filled for every row. Use a concrete intended role such as `frontend-developer`, `backend-developer`, `database-engineer`, `qa-tester`, `project-recorder`, or `future-heartbeat`.
+- `notes` may be blank only for brand-new unselected rows. Once selected, skipped, blocked, or completed, write a short Korean note.
+- `commit_hash` is filled only after a file-changing commit is pushed. For sheet-only/planning-only rows keep it blank and record the reason in `notes` and `Runs.verification`.
+- Do not create frontend-only rows for screens that need server or DB support. Add companion backend/API and database/read-model rows and link them through `dependencies`.
+- Every new or selected Backlog id divisible by 10 (`BK-10`, `BK-20`, `BK-30`, ... `BK-490`, `BK-500`) must include server status and same-Wi-Fi mobile reachability checking. Verify the local dev server, LAN URL, and mobile access when a device is available; otherwise record why it was skipped or blocked.

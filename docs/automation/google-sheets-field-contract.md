@@ -51,6 +51,16 @@ Backlog, In Progress, and Done use the same task schema:
 | `started_at` | start required | set when the row is selected for real work |
 | `completed_at` | completion required | set when status becomes `done`; blank for blocked/review/todo |
 
+### Backlog Row Style Rules
+
+- `dependencies` uses semicolon-separated stable ids only, for example `BK-431;BK-432` or `IS-004`. Do not mix prose into this field. Put explanation in `notes`.
+- Use a blank `dependencies` field only when the row is truly independent. If a frontend row needs an API, backend guard, seed, DB read model, or smoke first, create those rows and link their ids.
+- Planned `todo` rows should still fill `assigned_agent`. Use an intended role such as `frontend-developer`, `backend-developer`, `database-engineer`, `qa-tester`, `project-recorder`, or `future-heartbeat`.
+- `notes` may be blank only for brand-new unselected planning rows. Once a row is selected, skipped, blocked, or completed, write a short Korean note matching prior rows.
+- `commit_hash` must contain a real short hash only after file changes were committed and pushed. For sheet-only or planning-only work, keep it blank and record `sheet-only` or `no file changes` in `notes` and `Runs.verification`.
+- When adding a frontend checklist item, also add companion backend/API and database/read-model rows when needed so the frontend is not permanently mock-only by accident.
+- Every Backlog id whose number is divisible by 10, for example `BK-490` or `BK-500`, should be a server reachability checkpoint or include server reachability in its acceptance criteria. It should verify local server status and same-Wi-Fi mobile access when a device is available.
+
 ## Start-Of-Work Updates
 
 Before code or document edits:
