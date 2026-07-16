@@ -75,8 +75,8 @@ export const mockCreatorDashboard: MockCreatorDashboard = {
       versionLabel: 'ModelVersion 1.8.0',
       status: 'live',
       statusLabel: {
-        ko: 'Live mock',
-        en: 'Live mock'
+        ko: 'Published mock',
+        en: 'Published mock'
       },
       statusTone: 'low',
       marketLabel: 'US equities',

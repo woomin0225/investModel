@@ -54,8 +54,8 @@ const creatorDraftCopy = {
           '제출 결과는 초안, 비공개, 설명 정보 전용 상태입니다. 공개 탐색, 모델 실행, 실제 주문과 연결되지 않습니다.'
       },
       actions: {
-        submit: '초안 생성',
-        submitting: '초안 생성 중'
+        submit: '초안 메타데이터 기록',
+        submitting: '초안 메타데이터 기록 중'
       },
       result: {
         successTitle: '모델 초안이 생성되었습니다.',
@@ -68,9 +68,9 @@ const creatorDraftCopy = {
   },
   en: {
     eyebrow: 'Creator',
-    title: 'Register Model',
+    title: 'Draft model metadata',
     bannerEyebrow: 'Draft only',
-    bannerTitle: 'Register the AI model description first',
+    bannerTitle: 'Record the AI model description first',
     bannerDescription:
       'This mobile form submits description and risk metadata only. It does not execute model files, place orders, or move funds.',
     sectionTitle: 'Required model information',
@@ -104,8 +104,8 @@ const creatorDraftCopy = {
           'The submitted result remains draft/private/metadata_only. It is not public discovery, model execution, or live trading.'
       },
       actions: {
-        submit: 'Create draft',
-        submitting: 'Creating draft'
+        submit: 'Record draft metadata',
+        submitting: 'Recording draft metadata'
       },
       result: {
         successTitle: 'Model draft created.',

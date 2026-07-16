@@ -271,6 +271,24 @@ function readProjectFile(relativePath: string) {
   return readFileSync(path.join(projectRoot, relativePath), 'utf8');
 }
 
+function assertNoUnsafeInteractiveCta(
+  label: string,
+  source: string,
+  blockedPhrases: string[]
+) {
+  const escapedPhrases = blockedPhrases.map((phrase) =>
+    phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  );
+  const fieldPattern = new RegExp(
+    `(aria-label|title|submitLabel|submittingLabel|actionLabel|emptyCtaLabel|label)\\s*[:=][\\s\\S]{0,120}(${escapedPhrases.join('|')})`
+  );
+
+  assertCondition(
+    !fieldPattern.test(source),
+    `${label}: unsafe interactive CTA copy regressed`
+  );
+}
+
 function assertNoLongUnbrokenText(label: string, values: string[]) {
   const maxUnbrokenLength = 42;
   const longTokens = values
@@ -422,6 +440,9 @@ const creatorModelDraftFormSource = readProjectFile(
   'components/invest-model/creator-model-draft-form.tsx'
 );
 const creatorPageSource = readProjectFile('app/invest-model/creator/page.tsx');
+const creatorDraftPageSource = readProjectFile(
+  'app/invest-model/creator/models/new/page.tsx'
+);
 const signalDetailPageSource = readProjectFile(
   'app/invest-model/signals/[signalId]/page.tsx'
 );
@@ -582,6 +603,50 @@ const adminReviewsPageSource = readProjectFile(
 );
 const adminReviewDetailPageSource = readProjectFile(
   'app/invest-model/admin/reviews/[reviewId]/page.tsx'
+);
+
+const unsafeExecutionCtaPhrases = [
+  'Buy now',
+  'Sell now',
+  'Place order',
+  'Submit order',
+  'Deposit now',
+  'Connect brokerage',
+  'Open account',
+  'Link account',
+  'Execute trade',
+  'Start trading',
+  'Create draft',
+  'Creating draft',
+  'Save selection record',
+  'Register Model',
+  'Register the AI model',
+  'Active model',
+  'Active feed',
+  'Execution status',
+  'Live mock',
+  'Trades US large-cap'
+];
+
+[
+  ['Home', homePageSource],
+  ['Discover Models', modelsPageSource],
+  ['Model Detail', modelDetailPageSource],
+  ['Model Compare', modelComparePageSource],
+  ['Creator Draft', creatorPageSource],
+  ['Creator Draft New', creatorDraftPageSource],
+  ['Creator Draft Form', creatorModelDraftFormSource],
+  ['Feed', feedPageSource],
+  ['Feed Detail', feedDetailPageSource],
+  ['Signals', signalsPageSource],
+  ['Signal Detail', signalDetailPageSource],
+  ['Portfolio', portfolioPageSource],
+  ['Notifications', notificationsPageSource],
+  ['Search', searchPageSource],
+  ['My', myPageSource],
+  ['Segment Error', investModelErrorSource]
+].forEach(([label, source]) =>
+  assertNoUnsafeInteractiveCta(label, source, unsafeExecutionCtaPhrases)
 );
 const detailBackPageSources = [
   modelDetailPageSource,
@@ -960,8 +1025,14 @@ assertCondition(
     creatorModelDraftFormSource.includes('copy.result.metadataOnly') &&
     creatorModelDraftFormSource.includes('submitState.modelPublicId') &&
     creatorModelDraftFormSource.includes('aria-label={') &&
+    creatorModelDraftFormSource.includes('const submitAccessibleLabel = [') &&
+    creatorModelDraftFormSource.includes('helperLine') &&
     creatorModelDraftFormSource.includes('isSubmitting ? copy.actions.submitting : copy.actions.submit') &&
-    creatorModelDraftFormSource.includes('title={isSubmitting ? copy.actions.submitting : copy.actions.submit}') &&
+    creatorModelDraftFormSource.includes('title={submitAccessibleLabel}') &&
+    creatorDraftPageSource.includes("submit: 'Record draft metadata'") &&
+    creatorDraftPageSource.includes("submitting: 'Recording draft metadata'") &&
+    !creatorDraftPageSource.includes("submit: 'Create draft'") &&
+    !creatorDraftPageSource.includes("submitting: 'Creating draft'") &&
     creatorModelDraftFormSource.includes(".join(' / ')") &&
     !creatorModelDraftFormSource.includes('RiskBadge') &&
     !creatorModelDraftFormSource.includes('<RiskBadge'),
@@ -1582,6 +1653,10 @@ assertCondition(
     modelSelectionCtaSource.includes('title={submitAccessibleLabel}') &&
     modelSelectionCtaSource.includes('submitState.selectionPublicId') &&
     modelSelectionCtaSource.includes(".join(' / ')") &&
+    modelDetailPageSource.includes("submitLabel: 'Record reviewed selection'") &&
+    modelDetailPageSource.includes("submittingLabel: 'Recording review'") &&
+    !modelDetailPageSource.includes("submitLabel: 'Save selection record'") &&
+    !modelDetailPageSource.includes("submittingLabel: 'Saving'") &&
     !modelSelectionCtaSource.includes('RiskBadge') &&
     !modelSelectionCtaSource.includes('<RiskBadge'),
   'Model Detail and ModelSelectionCta must present visible safety boundaries as prose instead of hashtag safety chip groups'

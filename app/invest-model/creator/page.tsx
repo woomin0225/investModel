@@ -64,7 +64,7 @@ const creatorDashboardCopy = {
       'Review model status, review results, and next actions in read-only mode.',
     metrics: {
       total: 'My models',
-      live: 'Live mock',
+      live: 'Published mock',
       pending: 'Pending review',
       changes: 'Changes requested'
     },

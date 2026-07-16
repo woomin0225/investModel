@@ -32,7 +32,7 @@ export const investModelDiscoveryMock = {
       id: 'quant-us-leverage-alpha',
       name: 'Quant US Leverage Alpha',
       summary:
-        'Trades US large-cap momentum and leveraged ETFs from a model-defined aggressive mandate.',
+          'Models US large-cap momentum and leveraged ETFs from a model-defined aggressive mandate.',
       market: 'US equities',
       riskLabel: 'High risk',
       riskTone: 'high',

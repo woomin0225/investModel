@@ -56,7 +56,7 @@ export const investModelNavItems: InvestModelNavItem[] = [
   },
   {
     key: 'portfolio',
-    label: 'Invest',
+    label: 'Portfolio',
     href: '/invest-model/portfolio',
     icon: ChartNoAxesCombined
   }

@@ -170,14 +170,14 @@ export const investModelNavLabels = {
     models: '모델',
     signals: '신호',
     feed: '피드',
-    portfolio: '투자'
+    portfolio: '포트폴리오'
   },
   en: {
     home: 'Home',
     models: 'Models',
     signals: 'Signals',
     feed: 'Feed',
-    portfolio: 'Invest'
+    portfolio: 'Portfolio'
   }
 } as const;
 
@@ -571,7 +571,7 @@ export const investModelCopy = {
         blocked: 'blocked'
       },
       activeModelSection: {
-        title: 'Active model',
+        title: 'Selected model',
         description: 'Model-defined mandate, not user preference.'
       },
       activeModel: {
@@ -630,7 +630,7 @@ export const investModelCopy = {
           id: 'quant-us-leverage-alpha',
           name: 'Quant US Leverage Alpha',
           summary:
-            'Trades US large-cap momentum and leveraged ETFs from a model-defined aggressive mandate.',
+            'Models US large-cap momentum and leveraged ETFs from a model-defined aggressive mandate.',
           market: 'US equities',
           riskLabel: 'High risk',
           riskTone: 'high',
@@ -702,11 +702,11 @@ export const investModelCopy = {
       },
       filters: ['All signals', 'News traffic', 'Price trend', 'Risk alert'],
       metrics: {
-        activeFeed: 'Active feed',
+        activeFeed: 'Observed feed',
         observedMockInputs: 'Observed inputs',
         latency: 'Latency',
         notLiveMarketFeed: 'Not a live market feed',
-        executionStatus: 'Execution status',
+        executionStatus: 'Signal state',
         noTradeIntent:
           'Signals do not execute orders or create live TradeIntent records.',
         sample: 'reference',
