@@ -383,6 +383,7 @@ const topIconBarSource = readProjectFile(
 );
 const investModelUiSource = readProjectFile('components/invest-model/ui.tsx');
 const homePageSource = readProjectFile('app/invest-model/page.tsx');
+const homeLoadingSource = readProjectFile('app/invest-model/loading.tsx');
 const myPageSource = readProjectFile('app/invest-model/my/page.tsx');
 const notificationsPageSource = readProjectFile(
   'app/invest-model/notifications/page.tsx'
@@ -1171,6 +1172,27 @@ assertCondition(
     homePageSource.includes('homeCopy.footerBadges.noLiveOrders') &&
     homePageSource.includes('financial advice'),
   'Home and model selection read status must not start with the top blue SoftBanner or hashtag safety chip group and must preserve mock/no-order safety context'
+);
+assertCondition(
+  homeLoadingSource.includes('export default function InvestModelHomeLoading') &&
+    homeLoadingSource.includes('<MobileShell') &&
+    homeLoadingSource.includes('activeTab="home"') &&
+    homeLoadingSource.includes('aria-busy="true"') &&
+    homeLoadingSource.includes('data-home-loading-skeleton="mock-only"') &&
+    homeLoadingSource.includes('motion-safe:animate-pulse') &&
+    homeLoadingSource.includes('grid grid-cols-[1fr_auto]') &&
+    homeLoadingSource.includes('grid grid-cols-2 gap-invest-card-gap') &&
+    homeLoadingSource.includes('min-[360px]:grid-cols-3') &&
+    homeLoadingSource.includes('role="list"') &&
+    homeLoadingSource.includes('No live account, deposit, order, brokerage connection, or external realtime fetch is running') &&
+    !homeLoadingSource.includes('fetch(') &&
+    !homeLoadingSource.includes('readHomePortfolioSummaryRoute') &&
+    !homeLoadingSource.includes('Deposit now') &&
+    !homeLoadingSource.includes('Connect brokerage') &&
+    !homeLoadingSource.includes('Place order') &&
+    !homeLoadingSource.includes('Buy now') &&
+    !homeLoadingSource.includes('Sell now'),
+  'BK-452 Home loading skeleton must preserve 390px layout rhythm and mock-only/no-external-fetch boundaries'
 );
 assertCondition(
   myPageSource.includes('실계좌 없음 / 실주문 없음 / DB 기반 조회') &&
