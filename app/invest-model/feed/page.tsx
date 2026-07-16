@@ -13,6 +13,7 @@ import Link from 'next/link';
 
 import { GET as readFeedPosts } from '@/app/api/feed/route';
 import { GET as readFeedRankings } from '@/app/api/feed/rankings/route';
+import { GET as readFeedTopicClusters } from '@/app/api/feed/topic-clusters/route';
 import {
   FeedCardSaveAction,
   EmptyStateCta,
@@ -29,6 +30,10 @@ import {
   type FeedPostRankingDto,
   type FeedPostType
 } from '@/lib/domain/feed/feed-post';
+import type {
+  FeedTopicClusterReadModel,
+  FeedTopicClusterTone
+} from '@/lib/db/feed-topic-cluster-read-model';
 import {
   investModelCopy,
   resolveInvestModelLocale
@@ -90,6 +95,19 @@ type RankingCard = {
   linkedModelName: string;
   likeCountLabel: string;
   windowLabel: string;
+};
+
+type TopicClusterCard = {
+  clusterPublicId: string;
+  topic: string;
+  summary: string;
+  tone: FeedTopicClusterTone;
+  safetyLabel: string;
+  primaryHref: string;
+  primaryPostLabel: string;
+  signalCountLabel: string;
+  postCountLabel: string;
+  sourceLabel: string;
 };
 
 const feedPostToneByType = {
@@ -290,6 +308,38 @@ function toRankingCard(
   };
 }
 
+function toTopicClusterCard(
+  cluster: FeedTopicClusterReadModel,
+  locale: FeedLocale
+): TopicClusterCard {
+  const primaryPost = cluster.relatedPosts[0];
+
+  return {
+    clusterPublicId: cluster.clusterPublicId,
+    topic: cluster.topic,
+    summary: cluster.summary,
+    tone: cluster.tone,
+    safetyLabel: cluster.safetyLabel,
+    primaryHref: primaryPost
+      ? feedDetailHref(locale, primaryPost.postPublicId)
+      : filterHref(locale, null),
+    primaryPostLabel:
+      primaryPost?.title ?? (locale === 'ko' ? 'FeedPost context' : 'FeedPost context'),
+    signalCountLabel:
+      locale === 'ko'
+        ? `${cluster.relatedSignals.length} observed signals`
+        : `${cluster.relatedSignals.length} observed signals`,
+    postCountLabel:
+      locale === 'ko'
+        ? `${cluster.relatedPosts.length} FeedPosts`
+        : `${cluster.relatedPosts.length} FeedPosts`,
+    sourceLabel:
+      cluster.generatedFrom === 'db_seed_projection'
+        ? 'DB seed projection'
+        : 'Deterministic fixture'
+  };
+}
+
 function feedFilterAccessibleLabel(
   locale: FeedLocale,
   label: string,
@@ -348,6 +398,49 @@ function feedRankingEmptyAccessibleLabel(locale: FeedLocale) {
   return locale === 'ko'
     ? '좋아요 순위 빈 상태입니다. 아직 추적된 DB 좋아요 순위 행이 없으며 정보성 관심도 히스토리만 표시합니다. 추천, 주문, 브로커 연결, 실시간 외부 데이터, 수익 보장과 연결되지 않습니다.'
     : 'Like ranking empty state. No tracked DB like-ranking rows are available yet, and this area only presents informational attention history. Not advice, orders, brokerage connection, realtime external data, or return claims.';
+}
+
+function feedTopicClusterAccessibleLabel(
+  locale: FeedLocale,
+  cluster: TopicClusterCard
+) {
+  return locale === 'ko'
+    ? `${cluster.topic} topic cluster. ${cluster.signalCountLabel}, ${cluster.postCountLabel}. Read-only mock source; no advice, order, live feed, paid API, or brokerage action.`
+    : `${cluster.topic} topic cluster. ${cluster.signalCountLabel}, ${cluster.postCountLabel}. Read-only mock source; no advice, order, live feed, paid API, or brokerage action.`;
+}
+
+function feedTopicClusterVisibleBoundaries(locale: FeedLocale) {
+  return locale === 'ko'
+    ? [
+        'Read-only topic cluster',
+        'mock/seed source',
+        'no live feed',
+        'no paid API',
+        'no advice',
+        'no order',
+        'no brokerage'
+      ]
+    : [
+        'Read-only topic cluster',
+        'mock/seed source',
+        'no live feed',
+        'no paid API',
+        'no advice',
+        'no order',
+        'no brokerage'
+      ];
+}
+
+function feedTopicClusterEmptyAccessibleLabel(locale: FeedLocale) {
+  return locale === 'ko'
+    ? 'Feed topic cluster empty state. No mock or DB seed clusters are available, and no live feed, paid API, advice, order, or brokerage connection is attempted.'
+    : 'Feed topic cluster empty state. No mock or DB seed clusters are available, and no live feed, paid API, advice, order, or brokerage connection is attempted.';
+}
+
+function feedTopicClusterErrorAccessibleLabel(locale: FeedLocale) {
+  return locale === 'ko'
+    ? 'Feed topic cluster error state. The read-only topic cluster API could not be read; no live feed, paid API, advice, order, or brokerage connection was attempted.'
+    : 'Feed topic cluster error state. The read-only topic cluster API could not be read; no live feed, paid API, advice, order, or brokerage connection was attempted.';
 }
 
 function feedEmptyAccessibleLabel(locale: FeedLocale) {
@@ -430,6 +523,31 @@ async function readInvestModelFeedPosts(
   return payload.data ?? [];
 }
 
+async function readInvestModelFeedTopicClusters(
+  locale: FeedLocale
+): Promise<TopicClusterCard[]> {
+  const response = await readFeedTopicClusters(
+    new NextRequest('http://localhost/api/feed/topic-clusters', {
+      method: 'GET',
+      headers: {
+        'x-invest-model-role': 'user'
+      }
+    })
+  );
+
+  if (!response.ok) {
+    throw new Error('Feed topic cluster route read failed.');
+  }
+
+  const payload = (await response.json()) as {
+    data?: FeedTopicClusterReadModel[];
+  };
+
+  return (payload.data ?? []).map((cluster) =>
+    toTopicClusterCard(cluster, locale)
+  );
+}
+
 export default async function InvestModelFeedPage({
   searchParams
 }: InvestModelFeedPageProps) {
@@ -455,8 +573,10 @@ export default async function InvestModelFeedPage({
     filterOptions.find((filter) => filter.postType === selectedPostType) ??
     filterOptions[0];
   let feedReadState: 'db' | 'empty' | 'fallback' = 'db';
+  let topicClusterReadState: 'api' | 'empty' | 'error' = 'api';
   let dbPosts: FeedPostDto[] = [];
   let rankingCards: RankingCard[] = [];
+  let topicClusters: TopicClusterCard[] = [];
 
   try {
     dbPosts = await readInvestModelFeedPosts(selectedPostType);
@@ -472,6 +592,16 @@ export default async function InvestModelFeedPage({
     rankingCards = await readInvestModelFeedRankings(locale);
   } catch {
     rankingCards = [];
+  }
+
+  try {
+    topicClusters = await readInvestModelFeedTopicClusters(locale);
+
+    if (topicClusters.length === 0) {
+      topicClusterReadState = 'empty';
+    }
+  } catch {
+    topicClusterReadState = 'error';
   }
 
   const posts: FeedCard[] =
@@ -498,6 +628,13 @@ export default async function InvestModelFeedPage({
           : 'Sample fallback';
   const safetyAccessibleLabel = feedSafetyAccessibleLabel(locale);
   const emptyAccessibleLabel = feedEmptyAccessibleLabel(locale);
+  const topicClusterBoundaries = feedTopicClusterVisibleBoundaries(locale);
+  const topicClusterStateLabel =
+    topicClusterReadState === 'api'
+      ? 'Topic cluster API loaded'
+      : topicClusterReadState === 'empty'
+        ? 'Topic cluster empty state'
+        : 'Topic cluster error state';
 
   return (
     <MobileShell
@@ -568,6 +705,172 @@ export default async function InvestModelFeedPage({
             </span>
             <span className="shrink-0">{visiblePostCountLabel}</span>
           </div>
+
+          <section
+            aria-label={
+              locale === 'ko' ? 'Feed topic clusters' : 'Feed topic clusters'
+            }
+            className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card"
+          >
+            <div className="flex min-w-0 items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[12px] font-bold uppercase leading-4 tracking-[0.08em] text-invest-primary">
+                  {topicClusterStateLabel}
+                </p>
+                <h2 className="mt-1 break-words text-[18px] font-bold leading-6 text-invest-text">
+                  Feed topic clusters
+                </h2>
+                <p className="mt-1 text-sm leading-5 text-invest-text-muted">
+                  Read-only chips group seeded FeedPosts and SignalEvents. They
+                  are context, not trading instructions.
+                </p>
+              </div>
+              <ShieldCheck
+                aria-hidden
+                className="mt-1 size-5 shrink-0 text-invest-primary"
+              />
+            </div>
+
+            {topicClusterReadState === 'api' ? (
+              <>
+                <MobileFilterRail
+                  ariaLabel="Feed topic chips"
+                  className="mt-4"
+                >
+                  {topicClusters.map((cluster) => (
+                    <Link
+                      key={`${cluster.clusterPublicId}-chip`}
+                      href={cluster.primaryHref}
+                      aria-label={`${feedTopicClusterAccessibleLabel(
+                        locale,
+                        cluster
+                      )} Open related FeedPost context.`}
+                      title={`${feedTopicClusterAccessibleLabel(
+                        locale,
+                        cluster
+                      )} Open related FeedPost context.`}
+                      className={cn(
+                        'inline-flex min-h-invest-touch-target w-full min-w-0 items-center justify-center gap-2 rounded-invest-control border border-invest-border bg-invest-surface px-3 text-center text-[12px] font-bold leading-4 text-invest-text min-[520px]:w-auto',
+                        investMotionClass.interactiveControl
+                      )}
+                    >
+                      <span
+                        aria-hidden
+                        className={cn(
+                          'size-1.5 shrink-0 rounded-full',
+                          cluster.tone === 'risk'
+                            ? 'bg-invest-risk'
+                            : cluster.tone === 'attention'
+                              ? 'bg-invest-warning'
+                              : 'bg-invest-primary'
+                        )}
+                      />
+                      <span className="min-w-0 truncate">
+                        {cluster.topic}
+                      </span>
+                    </Link>
+                  ))}
+                </MobileFilterRail>
+
+                <div
+                  role="list"
+                  aria-label="Feed topic cluster rail"
+                  className="mt-3 grid gap-2 min-[390px]:grid-cols-2"
+                >
+                  {topicClusters.map((cluster) => (
+                    <Link
+                      key={cluster.clusterPublicId}
+                      href={cluster.primaryHref}
+                      role="listitem"
+                      aria-label={feedTopicClusterAccessibleLabel(
+                        locale,
+                        cluster
+                      )}
+                      title={feedTopicClusterAccessibleLabel(locale, cluster)}
+                      className={cn(
+                        'group min-h-[132px] min-w-0 rounded-invest-control border border-invest-border bg-invest-bg-soft p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-invest-surface active:bg-invest-primary-soft/60',
+                        investMotionClass.interactiveCard
+                      )}
+                    >
+                      <div className="flex min-w-0 items-start justify-between gap-2">
+                        <h3 className="line-clamp-2 min-w-0 break-words text-[15px] font-bold leading-5 text-invest-text">
+                          {cluster.topic}
+                        </h3>
+                        <RiskBadge
+                          tone={
+                            cluster.tone === 'risk'
+                              ? 'high'
+                              : cluster.tone === 'attention'
+                                ? 'medium'
+                                : 'neutral'
+                          }
+                          className="shrink-0"
+                        >
+                          {cluster.sourceLabel}
+                        </RiskBadge>
+                      </div>
+                      <p className="mt-2 line-clamp-3 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                        {cluster.summary}
+                      </p>
+                      <div className="mt-3 grid grid-cols-2 gap-1.5">
+                        {[cluster.signalCountLabel, cluster.postCountLabel].map(
+                          (label) => (
+                            <span
+                              key={`${cluster.clusterPublicId}-${label}`}
+                              className="min-h-8 min-w-0 rounded-invest-badge bg-invest-surface px-2 py-1 text-center text-[11px] font-bold leading-4 text-invest-text-muted"
+                            >
+                              <span className="block truncate">{label}</span>
+                            </span>
+                          )
+                        )}
+                      </div>
+                      <p className="mt-2 line-clamp-1 text-[11px] font-semibold leading-4 text-invest-primary">
+                        {cluster.primaryPostLabel}
+                      </p>
+                      <p className="mt-2 rounded-invest-control bg-invest-surface px-2 py-1.5 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                        {topicClusterBoundaries.join(' / ')}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div
+                aria-label={
+                  topicClusterReadState === 'empty'
+                    ? feedTopicClusterEmptyAccessibleLabel(locale)
+                    : feedTopicClusterErrorAccessibleLabel(locale)
+                }
+                title={
+                  topicClusterReadState === 'empty'
+                    ? feedTopicClusterEmptyAccessibleLabel(locale)
+                    : feedTopicClusterErrorAccessibleLabel(locale)
+                }
+                className="mt-4 rounded-invest-control border border-dashed border-invest-border bg-invest-bg-soft p-4 text-sm font-semibold leading-6 text-invest-text-muted"
+              >
+                <p>
+                  {topicClusterReadState === 'empty'
+                    ? 'No mock topic clusters are available yet.'
+                    : 'Topic clusters could not be read from the read-only API.'}
+                </p>
+                <p className="mt-3 rounded-invest-control bg-invest-surface px-2 py-2 text-[12px] font-semibold leading-5 text-invest-text-muted">
+                  {topicClusterBoundaries.join(' / ')}
+                </p>
+              </div>
+            )}
+
+            <div
+              role="group"
+              aria-label="Topic cluster safety labels"
+              className="mt-3 flex flex-wrap gap-1.5"
+            >
+              {topicClusterBoundaries.slice(0, 4).map((boundary) => (
+                <RiskBadge key={boundary} tone="neutral">
+                  {boundary}
+                </RiskBadge>
+              ))}
+            </div>
+          </section>
 
           <div
             role="list"
