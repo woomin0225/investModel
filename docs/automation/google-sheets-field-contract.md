@@ -38,11 +38,11 @@ Backlog, In Progress, and Done use the same task schema:
 | `priority` | yes | `P0` to `P3`; use `P0` only for setup, safety, data integrity, or core flow blockers |
 | `area` | yes | short domain such as `frontend`, `backend`, `admin`, `sheets`, `automation`, `db`, `security` |
 | `title` | yes | short Korean task name |
-| `detail` | yes | one sentence explaining the task outcome |
+| `detail` | yes | one Korean sentence explaining the task outcome |
 | `dependencies` | recommended | semicolon-separated task ids; blank only when truly independent |
 | `required_harness` | yes | semicolon-separated harness files to read before work |
 | `assigned_agent` | yes | agent role such as `frontend-developer`, `backend-developer`, `project-recorder` |
-| `acceptance_criteria` | yes | observable completion rule |
+| `acceptance_criteria` | yes | observable completion rule, written in Korean unless a stable technical token must remain in English |
 | `risk_flag` | yes | `none`, `legal_review`, `security_review`, `financial_operation`, `user_confirmation`, or `external_account` |
 | `notes` | completion required | Korean summary of what changed, what was skipped, or why blocked |
 | `issue_ids` | conditional | linked Issues ids when a blocker, risk, or resolved issue is relevant |
@@ -53,6 +53,9 @@ Backlog, In Progress, and Done use the same task schema:
 
 ### Backlog Row Style Rules
 
+- Write human-facing fields in Korean whenever practical: `title`, `detail`, `acceptance_criteria`, `notes`, `Issues.title`, `Issues.detail`, `Issues.resolution_notes`, `Runs.summary`, `Runs.verification`, and `Runs.next_action`.
+- Do not translate automation-critical values: `id`, `status`, `priority`, `area`, `dependencies`, `required_harness`, `assigned_agent`, `risk_flag`, `issue_ids`, `commit_hash`, timestamps, commands, file paths, API routes, DB table names, and canonical domain terms such as `InvestmentModel`, `ModelVersion`, `PortfolioMandate`, `MockDeposit`, `AllocationDecision`, `TradeIntent`, and `SignalEvent`.
+- When cleaning up existing checklist rows, translate only the human-readable wording unless the selected task explicitly changes the workflow state.
 - `dependencies` uses semicolon-separated stable ids only, for example `BK-431;BK-432` or `IS-004`. Do not mix prose into this field. Put explanation in `notes`.
 - Use a blank `dependencies` field only when the row is truly independent. If a frontend row needs an API, backend guard, seed, DB read model, or smoke first, create those rows and link their ids.
 - Planned `todo` rows should still fill `assigned_agent`. Use an intended role such as `frontend-developer`, `backend-developer`, `database-engineer`, `qa-tester`, `project-recorder`, or `future-heartbeat`.
@@ -97,12 +100,12 @@ If verification fails, push fails, or a required secret/account/legal decision i
 | `related_task_id` | recommended | linked Backlog id |
 | `area` | yes | affected area |
 | `title` | yes | concise issue title |
-| `detail` | yes | enough context for the next run to reproduce or decide |
+| `detail` | yes | enough Korean context for the next run to reproduce or decide |
 | `owner` | recommended | likely agent role or user |
 | `created_at` | yes | issue creation date |
 | `resolved_at` | conditional | required when status becomes `resolved` |
-| `resolution_notes` | conditional | required when status becomes `resolved` |
-| `next_check` | recommended | next action or condition to revisit |
+| `resolution_notes` | conditional | required Korean summary when status becomes `resolved` |
+| `next_check` | recommended | Korean next action or condition to revisit |
 
 Create an Issue instead of continuing when work needs real deposits, real orders, account linking, legal judgment, secrets, paid external API keys, or unavailable local infrastructure.
 

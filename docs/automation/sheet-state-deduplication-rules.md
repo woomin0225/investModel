@@ -138,9 +138,9 @@ Every run should write exactly one `Runs` row.
 | `selected_task_id` | selected Backlog id, Issue id, or `none` |
 | `agents_used` | semicolon-separated roles |
 | `summary` | one concise Korean sentence |
-| `verification` | command/result summary or reason verification was not run |
+| `verification` | Korean command/result summary or skipped reason; keep command text, paths, and `PASS:`/`SKIP:`/`BLOCKED:` tokens unchanged |
 | `commit_hash` | blank only when no file changed |
-| `next_action` | next likely checklist item or user-needed blocker |
+| `next_action` | Korean next likely checklist item or user-needed blocker |
 
 If the sheet write partially fails, retry once with the smallest missing update and note the partial failure in `Runs`.
 

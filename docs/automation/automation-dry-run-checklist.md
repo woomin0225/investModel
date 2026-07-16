@@ -84,6 +84,7 @@ Steps:
 Pass criteria:
 
 - new tasks are prioritized and dependency-aware
+- human-facing task fields are Korean where practical, while ids, dependencies, harness ids, agent roles, commands, paths, and canonical domain terms stay unchanged
 - risky real-money, order, account, legal, secret, or paid external API work is blocked or linked to Issues
 - `Runs.agents_used` is not just `Codex` when multi-agent tools were available
 - the next automation run can select from the newly written Backlog rows

@@ -35,6 +35,7 @@ When creating or selecting Backlog rows:
 2. Fill assigned_agent for every row with a concrete intended role.
 3. For frontend checklist items that need real data, also add companion backend/API and database/read-model rows and link them through dependencies.
 4. Every BK id divisible by 10 must include local server status plus same-Wi-Fi mobile reachability verification, or a recorded skipped/blocked reason.
+5. Write human-facing checklist text in Korean whenever practical: title, detail, acceptance_criteria, notes, Issues title/detail/resolution notes, Runs summary, verification, and next_action. Keep ids, statuses, priorities, dependencies, required_harness, assigned_agent, risk_flag, commands, paths, API routes, DB names, and canonical domain terms such as InvestmentModel, ModelVersion, MockDeposit, AllocationDecision, TradeIntent, and SignalEvent unchanged.
 
 During work:
 1. Keep scope to one bounded task.
@@ -135,6 +136,8 @@ When the planner or coordinator creates Backlog rows, use the existing sheet sty
 
 - `dependencies` is a semicolon-separated list of task or issue ids such as `BK-491;IS-004`; use blank only for truly independent work.
 - `assigned_agent` must be filled for every row. Use a concrete intended role such as `frontend-developer`, `backend-developer`, `database-engineer`, `qa-tester`, `project-recorder`, or `future-heartbeat`.
+- `title`, `detail`, `acceptance_criteria`, Issues human-facing fields, Runs human-facing fields, and selected/completion `notes` should be Korean by default. Use English only for stable identifiers, command text, API paths, schema names, and canonical domain terms where translation would reduce precision.
+- If existing checklist rows contain English prose, translate the human-readable wording during checklist hygiene work without changing ids, dependency links, status history, commit hashes, or timestamps.
 - `notes` may be blank only for brand-new unselected rows. Once selected, skipped, blocked, or completed, write a short Korean note.
 - `commit_hash` is filled only after a file-changing commit is pushed. For sheet-only/planning-only rows keep it blank and record the reason in `notes` and `Runs.verification`.
 - Do not create frontend-only rows for screens that need server or DB support. Add companion backend/API and database/read-model rows and link them through `dependencies`.

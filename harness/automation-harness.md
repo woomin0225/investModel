@@ -60,6 +60,11 @@ If no safe dependency-ready task exists in `In Progress`, `Issues`, or `Backlog`
 
 When creating new Backlog rows, do not add frontend-only implementation work in isolation if that screen will need API, server, DB, seed, or read-model support.
 
+- Write human-facing checklist fields in Korean whenever practical: `title`, `detail`, `acceptance_criteria`, `notes`, `Issues.title`, `Issues.detail`, `Issues.resolution_notes`, `Runs.summary`, `Runs.verification`, and `Runs.next_action`.
+- Keep stable technical tokens unchanged when translation could break meaning or automation: task ids, issue ids, dependencies, statuses, priorities, harness ids, assigned agent roles, commit hashes, commands, file paths, API routes, DB table names, and canonical domain terms such as `InvestmentModel`, `ModelVersion`, `PortfolioMandate`, `MockDeposit`, `AllocationDecision`, `TradeIntent`, and `SignalEvent`.
+- When a concise English technical phrase is useful, surround it with Korean context instead of leaving the whole checklist sentence in English.
+- When translating existing checklist rows, preserve ids, status, priority, dependencies, required harness, assigned agent, risk flags, issue links, commit hashes, and timestamps. Update only the human-readable wording unless a separate task explicitly changes workflow state.
+
 - For each meaningful frontend row, also add the companion backend/API and database/read-model rows needed to make the UI real and testable.
 - Link companion rows through `dependencies` using semicolon-separated task ids such as `BK-501;BK-502`. Use a blank dependency only when the row is truly independent.
 - Keep each row small and separately verifiable: one frontend view/state, one API or backend contract, one DB/read-model/seed task, one smoke or QA task when needed.
