@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "test:creator-draft-validation": "npx tsx scripts/smoke/creator-draft-validation-smoke.ts",
+    "test:db-schema-drift": "npx tsx scripts/smoke/db-schema-drift-readonly-smoke.ts",
     "test:admin-force-stop": "npx tsx scripts/smoke/admin-force-stop-smoke.ts",
     "test:auth-user-scope-boundary": "npx tsx scripts/smoke/auth-user-scope-boundary-smoke.ts",
     "test:feed-api": "npx tsx scripts/smoke/feed-api-smoke.ts",
