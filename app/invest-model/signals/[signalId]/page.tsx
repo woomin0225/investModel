@@ -256,8 +256,8 @@ function signalExplainerMetaLine(
       : 'Deterministic fixture';
 
   return locale === 'ko'
-    ? `${source} / mockOnly=${explainer.safetyMeta.mockOnly} / financialAdvice=${explainer.safetyMeta.financialAdvice}`
-    : `${source} / mockOnly=${explainer.safetyMeta.mockOnly} / financialAdvice=${explainer.safetyMeta.financialAdvice}`;
+    ? `${source} / mockOnly=${explainer.safetyMeta.mockOnly} / observedInputsOnly=${explainer.safetyMeta.observedInputsOnly} / externalPaidApi=${explainer.safetyMeta.externalPaidApi} / financialAdvice=${explainer.safetyMeta.financialAdvice}`
+    : `${source} / mockOnly=${explainer.safetyMeta.mockOnly} / observedInputsOnly=${explainer.safetyMeta.observedInputsOnly} / externalPaidApi=${explainer.safetyMeta.externalPaidApi} / financialAdvice=${explainer.safetyMeta.financialAdvice}`;
 }
 
 function signalExplainerAccessibleLabel(

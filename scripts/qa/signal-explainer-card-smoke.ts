@@ -1,7 +1,7 @@
 /**
- * Focused source smoke for BK-514 Signal detail why-it-moved explainer card.
+ * Focused source smoke for BK-515 Signal detail why-it-moved explainer card.
  * It verifies the mobile detail screen reads the read-only explainer API and
- * keeps the card observational, mock-safe, and non-order-capable.
+ * keeps the card 390px-safe, bottom-tab-safe, mock-safe, and non-order-capable.
  */
 
 import { readFileSync } from 'fs';
@@ -42,6 +42,21 @@ function assertNoViewportOverflow(label: string, source: string) {
   );
 }
 
+function assertNoOrderCapableIdentifiers(label: string, source: string) {
+  [
+    'placeOrder',
+    'executeTrade',
+    'submitOrder',
+    'orderId',
+    'tradeIntentId',
+    'brokerageAccountId',
+    'connectBrokerage',
+    'brokerageConnection={true}'
+  ].forEach((needle) => {
+    assertCondition(!source.includes(needle), `${label}: found ${needle}`);
+  });
+}
+
 const signalDetailPageSource = readProjectFile(
   'app/invest-model/signals/[signalId]/page.tsx'
 );
@@ -51,9 +66,15 @@ const explainerApiRouteSource = readProjectFile(
 const explainerApiSmokeSource = readProjectFile(
   'scripts/smoke/signal-explainer-api-smoke.ts'
 );
+const mobileShellSource = readProjectFile(
+  'components/invest-model/mobile-shell.tsx'
+);
 const packageJsonSource = readProjectFile('package.json');
 
 [
+  '<MobileShell',
+  'activeTab="signals"',
+  'currentPath={currentPath}',
   "import { GET as readSignalExplainer }",
   'readSignalExplainerRoute',
   '/api/signals/${signalPublicId}/explainer',
@@ -73,6 +94,8 @@ const packageJsonSource = readProjectFile('package.json');
   'break-words',
   '[overflow-wrap:anywhere]',
   'mockOnly=',
+  'observedInputsOnly=',
+  'externalPaidApi=',
   'financialAdvice=',
   'grid gap-3 rounded-invest-control',
   'min-[360px]:grid-cols-[minmax(0,0.44fr)_minmax(0,1fr)]',
@@ -97,9 +120,27 @@ const packageJsonSource = readProjectFile('package.json');
 );
 
 [
+  'MobileShell defines the 390px-first mobile app frame',
+  'fixed inset-x-0 bottom-0',
+  'var(--invest-bottom-nav-height)+env(safe-area-inset-bottom)+24px',
+  'h-[calc(var(--invest-bottom-nav-height)+env(safe-area-inset-bottom))]',
+  'pb-[env(safe-area-inset-bottom)]',
+  'investModel bottom mobile tab navigation',
+  'investModelNavItems',
+  "key: 'signals'",
+  'min-h-invest-touch-target',
+  'active:scale-95',
+  'focus-visible:ring-2'
+].forEach((needle) =>
+  assertIncludes(mobileShellSource, needle, 'Mobile shell bottom nav safe area')
+);
+
+[
   'public role is forbidden',
   'explainer exposes public seed context and score-input drivers only',
   'explainer does not expose internal ids or order-capable fields',
+  'explainerJson.data?.safetyMeta?.mockOnly === true',
+  'explainerJson.data?.safetyMeta?.financialAdvice === false',
   'explainer API keeps read-only mock-safe meta'
 ].forEach((needle) =>
   assertIncludes(explainerApiSmokeSource, needle, 'Signal explainer API smoke')
@@ -121,19 +162,23 @@ assertCondition(
   'Signal explainer card must use the public signal id without numeric coercion'
 );
 assertNoViewportOverflow('Signal explainer card', signalDetailPageSource);
+assertNoViewportOverflow('Mobile shell bottom nav', mobileShellSource);
 assertNoUnsafeInteractiveCta('Signal explainer card', signalDetailPageSource);
+assertNoOrderCapableIdentifiers('Signal explainer card', signalDetailPageSource);
 
 console.log(
   JSON.stringify(
     {
       status: 'pass',
-      scope: 'BK-514 Signal detail why-it-moved explainer card',
+      scope: 'BK-515 Signal explainer 390px smoke',
       viewportAssumption: '390px mobile frame with safe area and bottom tabs',
       checked: [
         'detail page reads read-only explainer API',
         'driver evidence chips and contribution labels',
         '390px-safe grid/wrapping classes',
-        'mock-only no advice/order/live data boundary',
+        'bottom tab safe-area reservation in MobileShell',
+        'mockOnly/observedInputsOnly/externalPaidApi/financialAdvice flags',
+        'no advice/order/live data boundary',
         'unsafe CTA proximity scan'
       ]
     },
