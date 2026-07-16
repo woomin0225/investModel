@@ -102,6 +102,84 @@ Mock data should be easy to map into the DTOs in `docs/api/dto-contract.md`.
 | `ModelSelectionDto` | Include selected model/version ids and selection status without user preference fields. |
 | `PortfolioSummaryDto` | Include mock balance, simulated market value, positions, recent signals, and pre-order simulation trade intents. |
 
+### DTO Context Field Checklist
+
+While `IS-004` remains open, every DTO row must be traceable to tracked
+fixtures, reviewed seed/sample rows, mock ingestion, or DB read models populated
+from those rows. Do not call or silently fall back to live search volume, news
+traffic, market data, AI attention providers, paid APIs, secrets,
+broker/account/payment data, or external realtime sources.
+
+`ModelCardDto` rows must include:
+
+- `modelPublicId`, `modelVersionPublicId`, `slug`, and route-safe public ids.
+- `status` limited to public `approved` or `live` states; exclude draft,
+  pending, suspended, and retired models from normal discovery data.
+- `risk`, `targetMarkets`, `assetClassLabels`, `leverageAllowed`,
+  `reviewLabel`, `dataContext`, and `notices`.
+- `backtestReturn.context` and `maxDrawdown.context` values that are visibly
+  `backtest`, `simulated`, or `placeholder`.
+- No suitability, guaranteed-return, expected-return, allocation-instruction,
+  order, execution, broker action, or final legal approval copy.
+
+`ModelDetailDto` rows must include:
+
+- `modelPublicId`, `modelVersionPublicId`, `status`, `risk`, `mandate`,
+  `disclosures`, `performance`, and `notices`.
+- `modelArtifactStatus`, normally `metadata_only` until separate security and
+  model-execution review permits uploads or execution.
+- `mandate.userOverrideAllowed: false`; mandate data belongs to the
+  `InvestmentModel` and must not become a user allocation override.
+- `performance.*.context`, `disclosures[].type`, and
+  `disclosures[].requiresLegalReview` for every review-bound performance,
+  limitation, or legal placeholder.
+- No personalized advice, user risk preference, final legal approval, live
+  broker action, real account setup, or model file execution claim.
+
+`SignalEventDto` rows must include:
+
+- `signalPublicId`, `modelVersionPublicId`, `signalType`, `score`,
+  `scoreDisplay`, `sourceLabel`, `capturedAt`, `dataContext`, and `notices`.
+- `dataContext` limited to `mock` or `observed_placeholder` until `IS-004` is
+  resolved.
+- `sourceLabel` values that identify seed/mock provenance such as `mock_seed`,
+  `scheduled_mock`, or `observed_placeholder`; optional `sourceUrl` must not
+  require paid keys or live provider access.
+- Copy that presents signals as observed inputs only.
+- No fields or labels named `recommendation`, `buy`, `sell`, `hold`,
+  `rebalance`, `tradeAction`, `order`, `execution`, `fill`, `brokerAction`, or
+  live `TradeIntent` creation.
+
+`FeedPostDto` rows must include:
+
+- `postPublicId`, `postType`, `title`, `body`, `tags`, `dataContext`, and
+  `notices`.
+- Optional `modelPublicId`, `linkedModelName`, `authorDisplayName`, and
+  `publishedAt` only when they are backed by mock or reviewed seed data.
+- `dataContext` limited to `mock` or `informational_placeholder`.
+- Content that is informational, review-bound, and clearly separated from
+  legal, financial, or trading advice.
+- No guaranteed returns, trading encouragement, final legal judgment, user
+  suitability claim, or list-level user action state such as like, save, read,
+  or comment state.
+
+`PortfolioSummaryDto` rows must include:
+
+- `isMockOnly: true` and route meta or safety flags equivalent to
+  `mockOnly: true`, `realDeposit: false`, `realBalance: false`,
+  `realOrder: false`, `brokerageConnection: false`, and
+  `financialAdvice: false`.
+- `mockDeposit.sourceLabel`, `mockDeposit.safetyLabel`,
+  `allocationDecision.sourceLabel`, `positions[].sourceLabel`,
+  `timeSnapshots[].safetyLabel`, `tradeIntent.boundaryLabel`, and
+  `tradeIntent.blockedActions`.
+- Simulated wording for position quantities, values, time snapshot values, and
+  allocation rationale.
+- `tradeIntent` limited to pre-order simulation or blocked state.
+- No bank, broker, account number, routing number, real balance, real deposit,
+  withdrawal, order, execution, fill, settlement, suitability, or personalized
+  advice fields.
+
 ## File Boundary Rules
 
 - `lib/mock/**` must not import database clients, payment clients, brokerage clients, paid market-data clients, or secrets.
