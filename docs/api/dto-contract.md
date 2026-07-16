@@ -105,6 +105,53 @@ Safety requirements:
 - `modelArtifactStatus` is normally `metadata_only`; uploaded model execution remains blocked.
 - Disclosure copy must not be presented as final legal approval unless reviewed outside Codex.
 
+## `ModelCompareDto`
+
+Used by `GET /api/models/compare` and the future Model Compare mobile view.
+
+```ts
+interface ModelCompareDto {
+  modelPublicId: string;
+  modelVersionPublicId: string;
+  slug: string;
+  name: string;
+  creatorName: string;
+  status: 'approved' | 'live';
+  strategySummary: string;
+  risk: ModelRiskBadgeDto;
+  mandate: ModelDetailDto['mandate'];
+  disclosures: DisclosureSummaryDto[];
+  backtestContext: {
+    periodLabel: string;
+    measuredAt: string;
+    cumulativeReturn: PercentMetricDto;
+    volatility: PercentMetricDto;
+    maxDrawdown: PercentMetricDto;
+    benchmarkSymbol: string;
+    isBacktest: true;
+  };
+  safetyLabel: string;
+  sourceMeta: {
+    sourceTables: string[];
+    mockOnly: true;
+    informationalOnly: true;
+    backtestOnly: true;
+    externalPaidApi: false;
+  };
+}
+```
+
+Source tables: `investment_models`, `model_versions`, `model_risk_profiles`, `portfolio_mandates`, `model_disclosures`, `model_performance_snapshots`.
+
+Safety requirements:
+
+- Compare rows are selected by public model ids only; internal numeric ids must not be exposed.
+- Missing or unknown selected ids return an empty list for those ids rather than broadening the result.
+- Only `approved` or `live` model rows are visible.
+- Disclosures must remain review-bound placeholders; the API must not imply final legal approval.
+- Backtest values must keep backtest context and must not imply guaranteed or expected returns.
+- The route meta must keep `readOnly: true`, `reviewSafeDisclosuresOnly: true`, `backtestMetricsOnly: true`, `externalPaidApi: false`, `financialAdvice: false`, `modelSelectionCreated: false`, `tradeIntentCreated: false`, `realOrder: false`, and `brokerageConnection: false`.
+
 ## `SignalEventDto`
 
 Used by `GET /api/signals`, Realtime Signals, and Home signal preview.

@@ -18,6 +18,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Method | Path | Purpose | Permission | MVP status |
 | --- | --- | --- | --- | --- |
 | `GET` | `/api/models` | List discoverable approved/live mock investment models. | public or signed-in | DB-backed read implemented |
+| `GET` | `/api/models/compare` | Read selected model comparison rows for risk, mandate, disclosure, and backtest context. | public or signed-in | DB-backed read with fixture fallback implemented |
 | `GET` | `/api/models/:id` | Read model detail, mandate, risk, disclosures, and performance context. | public or signed-in | DB-backed read implemented |
 | `GET` | `/api/signals` | List observed model signal events. | signed-in | DB-backed; seed/mock ingestion allowed while IS-004 is open |
 | `GET` | `/api/signals/:signalId` | Read one observed signal detail by public id. | signed-in | DB-backed read implemented |
@@ -74,6 +75,20 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Source tables | `investment_models`, `model_versions`, `portfolio_mandates`, `model_risk_profiles`, `model_disclosures`, `model_performance_snapshots` |
 | Mock source | `lib/mock/invest-model-model-detail.ts` is a legacy UI fallback for local DB-unavailable and comparison-link paths only; the API does not fall back to mock detail. |
 | Safety notes | Do not claim legal approval or user suitability. High-risk/leverage copy must remain placeholder or reviewed. |
+
+### `GET /api/models/compare`
+
+| Field | Value |
+| --- | --- |
+| Status | DB-backed read API with deterministic fixture fallback implemented in `app/api/models/compare/route.ts`; smoke-covered by `scripts/smoke/model-compare-api-smoke.ts`. |
+| Purpose | Provide compact model comparison data for selected public model ids. |
+| Request | Optional query parameter `ids` as comma-separated `modelPublicId` values. Missing `ids` returns the default safe comparison set; unknown ids return an empty array without falling back to all rows. |
+| Response DTO | `ModelCompareDto` shape from `lib/db/model-compare-read-model.ts`: model public ids, model-owned risk, mandate, review-bound disclosures, and backtest context. |
+| Permission | Public or signed-in for approved/live model comparison rows. |
+| Screens | Future Model Compare mobile view |
+| Source tables | `investment_models`, `model_versions`, `model_risk_profiles`, `portfolio_mandates`, `model_disclosures`, `model_performance_snapshots` |
+| Mock source | `docs/database/seeds/011_model_compare_read_model_seed.sql`; route falls back to deterministic fixture rows when local DB is unavailable. |
+| Safety notes | Read-only comparison only. Disclosures remain review-bound placeholders, backtest metrics stay labeled as backtest context, and the route must not create model selections, `TradeIntent`, real orders, brokerage actions, external paid API calls, or advice. |
 
 ### `GET /api/signals`
 

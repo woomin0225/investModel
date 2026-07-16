@@ -3,7 +3,7 @@
  * It reads model-owned risk, mandate, disclosure, and backtest metadata only.
  */
 
-import { desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 
 import {
   investmentModels,
@@ -66,6 +66,9 @@ const compareSeedSlugs = [
   'macro-etf-balance',
   'defensive-income-rotation'
 ] as const;
+
+const visibleModelStatuses = ['approved', 'live'] as const;
+const visibleModelVisibilities = ['public', 'marketplace'] as const;
 
 const compareSourceTables = [
   'investment_models',
@@ -435,7 +438,13 @@ async function readDbProjection(): Promise<ModelCompareItem[] | null> {
       modelPerformanceSnapshots,
       eq(modelPerformanceSnapshots.modelVersionId, modelVersions.id)
     )
-    .where(inArray(investmentModels.slug, compareSeedSlugs))
+    .where(
+      and(
+        inArray(investmentModels.slug, compareSeedSlugs),
+        inArray(investmentModels.status, visibleModelStatuses),
+        inArray(investmentModels.visibility, visibleModelVisibilities)
+      )
+    )
     .orderBy(
       desc(modelPerformanceSnapshots.measuredAt),
       investmentModels.name
