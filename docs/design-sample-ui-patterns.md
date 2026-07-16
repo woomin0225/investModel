@@ -17,6 +17,21 @@ The selected folder keeps reusable motifs across Home, Discover Models, Realtime
 - KB/Shinhan-like market dashboard, ETF/theme, calendar, explainer, news, and ranking patterns: `KakaoTalk_20260716_021508192_05`, `_06`, `_11`, `_15`, `_16`, `_17`, `_18`, `_19`
 - Additional high-value references from explorer review: `KakaoTalk_20260716_021501256_11`, `_14`, `KakaoTalk_20260716_021505098_25`, `_28`, `_29`, `KakaoTalk_20260716_021508192_03`, `_14`
 
+## Selected Reference Tag Map
+
+Use this map when creating new Backlog rows from selected screenshots. The filename group is the stable reference key; dependencies still belong in the sheet's `dependencies` column as `BK-###;BK-###`, while rationale and safety notes belong in `notes`.
+
+| File group | Primary screen tags | Reusable pattern | Safety conversion |
+| --- | --- | --- | --- |
+| `KakaoTalk_20260709_195538631.png`, `_01`, `_02`, `_03`, `_04`, `_05`, `_06` | Home; Portfolio; My Page | Compact asset summary, service rows, account-like status blocks, profile utilities | Convert balances to selected-model status and `MockDeposit`; never copy account, deposit, withdrawal, broker, or exact service wording. |
+| `KakaoTalk_20260709_195538631_07`, `_08`, `_09`, `_10`, `_13`, `_14`, `_15` | Models; Signals; Portfolio | Model/stock ranking rows, discovery cards, interest/save rows, ranked lists | Convert stock rankings to model themes, signal clusters, and saved-model states; avoid buy/sell/order affordances and return-promise copy. |
+| `KakaoTalk_20260709_195538631_11`, `_12`, `_16`, `_17`, `_18`, `_19` | Feed; Signals; Home | Feed cards, realtime issue lists, news thumbnails, why-it-moved summaries | Use for `FeedPost` and observed `SignalEvent` explanations only; do not reuse brand labels, news copy, recommendation language, or exact composition. |
+| `KakaoTalk_20260716_021501256_04`, `_08`, `_09`, `_10`, `_11`, `_12` | Signals; Home; Portfolio | Community/ranking density, heatmap tiles, top-mover rows, realtime issue modules | Keep market data simulated until IS-004 is resolved; label any dense market view as mock, observed, or read-only. |
+| `KakaoTalk_20260716_021501256_14`, `_15`, `_20` | My Page; Feed; Portfolio | Empty states, interest lists, service entry grids, friendly onboarding cards | Replace product promotions with safe model-discovery CTAs; no real rewards, account connection, or investment advice framing. |
+| `KakaoTalk_20260716_021505098_01`, `_04`, `_07`, `_08` | Search; Signals; Portfolio | Search filters, dense chart/detail panels, bottom action bars, empty rows | Use only for model/signal search and blocked simulated details; any order-like control must become disabled, read-only, or safety copy. |
+| `KakaoTalk_20260716_021505098_25`, `_28`, `_29` | Feed; Models; Home | Summary cards, thematic rankings, compact illustrated sections | Convert mascot/illustration tone to neutral investModel visuals; no copied characters, slogans, or brand-specific card copy. |
+| `KakaoTalk_20260716_021508192_03`, `_05`, `_06`, `_11`, `_14`, `_15`, `_16`, `_17`, `_18`, `_19` | Home; Models; Signals; Feed; Portfolio | ETF/theme dashboards, calendar strips, explainer cards, ranking modules, tagged news rows | Translate tradeable product surfaces into model metadata, mock review dates, signal context, and feed topics; avoid broker, deposit, order, and account-linking flows. |
+
 ## Reusable Patterns
 
 1. **Quiet account summary header**
