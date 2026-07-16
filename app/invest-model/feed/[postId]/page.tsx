@@ -1,4 +1,7 @@
 import {
+  BookOpen,
+  FileText,
+  Layers,
   MessageCircle,
   MessageSquareText,
   RadioTower,
@@ -81,6 +84,10 @@ function feedActionBoundaryLabel(locale: FeedLocale) {
   return locale === 'ko'
     ? '피드 상세 액션은 DB 사용자 범위의 읽음, 댓글, 좋아요, 저장 상태만 변경하며 추천, 실주문, 브로커 연결, 투자 조언이 아닙니다.'
     : 'Feed detail actions only change DB user-scoped read, comment, like, and save state; they are not advice, orders, brokerage, or investment recommendations.';
+}
+
+function feedDetailMediaAccessibleLabel(post: FeedPostDetailDto) {
+  return `Feed detail media card for ${post.title}. DB-backed informational FeedPost body with linked model, related SignalEvents, and source review state. No advice, order, brokerage action, or realtime external data.`;
 }
 
 function CommentItem({
@@ -185,6 +192,12 @@ export default async function InvestModelFeedDetailPage({
 
   const currentPath = `/invest-model/feed/${resolvedParams.postId}`;
   const backHref = `/invest-model/feed?lang=${locale}`;
+  const safeActionContractCodes = post.safeActionContracts.map(
+    (contract) => contract.code
+  );
+  const safeActionContractLabels = post.safeActionContracts.map(
+    (contract) => contract.label
+  );
   const stateItems = [
     {
       label: locale === 'ko' ? '댓글' : 'Comments',
@@ -239,6 +252,36 @@ export default async function InvestModelFeedDetailPage({
           <p className="mt-5 whitespace-pre-line text-[15px] leading-7 text-invest-text">
             {post.body}
           </p>
+
+          <div
+            className="mt-5 overflow-hidden rounded-invest-card border border-invest-border bg-invest-bg-soft"
+            aria-label={feedDetailMediaAccessibleLabel(post)}
+            title={feedDetailMediaAccessibleLabel(post)}
+          >
+            <div className="flex min-h-[132px] items-stretch">
+              <div className="flex w-20 shrink-0 flex-col items-center justify-between bg-invest-primary-soft p-3 text-invest-primary">
+                <FileText aria-hidden className="size-5" />
+                <BookOpen aria-hidden className="size-5" />
+              </div>
+              <div className="min-w-0 flex-1 p-3">
+                <div className="flex flex-wrap gap-2">
+                  <RiskBadge tone="neutral">Informational media card</RiskBadge>
+                  <RiskBadge tone="low">DB-backed</RiskBadge>
+                </div>
+                <p className="mt-3 line-clamp-2 break-words text-sm font-bold leading-5 text-invest-text">
+                  {post.title}
+                </p>
+                <p className="mt-2 line-clamp-3 break-words text-[12px] font-semibold leading-5 text-invest-text-muted">
+                  {post.sourceAttribution.sourceLabel} /{' '}
+                  {post.sourceAttribution.reviewState}
+                </p>
+                <p className="mt-2 text-[11px] font-semibold leading-4 text-invest-text-muted">
+                  Mock-safe feed insight only. No live feed, paid API, advice,
+                  order, or brokerage action.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="mt-5 rounded-invest-card bg-invest-bg-soft p-3">
             <p className="text-[12px] font-bold leading-4 text-invest-text">
@@ -328,13 +371,37 @@ export default async function InvestModelFeedDetailPage({
           />
         </div>
 
-        <p
-          className="rounded-invest-control bg-invest-surface-muted px-3 py-2 text-xs font-semibold leading-5 text-invest-text-muted"
+        <section
+          className="rounded-invest-card border border-invest-border bg-invest-surface p-3 shadow-invest-card"
           aria-label={feedActionBoundaryLabel(locale)}
           title={feedActionBoundaryLabel(locale)}
         >
-          {feedActionVisibleBoundaries(locale).join(' / ')}
-        </p>
+          <div className="flex items-start gap-3">
+            <div className="grid size-9 shrink-0 place-items-center rounded-invest-control bg-invest-primary-soft text-invest-primary">
+              <Layers aria-hidden className="size-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[12px] font-bold leading-4 text-invest-text">
+                Feed detail safe action line
+              </p>
+              <p className="mt-2 text-xs font-semibold leading-5 text-invest-text-muted">
+                {feedActionVisibleBoundaries(locale).join(' / ')}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {safeActionContractLabels.map((label, index) => (
+                  <span
+                    key={safeActionContractCodes[index]}
+                    className="inline-flex min-h-8 max-w-full items-center rounded-invest-control border border-invest-border bg-invest-bg-soft px-2 text-[11px] font-bold leading-4 text-invest-text-muted"
+                    aria-label={`Safe FeedPost action contract: ${label}. ${safeActionContractCodes[index]}. No advice, order, brokerage action, or realtime external data.`}
+                    title={`Safe FeedPost action contract: ${label}. ${safeActionContractCodes[index]}. No advice, order, brokerage action, or realtime external data.`}
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
 
         {post.recentLikeRanking ? (
           <section className="rounded-invest-card border border-invest-border bg-invest-surface p-invest-card-padding shadow-invest-card">
@@ -384,7 +451,12 @@ export default async function InvestModelFeedDetailPage({
           </section>
         ) : null}
 
-        <section id="comments" className="scroll-mt-4">
+        <section
+          id="comments"
+          className="scroll-mt-4"
+          aria-label="Feed detail comments section. Discussion only; not advice, orders, brokerage, or approval."
+          title="Feed detail comments section. Discussion only; not advice, orders, brokerage, or approval."
+        >
           <FeedCommentAction
             postPublicId={post.postPublicId}
             initialComments={post.comments}

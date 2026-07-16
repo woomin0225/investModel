@@ -332,7 +332,7 @@ function CommentItem({
             type="submit"
             disabled={!canSubmitReply || isReplyPending}
             className={cn(
-              'mt-2 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-white shadow-invest-card disabled:cursor-not-allowed disabled:bg-invest-text-muted/40',
+              'mt-2 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-white shadow-invest-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-invest-surface active:bg-invest-primary/85 disabled:cursor-not-allowed disabled:bg-invest-text-muted/40',
               investMotionClass.interactiveControl
             )}
             aria-label={replySubmitLabel}
@@ -594,7 +594,7 @@ export function FeedCommentAction({
           type="submit"
           disabled={!canSubmit || isPending}
           className={cn(
-            'mt-3 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-white shadow-invest-card disabled:cursor-not-allowed disabled:bg-invest-text-muted/40',
+            'mt-3 inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-white shadow-invest-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-invest-surface active:bg-invest-primary/85 disabled:cursor-not-allowed disabled:bg-invest-text-muted/40',
             investMotionClass.interactiveControl
           )}
           aria-label={commentSubmitLabel}
