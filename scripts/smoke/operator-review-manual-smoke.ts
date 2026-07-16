@@ -25,6 +25,7 @@ const adminReview = readText('docs/security/admin-review-audit.md');
 const creatorReview = readText('docs/security/creator-review-flow.md');
 const featureMatrix = readText('docs/compliance/feature-review-matrix.md');
 const modelReport = readText('lib/domain/compliance/model-report.ts');
+const adminReviewHelper = readText('lib/domain/models/admin-review.ts');
 const adminReviewSmoke = readText(
   'scripts/qa/invest-model-admin-review-flow-smoke.ts'
 );
@@ -45,6 +46,23 @@ const adminReviewSmoke = readText(
   'escalate_legal_review',
   'escalate_security_review',
   'policy_blocked',
+  'Review State Vocabulary',
+  'draft',
+  'pending_review',
+  'changes_requested',
+  'rejected',
+  'approved',
+  'live',
+  'paused',
+  'suspended',
+  'retired',
+  'pending_review -> approved',
+  'pending_review -> changes_requested',
+  'pending_review -> rejected',
+  'approved -> live',
+  'live -> paused',
+  'live -> suspended',
+  'pending_review -> live',
   'actorRole=admin',
   'allowed',
   'denied',
@@ -98,6 +116,27 @@ const adminReviewSmoke = readText(
   'noTradingAction: true'
 ].forEach((needle) => {
   assertIncludes(modelReport, needle, `model report contract keeps ${needle}`);
+});
+
+[
+  "approve: [{ from: 'pending_review', to: 'approved' }]",
+  "request_changes: [{ from: 'pending_review', to: 'changes_requested' }]",
+  "reject: [{ from: 'pending_review', to: 'rejected' }]",
+  "publish_live: [{ from: 'approved', to: 'live' }]",
+  "pause: [{ from: 'live', to: 'paused' }]",
+  "{ from: 'live', to: 'suspended' }",
+  "{ from: 'paused', to: 'suspended' }",
+  "{ from: 'approved', to: 'retired' }",
+  "{ from: 'live', to: 'retired' }",
+  "{ from: 'paused', to: 'retired' }",
+  "{ from: 'suspended', to: 'retired' }",
+  "z.enum([\n  'draft',\n  'pending_review',\n  'changes_requested',\n  'rejected',\n  'approved',\n  'live',\n  'paused',\n  'suspended',\n  'retired'\n])"
+].forEach((needle) => {
+  assertIncludes(
+    adminReviewHelper,
+    needle,
+    `admin review helper keeps ${needle}`
+  );
 });
 
 [

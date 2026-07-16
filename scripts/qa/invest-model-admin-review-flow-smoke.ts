@@ -115,6 +115,60 @@ assertCondition(
   'audit after snapshot should include creator-visible review comment'
 );
 
+const allowedTransitionCases = [
+  {
+    decision: 'request_changes',
+    currentStatus: 'pending_review',
+    nextStatus: 'changes_requested'
+  },
+  {
+    decision: 'publish_live',
+    currentStatus: 'approved',
+    nextStatus: 'live'
+  },
+  {
+    decision: 'pause',
+    currentStatus: 'live',
+    nextStatus: 'paused'
+  },
+  {
+    decision: 'suspend',
+    currentStatus: 'live',
+    nextStatus: 'suspended'
+  },
+  {
+    decision: 'retire',
+    currentStatus: 'suspended',
+    nextStatus: 'retired'
+  }
+] as const;
+
+allowedTransitionCases.forEach((transitionCase) => {
+  const transitionResult = buildAdminModelReviewResult({
+    modelPublicId: draft.modelPublicId,
+    input: {
+      decision: transitionCase.decision,
+      currentStatus: transitionCase.currentStatus,
+      reason: `Smoke test ${transitionCase.decision} transition.`,
+      reviewerUserPublicId: 'user_admin_smoke'
+    }
+  });
+
+  assertCondition(
+    transitionResult.allowed,
+    `${transitionCase.currentStatus} -> ${transitionCase.nextStatus} should pass`
+  );
+  assertCondition(
+    transitionResult.data.previousStatus === transitionCase.currentStatus &&
+      transitionResult.data.nextStatus === transitionCase.nextStatus,
+    `${transitionCase.decision} should move ${transitionCase.currentStatus} to ${transitionCase.nextStatus}`
+  );
+  assertCondition(
+    transitionResult.data.persistence === 'not_persisted',
+    `${transitionCase.decision} must remain not_persisted in MVP smoke test`
+  );
+});
+
 const blockedResult = buildAdminModelReviewResult({
   modelPublicId: draft.modelPublicId,
   input: {

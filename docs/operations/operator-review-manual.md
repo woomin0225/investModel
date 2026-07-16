@@ -86,12 +86,31 @@ When a user submits a `ModelReport`:
 | `request_changes` | Required model, risk, mandate, disclosure, or performance-source fields are missing or unclear | Mention exact missing fields |
 | `reject` | Submission contains unsupported claims, hidden risk, prohibited language, or incomplete critical data | Mention policy category |
 | `approve` | Required metadata and placeholder disclosure checks pass | State that this is not final legal approval |
+| `publish_live` | An `approved` model is intentionally moved into marketplace visibility | State that this is not real trading permission or brokerage connectivity |
 | `pause` | Live model has operational issue, stale evidence, creator request, or temporary review need | State user-impact reason |
 | `suspend` | Live model has policy risk, misleading claim, security issue, or urgent review need | State safety reason |
 | `retire` | Model should leave the marketplace permanently or by creator/product decision | State active-selection impact |
 | `escalate_legal_review` | Legal, suitability, compensation, or final disclosure judgement is needed | State reviewer needed |
 | `escalate_security_review` | Secrets, account data, sandbox, model-file, or abuse concern is present | State data/security risk |
 | `policy_blocked` | Real order, real deposit, real account, broker, execution, fill, or settlement is requested | State forbidden feature |
+
+## Review State Vocabulary
+
+Use these status terms consistently with `docs/domain/investment-model-state-transitions.md`, `lib/domain/types.ts`, and the admin review smoke tests. These states are operator workflow and marketplace visibility states only; they are not legal approval, suitability approval, real trading permission, or brokerage connectivity.
+
+| State | Operator meaning | Public/user meaning | Related operator decision |
+| --- | --- | --- | --- |
+| `draft` | Creator is still preparing metadata and required risk/mandate/disclosure placeholders. | Not visible and not selectable. | none |
+| `pending_review` | Creator submitted a snapshot and admin review is required. | Not visible and not selectable. | `approve`, `request_changes`, `reject` |
+| `changes_requested` | Admin requested specific corrections before another review pass. | Not visible and not selectable. | creator resubmits later |
+| `rejected` | Admin rejected the submitted snapshot; a new draft or version is required. | Not visible and not selectable. | `reject` |
+| `approved` | Admin review checklist passed for a release candidate, but the model is not public yet. | Not visible and not selectable. | `approve`, later `publish_live` |
+| `live` | Admin published an approved model to the marketplace. | Visible and selectable, but still no real order, deposit, or broker connection. | `publish_live`, `pause`, `suspend`, `retire` |
+| `paused` | Live model is temporarily unavailable for new selection while an operational or review need is handled. | Limited notice only; no new selection. | `pause`, later resume outside this manual draft |
+| `suspended` | Admin force-stopped the model for policy, safety, security, or urgent review reasons. | Admin/operator context only or limited user notice; no new selection. | `suspend`, later `retire` |
+| `retired` | Model has permanently left the marketplace or public lifecycle. | Historical notice only; no new selection. | `retire` |
+
+The smoke contract currently checks `pending_review -> approved`, `pending_review -> changes_requested`, `pending_review -> rejected`, `approved -> live`, `live -> paused`, `live -> suspended`, and retire paths from `approved`, `live`, `paused`, or `suspended`. Any direct `pending_review -> live`, `draft -> live`, `changes_requested -> approved`, `rejected -> approved`, `suspended -> live`, or `retired -> live` path must remain `policy_blocked`.
 
 ## Audit Requirements
 
