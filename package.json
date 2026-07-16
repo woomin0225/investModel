@@ -45,6 +45,7 @@
     "test:mock-decision": "npx tsx scripts/smoke/mock-decision-engine-smoke.ts",
     "test:mock-ingestion-boundary": "npx tsx scripts/smoke/mock-ingestion-boundary-smoke.ts",
     "test:news-traffic": "npx tsx scripts/smoke/news-traffic-provider-smoke.ts",
+    "test:notification-mobile-screen": "npx tsx scripts/qa/notification-mobile-screen-smoke.ts",
     "test:notification-unavailable-read-model": "npx tsx scripts/smoke/notification-unavailable-read-model-smoke.ts",
     "test:pwa-manifest": "npx tsx scripts/smoke/pwa-manifest-smoke.ts",
     "test:portfolio-compact-api": "npx tsx scripts/smoke/portfolio-compact-summary-api-smoke.ts",
