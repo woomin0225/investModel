@@ -300,6 +300,10 @@ export function CreatorModelDraftForm({ copy }: CreatorModelDraftFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
+        aria-label={
+          isSubmitting ? copy.actions.submitting : copy.actions.submit
+        }
+        title={isSubmitting ? copy.actions.submitting : copy.actions.submit}
         className="flex min-h-invest-touch-target w-full items-center justify-center gap-2 rounded-invest-control bg-invest-primary px-4 text-sm font-bold text-invest-surface shadow-invest-card disabled:cursor-not-allowed disabled:opacity-70"
       >
         <Send aria-hidden className="size-4" />

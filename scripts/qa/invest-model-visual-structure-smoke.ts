@@ -660,6 +660,10 @@ assertCondition(
     signalRefreshActionSource.includes('router.refresh()') &&
     signalRefreshActionSource.includes('Auto refresh 60s') &&
     signalRefreshActionSource.includes('DB 점수 스냅샷만 새로고침합니다. 외부 실시간 데이터, 투자 조언, 주문이 아닙니다.') &&
+    signalRefreshActionSource.includes('const refreshAccessibleLabel = `${refreshLabel}. ${safeBoundary}`') &&
+    signalRefreshActionSource.includes('aria-label={refreshAccessibleLabel}') &&
+    signalRefreshActionSource.includes('title={refreshAccessibleLabel}') &&
+    signalRefreshActionSource.includes('aria-label={`${autoLabel}. ${safeBoundary}`}') &&
     signalRefreshActionSource.includes('DB 기반 조회 새로고침') &&
     signalRefreshActionSource.includes("].join(' / ')") &&
     signalRefreshActionSource.includes("'점수 스냅샷 테이블'") &&
@@ -797,6 +801,13 @@ assertCondition(
   'BK-439 major empty states must provide safe locale-aware read-only CTAs without trading, deposit, brokerage, or return-claim affordances'
 );
 assertCondition(
+  investModelUiSource.includes('const actionAccessibleLabel = actionLabel') &&
+    investModelUiSource.includes('`${actionLabel}: ${title}`') &&
+    investModelUiSource.includes('aria-label={actionAccessibleLabel}') &&
+    investModelUiSource.includes('title={actionAccessibleLabel}'),
+  'BK-456 SectionHeader action buttons must include section-aware accessibility names and titles'
+);
+assertCondition(
   feedDetailPageSource.includes('id="comments"') &&
     feedDetailPageSource.includes('<FeedCommentAction'),
   'Feed detail must expose a comments anchor for Feed card comment actions'
@@ -832,6 +843,9 @@ assertCondition(
     creatorModelDraftFormSource.includes('copy.result.privateVisibility') &&
     creatorModelDraftFormSource.includes('copy.result.metadataOnly') &&
     creatorModelDraftFormSource.includes('submitState.modelPublicId') &&
+    creatorModelDraftFormSource.includes('aria-label={') &&
+    creatorModelDraftFormSource.includes('isSubmitting ? copy.actions.submitting : copy.actions.submit') &&
+    creatorModelDraftFormSource.includes('title={isSubmitting ? copy.actions.submitting : copy.actions.submit}') &&
     creatorModelDraftFormSource.includes(".join(' / ')") &&
     !creatorModelDraftFormSource.includes('RiskBadge') &&
     !creatorModelDraftFormSource.includes('<RiskBadge'),
@@ -1068,6 +1082,7 @@ assertCondition(
     feedCommentActionSource.includes('정보성 답글을 추가하지 못했습니다.') &&
     feedCommentActionSource.includes('답글이 토론에 추가되었습니다.') &&
     feedCommentActionSource.includes('`답글 ${comment.replyCount}`') &&
+    feedCommentActionSource.includes('aria-label={replyToggleTitle}') &&
     feedCommentActionSource.includes("{isKorean ? '답글' : 'Reply'}") &&
     feedCommentActionSource.includes('정보성 답글을 남겨보세요.') &&
     feedCommentActionSource.includes("isKorean ? '정보성 답글 본문' : 'Informational reply body'") &&
@@ -1081,6 +1096,7 @@ assertCondition(
 assertCondition(
   feedLikeActionNormalizedSource.includes('내가 누른 좋아요입니다. 인기 맥락일 뿐 투자 조언, 수익, 주문 신호가 아닙니다.') &&
     feedLikeActionNormalizedSource.includes('좋아요를 누르지 않았습니다. 인기 맥락일 뿐 투자 조언, 수익, 주문 신호가 아닙니다.') &&
+    feedLikeActionNormalizedSource.includes('aria-label={actionTitle}') &&
     feedLikeActionNormalizedSource.includes("isKorean\n      ? '내가 누른 좋아요입니다.") &&
     feedLikeActionNormalizedSource.includes("isKorean\n      ? '좋아요를 누르지 않았습니다.") &&
     !feedLikeActionNormalizedSource.includes("const actionTitle = reactionState.liked\n    ? 'Liked by you."),
@@ -1420,6 +1436,9 @@ assertCondition(
     modelSelectionCtaSource.includes('const successMetaLine') &&
     modelSelectionCtaSource.includes('copy.persistedLabel') &&
     modelSelectionCtaSource.includes('copy.safetyLabel') &&
+    modelSelectionCtaSource.includes('const submitAccessibleLabel = `${copy.submitLabel}. ${copy.noLiveTradingLabel}`') &&
+    modelSelectionCtaSource.includes('aria-label={submitAccessibleLabel}') &&
+    modelSelectionCtaSource.includes('title={submitAccessibleLabel}') &&
     modelSelectionCtaSource.includes('submitState.selectionPublicId') &&
     modelSelectionCtaSource.includes(".join(' / ')") &&
     !modelSelectionCtaSource.includes('RiskBadge') &&

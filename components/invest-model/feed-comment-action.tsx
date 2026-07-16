@@ -241,6 +241,7 @@ function CommentItem({
             investMotionClass.interactiveControl
           )}
           aria-expanded={isReplyOpen}
+          aria-label={replyToggleTitle}
           title={replyToggleTitle}
         >
           <Reply aria-hidden className="size-3.5" />

@@ -82,6 +82,7 @@ export function ModelSelectionCta({
           submitState.selectionPublicId
         ].join(' / ')
       : '';
+  const submitAccessibleLabel = `${copy.submitLabel}. ${copy.noLiveTradingLabel}`;
 
   async function handleSubmit() {
     if (!riskAcknowledged || isSubmitting) {
@@ -178,7 +179,9 @@ export function ModelSelectionCta({
       <button
         type="button"
         disabled={!riskAcknowledged || isSubmitting}
+        aria-label={submitAccessibleLabel}
         aria-describedby="model-selection-review-status"
+        title={submitAccessibleLabel}
         onClick={handleSubmit}
         className={cn(
           'relative inline-flex min-h-invest-touch-target w-full items-center justify-center gap-2 overflow-hidden rounded-invest-control border px-4 text-sm font-bold shadow-invest-card-strong',

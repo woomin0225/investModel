@@ -110,6 +110,7 @@ export function FeedLikeAction({
         disabled={isPending}
         aria-pressed={reactionState.liked}
         aria-live="polite"
+        aria-label={actionTitle}
         title={actionTitle}
         className={cn(
           'flex min-h-invest-touch-target w-full items-start justify-between gap-2 rounded-invest-control text-left disabled:cursor-wait disabled:opacity-80',

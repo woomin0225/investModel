@@ -232,6 +232,10 @@ export function SectionHeader({
   actionLabel,
   className
 }: SectionHeaderProps) {
+  const actionAccessibleLabel = actionLabel
+    ? `${actionLabel}: ${title}`
+    : undefined;
+
   return (
     <div className={cn('flex items-end justify-between gap-3', className)}>
       <div className="min-w-0">
@@ -247,6 +251,8 @@ export function SectionHeader({
       {actionLabel ? (
         <button
           type="button"
+          aria-label={actionAccessibleLabel}
+          title={actionAccessibleLabel}
           className={cn(
             'flex min-h-invest-touch-target shrink-0 items-center gap-1 rounded-invest-control px-2 text-sm font-semibold text-invest-primary',
             investMotionClass.interactiveControl

@@ -55,6 +55,7 @@ export function SignalRefreshAction({
     locale === 'ko'
       ? 'DB 점수 스냅샷만 새로고침합니다. 외부 실시간 데이터, 투자 조언, 주문이 아닙니다.'
       : 'DB score snapshots only. No external realtime data, advice, or order.';
+  const refreshAccessibleLabel = `${refreshLabel}. ${safeBoundary}`;
   const refreshMetaLine =
     locale === 'ko'
       ? ['DB 기반 조회 새로고침', '점수 스냅샷 테이블'].join(' / ')
@@ -75,6 +76,8 @@ export function SignalRefreshAction({
           type="button"
           onClick={refreshSignals}
           disabled={disabled || isPending}
+          aria-label={refreshAccessibleLabel}
+          title={refreshAccessibleLabel}
           className={cn(
             'inline-flex min-h-invest-touch-target items-center justify-center gap-2 rounded-invest-control border border-invest-border bg-invest-bg-soft px-3 text-sm font-bold text-invest-primary disabled:cursor-not-allowed disabled:opacity-60',
             investMotionClass.interactiveControl
@@ -98,6 +101,8 @@ export function SignalRefreshAction({
           checked={autoRefreshEnabled}
           disabled={disabled}
           onChange={(event) => setAutoRefreshEnabled(event.target.checked)}
+          aria-label={`${autoLabel}. ${safeBoundary}`}
+          title={`${autoLabel}. ${safeBoundary}`}
           className="size-4 accent-invest-primary"
         />
       </label>
