@@ -1,6 +1,7 @@
 /**
  * Focused mobile/source smoke for the seeded price mini chart shell.
- * It verifies 390px-safe structure and mock-only market-data boundaries.
+ * It verifies 390px/768px-safe structure, fallback copy, and mock-only
+ * market-data boundaries without opening a browser or using external services.
  */
 
 import { readFileSync } from 'fs';
@@ -54,6 +55,17 @@ function assertNoLongUnbrokenText(label: string, values: string[]) {
   );
 }
 
+function assertViewportSourceCoverage(
+  label: string,
+  source: string,
+  viewport: '390px' | '768px',
+  requiredNeedles: string[]
+) {
+  requiredNeedles.forEach((needle) =>
+    assertIncludes(source, needle, `${label} ${viewport} source coverage`)
+  );
+}
+
 const miniChartSource = readProjectFile(
   'components/invest-model/seeded-price-mini-chart-card.tsx'
 );
@@ -64,6 +76,7 @@ const priceHistoryRouteSource = readProjectFile(
   'app/api/price-history/route.ts'
 );
 const routeInventorySource = readProjectFile('docs/api/route-inventory.md');
+const packageJsonSource = readProjectFile('package.json');
 
 [
   "'use client'",
@@ -103,19 +116,51 @@ const routeInventorySource = readProjectFile('docs/api/route-inventory.md');
   assertIncludes(miniChartSource, needle, 'Seeded price mini chart')
 );
 
-[
+assertViewportSourceCoverage('Seeded price mini chart', miniChartSource, '390px', [
   'min-w-0',
   'break-words',
   '[overflow-wrap:anywhere]',
+  'grid h-24 grid-cols-6',
+  'grid h-20 grid-cols-6',
   'min-[390px]:grid-cols-[minmax(0,1fr)_7rem]',
   'min-[390px]:grid-cols-[minmax(0,1fr)_7.25rem]',
   'min-[390px]:grid-cols-[minmax(0,1fr)_auto]',
+  'flex flex-wrap gap-2',
+  'line-clamp-2'
+]);
+
+assertViewportSourceCoverage('Seeded price mini chart', miniChartSource, '768px', [
+  'space-y-invest-card-gap',
+  'rounded-invest-card border border-invest-border bg-invest-surface p-3',
+  'grid gap-3',
   'grid h-24 grid-cols-6',
-  'investCardClass.listRail',
-  'investMotionClass.interactiveCard',
-  'SectionHeader'
+  'rounded-invest-control bg-invest-bg-soft',
+  'min-[390px]:grid-cols-[minmax(0,1fr)_7.25rem]',
+  'min-[390px]:justify-end',
+  'maxPrice',
+  'minPrice',
+  'heightPercent'
+]);
+
+[
+  'Seeded price history could not be read',
+  'A failed read does not try live quotes, orders, brokerage connections, or advice.',
+  'No seeded price history yet',
+  'The mini chart shell renders only when bounded mock_seed data is available.',
+  'simulated seed fixture only',
+  'sample_backtest_window',
+  'mock_seed',
+  'no live quotes',
+  'read-only fixture'
 ].forEach((needle) =>
-  assertIncludes(miniChartSource, needle, 'Seeded price mini chart 390px layout')
+  assertIncludes(miniChartSource, needle, 'Seeded price fallback/safety labels')
+);
+
+assertCondition(
+  (miniChartSource.match(/data-price-history-bar=/g) ?? []).length === 1 &&
+    miniChartSource.includes('chartMetrics.bars.map') &&
+    miniChartSource.includes('style={{ height: `${point.heightPercent}%` }}'),
+  'Seeded price mini chart must render nonblank bars from computed point heights'
 );
 
 assertNoViewportOverflow('Seeded price mini chart', miniChartSource);
@@ -133,7 +178,7 @@ assertCondition(
 );
 assertCondition(
   portfolioPageSource.indexOf('<SeededPriceMiniChartCard locale={locale} />') <
-    portfolioPageSource.indexOf("locale === 'ko' ? '모의 기간 대시보드'"),
+    portfolioPageSource.indexOf("'Mock time dashboard'"),
   'Seeded price mini chart should render before the existing mock time dashboard'
 );
 
@@ -167,11 +212,18 @@ assertCondition(
   assertIncludes(routeInventorySource, needle, 'Route inventory')
 );
 
+assertIncludes(
+  packageJsonSource,
+  '"test:price-mini-chart": "npx tsx scripts/qa/seeded-price-mini-chart-smoke.ts"',
+  'package script'
+);
+
 assertNoLongUnbrokenText('Seeded price mini chart copy', [
   'simulated seed fixture only / no live market data / no real-time quotes / no external paid API / no orders / not advice',
   'Seeded price history could not be read',
   'The mini chart shell renders only when bounded mock_seed data is available.',
-  'A failed read does not try live quotes, orders, brokerage connections, or advice.'
+  'A failed read does not try live quotes, orders, brokerage connections, or advice.',
+  'Accessible seeded mini chart for SAMPLE_AI_BASKET'
 ]);
 
 console.log(
@@ -179,10 +231,14 @@ console.log(
     {
       status: 'pass',
       scope: 'Seeded price mini chart focused smoke',
-      viewportAssumption: '390px mobile frame with safe area and bottom tabs',
+      viewportAssumption: '390px and 768px source-layout coverage with safe area and bottom tabs',
       checked: [
         'component states',
         '390px source layout',
+        '768px source layout',
+        'fallback text',
+        'simulated/sample labels',
+        'nonblank chart bar structure',
         'Portfolio page placement',
         'PriceHistoryMiniChartDto safety meta',
         'unsafe CTA proximity scan'
