@@ -362,6 +362,18 @@ export default async function InvestModelDiscoveryPage({
     locale,
     searchQuery
   );
+  const topicLinkDescription =
+    locale === 'ko'
+      ? '모델 탐색 범위만 좁힙니다. 투자 조언, 주문, 브로커 연결은 만들지 않습니다.'
+      : 'Narrows only the model discovery scope. It does not create advice, orders, or brokerage connections.';
+  const selectedFilterDescription =
+    locale === 'ko'
+      ? '선택된 투자 모델 필터입니다.'
+      : 'Selected InvestmentModel filter.';
+  const unselectedFilterDescription =
+    locale === 'ko'
+      ? '투자 모델 필터로 이동합니다.'
+      : 'Go to this InvestmentModel filter.';
   const modelListLabel =
     locale === 'ko' ? '표시 중인 투자 모델 목록' : 'Shown investment models';
   const discoverySummaryItems = [
@@ -500,8 +512,10 @@ export default async function InvestModelDiscoveryPage({
                   <Link
                     key={topic.id}
                     href={getDiscoveryFilterHref('all', locale, topic.query)}
+                    aria-label={`${topic.label}. ${topic.helper}. ${topicLinkDescription}`}
+                    title={`${topic.label}. ${topic.helper}. ${topicLinkDescription}`}
                     className={cn(
-                      'inline-flex min-h-invest-touch-target min-w-0 max-w-full basis-[calc(50%-4px)] flex-col justify-center rounded-invest-control border border-invest-border bg-invest-surface px-3 py-2 text-left shadow-invest-card hover:border-invest-primary/30 hover:bg-invest-primary-soft focus:outline-none focus:ring-2 focus:ring-invest-primary focus:ring-offset-2 focus:ring-offset-invest-bg min-[420px]:basis-auto',
+                      'inline-flex min-h-invest-touch-target min-w-0 max-w-full basis-[calc(50%-4px)] flex-col justify-center rounded-invest-control border border-invest-border bg-invest-surface px-3 py-2 text-left shadow-invest-card hover:border-invest-primary/30 hover:bg-invest-primary-soft active:bg-invest-primary-soft/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-invest-bg min-[420px]:basis-auto',
                       investMotionClass.interactiveControl
                     )}
                   >
@@ -533,14 +547,23 @@ export default async function InvestModelDiscoveryPage({
                       locale,
                       searchQuery
                     )}
-                    aria-current={isSelected ? 'true' : undefined}
-                    aria-pressed={isSelected}
+                    aria-current={isSelected ? 'page' : undefined}
+                    aria-label={`${modelsCopy.filters[index]}. ${
+                      isSelected
+                        ? selectedFilterDescription
+                        : unselectedFilterDescription
+                    } ${modelsCopy.footerBadges.noLiveTrading}; ${modelsCopy.footerBadges.backtestMock}.`}
+                    title={`${modelsCopy.filters[index]}. ${
+                      isSelected
+                        ? selectedFilterDescription
+                        : unselectedFilterDescription
+                    }`}
                     className={cn(
-                      'inline-flex min-h-invest-touch-target w-full min-w-0 items-center justify-center gap-2 rounded-invest-control border px-3 text-center text-sm font-semibold shadow-invest-card min-[520px]:w-auto',
+                      'inline-flex min-h-invest-touch-target w-full min-w-0 items-center justify-center gap-2 rounded-invest-control border px-3 text-center text-sm font-semibold shadow-invest-card active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-invest-bg motion-reduce:active:scale-100 min-[520px]:w-auto',
                       investMotionClass.interactiveControl,
                       isSelected
-                        ? 'border-invest-primary bg-invest-primary text-white shadow-invest-card-strong'
-                        : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft hover:text-invest-primary'
+                        ? 'border-invest-primary bg-invest-primary text-white shadow-invest-card-strong hover:bg-invest-primary active:bg-invest-primary'
+                        : 'border-invest-border bg-invest-surface text-invest-text hover:border-invest-primary/30 hover:bg-invest-primary-soft hover:text-invest-primary active:bg-invest-primary-soft/70'
                     )}
                   >
                     <span

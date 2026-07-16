@@ -2351,11 +2351,28 @@ assertCondition(
     modelsPageSource.includes('searchTopicCopy.topics.map') &&
     modelsPageSource.includes('key={topic.id}') &&
     modelsPageSource.includes('href={getDiscoveryFilterHref(') &&
+    modelsPageSource.includes('topicLinkDescription') &&
+    modelsPageSource.includes('Narrows only the model discovery scope') &&
+    modelsPageSource.includes('does not create advice, orders, or brokerage connections') &&
+    modelsPageSource.includes('aria-label={`${topic.label}. ${topic.helper}. ${topicLinkDescription}`}') &&
     modelsPageSource.includes('flex flex-wrap gap-2') &&
     modelsPageSource.includes('basis-[calc(50%-4px)]') &&
-    modelsPageSource.includes('min-w-0 max-w-full') &&
-    modelsPageSource.includes('focus:ring-2 focus:ring-invest-primary') &&
+    modelsPageSource.includes('min-h-invest-touch-target min-w-0 max-w-full') &&
+    modelsPageSource.includes('focus-visible:ring-2 focus-visible:ring-invest-primary') &&
+    modelsPageSource.includes('active:bg-invest-primary-soft/70') &&
     modelsPageSource.includes('hover:border-invest-primary/30') &&
+    modelsPageSource.includes("aria-current={isSelected ? 'page' : undefined}") &&
+    modelsPageSource.includes('selectedFilterDescription') &&
+    modelsPageSource.includes('unselectedFilterDescription') &&
+    modelsPageSource.includes('Selected InvestmentModel filter.') &&
+    modelsPageSource.includes('Go to this InvestmentModel filter.') &&
+    modelsPageSource.includes('modelsCopy.footerBadges.noLiveTrading') &&
+    modelsPageSource.includes('modelsCopy.footerBadges.backtestMock') &&
+    modelsPageSource.includes('min-h-invest-touch-target w-full min-w-0') &&
+    modelsPageSource.includes('active:scale-[0.98]') &&
+    modelsPageSource.includes('hover:bg-invest-primary active:bg-invest-primary') &&
+    !modelsPageSource.includes('aria-pressed={isSelected}') &&
+    !modelsPageSource.includes('aria-selected') &&
     !modelsPageSource.includes('Buy') &&
     !modelsPageSource.includes('Sell') &&
     !modelsPageSource.includes('매수') &&
