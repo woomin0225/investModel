@@ -17,27 +17,31 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Method | Path | Purpose | Permission | MVP status |
 | --- | --- | --- | --- | --- |
-| `GET` | `/api/models` | List discoverable approved/live mock investment models. | public or signed-in | mock-backed allowed |
-| `GET` | `/api/models/:id` | Read model detail, mandate, risk, disclosures, and performance context. | public or signed-in | mock-backed allowed |
+| `GET` | `/api/models` | List discoverable approved/live mock investment models. | public or signed-in | DB-backed read implemented |
+| `GET` | `/api/models/:id` | Read model detail, mandate, risk, disclosures, and performance context. | public or signed-in | DB-backed read implemented |
 | `GET` | `/api/signals` | List observed model signal events. | signed-in | DB-backed; seed/mock ingestion allowed while IS-004 is open |
 | `GET` | `/api/signals/:signalId` | Read one observed signal detail by public id. | signed-in | DB-backed read implemented |
-| `GET` | `/api/feed` | List model notes, market context, risk notes, and review notes. | signed-in | mock-backed allowed |
+| `GET` | `/api/feed` | List model notes, market context, risk notes, and review notes. | signed-in | DB-backed read implemented |
 | `GET` | `/api/feed/rankings` | Read FeedPost popularity rankings from tracked likes. | signed-in | DB-backed read implemented |
 | `GET` | `/api/feed/:postId` | Read one informational feed post detail by public id. | signed-in | DB-backed read implemented |
 | `POST` | `/api/feed/:postId/comments` | Create a top-level informational comment. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/comments/:commentId/replies` | Create an informational reply comment. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/likes` | Toggle or set the signed-in user's like state. | signed-in | DB-backed action implemented |
 | `POST` | `/api/feed/:postId/saves` | Toggle or set the signed-in user's saved state. | signed-in | DB-backed action implemented |
-| `POST` | `/api/feed/:postId/read` | Mark the signed-in user's post as read. | signed-in | DB-backed action implemented |
+| `POST` | `/api/feed/:postId/reads` | Mark the signed-in user's post as read. | signed-in | DB-backed action implemented |
 | `GET` | `/api/search` | Read grouped model, feed, and signal search results. | signed-in | DB-backed read implemented |
 | `GET` | `/api/notifications` | Read user-scoped notification center rows. | user | DB-backed read implemented |
 | `POST` | `/api/notifications/mark-all-read` | Mark notification-center FeedPost read state as read. | user | DB-backed read-state action implemented |
 | `GET` | `/api/my` | Read the My Page screen summary for one prototype user. | user | DB-backed read implemented |
 | `GET` | `/api/my/activity` | Read user-scoped My Page saved/comment activity summary. | user | DB-backed read implemented |
-| `POST` | `/api/model-selections` | Simulate a user selecting a specific model version. | user | mock-backed allowed |
+| `GET` | `/api/model-selections` | Read the current user's active mock-safe model selection. | user | DB-backed read implemented |
+| `POST` | `/api/model-selections` | Persist a mock-safe selection of a specific model version. | user | DB-backed action implemented |
 | `GET` | `/api/portfolio/mock-summary` | Read selected model, mock deposit, simulated allocation, time dashboard snapshots, positions, and blocked TradeIntent state. | user | DB-backed read implemented with mock-safe fallback |
-| `POST` | `/api/creator/models` | Create a creator model draft. | creator | design-only until RBAC is implemented |
-| `POST` | `/api/admin/models/:id/reviews` | Record admin review decisions for model approval workflows. | admin | design-only until RBAC/audit is implemented |
+| `POST` | `/api/model-reports` | Record a user concern for operator review without legal or compensation decisions. | user | mock-backed, not persisted; design-gated |
+| `POST` | `/api/creator/models` | Create a creator model draft. | creator | mock-backed, not persisted; design-gated |
+| `POST` | `/api/creator/models/:id/description-revisions` | Request a reviewed description revision plan. | creator | mock-backed, not persisted; design-gated |
+| `POST` | `/api/admin/models/:id/reviews` | Record admin review decisions for model approval workflows. | admin | mock-backed, not persisted; design-gated |
+| `POST` | `/api/admin/models/:id/force-stop` | Return an emergency force-stop contract for an InvestmentModel. | admin | mock-backed, not persisted; design-gated |
 
 ## Route Details
 
@@ -45,26 +49,28 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
+| Status | DB-backed read API implemented in `app/api/models/route.ts`; smoke-covered by `scripts/smoke/model-api-smoke.ts`. |
 | Purpose | Provide the Discover Models screen with approved/live model cards. |
 | Request | Optional query parameters later: `market`, `riskLevel`, `assetClass`, `cursor`. |
 | Response DTO | `ModelCardDto[]` |
 | Permission | Public read is acceptable for approved/live mock models; signed-in mode may add personalized selection markers later. |
 | Screens | Discover Models |
 | Source tables | `investment_models`, `model_versions`, `model_risk_profiles`, `model_performance_snapshots` |
-| Mock source | `lib/mock/invest-model-discovery.ts` |
+| Mock source | `lib/mock/invest-model-discovery.ts` is UI fallback/reference copy only; the API reads DB rows. |
 | Safety notes | Exclude `draft`, `pending_review`, `suspended`, and `retired` models from public discovery. Backtest/performance values need explicit placeholder labels. |
 
 ### `GET /api/models/:id`
 
 | Field | Value |
 | --- | --- |
+| Status | DB-backed read API implemented in `app/api/models/[modelId]/route.ts`; smoke-covered by `scripts/smoke/model-api-smoke.ts`. |
 | Purpose | Provide model detail content including mandate, risk, disclosures, metadata-only artifact status, and performance context. |
 | Request | Path parameter `id` should resolve by public id or slug, not internal numeric database id. |
 | Response DTO | `ModelDetailDto` |
 | Permission | Public or signed-in for approved/live models. Creator/admin-only visibility requires RBAC later. |
 | Screens | Model Detail |
 | Source tables | `investment_models`, `model_versions`, `portfolio_mandates`, `model_risk_profiles`, `model_disclosures`, `model_performance_snapshots` |
-| Mock source | Future detail mock derived from discovery and domain mapping. |
+| Mock source | `lib/mock/invest-model-model-detail.ts` is a legacy UI fallback for local DB-unavailable and comparison-link paths only; the API does not fall back to mock detail. |
 | Safety notes | Do not claim legal approval or user suitability. High-risk/leverage copy must remain placeholder or reviewed. |
 
 ### `GET /api/signals`
@@ -98,13 +104,14 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
+| Status | DB-backed read API implemented in `app/api/feed/route.ts`; smoke-covered by `scripts/smoke/feed-api-smoke.ts`. |
 | Purpose | Provide Feed Insights with informational posts from models, admins, or market context sources. |
 | Request | Optional query parameters later: `postType`, `modelId`, `cursor`. |
 | Response DTO | `FeedPostDto[]` |
 | Permission | Signed-in user for MVP. Public feed is a later product decision. |
 | Screens | Feed Insights |
 | Source tables | `feed_posts`, `investment_models`, `users`, `model_disclosures` |
-| Mock source | `lib/mock/invest-model-feed.ts` |
+| Mock source | `lib/mock/invest-model-feed.ts` is UI fallback/reference copy only; the API reads DB rows seeded by `docs/database/seeds/002_feed_interaction_seed.sql`. |
 | Safety notes | Feed copy must not guarantee returns, encourage trades, or present legal/financial advice as final. |
 
 ### `GET /api/feed/:postId`
@@ -152,19 +159,21 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
+| Status | DB-backed action API implemented in `app/api/feed/[postId]/comments/[commentId]/replies/route.ts`; smoke-covered by `scripts/smoke/feed-reply-api-smoke.ts`. |
 | Purpose | Create an informational reply under a visible parent comment. |
 | Request | Path parameters `postId` and `commentId` must resolve by public ids; JSON body `{ body: string, clientRequestId?: string }`. |
 | Response DTO | `FeedCommentDto` and optionally refreshed parent `FeedCommentDto`. |
 | Permission | Signed-in user; parent comment must be visible to the actor. |
 | Screens | Feed Detail |
-| Source tables | Future `feed_post_comments` from `BK-293`, `feed_posts`, `users` |
-| Mock source | Future feed interaction seed/sample files from `BK-293`. |
+| Source tables | `feed_post_comments`, `feed_posts`, `users`, plus refreshed reaction/save/read state. |
+| Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` and DB-backed read model. |
 | Safety notes | Hidden, deleted, or inaccessible parent comments use unavailable behavior and must not reveal moderation/private details. Replies remain informational only. |
 
 ### `POST /api/feed/:postId/likes`
 
 | Field | Value |
 | --- | --- |
+| Status | DB-backed action API implemented in `app/api/feed/[postId]/likes/route.ts`; smoke-covered by `scripts/smoke/feed-like-api-smoke.ts`. |
 | Purpose | Toggle or set the signed-in user's like state for a feed post. |
 | Request | Path parameter `postId`; optional JSON body `{ desiredState?: boolean }`. |
 | Response DTO | `FeedReactionStateDto` |
@@ -178,6 +187,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
+| Status | DB-backed action API implemented in `app/api/feed/[postId]/saves/route.ts`; smoke-covered by `scripts/smoke/feed-save-api-smoke.ts`. |
 | Purpose | Toggle or set the signed-in user's saved/bookmarked state for a feed post. |
 | Request | Path parameter `postId`; optional JSON body `{ desiredState?: boolean }`. |
 | Response DTO | `FeedReactionStateDto` |
@@ -187,7 +197,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Mock source | `docs/database/seeds/002_feed_interaction_seed.sql` for local sample saved state. |
 | Safety notes | Save state is a private reading shortcut only and must not be treated as model selection, portfolio allocation, or order intent. |
 
-### `POST /api/feed/:postId/read`
+### `POST /api/feed/:postId/reads`
 
 | Field | Value |
 | --- | --- |
@@ -271,18 +281,19 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Mock source | Existing DB-backed feed interaction rows; unavailable DB/user state returns mock-safe fallback counts. |
 | Safety notes | Activity is a private reading shortcut only. It must not expose internal ids, send real push/email/SMS, connect accounts, create orders, imply brokerage actions, or provide financial advice. |
 
-### `POST /api/model-selections`
+### `GET/POST /api/model-selections`
 
 | Field | Value |
 | --- | --- |
-| Purpose | Simulate selecting a specific approved/live model version. |
-| Request | `modelId`, `modelVersionId`, optional `riskAcknowledged` flag when required by the model. |
+| Status | DB-backed read/action API implemented in `app/api/model-selections/route.ts`; smoke-covered by `scripts/smoke/model-selection-api-smoke.ts`. |
+| Purpose | Read or persist the current user's mock-safe active `ModelVersion` selection. |
+| Request | `GET` has no body. `POST` accepts `modelPublicId`, `modelVersionPublicId`, and optional `riskAcknowledgedAt`; the server resolves user scope and ignores client user scope. |
 | Response DTO | `ModelSelectionDto` |
-| Permission | Signed-in `user`. |
+| Permission | Signed-in user/admin role; public, creator, and system roles are blocked for MVP. |
 | Screens | Model Detail selection flow, Home selected model state |
 | Source tables | `user_model_selections`, `investment_models`, `model_versions`, `model_risk_profiles` |
-| Mock source | Future mock selection helper; must not imply account funding. |
-| Safety notes | Users must not edit stock/bond ratio, leverage preference, risk appetite, or direct allocation. The selected model version owns those settings. |
+| Mock source | DB seed/read model only; no account funding, deposits, or broker state is created. |
+| Safety notes | Users must not edit stock/bond ratio, leverage preference, risk appetite, or direct allocation. The selected model version owns those settings. The route records selection metadata only and never creates funds, orders, or brokerage connections. |
 
 ### `GET /api/portfolio/mock-summary`
 
@@ -302,6 +313,7 @@ It is an implementation guide only; routes that touch real money, real accounts,
 
 | Field | Value |
 | --- | --- |
+| Status | Mock-backed, not-persisted contract implemented in `app/api/creator/models/route.ts`; smoke-covered by `scripts/smoke/creator-draft-validation-smoke.ts`. |
 | Purpose | Let a verified creator create a draft `InvestmentModel` metadata record. |
 | Request | `name`, `shortDescription`, `targetMarkets`, `assetUniverseSummary`, `strategySummary`, risk/mandate draft fields. |
 | Response DTO | `InvestmentModelDraftDto` |
@@ -309,12 +321,27 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Screens | Future creator workflow |
 | Source tables | `model_creators`, `investment_models`, `model_versions`, `model_risk_profiles`, `portfolio_mandates`, `model_disclosures` |
 | Mock source | none yet |
-| Safety notes | Design-only until RBAC and audit logging are implemented. Model artifacts remain metadata-only; no uploaded model execution. |
+| Safety notes | Design-gated until durable creator persistence and audit logging are implemented. Model artifacts remain metadata-only; no uploaded model execution. |
+
+### `POST /api/creator/models/:id/description-revisions`
+
+| Field | Value |
+| --- | --- |
+| Status | Mock-backed, not-persisted contract implemented in `app/api/creator/models/[modelId]/description-revisions/route.ts`; RBAC-covered by `scripts/smoke/rbac-access-smoke.ts`. |
+| Purpose | Return a pending-review `ModelVersion` description revision plan for creator-submitted copy changes. |
+| Request | Path parameter `id`; JSON body with creator ownership, current `ModelVersion`, changed fields, and change summary. |
+| Response DTO | Description revision plan from `lib/domain/models/description-revision.ts`. |
+| Permission | creator/admin role; public, user, and system roles are blocked. |
+| Screens | Future creator revision workflow |
+| Source tables | Future `investment_models`, `model_versions`, `model_disclosures`, and audit tables when persistence is enabled. |
+| Mock source | Domain validator/builder only; no DB rows are mutated. |
+| Safety notes | The route must not mutate live copy, publish a model, execute artifacts, or finalize legal/financial disclosure text. |
 
 ### `POST /api/admin/models/:id/reviews`
 
 | Field | Value |
 | --- | --- |
+| Status | Mock-backed, not-persisted contract implemented in `app/api/admin/models/[modelId]/reviews/route.ts`; RBAC-covered by `scripts/smoke/rbac-access-smoke.ts` and manual-flow-covered by `scripts/smoke/operator-review-manual-smoke.ts`. |
 | Purpose | Record an admin review decision for a model, version, disclosure, or incident workflow. |
 | Request | `reviewType`, `status`, `notes`, optional disclosure or version references. |
 | Response DTO | `ComplianceReviewDto` |
@@ -322,7 +349,47 @@ It is an implementation guide only; routes that touch real money, real accounts,
 | Screens | Future admin review workflow |
 | Source tables | `compliance_reviews`, `investment_models`, `model_versions`, `model_disclosures`, `audit_logs` |
 | Mock source | none yet |
-| Safety notes | Design-only until RBAC/audit logging are implemented. Admin review is not a Codex legal judgment. |
+| Safety notes | Design-gated until durable audit logging and persistence are enabled. Admin review is not a Codex legal judgment and does not publish, trade, or execute a model. |
+
+### `POST /api/admin/models/:id/force-stop`
+
+| Field | Value |
+| --- | --- |
+| Status | Mock-backed, not-persisted contract implemented in `app/api/admin/models/[modelId]/force-stop/route.ts`; smoke-covered by `scripts/smoke/admin-force-stop-smoke.ts`. |
+| Purpose | Return an emergency `InvestmentModel` force-stop contract with an audit-log-shaped payload. |
+| Request | Path parameter `id`; JSON body with live/paused current status, severity, affected surfaces, and operator reason. |
+| Response DTO | Admin force-stop result from `lib/domain/models/admin-force-stop.ts`. |
+| Permission | admin role only. |
+| Screens | Future admin incident/force-stop workflow |
+| Source tables | Future `investment_models`, `model_versions`, `compliance_reviews`, and `audit_logs` when persistence is enabled. |
+| Mock source | Domain validator/builder only; no DB rows are mutated. |
+| Safety notes | Force-stop is a mock-safe control contract only. It does not cancel real orders, move funds, connect brokers, or make legal determinations. |
+
+### `POST /api/model-reports`
+
+| Field | Value |
+| --- | --- |
+| Status | Mock-backed, not-persisted contract implemented in `app/api/model-reports/route.ts`; domain safety covered by `scripts/qa/invest-model-model-report-smoke.ts`. |
+| Purpose | Let a user/admin submit concerns about model copy, performance display, or safety context for operator review. |
+| Request | JSON body with reporter public id, model public id, report type, and summary. |
+| Response DTO | Model report DTO from `lib/domain/compliance/model-report.ts`. |
+| Permission | user/admin role; public, creator, and system roles are blocked. |
+| Screens | Model report/admin report prototype surfaces |
+| Source tables | Future `compliance_reviews`, `audit_logs`, and model/report tables when persistence is enabled. |
+| Mock source | Domain validator/builder only; no legal, compensation, account, or trading decision is persisted. |
+| Safety notes | Reports route to operator review only. The API must not decide legal liability, compensation, account status, order cancellation, or suitability. |
+
+## Smoke Coverage Snapshot
+
+The current route inventory is checked against these local smoke scripts:
+
+| Area | Scripts |
+| --- | --- |
+| Models | `scripts/smoke/model-api-smoke.ts`, `scripts/smoke/model-selection-api-smoke.ts` |
+| Signals | `scripts/smoke/signal-api-smoke.ts`, `scripts/smoke/signal-detail-api-smoke.ts`, `scripts/smoke/mock-ingestion-boundary-smoke.ts` |
+| Feed | `scripts/smoke/feed-api-smoke.ts`, `scripts/smoke/feed-detail-api-smoke.ts`, `scripts/smoke/feed-comment-api-smoke.ts`, `scripts/smoke/feed-reply-api-smoke.ts`, `scripts/smoke/feed-like-api-smoke.ts`, `scripts/smoke/feed-save-api-smoke.ts`, `scripts/smoke/feed-read-api-smoke.ts`, `scripts/smoke/feed-ranking-api-smoke.ts` |
+| Search, notifications, My Page, portfolio | `scripts/smoke/search-api-smoke.ts`, `scripts/smoke/search-read-model-projection-smoke.ts`, `scripts/smoke/notifications-api-smoke.ts`, `scripts/smoke/notifications-mark-all-read-api-smoke.ts`, `scripts/smoke/my-page-api-smoke.ts`, `scripts/smoke/my-activity-api-smoke.ts`, `scripts/smoke/portfolio-mock-summary-api-smoke.ts` |
+| Creator/admin/review contracts | `scripts/smoke/creator-draft-validation-smoke.ts`, `scripts/smoke/admin-force-stop-smoke.ts`, `scripts/smoke/rbac-access-smoke.ts`, `scripts/smoke/operator-review-manual-smoke.ts`, `scripts/smoke/review-result-notification-smoke.ts`, `scripts/smoke/model-status-notification-smoke.ts`, `scripts/qa/invest-model-admin-review-flow-smoke.ts`, `scripts/qa/invest-model-model-report-smoke.ts` |
 
 ## Error And Policy Notes
 
