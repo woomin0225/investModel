@@ -1443,14 +1443,33 @@ assertCondition(
     investModelUiSource.includes(
       '<RiskBadge tone={statusTone}>{statusLabel}</RiskBadge>'
     ) &&
+    portfolioPageSource.includes('portfolioTradeIntentDetailRows') &&
+    portfolioPageSource.includes(
+      'TradeIntent read-only simulated blocked detail'
+    ) &&
+    portfolioPageSource.includes('Read-only policy check') &&
+    portfolioPageSource.includes('simulated detail only') &&
+    portfolioPageSource.includes(
+      'No order execution, fill, or broker instruction'
+    ) &&
+    portfolioPageSource.includes('No brokerage account or broker API is connected') &&
+    portfolioPageSource.includes(
+      'const tradeIntentDetailRows =\n    portfolioTradeIntentDetailRows(displayPortfolio)'
+    ) &&
     portfolioPageSource.includes('displayPortfolio.tradeIntent.blockedActions.map((action) => (') &&
     portfolioPageSource.includes('role="listitem"') &&
     !/<RiskBadge\b[^>]*tone="blocked"[^>]*>[\s\S]{0,240}\{action\}[\s\S]{0,80}<\/RiskBadge>/.test(
       portfolioPageSource
     ) &&
+    !/(<button|<Link|role="button"|href=|onClick|formAction)[\s\S]{0,240}(Buy now|Sell now|Place order|Submit order|Execute trade|Connect brokerage|매수하기|매도하기|주문하기|브로커 연결|계좌 연결)[\s\S]{0,240}/i.test(
+      portfolioPageSource
+    ) &&
+    !/(<button|<Link|role="button"|href=|onClick|formAction)[\s\S]{0,240}(Buy now|Sell now|Place order|Submit order|Execute trade|Connect brokerage|매수하기|매도하기|주문하기|브로커 연결|계좌 연결)[\s\S]{0,240}/i.test(
+      modelDetailPageSource
+    ) &&
     portfolioPageSource.includes('displayPortfolio.timeSnapshots.length') &&
     portfolioPageSource.includes('position.quantityLabel'),
-  'Portfolio must start with the DB-backed time dashboard summary and present safety boundaries as prose instead of top simulation banner/metric cards or hashtag safety chip groups'
+  'Portfolio must start with the DB-backed time dashboard summary and keep TradeIntent/order-density UI read-only simulated or blocked'
 );
 
 const screenResults = screens.map((screen) => {

@@ -284,6 +284,37 @@ function portfolioBlockedActionAccessibleLabel(
   return `Blocked real-world action: ${action}. It is not executed in the Portfolio mock summary.`;
 }
 
+function portfolioTradeIntentDetailRows(
+  portfolio: InvestModelPortfolioSummary
+) {
+  return [
+    {
+      label: 'TradeIntent state',
+      value: portfolio.tradeIntent.statusLabel,
+      detail: portfolio.tradeIntent.boundaryLabel,
+      tone: 'low' as const
+    },
+    {
+      label: 'Read-only policy check',
+      value: 'simulated detail only',
+      detail: 'No order execution, fill, or broker instruction',
+      tone: 'medium' as const
+    },
+    {
+      label: 'Brokerage connection',
+      value: 'blocked',
+      detail: 'No brokerage account or broker API is connected',
+      tone: 'blocked' as const
+    },
+    {
+      label: 'Disabled actions',
+      value: `${portfolio.tradeIntent.blockedActions.length} blocked`,
+      detail: portfolio.tradeIntent.blockedActions.join(' / '),
+      tone: 'blocked' as const
+    }
+  ];
+}
+
 function portfolioBlockedVisibleBoundaries(locale: 'ko' | 'en') {
   if (locale === 'ko') {
     return [
@@ -379,6 +410,8 @@ export default async function InvestModelPortfolioPage({
     locale,
     displayPortfolio
   );
+  const tradeIntentDetailRows =
+    portfolioTradeIntentDetailRows(displayPortfolio);
   const blockedVisibleBoundaries = portfolioBlockedVisibleBoundaries(locale);
   const timeDashboardVisibleBoundaries =
     portfolioTimeDashboardVisibleBoundaries(locale);
@@ -781,6 +814,35 @@ export default async function InvestModelPortfolioPage({
                     {displayPortfolio.tradeIntent.boundaryLabel}
                   </p>
                 </div>
+              </div>
+              <div
+                role="list"
+                aria-label="TradeIntent read-only simulated blocked detail"
+                title="TradeIntent read-only simulated blocked detail"
+                className="mt-3 grid gap-2 rounded-invest-control border border-invest-border bg-invest-surface p-2"
+              >
+                {tradeIntentDetailRows.map((row) => (
+                  <div
+                    key={row.label}
+                    role="listitem"
+                    className="grid min-h-invest-touch-target gap-2 rounded-invest-control bg-invest-bg-soft px-2.5 py-2 min-[360px]:grid-cols-[minmax(0,1fr)_auto]"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold uppercase leading-4 text-invest-text-muted">
+                        {row.label}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold leading-5 text-invest-text">
+                        {row.detail}
+                      </p>
+                    </div>
+                    <RiskBadge
+                      tone={row.tone}
+                      className="justify-center text-center"
+                    >
+                      {row.value}
+                    </RiskBadge>
+                  </div>
+                ))}
               </div>
               <div
                 role="list"
