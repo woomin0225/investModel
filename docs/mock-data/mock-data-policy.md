@@ -9,6 +9,41 @@ It prevents mock screens from looking like real deposits, real brokerage holding
 
 Mock data exists to build and verify the mobile/PWA MVP before real database, market data, account, or model-execution integrations exist. It should help screens feel complete while making the mock boundary unmistakable to users, developers, and future agents.
 
+## IS-004 Data Boundary
+
+`IS-004` remains open until the owner confirms realtime search volume, news
+traffic, AI-model attention, model inclusion events, data vendors, collection
+cadence, API keys, and terms-of-use review. Until then, investModel data work is
+limited to deterministic seed, fixture, mock ingestion, and DB read-model data.
+
+Allowed before `IS-004` is resolved:
+
+- tracked TypeScript fixtures under `lib/mock/**`
+- reviewed SQL seed/sample files under `docs/database/seeds/**` and
+  `docs/database/samples/**`
+- DB-backed read models populated only from those tracked seed/sample rows
+- mock ingestion jobs that append synthetic `SignalEvent` score snapshots and
+  label their inputs as `mock_seed`, `scheduled_mock`, or
+  `observed_placeholder`
+- UI, DTO, and API metadata flags that explicitly say data is mock,
+  simulated, backtest, placeholder, informational, or observed-placeholder
+
+Blocked before `IS-004` is resolved:
+
+- browser search-volume providers, realtime news-traffic providers, market data
+  vendors, AI provider attention feeds, paid APIs, or any secret-backed external
+  data client
+- real bank, broker, exchange, payment, or account-linking data
+- real deposits, withdrawals, balances, custody, orders, executions, fills,
+  settlement, or brokerage instructions
+- model ranking or signal copy that reads as buy, sell, hold, rebalance,
+  suitability, legal approval, or personalized financial advice
+- fallback behavior that silently replaces missing seed/mock rows with live
+  external data
+
+If a task needs any blocked data source or secret, stop implementation and link
+the work to `IS-004` or a new review issue instead of adding a hidden adapter.
+
 ## Current Mock Files
 
 | File | Primary screen | First DTO target | Main DB alignment |
