@@ -33,6 +33,7 @@
     "test:pwa-manifest": "npx tsx scripts/smoke/pwa-manifest-smoke.ts",
     "test:portfolio-compact-api": "npx tsx scripts/smoke/portfolio-compact-summary-api-smoke.ts",
     "test:portfolio-compact-card": "npx tsx scripts/qa/portfolio-compact-card-smoke.ts",
+    "test:portfolio-holdings-read-model": "npx tsx scripts/smoke/portfolio-holdings-read-model-smoke.ts",
     "test:portfolio-compact-read-model": "npx tsx scripts/smoke/portfolio-compact-read-model-smoke.ts",
     "test:price-history-api": "npx tsx scripts/smoke/price-history-api-smoke.ts",
     "test:price-mini-chart": "npx tsx scripts/qa/seeded-price-mini-chart-smoke.ts",

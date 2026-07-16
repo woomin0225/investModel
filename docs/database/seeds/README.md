@@ -21,6 +21,10 @@ files. Do not insert sample rows directly in a MySQL console for product work.
   `mock_seed_sample_backtest_window` slice in `market_price_snapshots` for
   future mini-chart work. It is sample/backtest fixture data only and does not
   require live quotes, broker connectivity, paid APIs, or real-time feeds.
+- `005_portfolio_holdings_seed.sql` extends the PortfolioSummary seed with
+  deterministic `portfolio_positions` rows for mobile holdings/allocation UI
+  work. It keeps the simulated holdings total aligned with the seeded
+  PortfolioSummary total and never represents broker-confirmed holdings.
 - `signal-score-mock-ingestion-job.md` defines the BK-301 mock ingestion job
   contract for appending score snapshots after seed application. It covers
   run id, idempotency, system actor/audit notes, representative read-model
@@ -45,6 +49,10 @@ files. Do not insert sample rows directly in a MySQL console for product work.
    - The first tracked slice is `002_feed_interaction_seed.sql`.
 6. MockDeposit, portfolio, positions, allocation decisions, and TradeIntent
    simulation rows.
+   - The first dedicated holdings slice is
+     `005_portfolio_holdings_seed.sql`.
+   - Use `docs/database/samples/portfolio-holdings-read-model.sample.sql` as
+     the representative projection before adding holdings API/UI work.
 7. User notifications and My Page activity rows.
    - Current notification center rows are derived from `feed_posts` and
      `feed_post_reads`, and `user_notifications` is now aligned in DBML, MySQL
